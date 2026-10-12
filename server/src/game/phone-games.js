@@ -38,7 +38,7 @@ export async function handle(shard,p,m){
  if(!p.state.onboarded)return fail('Create your character first.');
  if(m.t==='game_list'){const r=await pool.query(`select * from phone_games where a=$1 or b=$1 order by updated desc limit 40`,[p.acct]);return {t:'game_list',rows:r.rows.map(r=>gameView(r,p.acct))};}
  if(m.t==='game_create'){
-  if(!TYPES[m.kind])return fail('Choose a game.');
+  if(!Object.hasOwn(TYPES,m.kind))return fail('Choose a game.');
   if(Date.now()-(p.gameInviteAt||0)<3000)return fail('Wait a moment before inviting again.');p.gameInviteAt=Date.now();
   const to=await acctByName(m.to);if(!to||to.id===p.acct||to.banned)return fail('Choose another player.');
   const other=shard.byAcct(to.id)?.state||(await pool.query('select state from players where id=$1',[to.id])).rows[0]?.state;

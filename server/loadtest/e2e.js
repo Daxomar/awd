@@ -4,7 +4,7 @@ const BASE = 'http://127.0.0.1:8080';
 const post = (p, b) => fetch(BASE + p, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(b) }).then((r) => r.json());
 const ok = (n, c, x = '') => { console.log((c ? 'PASS ' : 'FAIL ') + n, x); if (!c) process.exitCode = 1; };
 async function client(name) {
-  const u = name + Math.floor(Math.random() * 1e5); const sign = await post('/api/signup', { username: u, password: 'chale12345', dob: '1995-03-06', agree: true });
+  const u = name + Math.floor(Math.random() * 1e5); const sign = await post('/api/signup', { username: u, password: 'chale-test-12345', dob: '1995-03-06', agree: true });
   const ws = new WebSocket(`ws://127.0.0.1:8080/ws?token=${sign.token}`); const q = []; let waiters = [];
   ws.on('message', (d) => { const m = JSON.parse(d.toString()); const w = waiters.find((w) => w.f(m)); if (w) { waiters = waiters.filter((x) => x !== w); w.r(m); } else q.push(m); });
   await new Promise((r) => ws.on('open', r));

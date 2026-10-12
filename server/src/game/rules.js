@@ -1,6 +1,7 @@
 // Server-authoritative life simulation. Every cedi and every need change happens here, never on the client.
 import { cleanText } from '../filter.js';
 import { createHmac } from 'node:crypto';
+import { CFG } from '../config.js';
 import * as D from './data.js';
 import * as ST from './story.js';
 import * as W from './wardrobe.js';
@@ -135,7 +136,7 @@ export const REP_TITLES = [[0, 'New to Accra'], [3, 'Correct Person'], [5, 'Area
 // ---------- onboarding (origin decided server-side, once per account) ----------
 function onboard(p, m) {
   const s = p.state; if (s.onboarded) return toast('Already living in Accra.');
-  const traits = [...new Set((Array.isArray(m.traits) ? m.traits : []).filter((t) => D.TRAITS[t]))].slice(0, 2); if (traits.length !== 2) return toast('Pick exactly 2 traits.', 'bad');
+  const traits = [...new Set((Array.isArray(m.traits) ? m.traits : []).filter((t) => typeof t==='string'&&Object.hasOwn(D.TRAITS,t)))].slice(0, 2); if (traits.length !== 2) return toast('Pick exactly 2 traits.', 'bad');
   if (m.dream && !D.DREAMS[m.dream]) return toast('Choose a valid aspiration.', 'bad');
   const origin = s.birthOrigin || birthOrigin(p.acct);
   const start = D.ORIGINS[origin];
@@ -151,7 +152,7 @@ function onboard(p, m) {
 // Stable across reconnects and server restarts, independent of client input.
 // Configure BIRTH_SEED in production to keep the roll unpredictable to clients.
 export function birthOrigin(acct) {
-  const roll = createHmac('sha256', process.env.BIRTH_SEED || process.env.SESSION_SECRET || 'awd-birth-v1').update(String(acct)).digest().readUInt32BE(0);
+  const roll = createHmac('sha256', CFG.birthSeed).update(String(acct)).digest().readUInt32BE(0);
   return roll / 4294967296 < .25 ? 'dbee' : 'hustler';
 }
 function nextSaturday9(now) { const d = new Date(now); const add = (6 - d.getUTCDay() + 7) % 7 || 7; d.setUTCDate(d.getUTCDate() + add); d.setUTCHours(9, 0, 0, 0); return d.getTime(); }
@@ -409,6 +410,9 @@ export function onJoin(p, now) {
 export function interrupt(p, now) { const b = p.state.busy; if (b && !b.travel && !b.mg && !b.sleep) p.state.busy = null; }
 export function onMsg(p, msg, shard, now) {
   const s = p.state; CUR.shard = shard;
+  // IDs are catalogue keys, never prototype properties. Amounts stay finite.
+  for(const key of ['id','loc','to','m','dream','kind','op','mode'])if(['__proto__','constructor','prototype','toString','valueOf','hasOwnProperty','__defineGetter__','__defineSetter__','__lookupGetter__','__lookupSetter__','isPrototypeOf','propertyIsEnumerable','toLocaleString'].includes(msg[key]))return toast('Invalid request.','bad');
+  if(msg.amount!==undefined&&(!Number.isFinite(msg.amount)||!Number.isSafeInteger(msg.amount)||msg.amount<0))return toast('Enter a valid whole amount.','bad');
   switch (msg.t) {
     case 'jail': {
       if(!(s.flags.jailUntil>now))return toast('You are not in custody.');
@@ -443,7 +447,7 @@ export function onMsg(p, msg, shard, now) {
     case 'onboard': return onboard(p, msg);
     case 'act': { if (msg.home) return homeAction(p, String(msg.id), now); const loc = LOC[msg.loc]; const a = loc && loc.acts.find((x) => x.id === msg.id); if (!a) return toast('Not available.', 'bad'); return startAction(p, loc, a, now, shard.policy); }
     case 'mgResult': { const b = s.busy; if (!b || !b.mg) return null; s.busy = null; const secs = (now - b.start) / 1000; if (secs < 20) return toast('Too fast.', 'bad'); const stars = Math.max(0, Math.min(3, msg.stars | 0)); const skill = { trotro: 'hustle', waakye: 'cooking', bolu: 'driving', bughunt: 'coding', azonto: 'dance', boxing: 'fitness' }[b.mg]; let amt = (18 + stars * 22) * (1 + lvl(s, skill) * 0.07); amt *= hustleMult(s, b.id, now, skill); s.gd.earned += amt; const got = earn(s, amt, 'Gig'); addSkill(s, skill, 0.3 + stars * 0.25); s.gigRest[b.id] = now + 60 * 60000; s.stats.gigs++; return { t: 'done', id: b.id, earned: got, stars }; }
-    case 'work': return msg.op === 'start' ? startShift(p, now) : msg.op === 'task' && s.shift ? (s.shift.tasks++, msg.win && s.shift.wins++, s.job.perf = clamp(s.job.perf + (msg.win ? 3 : -1)), { t: 'st', state: view(s) }) : msg.op === 'quit' ? ((s.job = null), (s.shift = null), { t: 'st', state: view(s) }) : msg.op === 'end' && s.shift ? ((s.shift = null), { t: 'st', state: view(s) }) : null;
+    case 'work': return msg.op === 'start' ? startShift(p, now) : msg.op === 'task' && s.shift ? toast('Work performance is calculated by the server.') : msg.op === 'quit' ? ((s.job = null), (s.shift = null), { t: 'st', state: view(s) }) : msg.op === 'end' && s.shift ? ((s.shift = null), { t: 'st', state: view(s) }) : null;
     case 'apply': return apply(p, String(msg.id), now);
     case 'buy': return buy(p, msg, now);
     case 'travel': return travel(p, msg, now, shard);

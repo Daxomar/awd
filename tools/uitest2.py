@@ -9,7 +9,7 @@ async def main():
         await pg.goto('http://localhost:8080/?q=low', wait_until='domcontentloaded')
         await pg.wait_for_selector('text=Start my Accra life', timeout=120000)
         u = 'ama' + str(random.randint(1000, 99999))
-        await pg.fill('input[autocomplete=username]', u); await pg.fill('input[type=password]', 'chale12345'); await pg.fill('input[type=date]', '1997-02-11')
+        await pg.fill('input[autocomplete=username]', u); await pg.fill('input[type=password]', 'chale-test-12345'); await pg.fill('input[type=date]', '1997-02-11')
         await pg.check('input[type=checkbox]'); await pg.click('text=Start my Accra life')
         await pg.wait_for_selector('text=Who are you?', timeout=30000)
         await pg.fill('input[placeholder="What do they call you?"]', 'Ama'); await pg.click('text=Woman'); await pg.click('text=Next')

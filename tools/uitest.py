@@ -11,7 +11,7 @@ async def main():
         await pg.wait_for_selector('text=Start my Accra life', timeout=120000)
         await pg.screenshot(path=OUT + 'ui1_auth.png')
         u = 'kofi' + str(random.randint(1000, 99999))
-        await pg.fill('input[autocomplete=username]', u); await pg.fill('input[type=password]', 'chale12345'); await pg.fill('input[type=date]', '1996-05-04')
+        await pg.fill('input[autocomplete=username]', u); await pg.fill('input[type=password]', 'chale-test-12345'); await pg.fill('input[type=date]', '1996-05-04')
         await pg.check('input[type=checkbox]'); await pg.click('text=Start my Accra life')
         await pg.wait_for_selector('text=Who are you?', timeout=30000)
         await pg.fill('input[placeholder="What do they call you?"]', 'Kofi'); await pg.screenshot(path=OUT + 'ui2_who.png'); await pg.click('text=Next')

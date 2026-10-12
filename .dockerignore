@@ -1,0 +1,13 @@
+.git
+.local
+.secrets
+.env
+.env.*
+**/node_modules
+client/dist
+uploads
+server/uploads
+**/__pycache__
+**/*.pyc
+*.log
+dump.rdb

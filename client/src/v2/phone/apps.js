@@ -14,6 +14,22 @@ const seg = (opts, cur, on) => h('div.seg-i', null, ...opts.map(([k, l]) => h('b
 const AT_AGENT = () => ['momo', 'bank', 'mall', 'circle'].includes(G.state.place);
 
 export function makeApps(act) {
+  function accountSecurity(win) {
+    const current=h('input.f',{type:'password',autocomplete:'current-password',maxLength:128,placeholder:'Current password'});
+    const password=h('input.f',{type:'password',autocomplete:'new-password',minLength:12,maxLength:128,placeholder:'New password (12–128 characters)'});
+    const repeat=h('input.f',{type:'password',autocomplete:'new-password',maxLength:128,placeholder:'Repeat new password'});
+    const status=h('div',{role:'status','aria-live':'polite'});
+    const submit=h('button.ibtn.wide',{type:'submit'},'Change password');
+    const form=h('form.group',{style:{padding:'16px'},onsubmit:async e=>{
+      e.preventDefault();status.textContent='';if(password.value!==repeat.value){status.textContent='The new passwords do not match.';return;}submit.disabled=true;
+      try{const r=await fetch('/api/password',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({currentPassword:current.value,password:password.value})}).then(r=>r.json());if(r.error)status.textContent=r.error;else{net.close();location.reload();}}
+      catch{status.textContent='Could not change your password. Try again.';}finally{submit.disabled=false;}
+    }},h('p',null,'Changing your password logs out every device.'),h('label',null,'Current password',current),h('label',null,'New password',password),h('label',null,'Confirm new password',repeat),status,submit);
+    const all=h('button.ibtn.wide',{onclick:async()=>{
+      all.disabled=true;try{const r=await fetch('/api/logout-all',{method:'POST',headers:{'content-type':'application/json'},body:'{}'});if(!r.ok)throw Error();net.close();location.reload();}catch{status.textContent='Could not log out your devices. Try again.';all.disabled=false;}
+    }},'Log out every device');
+    win.page('Account security',()=>h('div',null,form,group(null,all)));
+  }
   // ------------------------------------------------------------------ Messages
   const messages = { id: 'messages', name: 'Messages', icon: 'chat-circle', bg: grad('#5ef27a', '#2fbf4f'), dock: true, white: true, badge: () => (G.unreadDm || 0),
     open(win, arg) {
@@ -268,7 +284,7 @@ export function makeApps(act) {
     open(win) { win.page('Settings', () => { const f = G.state.flags || {};
       return h('div', null, group(null, h('label.cell.noic', null, h('div.cm', null, h('div.c1', null, 'Romance'), h('div.c2', null, 'Allow flirting and dating requests')), h('input', { type: 'checkbox', checked: !f.flirtOff, style: { width: '24px', height: '24px' }, onchange: (e) => { net.send({ t: 'settings', flirtOff: !e.target.checked }); f.flirtOff = !e.target.checked; } }))),
         group(null, cell({ ic: 'megaphone', icbg: '#ff9f0a', t: 'Advertise your business', s: 'Put your brand on billboards across Accra', onclick: () => window.open('/advertise.html', '_blank') }), cell({ ic: 'question', icbg: '#0a84ff', t: 'How to play', onclick: () => win.phone.openApp('help') }), cell({ ic: 'shield-check', icbg: '#34c759', t: 'Safety', s: 'Never trade game money for real money. Report anyone who asks for nudes, money or personal info.' })),
-        group(null, cell({ t: h('span', { style: { color: '#ff3b30' } }, 'Log out'), onclick: () => act.logout(), chev: false })), h('div', { style: { color: '#8e8e93', fontSize: '12px', textAlign: 'center' } }, 'Accra We Dey · 18+ · v2'));
+        group(null,cell({ic:'lock-key',t:'Account security',s:'Change password or log out every device',onclick:()=>accountSecurity(win)}), cell({ t: h('span', { style: { color: '#ff3b30' } }, 'Log out'), onclick: () => act.logout(), chev: false })), h('div', { style: { color: '#8e8e93', fontSize: '12px', textAlign: 'center' } }, 'Accra We Dey · 18+ · v2'));
     }); } };
   const help = { id: 'help', name: 'Help', icon: 'lifebuoy', bg: grad('#0a84ff', '#0040dd'),
     open(win) { win.page('How to play', () => h('div', null, h('button.ibtn.wide', { onclick: () => act.tutorial() }, 'Start the quick tour'), ...[['Your needs', 'The six rings at the top are Hunger, Energy, Fun, Social, Hygiene and Bladder. Keep them up or bad things happen (fainting, falling sick, public disgrace).'], ['Places', 'Open the Map, tap a place, choose a trotro, okada or taxi. Each place has zones along the bottom — tap one to see what you can do there.'], ['Money', 'Street hustles pay small and get tired. A job pays per 1-hour shift (real time) and promotions raise it. Businesses and land grow wealth over weeks.'], ['People', 'Tap other players to chat, joke, dance. Friendship unlocks more. Send money and messages from your phone.'], ['Free play', 'There is no scripted storyline. Choose your own work, friends, home and optional aspirations. City chat reaches everyone; Nearby reaches your room.'], ['Rent', 'Rent is due every Saturday 09:00. Two missed weeks and you are out.']].map(([t, d]) => h('div.group', { style: { padding: '14px' } }, h('div', { style: { fontWeight: 700, marginBottom: '4px' } }, t), h('div', { style: { fontSize: '15px', color: '#3a3a3c' } }, d))))); } };

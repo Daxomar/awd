@@ -10,8 +10,9 @@ import { Oware } from './oware.js';
 import {ballot} from './civic.js';
 import * as PhoneGames from './game/phone-games.js';
 import { loadPlayer, savePlayers, pool } from './db.js';
+import { randomUUID } from 'node:crypto';
 
-const DEV = !!process.env.DEV;
+const DEV = CFG.dev;
 const GYM = new Set(['workout', 'beachworkout', 'train', 'jog', 'stadiumjog', 'spar']);
 const ROOM_CAP = +(process.env.ROOM_CAP || 25);
 const D = Game.DATA;
@@ -45,15 +46,31 @@ export class Shard {
   byAcct(id) { return this.byAcctMap.get(id) || null; }
   byName(n) { n = String(n || '').toLowerCase(); for (const p of this.players.values()) if (p.name.toLowerCase() === n) return p; return null; }
   async join(ws, acct) {
+    this.joining ||= new Set();
+    if(this.joining.has(acct.id))return {error:'Your account is connecting. Try again shortly.'};
+    this.joining.add(acct.id);
+    try{return await this.joinAccount(ws,acct);}finally{this.joining.delete(acct.id);}
+  }
+  async joinAccount(ws, acct) {
     if (this.players.size >= CFG.shardCap) return { error: 'This Accra is full. Try another server.' };
     const old = this.byAcct(acct.id); if (old) { try { old.ws.end(4000, 'Logged in elsewhere'); } catch {} this.leave(old); }
     if (this.saves.has(acct.id)) await this.saves.get(acct.id);
-    const saved = acct.bot ? null : await loadPlayer(acct.id);
+    const leaseToken=randomUUID(),leaseKey=CFG.redisNamespace+'awd:account:'+acct.id;
+    const redis=this.bus?.pub;
+    if(!acct.bot&&(CFG.production||redis?.status==='ready')){
+      if(redis?.status!=='ready'||await redis.set(leaseKey,leaseToken,'EX',90,'NX')!=='OK')return {error:'This account is active on another server. Log out there first.'};
+    }
+    let saved;
+    try{saved=acct.bot?null:await loadPlayer(acct.id);}catch(e){if(redis?.status==='ready')await redis.eval("if redis.call('GET',KEYS[1])==ARGV[1] then return redis.call('DEL',KEYS[1]) end return 0",1,leaseKey,leaseToken);throw e;}
     const fresh = !saved; const state = Game.migrate(saved, acct);
     const p = { id: this.nextId++ >>> 0, acct: acct.id, name: acct.u, ws, state, x: 0, z: 0, rx: null, rz: null, it: null, zn: null, room: null,
-      chatAt: 0, chatBurst: 0, dirty: fresh, bot: !!acct.bot, dev: DEV };
+      chatAt: 0, chatBurst: 0, dirty: fresh, bot: !!acct.bot, dev: DEV,leaseKey,leaseToken };
     if (state.place) Game.goPlace(p, state.place);
     this.players.set(p.id, p); this.byAcctMap.set(p.acct, p);
+    if(!p.bot&&redis?.status==='ready')p.leaseTimer=setInterval(async()=>{
+      try{const ok=await redis.eval("if redis.call('GET',KEYS[1])==ARGV[1] then return redis.call('EXPIRE',KEYS[1],90) end return 0",1,leaseKey,leaseToken);if(!ok&&!p.gone)p.ws.end(4003,'Account lock expired');}
+      catch{if(!p.gone)p.ws.end(4003,'Account lock unavailable');}
+    },30000);
     const wb = Game.onJoin(p, Date.now());
     this.send(p, { t: 'welcome', id: p.id, shard: CFG.shardId, now: Date.now(), state: Game.view(p.state), fresh, dev: DEV, gems: this.gemsFound });
     if (wb) this.send(p, wb);
@@ -66,19 +83,27 @@ export class Shard {
   leave(p) {
     if (!this.players.has(p.id)) return;
     this.oware.leave(p); this.leaveRoom(p); this.players.delete(p.id); if (this.byAcctMap.get(p.acct) === p) this.byAcctMap.delete(p.acct); p.gone = true;
+    clearInterval(p.leaseTimer);
     if (!p.bot) {
-      const save = savePlayers([{ id: p.acct, state: this.persist(p), worth: Game.netWorth(p.state) }]);
+      const save = (async()=>{
+        if(p.moneyTask)await p.moneyTask.catch(()=>{});
+        if(p.saving)await p.saving.catch(()=>{});
+        if(p.onboardingSave&&this.saves.has(p.acct))await this.saves.get(p.acct).catch(()=>{});
+        await savePlayers([{id:p.acct,state:this.persist(p),worth:Game.netWorth(p.state)}]);
+        if(this.bus?.pub?.status==='ready')await this.bus.pub.eval("if redis.call('GET',KEYS[1])==ARGV[1] then return redis.call('DEL',KEYS[1]) end return 0",1,p.leaseKey,p.leaseToken);
+      })();
       this.saves.set(p.acct, save);
       save.catch((e) => console.error('[save on leave]', e.message)).finally(() => { if (this.saves.get(p.acct) === save) this.saves.delete(p.acct); });
     }
   }
   persist(p) { p.state.pos = [Math.round(p.x), Math.round(p.z)]; p.state.lastSeen = Date.now(); return p.state; }
   async flush() {
-    const batch = []; for (const p of this.players.values()) if (p.dirty && !p.bot) { p.dirty = false; batch.push({ id: p.acct, state: this.persist(p), worth: Game.netWorth(p.state) }); }
-    try { await savePlayers(batch); } catch (error) {
+    const batch = [],people=[]; for (const p of this.players.values()) if (p.dirty && !p.bot && !p.moneyBusy && !p.onboardingSave && !p.saving) { p.dirty = false;people.push(p); batch.push({ id: p.acct, state: structuredClone(this.persist(p)), worth: Game.netWorth(p.state) }); }
+    const saving=savePlayers(batch);for(const p of people)p.saving=saving;
+    try { await saving; } catch (error) {
       for (const row of batch) { const p = this.byAcct(row.id); if (p) p.dirty = true; }
       throw error;
-    }
+    }finally{for(const p of people)if(p.saving===saving)p.saving=null;}
   }
   send(p, obj) { try { const s = JSON.stringify(obj); p.ws.send(s, false); this.stats.outBytes += s.length; } catch {} }
 
@@ -107,6 +132,8 @@ export class Shard {
   onJson(p, msg) {
     this.stats.inMsgs++;
     if (!msg || typeof msg.t !== 'string') return;
+    if(p.gone)return;
+    if((p.moneyBusy||p.onboardingSave)&&!['ping','rmv'].includes(msg.t))return this.send(p,{t:'toast',k:'bad',m:'Saving your account. Try again shortly.'});
     switch (msg.t) {
       case 'chat': return this.chat(p, msg);
       case 'rmv': return this.roomMove(p, msg);
@@ -130,15 +157,22 @@ export class Shard {
     const beforeOnboard=msg.t==='onboard'?structuredClone(p.state):null;
     let r; try { r = Game.onMsg(p, msg, this, Date.now()); } catch (e) { this.fault(p, 'msg ' + msg.t, e); return this.send(p, { t: 'toast', k: 'bad', m: 'Something went wrong. Try again.' }); }
     if(r?.t==='onboarded'&&!p.bot){
-      p.dirty=true;const save=savePlayers([{id:p.acct,state:this.persist(p),worth:Game.netWorth(p.state)}]);this.saves.set(p.acct,save);
-      save.then(()=>{this.send(p,r);this.after(p,r);}).catch(e=>{p.state=beforeOnboard;this.fault(p,'save onboarding',e);this.send(p,{t:'toast',k:'bad',m:'Could not save your new life. Please try again.'});}).finally(()=>{if(this.saves.get(p.acct)===save)this.saves.delete(p.acct);});return;
+      p.dirty=true;p.onboardingSave=true;const save=savePlayers([{id:p.acct,state:this.persist(p),worth:Game.netWorth(p.state)}]);this.saves.set(p.acct,save);
+      save.then(()=>{this.send(p,r);this.after(p,r);}).catch(e=>{p.state=beforeOnboard;this.fault(p,'save onboarding',e);this.send(p,{t:'toast',k:'bad',m:'Could not save your new life. Please try again.'});}).finally(()=>{p.onboardingSave=false;if(this.saves.get(p.acct)===save)this.saves.delete(p.acct);});return;
     }
     if (r && r.look && p.room) this.toRoom(p.room, { t: 'rlook', id: p.id, lk: p.state.look }, p);
     if (r) { p.dirty = true; if (msg.t === 'act' && r.t === 'busy') { p.zn = typeof msg.zn === 'string' ? msg.zn.slice(0, 24) : null; } this.send(p, r); this.after(p, r); }
   }
   // async (database) requests; one in flight per player
   async async(p, msg) {
-    if (p.bot) return; if (p.pending > 3) { if(msg.t === 'dm') this.send(p,{t:'dm_ack',clientId:msg.clientId,ok:false,m:'Network busy. Your draft is kept.'}); return this.send(p, { t: 'toast', k: 'bad', m: 'Network busy, try again.' }); } p.pending = (p.pending || 0) + 1;
+    if(p.bot||p.gone)return;
+    if(p.pending){
+      p.asyncQueue||=[];
+      if(p.asyncQueue.length<4){p.asyncQueue.push(msg);return;}
+      if(msg.t==='dm')this.send(p,{t:'dm_ack',clientId:typeof msg.clientId==='string'?msg.clientId.slice(0,80):null,ok:false,m:'Network busy. Your draft is kept.'});
+      return this.send(p,{t:'toast',k:'bad',m:'Network busy, try again.'});
+    }
+    p.pending=1;
     try {
       let r = null;
       switch (msg.t) {
@@ -157,7 +191,7 @@ export class Shard {
         }
         case 'ballot': r=await ballot(p,msg);break;
         case 'game_list': case 'game_create': case 'game_answer': case 'game_move': case 'game_resign': r=await PhoneGames.handle(this,p,msg);break;
-        case 'send': r = await Social.send(this, p, msg); if (r.ok) { p.dirty = true; this.send(p, { t: 'st', state: Game.view(p.state) }); } break;
+        case 'send': r=this.oware.busy(p)?{t:'send_res',ok:false,m:'Finish your Oware game before sending money.'}:await Social.send(this,p,msg); if (r.ok) { p.dirty = true; this.send(p, { t: 'st', state: Game.view(p.state) }); } break;
         case 'dm': if (msg.to && this.isBlocking(msg.to, p.acct)) r = { t: 'toast', k: 'bad', m: 'This person is not receiving your messages.' }; else r = await Social.dm(this, p, msg); break;
         case 'dm_threads': r = await Social.threads(p); break;
         case 'dm_answer': r=await Social.answerDm(this,p,msg);break;
@@ -172,7 +206,7 @@ export class Shard {
       if (r) this.send(p, r);
       if (msg.t === 'dm') this.send(p, { t: 'dm_ack', clientId: typeof msg.clientId === 'string' ? msg.clientId.slice(0,80) : null, ok: r?.t === 'dm_sent', m: r?.m || 'Message was not sent.' });
     } catch (e) { if(msg.t === 'dm') this.send(p,{t:'dm_ack',clientId:typeof msg.clientId === 'string' ? msg.clientId.slice(0,80) : null,ok:false,m:'Message service unavailable. Your draft is kept.'}); console.error('[async ' + msg.t + ']', e.message); this.send(p, { t: 'toast', k: 'bad', m: 'Network wahala. Try again.' }); }
-    finally { p.pending--; }
+    finally {p.pending=0;if(!p.gone&&p.asyncQueue?.length)this.async(p,p.asyncQueue.shift()).catch(e=>this.fault(p,'queued request',e));}
   }
   isBlocking(name, acct) { const o = this.byName(name); return o ? Social.isBlockedBy(o.state, acct) : false; }
   // cross-shard delivery
@@ -205,6 +239,7 @@ export class Shard {
   social(p, m) {
     const S = SOCIALS[m.kind]; const o = this.players.get(m.id | 0); const now = Date.now();
     if (!S || !o || o === p) return; if (!p.room || o.room !== p.room) return this.send(p, { t: 'toast', k: 'bad', m: `${o.name} is not here anymore.` });
+    if(o.moneyBusy||o.onboardingSave)return this.send(p,{t:'toast',m:'They are saving their account. Try again shortly.'});
     if (Social.isBlockedBy(o.state, p.acct)) return this.send(p, { t: 'toast', k: 'bad', m: `${o.name} isn't interested.` });
     const fa = (p.state.friends[o.acct] ||= { n: o.name, pts: 0 }), fb = (o.state.friends[p.acct] ||= { n: p.name, pts: 0 });
     if (fa.pts < S.min) return this.send(p, { t: 'toast', k: 'bad', m: `You need to be closer first (${S.min} friendship). Chat more.` });
@@ -272,13 +307,16 @@ export class Shard {
   }
   // ---------------- feed, reports, chat ----------------
   gist(p, msg) {
-    if (p.bot) return; const done = (r) => this.send(p, r), fail = (e) => { console.error('[gist]', e.message); done({ t: 'toast', k: 'bad', m: 'Gist is busy, try again.' }); };
+    if (p.bot || p.gistPending>=2) return;
+    p.gistPending=(p.gistPending||0)+1;let finished=false;
+    const done = (r) => {if(!finished){finished=true;p.gistPending--;}this.send(p,r);}, fail = (e) => { console.error('[gist]', e.code||'request failed'); done({ t: 'toast', k: 'bad', m: 'Gist is busy, try again.' }); };
     if (msg.t === 'gist_feed') Gist.feed(['latest', 'trending', 'following', 'me'].includes(msg.mode) ? msg.mode : 'latest', p.acct).then((rows) => done({ t: 'gist_feed', mode: msg.mode, rows, news: Gist.NEWS })).catch(fail);
     else if (msg.t === 'gist_follow') Gist.follow(p.acct, msg.u).then((r) => done({ t: 'gist_follow', ...r })).catch(fail);
     else if (msg.t === 'gist_post') Gist.post(p, String(msg.text || '')).then((r) => { if (r.blocked) this.strike(p, r.blocked, msg.text); done(r.error ? { t: 'toast', k: 'bad', m: r.error } : { t: 'gist_posted', id: r.id }); p.dirty = true; Game.bump(p.state, 'gist'); }).catch(fail);
     else if (msg.t === 'gist_like') Gist.like(p.acct, msg.id).then(() => done({ t: 'gist_liked', id: msg.id | 0 })).catch(fail);
     else if (msg.t === 'gist_report') { this.report(p.acct, `gist:${msg.id | 0}`, 'reported post'); done({ t: 'toast', k: 'good', m: 'Post reported. Thanks for keeping Accra clean.' }); }
     else if (msg.t === 'gist_del') Gist.hide(p.acct, msg.id).then(() => done({ t: 'gist_posted' })).catch(fail);
+    else done({t:'toast',m:'Unknown Gist action.',k:'bad'});
   }
   report(reporter, target, text) { if (reporter > 0) pool.query('insert into reports (reporter, target, text) values ($1,$2,$3)', [reporter, String(target).slice(0, 80), String(text || '').slice(0, 400)]).catch((e) => console.error('[report]', e.message)); }
   reportPlayer(p, msg) {
@@ -305,7 +343,8 @@ export class Shard {
     this.send(p, { t: 'chat_ack', clientId, ok: true });
   }
   fromBus(ch, m) {
-    if (ch === 'awd:city' && m.t === 'chat') { for (const o of this.players.values()) if (!Social.isBlockedBy(o.state, m.acct)) this.send(o, m); }
+    if(ch==='awd:session'){const p=this.byAcct(m.id);if(p&&(!m.sessionHash||p.ws.getUserData().acct.sessionHash===m.sessionHash))p.ws.end(4003,'Session ended');}
+    else if (ch === 'awd:city' && m.t === 'chat') { for (const o of this.players.values()) if (!Social.isBlockedBy(o.state, m.acct)) this.send(o, m); }
     else if (ch === 'awd:global') for (const o of this.players.values()) this.send(o, m);
     else if (ch === 'awd:credit') { const o = this.byAcct(m.acct); if (o) Social.claim(o).then((l) => l.forEach((x) => this.send(o, x))).catch(() => {}); }
     else if (ch === 'awd:dm') { const o = this.byAcct(m.acct); if (o && this.canReceiveDm(o, m.m)) this.send(o, m.m); }
@@ -313,7 +352,10 @@ export class Shard {
   slowTick() {
     const t0 = performance.now(); const now = Date.now(); const odd = (this.slowN = (this.slowN || 0) + 1) & 1;
     for (const p of this.players.values()) {
+      if(p.moneyBusy||p.onboardingSave)continue;
       try {
+        if(!p.bot&&this.slowN%10===0)Social.claim(p).then(l=>l.forEach(m=>this.send(p,m))).catch(e=>console.error('[claim]',e.code||'transaction failed'));
+        if(p.moneyBusy)continue;
         const r = Game.tick(p, now, this); if (r) { p.dirty = true; this.send(p, r); this.after(p, r); }
         if (p.state.onboarded && p.state.place !== p.roomPlace) this.enterRoom(p);
         // status changes (started/finished an activity) are shown to the room

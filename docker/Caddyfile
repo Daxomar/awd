@@ -1,0 +1,13 @@
+{
+  admin off
+}
+{$SITE_ADDRESS:http://localhost} {
+  request_body {
+    max_size 6MB
+  }
+  # Query strings may contain payment references or old development tokens.
+  # Access logging stays off; never log credentials or private chat payloads.
+  reverse_proxy game:8080 {
+    header_up X-Real-IP {remote_host}
+  }
+}

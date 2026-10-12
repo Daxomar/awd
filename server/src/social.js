@@ -2,6 +2,8 @@
 // and top-up credits. Money between players always goes through the `credits` table so it is delivered exactly once,
 // even when the receiver is offline or on another shard (claimed with UPDATE … RETURNING).
 import crypto from 'node:crypto';
+import { withMoney } from './account-money.js';
+import { secret } from './secrets.js';
 import { pool } from './db.js';
 import { moderate, BLOCK_MSG } from './filter.js';
 import * as D from './game/data.js';
@@ -56,41 +58,57 @@ export function checkSend(p, amount, now) {
 
 // ---------- claims: credit any unclaimed money into a live player ----------
 export async function claim(p) {
-  if (p.bot || p.claiming) return []; p.claiming = true;
+  if(p.bot||p.claiming||p.owareActive||p.pending||p.gistPending||!p.state.onboarded)return [];p.claiming=true;
   try {
-    const r = await pool.query(`update credits set claimed=true where to_id=$1 and not claimed returning id, from_name, amount, note, kind`, [p.acct]);
-    const out = [];
-    for (const c of r.rows) {
-      const amt = +c.amount; p.state.momo += amt;
-      const why = c.kind === 'topup' ? 'Wallet top-up' : c.kind === 'refund' ? 'Transfer reversed' : `From @${c.from_name}`;
-      p.state.ledger.push([Date.now(), amt, why + (c.note ? ` · ${c.note}` : '')]); if (p.state.ledger.length > 60) p.state.ledger.shift();
-      if (c.kind === 'transfer') { p.state.stats.received = (p.state.stats.received || 0) + amt; Game.bump(p.state, 'recv'); }
-      out.push({ t: 'money_in', id: +c.id, amount: amt, from: c.from_name, note: c.note, kind: c.kind, momo: p.state.momo });
-    }
-    if (out.length) p.dirty = true;
-    return out;
-  } finally { p.claiming = false; }
+    if(p.moneyTask)await p.moneyTask;
+    if(p.gone)return [];
+    if(!(await pool.query('select 1 from credits where to_id=$1 and not claimed limit 1',[p.acct])).rowCount)return [];
+    if(p.moneyTask)await p.moneyTask;
+    if(p.gone||p.pending||p.gistPending||p.owareActive)return [];
+    return await withMoney(p,async(db,state)=>{
+      const rows=(await db.query('update credits set claimed=true where to_id=$1 and not claimed returning id,from_name,amount,note,kind',[p.acct])).rows;
+      const out=[];
+      for(const c of rows){
+        const amt=+c.amount;state.momo+=amt;
+        const why=c.kind==='topup'?'Wallet top-up':c.kind==='refund'?'Transfer reversed':`From @${c.from_name}`;
+        state.ledger.push([Date.now(),amt,why+(c.note?` · ${c.note}`:'')]);if(state.ledger.length>60)state.ledger.shift();
+        if(c.kind==='transfer'){state.stats.received=(state.stats.received||0)+amt;Game.bump(state,'recv');}
+        out.push({t:'money_in',id:+c.id,amount:amt,from:c.from_name,note:c.note,kind:c.kind,momo:state.momo});
+      }
+      return out;
+    })||[];
+  }finally{p.claiming=false;}
 }
 
-// ---------- transfer ----------
-export async function send(shard, p, msg) {
-  const now = Date.now(); const s = p.state;
-  const to = await acctByName(msg.to); if (!to || to.banned) return { t: 'send_res', ok: false, m: 'No MoMo wallet with that username.' };
-  if (to.id === p.acct) return { t: 'send_res', ok: false, m: 'You can\'t send money to yourself.' };
-  const chk = checkSend(p, msg.amount, now); if (typeof chk === 'string') return { t: 'send_res', ok: false, m: chk };
-  const note = msg.note ? moderate(String(msg.note), 60) : { text: '' }; if (note.blocked) return { t: 'send_res', ok: false, m: BLOCK_MSG[note.blocked] || 'Note blocked.' };
-  // debit first (in memory, authoritative), then persist the credit; refund on DB failure
-  s.momo -= chk.a + chk.fee; s.xfer.out += chk.a; s.xfer.n++; p.dirty = true;
-  s.ledger.push([now, -(chk.a + chk.fee), `To @${to.username}` + (note.text ? ` · ${note.text}` : '')]); if (s.ledger.length > 60) s.ledger.shift();
-  let id;
-  try { id = +(await pool.query(`insert into credits (to_id, from_id, from_name, amount, fee, note, kind) values ($1,$2,$3,$4,$5,$6,'transfer') returning id`, [to.id, p.acct, p.name, chk.a, chk.fee, note.text || null])).rows[0].id;
-    await pool.query(`insert into ledger (from_id, to_id, amount, kind) values ($1,$2,$3,'p2p')`, [p.acct, to.id, chk.a]).catch(() => {}); }
-  catch (e) { s.momo += chk.a + chk.fee; s.xfer.out -= chk.a; s.ledger.pop(); console.error('[send]', e.message); return { t: 'send_res', ok: false, m: 'MoMo network is down. Try again.' }; }
-  Game.bump(s, 'sent'); s.stats.sent = (s.stats.sent || 0) + chk.a;
-  if (msg.req) await pool.query(`update dms set status='paid' where id=$1 and to_id=$2 and kind='req'`, [msg.req | 0, p.acct]).catch(() => {});
-  await pool.query(`insert into dms (from_id, to_id, text, kind, amount) values ($1,$2,$3,'paid',$4)`, [p.acct, to.id, note.text || 'Sent you money', chk.a]).catch(() => {});
-  shard.deliverCredit(to.id);
-  return { t: 'send_res', ok: true, id, to: to.username, amount: chk.a, fee: chk.fee, momo: s.momo, ref: 'AWD' + String(id).padStart(8, '0') };
+// Debit, outgoing credit and ledger commit together, including request ownership.
+export async function send(shard,p,msg){
+  if(p.gistPending)return {t:'send_res',ok:false,m:'Wait for your Gist request to finish.'};
+  let recipient;
+  try {
+    const result=await withMoney(p,async(db,s)=>{
+      const now=Date.now(),to=await acctByName(msg.to);
+      if(!to||to.banned)return {t:'send_res',ok:false,m:'No MoMo wallet with that username.'};
+      if(to.id===p.acct)return {t:'send_res',ok:false,m:"You can't send money to yourself."};
+      const chk=checkSend({...p,state:s},msg.amount,now);
+      if(typeof chk==='string')return {t:'send_res',ok:false,m:chk};
+      const note=msg.note?moderate(String(msg.note),60):{text:''};
+      if(note.blocked)return {t:'send_res',ok:false,m:BLOCK_MSG[note.blocked]||'Note blocked.'};
+      if(msg.req){
+        const req=(await db.query("select * from dms where id=$1 and to_id=$2 and from_id=$3 and kind='req' for update",[msg.req|0,p.acct,to.id])).rows[0];
+        if(!req||req.status==='paid'||req.amount!==chk.a)return {t:'send_res',ok:false,m:'That money request cannot be paid.'};
+        await db.query("update dms set status='paid' where id=$1",[req.id]);
+      }
+      s.momo-=chk.a+chk.fee;s.xfer.out+=chk.a;s.xfer.n++;
+      s.ledger.push([now,-(chk.a+chk.fee),`To @${to.username}`+(note.text?` · ${note.text}`:'')]);if(s.ledger.length>60)s.ledger.shift();
+      const id=+(await db.query("insert into credits(to_id,from_id,from_name,amount,fee,note,kind) values($1,$2,$3,$4,$5,$6,'transfer') returning id",[to.id,p.acct,p.name,chk.a,chk.fee,note.text||null])).rows[0].id;
+      await db.query("insert into ledger(from_id,to_id,amount,kind) values($1,$2,$3,'p2p')",[p.acct,to.id,chk.a]);
+      await db.query("insert into dms(from_id,to_id,text,kind,amount) values($1,$2,$3,'paid',$4)",[p.acct,to.id,note.text||'Sent you money',chk.a]);
+      Game.bump(s,'sent');s.stats.sent=(s.stats.sent||0)+chk.a;recipient=to.id;
+      return {t:'send_res',ok:true,id,to:to.username,amount:chk.a,fee:chk.fee,momo:s.momo,ref:'AWD'+String(id).padStart(8,'0')};
+    });
+    if(result?.ok)shard.deliverCredit(recipient);
+    return result||{t:'send_res',ok:false,m:'Account disconnected.'};
+  }catch(e){console.error('[send]',e.code||'transaction failed');return {t:'send_res',ok:false,m:'MoMo network is busy. Try again.'};}
 }
 
 // ---------- direct messages ----------
@@ -195,30 +213,42 @@ export const PACKS = [
   { id: 'p100', ghs: 100, coins: 8500, label: 'Big man', tag: 'Best value' },
 ];
 export const TOPUP_WEEK_CAP = 200; // GH₵ real money per account per week
-const PAYSTACK = process.env.PAYSTACK_SECRET || '', PUBLIC_URL = process.env.PUBLIC_URL || 'http://localhost:8080';
+const PAYSTACK = secret('PAYSTACK_SECRET'), PUBLIC_URL = process.env.PUBLIC_URL || 'http://localhost:8080';
+export const paymentsLive = !!PAYSTACK;
 export async function topupInit(acct, packId, email) {
   const pk = PACKS.find((x) => x.id === packId); if (!pk) return { error: 'Pick a pack.' };
   const wk = await pool.query(`select coalesce(sum(ghs),0)::int s from topups where acct=$1 and status='paid' and at > now() - interval '7 days'`, [acct]);
   if (wk.rows[0].s + pk.ghs > TOPUP_WEEK_CAP) return { error: `Weekly top-up limit is GH₵${TOPUP_WEEK_CAP}. Play smart, come back next week.` };
   if (!PAYSTACK) return { error: 'Top-ups are not live yet on this server.', disabled: true };
-  if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email || '')) return { error: 'Enter your email for the receipt.' };
+  if (typeof email!=='string'||email.length>120||!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)) return { error: 'Enter your email for the receipt.' };
   const ref = 'awt_' + crypto.randomBytes(10).toString('hex');
   await pool.query(`insert into topups (acct, pack, ghs, coins, ref) values ($1,$2,$3,$4,$5)`, [acct, pk.id, pk.ghs, pk.coins, ref]);
-  const pr = await fetch('https://api.paystack.co/transaction/initialize', { method: 'POST', headers: { authorization: `Bearer ${PAYSTACK}`, 'content-type': 'application/json' },
+  const pr = await fetch('https://api.paystack.co/transaction/initialize', { method: 'POST', signal: AbortSignal.timeout(10000), headers: { authorization: `Bearer ${PAYSTACK}`, 'content-type': 'application/json' },
     body: JSON.stringify({ email, amount: pk.ghs * 100, currency: 'GHS', reference: ref, callback_url: `${PUBLIC_URL}/?topup=${ref}`, channels: ['mobile_money', 'card'], metadata: { acct, pack: pk.id } }) }).then((x) => x.json()).catch(() => null);
   if (!pr || !pr.status) return { error: 'Payment service unavailable. Try again shortly.' };
   return { ok: true, ref, payUrl: pr.data.authorization_url };
 }
 // called from verify and from the Paystack webhook; idempotent
 export async function topupPaid(ref, pesewas, shard) {
-  const r = await pool.query(`update topups set status='paid' where ref=$1 and status='pending' and ghs*100 <= $2 returning acct, coins`, [ref, pesewas | 0]);
-  if (!r.rows[0]) return false; const { acct, coins } = r.rows[0];
-  await pool.query(`insert into credits (to_id, from_name, amount, kind) values ($1,'Accra We Dey',$2,'topup')`, [acct, coins]); shard && shard.deliverCredit(acct); return true;
+  if(!/^awt_[0-9a-f]{20}$/.test(ref||'')||!Number.isSafeInteger(pesewas)||pesewas<1)return false;
+  const db=await pool.connect();let acct;
+  try {
+    await db.query('begin');
+    const row=(await db.query("select * from topups where ref=$1 for update",[ref])).rows[0];
+    if(!row||row.status!=='pending'||pesewas!==row.ghs*100){await db.query('rollback');return false;}
+    await db.query('select pg_advisory_xact_lock($1)',[row.acct]);
+    const spent=+(await db.query("select coalesce(sum(ghs),0) as n from topups where acct=$1 and status='paid' and at>now()-interval '7 days'",[row.acct])).rows[0].n;
+    if(spent+row.ghs>TOPUP_WEEK_CAP){await db.query("update topups set status='refund_required' where ref=$1",[ref]);await db.query('commit');return false;}
+    await db.query("update topups set status='paid' where ref=$1",[ref]);
+    await db.query("insert into credits(to_id,from_name,amount,kind) values($1,'Accra We Dey',$2,'topup')",[row.acct,row.coins]);
+    await db.query('commit');acct=row.acct;
+  }catch(e){await db.query('rollback');throw e;}finally{db.release();}
+  shard&&shard.deliverCredit(acct);return true;
 }
 export async function topupVerify(ref, shard) {
   if (!/^awt_[0-9a-f]{20}$/.test(ref || '')) return { error: 'bad ref' };
   if (!PAYSTACK) return { status: 'disabled' };
-  const v = await fetch(`https://api.paystack.co/transaction/verify/${ref}`, { headers: { authorization: `Bearer ${PAYSTACK}` } }).then((x) => x.json()).catch(() => null);
-  if (v && v.status && v.data && v.data.status === 'success' && v.data.currency === 'GHS') { await topupPaid(ref, v.data.amount, shard); return { status: 'paid' }; }
+  const v = await fetch(`https://api.paystack.co/transaction/verify/${ref}`, { signal: AbortSignal.timeout(10000), headers: { authorization: `Bearer ${PAYSTACK}` } }).then((x) => x.json()).catch(() => null);
+  if (v && v.status && v.data && v.data.status === 'success' && v.data.currency === 'GHS' && v.data.reference===ref) { await topupPaid(ref, v.data.amount, shard); const row=(await pool.query('select status from topups where ref=$1',[ref])).rows[0];return {status:row?.status||'unknown'}; }
   return { status: 'pending' };
 }

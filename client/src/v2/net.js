@@ -3,7 +3,7 @@ export class Net {
   constructor() { this.held = []; this.holding = true; this.h = {}; this.ws = null; this.connected = false; this.backoff = 1000; this.token = null; this.offset = 0; this.generation = 0; }
   on(t, fn) { (this.h[t] ||= []).push(fn); return () => { this.h[t] = this.h[t].filter((f) => f !== fn); }; }
   emit(t, m) { for (const f of this.h[t] || []) { try { f(m); } catch (e) { console.error('[net handler ' + t + ']', e); } } for (const f of this.h['*'] || []) f(m); if (t === 'multi') for (const x of m.list) this.emit(x.t, x); }
-  url() { const p = location.protocol === 'https:' ? 'wss' : 'ws'; return `${p}://${location.host}/ws?token=${encodeURIComponent(this.token)}`; }
+  url() { const p = location.protocol === 'https:' ? 'wss' : 'ws'; return `${p}://${location.host}/ws${this.token && this.token !== 'cookie' ? '?token=' + encodeURIComponent(this.token) : ''}`; }
   connect(token, retry = false) {
     this.token = token; this.stopped = false; clearTimeout(this.retryTimer); clearInterval(this.heartbeat);
     const generation = ++this.generation;
@@ -19,8 +19,9 @@ export class Net {
           if (retry) this.emit('reconnected', m); this.emit('connection', { connected: true });
           if (!settled) { settled = true; res(m); } }
         if (this.holding && !['welcome', 'onboarded', 'toast', 'pong', 'reconnected'].includes(m.t)) { this.held.push(m); if (this.held.length > 200) this.held.shift(); return; } this.emit(m.t, m); };
-      ws.onclose = (e) => { if (generation !== this.generation) return; clearTimeout(timeout); clearInterval(this.heartbeat); this.connected = false; if (!settled) { settled = true; rej(new Error(e.code === 1006 ? 'Can’t reach the server.' : 'Disconnected')); } this.emit('close', e); this.emit('connection', { connected: false, terminal: e.code === 4000 || e.code === 4001 });
-        if ((retry || !this.holding) && e.code !== 4000 && e.code !== 4001 && this.token && !this.stopped) { this.retryTimer = setTimeout(() => this.reconnect(), this.backoff); this.backoff = Math.min(15000, this.backoff * 1.7); } };
+      ws.onclose = (e) => { if (generation !== this.generation) return; clearTimeout(timeout); clearInterval(this.heartbeat); this.connected = false; if (!settled) { settled = true; rej(new Error(e.code === 1006 ? 'Can’t reach the server.' : 'Disconnected')); } this.emit('close', e); this.emit('connection', { connected: false, terminal: [4000,4001,4003].includes(e.code) });
+        if(e.code===4003&&!this.stopped)this.emit('auth_expired',{});
+        if ((retry || !this.holding) && ![4000,4001,4003,4008].includes(e.code) && this.token && !this.stopped) { this.retryTimer = setTimeout(() => this.reconnect(), this.backoff); this.backoff = Math.min(15000, this.backoff * 1.7); } };
       ws.onerror = () => {};
     });
   }

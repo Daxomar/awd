@@ -1,7 +1,7 @@
 // Postgres persistence. Player state is server-owned JSONB; money moves only through server code.
 import pg from 'pg';
 import { CFG } from './config.js';
-export const pool = new pg.Pool({ connectionString: CFG.pgUrl, max: +(process.env.PG_POOL || 10) });
+export const pool = new pg.Pool({ connectionString: CFG.pgUrl, max: +(process.env.PG_POOL || 10), connectionTimeoutMillis: 5000, statement_timeout: 10000 });
 
 export async function migrate() {
   await pool.query(`
@@ -29,6 +29,13 @@ export async function migrate() {
   create table if not exists candidates (week int, account int, name text, policy text, slogan text, primary key (week, account));
   create table if not exists reports (id bigserial primary key, reporter int, target text, text text, at timestamptz default now());
   create table if not exists homes (account int primary key, home text, x real, z real);
+  alter table accounts add column if not exists adult_verified boolean not null default false;
+  create table if not exists sessions (
+    token_hash text primary key, account int not null references accounts(id) on delete cascade,
+    expires_at timestamptz not null, last_seen timestamptz not null default now(), created_at timestamptz not null default now()
+  );
+  create index if not exists sessions_account on sessions(account);
+  create index if not exists sessions_expiry on sessions(expires_at);
   `);
 }
 export async function loadPlayer(id) { const r = await pool.query('select state from players where id=$1', [id]); return r.rows[0] ? r.rows[0].state : null; }

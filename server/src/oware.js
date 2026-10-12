@@ -52,13 +52,14 @@ export class Oware {
     if (!inv || inv.to !== p || Date.now() - inv.at > 120000) return this.shard.send(p, { t: 'toast', m: 'That challenge expired.' });
     const a = inv.from; if (a.gone) return;
     if (!m.yes) return this.shard.send(a, { t: 'toast', m: `${p.name} declined the Oware challenge.` });
-    if (this.busy(a) || this.busy(p)) return this.shard.send(p, { t: 'toast', k: 'bad', m: 'Someone is already in a game.' });
+    if (this.busy(a) || this.busy(p) || a.moneyBusy || p.moneyBusy) return this.shard.send(p, { t: 'toast', k: 'bad', m: 'Someone is already in a game or saving their wallet.' });
     const S = inv.stake;
     if (S && (a.state.cash + a.state.momo < S || p.state.cash + p.state.momo < S)) { for (const x of [a, p]) this.shard.send(x, { t: 'toast', k: 'bad', m: 'Not enough money for the stake.' }); return; }
     if (S) for (const x of [a, p]) { Game.spendFor(x.state, S, 'Oware stake'); x.dirty = true; }
     const g = this.start(a, p, S); this.send(g); this.shard.toRoom(a.room, { t: 'rsocial', a: a.id, b: p.id, kind: 'oware', ic: 'icon:dice-five', anim: 'agree' });
   }
   start(a, b, stake) {
+    a.owareActive=true;if(b)b.owareActive=true;
     const g = { id: this.nextId++, p: [a, b], names: [a.name, b ? b.name : ''], board: Array(12).fill(4), store: [0, 0], turn: Math.random() < 0.5 ? 0 : 1, stake, pot: stake * 2, deadline: Date.now() + MOVE_MS, started: Date.now() };
     this.games.set(g.id, g); if (!b) setTimeout(() => this.aiTurn(g), 900); return g;
   }
@@ -78,10 +79,11 @@ export class Oware {
   }
   aiTurn(g) { if (g.over || g.turn !== 1 || g.p[1]) return; this.apply(g, 1, aiMove(g.board, 1)); }
   finish(g, forfeit = null) {
+    if(g.over)return;
     g.over = { winner: forfeit != null ? 1 - forfeit : g.store[0] > g.store[1] ? 0 : g.store[1] > g.store[0] ? 1 : -1, forfeit };
     const W = g.over.winner;
     if (g.pot) { if (W < 0) for (const x of g.p) { if (x) { Game.earnFor(x.state, g.stake, 'Oware stake back'); x.dirty = true; } } else { const prize = Math.round(g.pot * (1 - HOUSE)); const wp = g.p[W]; if (wp) { Game.earnFor(wp.state, prize, 'Oware win'); wp.dirty = true; g.over.prize = prize; if (prize >= 100 && !wp.gone) Gist.post(wp, ` Just won GH₵${prize} at Oware against @${g.names[1 - W]}. Who's next?`, true).catch(() => {}); } } }
-    for (const x of g.p) if (x) { Game.bump(x.state, 'oware'); if (g.p.indexOf(x) === W) Game.bump(x.state, 'owareWin'); }
+    for (const x of g.p) if (x) { x.owareActive=false;Game.bump(x.state, 'oware'); if (g.p.indexOf(x) === W) Game.bump(x.state, 'owareWin'); }
     this.send(g); setTimeout(() => this.games.delete(g.id), 30000);
   }
   leave(p) { for (const g of this.games.values()) if (!g.over && g.p.includes(p)) this.finish(g, g.p.indexOf(p)); }

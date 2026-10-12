@@ -23,6 +23,10 @@ An 18+ multiplayer life game set in Accra, played in a portrait mobile browser. 
 
 ## Run locally
 
+Recommended: run the isolated Docker stack with `python tools/init-docker-secrets.py`, then `docker compose up --build -d --wait`. Open `http://localhost:8080`. See [Docker deployment and security](docs/deployment.md) for HTTPS, secrets, persistence and migration from a native development database.
+
+For native development:
+
 ```bash
 # Postgres 14+ and Redis 6+ running locally
 cd server && npm install
@@ -38,8 +42,10 @@ DEV=1 ADMIN_KEY=change-me STATIC_DIR=../client/dist node src/index.js
 |---|---|---|
 | `DATABASE_URL` | `postgres://awd:awd@127.0.0.1:5432/awd` | Postgres |
 | `REDIS_URL` | `redis://127.0.0.1:6379` | Redis: cross-shard chat, money and DM delivery, presence |
-| `SESSION_SECRET` | dev value | HMAC key for login tokens. Set it in production. |
-| `BIRTH_SEED` | SESSION_SECRET, then dev value | Stable account background roll. Set a permanent secret before production; stored rolls remain unchanged. |
+| `SESSION_SECRET` / `SESSION_SECRET_FILE` | dev value only | Production requires a random 32+ character secret. Signed tokens are restricted to explicit development automation; browser sessions use revocable HttpOnly cookies. |
+| `BIRTH_SEED` / `BIRTH_SEED_FILE` | dev secret only | Production requires a permanent random secret. Stored rolls remain unchanged. |
+| `NODE_ENV`, `PUBLIC_URL` | development, local HTTP | Production mode disables development bypasses and requires HTTPS for public origins. |
+| `REDIS_NAMESPACE`, `TRUST_PROXY` | empty, off | Separate environments with different namespaces. Trust proxy IP headers only behind the isolated reverse proxy. |
 | `SHARD_ID`, `PORT` | `accra-1`, `8080` | One process per shard |
 | `SHARD_CAP` / `ROOM_CAP` | 2500 / 25 | Players per shard / per room instance |
 | `ADMIN_KEY` | — | Ad moderation at `/admin.html` |
@@ -65,7 +71,7 @@ node loadtest/e2e.js          # two players: rooms, moves, chat, socials, MoMo t
 node loadtest/cross-shard.js  # two local shards on 8080/8081, shared Postgres/Redis
 node loadtest/oware_test.js   # Oware rules + a full game vs the AI
 node loadtest/econ_sim.js     # 3-week economy (casual vs grinder)
-node --test loadtest/regression.test.js loadtest/phone-games.test.js # 22 rule regressions
+npm test                    # gameplay and security regression checks
 node loadtest/phone-games-e2e.js # requests, saved multiplayer games, private card hands
 node loadtest/bots.js 1500 45 # load
 node loadtest/mkuser.js name  # dev: make an onboarded account, prints a token (open /?token=...)

@@ -53,12 +53,14 @@ export async function feed(mode, acct) {
 }
 export async function follow(acct, target) {
   target = target | 0; if (!target || target === acct) return { following: false };
+  if(target<1||!(await pool.query('select id from accounts where id=$1 and not banned',[target])).rowCount)return {following:false};
   const del = await pool.query('delete from gist_follows where acct=$1 and target=$2', [acct, target]); if (del.rowCount) return { following: false, target };
   await pool.query('insert into gist_follows (acct, target) values ($1,$2) on conflict do nothing', [acct, target]); return { following: true, target };
 }
 export async function followCounts(acct) { const r = await pool.query('select (select count(*) from gist_follows where target=$1)::int as followers, (select count(*) from gist_follows where acct=$1)::int as following', [acct]); return r.rows[0];
 }
 export async function like(acct, id) {
+  if(!Number.isSafeInteger(id)||id<1||!(await pool.query('select id from gist where id=$1 and not hidden',[id])).rowCount)return {ok:false};
   const r = await pool.query('insert into gist_likes (post, acct) values ($1,$2) on conflict do nothing', [id | 0, acct]);
   if (r.rowCount) { await pool.query('update gist set likes = likes + 1 where id=$1', [id | 0]); cache.at = 0; }
   return { ok: true };

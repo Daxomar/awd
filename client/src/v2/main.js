@@ -56,7 +56,12 @@ async function boot() {
     cityAudio.update(G.state?.place,view==='room'&&!!world?.me?.path.length,!studio.open&&!ride.active);stage.render(); };
   requestAnimationFrame(loop);
   await av;
-  let token = new URLSearchParams(location.search).get('token'); try { token ||= localStorage.getItem('awd_token'); } catch {}
+  const session=await fetch('/api/session',{cache:'no-store'}).then(r=>r.json());
+  let token=session.authenticated?'cookie':null;
+  if(session.dev&&!token){token=new URLSearchParams(location.search).get('token');try{token ||= localStorage.getItem('awd_token');}catch{}}
+  try{localStorage.removeItem('awd_token');}catch{}
+  const cleanUrl=new URL(location.href);if(cleanUrl.searchParams.has('token')){cleanUrl.searchParams.delete('token');history.replaceState(null,'',cleanUrl);}
+  net.on('auth_expired',()=>{net.close();location.reload();});
   hideLoad();
   for (;;) {
     if (!token) { showBackdrop(); token = await authScreen(ui); }
@@ -149,7 +154,7 @@ const act = (window.__act = {
   sendMoney(name) { phone.show('momo', { send: name }); }, message(name) { phone.show('messages', { dm: name }); },
   oware(pid, name) { owareChallenge(pid, name, act); }, practice() { phone.close(); net.send({ t: 'oware_practice' }); },
   wardrobe(mode = 'wardrobe') { openStylist(mode); },
-  logout() { try { localStorage.removeItem('awd_token'); } catch {} net.close(); location.reload(); },
+  async logout() { try { const r=await fetch('/api/logout',{method:'POST',headers:{'content-type':'application/json'},body:'{}'});if(!r.ok)throw Error();try{localStorage.removeItem('awd_token');}catch{}net.close();location.reload(); }catch{toast('Could not log out. Please try again.','bad');} },
   socialFx(pid) { const p = world.room && world.room.people.get('p' + pid); if (p) world.room.walkTo('me', p.x + 0.7, p.z + 0.4); },
   // start an activity in a zone: walk there, sit/stand, tell the server
   start(a, zone) {

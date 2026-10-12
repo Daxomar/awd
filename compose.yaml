@@ -1,0 +1,108 @@
+name: accrawedey
+services:
+  game:
+    build: .
+    restart: unless-stopped
+    init: true
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 128
+    mem_limit: 1g
+    stop_grace_period: 30s
+    environment:
+      NODE_ENV: production
+      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:8080}
+      TRUST_PROXY: '1'
+      DB_HOST: db
+      REDIS_HOST: redis
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+      REDIS_PASSWORD_FILE: /run/secrets/redis_password
+      SESSION_SECRET_FILE: /run/secrets/session_secret
+      BIRTH_SEED_FILE: /run/secrets/birth_seed
+      ADMIN_KEY_FILE: /run/secrets/admin_key
+      PAYSTACK_SECRET_FILE: /run/secrets/paystack_secret
+    secrets: [db_password, redis_password, session_secret, birth_seed, admin_key, paystack_secret]
+    volumes: [ads:/app/uploads]
+    tmpfs: [/tmp:rw,noexec,nosuid,size=64m]
+    networks: [edge, database]
+    depends_on:
+      db: {condition: service_healthy}
+      redis: {condition: service_healthy}
+  db:
+    image: postgres:17-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: awd
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_admin
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+    secrets: [postgres_admin, db_password]
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      - ./docker/init-db.sh:/docker-entrypoint-initdb.d/10-awd.sh:ro
+    networks: [database]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U postgres -d awd']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  redis:
+    image: redis:7.4-bookworm
+    user: redis
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    command: [sh, /config/redis-start.sh]
+    secrets: [redis_password]
+    volumes:
+      - redis:/data
+      - ./docker/redis-start.sh:/config/redis-start.sh:ro
+    tmpfs: [/tmp:rw,noexec,nosuid,size=16m,uid=999,gid=999]
+    networks: [database]
+    healthcheck:
+      test: [CMD-SHELL, 'REDISCLI_AUTH="$$(cat /run/secrets/redis_password)" redis-cli ping | grep -q PONG']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  proxy:
+    image: caddy:2
+    restart: unless-stopped
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-http://localhost}
+    ports:
+      - '${BIND_ADDRESS:-127.0.0.1}:${HTTP_PORT:-8080}:80'
+      - '${BIND_ADDRESS:-127.0.0.1}:${HTTPS_PORT:-8443}:443'
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks: [edge]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    read_only: true
+    pids_limit: 64
+    tmpfs: [/tmp:rw,noexec,nosuid,size=16m]
+    depends_on:
+      game: {condition: service_healthy}
+networks:
+  edge:
+  database:
+    internal: true
+volumes:
+  postgres:
+  redis:
+  ads:
+  caddy_data:
+  caddy_config:
+secrets:
+  postgres_admin: {file: ./.secrets/postgres_admin}
+  db_password: {file: ./.secrets/db_password}
+  redis_password: {file: ./.secrets/redis_password}
+  session_secret: {file: ./.secrets/session_secret}
+  birth_seed: {file: ./.secrets/birth_seed}
+  admin_key: {file: ./.secrets/admin_key}
+  paystack_secret: {file: ./.secrets/paystack_secret}

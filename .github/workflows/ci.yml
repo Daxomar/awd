@@ -1,0 +1,39 @@
+name: Test and build containers
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            client/package-lock.json
+            server/package-lock.json
+      - run: git config --global url."https://github.com/".insteadOf ssh://git@github.com/
+      - run: npm ci
+        working-directory: server
+      - run: npm test
+        working-directory: server
+      - run: npm audit --omit=dev
+        working-directory: server
+      - run: npm ci && npm audit && npm run build
+        working-directory: client
+      - name: Initialize disposable Docker secrets
+        run: python3 tools/init-docker-secrets.py
+      - name: Build and start full stack
+        run: docker compose up --build -d --wait --wait-timeout 180
+      - name: Smoke test inside the game container
+        run: docker compose exec -T game node --input-type=module < tools/docker-smoke.mjs
+      - name: Check proxy
+        run: curl --fail --retry 3 http://localhost:8080/health
+      - name: Shut down disposable stack
+        if: always()
+        run: docker compose down

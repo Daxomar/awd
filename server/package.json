@@ -1,1 +1,18 @@
-{"name":"awd-server","version":"0.1.0","type":"module","main":"src/index.js","scripts":{"start":"node src/index.js","bots":"node loadtest/bots.js"},"dependencies":{"ioredis":"5.4.2","pg":"8.13.1","sharp":"^0.33.5","uWebSockets.js":"github:uNetworking/uWebSockets.js#v20.52.0","ws":"8.18.0"}}
+{
+  "name": "awd-server",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "bots": "node loadtest/bots.js",
+    "test": "node --test loadtest/regression.test.js loadtest/phone-games.test.js loadtest/city.test.js loadtest/security.test.js"
+  },
+  "dependencies": {
+    "ioredis": "5.4.2",
+    "pg": "8.13.1",
+    "sharp": "0.35.5",
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.52.0",
+    "ws": "8.22.0"
+  }
+}
