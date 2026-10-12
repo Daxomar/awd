@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>AWD v2 scene test</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#111;font-family:system-ui,sans-serif}
+  #c{position:fixed;inset:0;width:100vw;height:100vh;display:block}
+  #info{position:fixed;left:8px;top:8px;color:#fff;background:rgba(0,0,0,.55);padding:4px 8px;border-radius:8px;font:600 12px system-ui;pointer-events:none;max-width:90vw}
+  .tag{position:fixed;transform:translate(-50%,-100%);color:#fff;background:rgba(20,20,20,.7);padding:1px 6px;border-radius:6px;font:700 10px system-ui;white-space:nowrap;pointer-events:none}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="info"></div>
+<script type="module" src="/src/v2/test/scene_test.js"></script>
+</body>
+</html>

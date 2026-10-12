@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
+<title>AWD Ad Admin</title>
+<style>body{margin:0;background:#0e0d0b;color:#f6f1e9;font-family:system-ui,sans-serif}.w{max-width:900px;margin:0 auto;padding:16px}
+input,button{font:inherit;padding:10px;border-radius:9px;border:1px solid #333;background:#1a1714;color:inherit}button{cursor:pointer;font-weight:700}
+.o{display:grid;grid-template-columns:200px 1fr;gap:12px;background:#1a1714;border-radius:12px;padding:12px;margin:10px 0}.o img{width:200px;aspect-ratio:2/1;object-fit:cover;border-radius:8px}
+.s{font-weight:800;text-transform:uppercase;font-size:12px}.pending_payment{color:#f6c343}.paid{color:#7cc3ff}.approved{color:#5be39b}.rejected{color:#ff7a6b}small{color:#b9b0a3}
+@media(max-width:560px){.o{grid-template-columns:1fr}.o img{width:100%}}</style></head><body><div class="w">
+<h2>Billboard orders</h2><input id="k" type="password" placeholder="Admin key"> <button id="load">Load</button><div id="list"></div></div>
+<script>
+const $ = (id) => document.getElementById(id); try { $('k').value = sessionStorage.getItem('awdk') || ''; } catch {}
+async function load() {
+  const k = $('k').value; try { sessionStorage.setItem('awdk', k); } catch {}
+  const r = await fetch('/api/admin/ads', { headers: { 'x-admin-key': k } }).then((x) => x.json()); const L = $('list'); L.innerHTML = '';
+  if (r.error) { L.textContent = r.error; return; }
+  for (const o of r.rows) {
+    const d = document.createElement('div'); d.className = 'o'; const im = document.createElement('img'); im.src = o.img; const info = document.createElement('div');
+    const line = (t) => { const p = document.createElement('div'); p.textContent = t; return p; };
+    const st = document.createElement('div'); st.className = 's ' + o.status; st.textContent = `#${o.id} · ${o.status}${o.note ? ' · ' + o.note : ''}`;
+    info.append(st, line(`${o.title} → ${o.slot}, ${o.weeks} wk, GH₵${o.amount}`), line(`${o.contact} ${o.email || ''}`), line(o.url || ''), line(o.starts ? `Live ${new Date(+o.starts).toLocaleString()} → ${new Date(+o.ends).toLocaleString()}` : `ref ${o.ref}`));
+    for (const a of ['markpaid', 'approve', 'reject']) { const b = document.createElement('button'); b.textContent = a; b.onclick = async () => { const x = await fetch('/api/admin/ads', { method: 'POST', headers: { 'content-type': 'application/json', 'x-admin-key': k }, body: JSON.stringify({ id: o.id, action: a }) }).then((y) => y.json()); if (x.error) alert(x.error); load(); }; info.append(b, ' '); }
+    d.append(im, info); L.append(d);
+  }
+}
+$('load').onclick = load;
+</script></body></html>
