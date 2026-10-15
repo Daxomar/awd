@@ -196,3 +196,20 @@ controls. No public deployment was performed.
 - `server/loadtest/hud-fixtures.js` — guarded disposable local fixtures only.
 - `tools/hud-browser-test.py` — actual two-player browser journeys.
 - `docs/hud-review.md`, `docs/immersive-world-audit.md`, `docs/images/hud/` — report, roadmap and reviewed evidence.
+
+
+## Follow-up: online status and player count
+
+Restored the live player count beneath the location, within the existing header
+height. A green connection dot and `N players online` show confirmed presence;
+`Offline` replaces the count on disconnect. Reconnection waits for a fresh
+presence update instead of showing a stale count. The initial loading state is
+`Online · checking players…`. Counts use the existing server `places` messages;
+no new subscriptions, analytics tracking, backend or schema changes were added.
+Total visits were omitted following the user's clarification.
+
+Verification: 13 client unit tests and production build passed. A focused browser
+journey verified actual 1 → 2 → 1 player changes across two disposable sessions,
+offline/reconnect status, and all five target viewports. The
+[updated header screenshot](images/hud/online-status.png) was visually inspected.
+The main HUD browser journey also now guards count visibility and offline status.

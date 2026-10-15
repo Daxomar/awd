@@ -1,6 +1,6 @@
 // Client-side mirror of the server state + derived helpers. The server is authoritative; this only renders.
 export const G = {
-  state: null, cat: null, myId: null, place: null, placeName: '', room: null, online: 0, places: {}, gem: null, gemsFound: 0,
+  state: null, cat: null, myId: null, place: null, placeName: '', room: null, online: null, places: {}, gem: null, gemsFound: 0,
   unreadDm: 0, dev: false, ev: {},
   on(t, f) { (this.ev[t] ||= []).push(f); return () => (this.ev[t] = this.ev[t].filter((x) => x !== f)); },
   emit(t, d) { for (const f of this.ev[t] || []) { try { f(d); } catch (e) { console.error('[store ' + t + ']', e); } } },

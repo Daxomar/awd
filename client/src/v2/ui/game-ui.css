@@ -40,3 +40,9 @@
 @media (max-height:600px) { .game-ui .ridescreen { padding-top:calc(var(--safe-t) + 116px); }.game-ui .ridescreen .ride-top {padding:8px 12px; }.game-ui .ride-route .to { font-size:17px; }.game-ui .ride-hint { display:none; } }
 
 .game-ui .play-nav button[aria-disabled="true"] {opacity:.5;}
+.game-ui .location-copy { flex:1;min-width:0;display:grid;gap:2px;padding:3px 0; }
+.game-ui .hud-population { display:flex;gap:6px;align-items:center;font-size:10px;line-height:1.2;color:var(--game-muted);white-space:nowrap; }
+.game-ui .hud-population > span { overflow:hidden;text-overflow:ellipsis; }
+.game-ui .hud-population .connection-dot { width:6px;height:6px;flex:none;border-radius:50%;background:var(--game-green); }
+.game-ui .hud-population[data-connected="false"] .connection-dot { background:#a36035; }
+.game-ui .location-control time { flex:none; }

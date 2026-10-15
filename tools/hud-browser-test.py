@@ -27,7 +27,7 @@ async def opened(browser,fixture):
 async def layout(page):
  for width,height in [(375,812),(390,844),(430,932),(390,530),(844,390)]:
   await page.set_viewport_size({'width':width,'height':height});await page.wait_for_timeout(300)
-  await page.locator('.joy').wait_for(state='visible',timeout=5000)
+  await page.locator('.joy').wait_for(state='visible',timeout=5000);assert await page.locator('.online-count').is_visible()
   rects=await page.evaluate('()=>[...document.querySelectorAll(".play-nav button,.player-status,.wallet-control,.location-control")].map(e=>{const r=e.getBoundingClientRect();return {w:r.width,h:r.height,left:r.left,right:r.right,top:r.top,bottom:r.bottom};})')
   assert all(r['w']>=44 and r['h']>=44 and r['left']>=0 and r['right']<=width+1 and r['bottom']<=height+1 for r in rects),(width,height,rects)
   await shot(page,f'hud-{width}x{height}');await page.get_by_role('button',name='Character status',exact=True).click();await shot(page,f'needs-{width}x{height}');await close_menu(page)
@@ -69,12 +69,12 @@ async def main():
    for _ in range(4):
     await a.get_by_role('button',name='Phone',exact=True).click();await a.locator('.app').filter(has_text=re.compile('Contacts')).click();await a.get_by_role('button',name='Put phone away',exact=True).click();await a.wait_for_timeout(450)
    now=await a.evaluate('()=>Object.fromEntries(Object.entries(__net.h).map(([k,v])=>[k,v.length]))');assert all(n==baseline.get(k,0) for k,n in now.items()),(baseline,now)
-   await ca.set_offline(True);await a.evaluate('()=>__net.ws.close()');await a.locator('.connection-note:not([hidden])').wait_for();await shot(a,'disconnected');await ca.set_offline(False);await a.wait_for_function('()=>__net.connected',timeout=30000);await a.wait_for_function('()=>!!__world.me',timeout=30000);await a.locator('.connection-note').wait_for(state='hidden');assert 'Nima' in await a.locator('.location-control').inner_text()
+   await ca.set_offline(True);await a.evaluate('()=>__net.ws.close()');await a.locator('.connection-note:not([hidden])').wait_for();assert await a.locator('.online-count').inner_text()=='Offline';await shot(a,'disconnected');await ca.set_offline(False);await a.wait_for_function('()=>__net.connected',timeout=30000);await a.wait_for_function('()=>!!__world.me',timeout=30000);await a.locator('.connection-note').wait_for(state='hidden');assert 'Nima' in await a.locator('.location-control').inner_text()
    print('PASS phone listener cleanup and reconnect HUD',flush=True)
    await route(a,'Walk outside','n:nima');await shot(a,'neighbourhood')
   cb,b,eb,sb=await opened(browser,fixtures[1])
   if await b.evaluate('()=>__G.state.place')=='home':await route(b,'Walk outside','n:nima')
-  await a.wait_for_function('()=>__world.others.size>0');await b.wait_for_function('()=>__world.others.size>0')
+  await a.wait_for_function('()=>__world.others.size>0');await b.wait_for_function('()=>__world.others.size>0');await a.wait_for_function('()=>__G.online>=2');await b.wait_for_function('()=>__G.online>=2');assert 'players online' in await a.locator('.online-count').inner_text()
   if args.social_only:
    await b.evaluate('(name)=>__act.message(name)',fixtures[0]['username']);await b.get_by_placeholder('Private message',exact=True).wait_for();await b.locator('.thread-portrait').wait_for()
    accept=b.get_by_role('button',name='Accept',exact=True)
