@@ -163,6 +163,12 @@ No external character/animation asset is introduced by milestone 1.
 
 ## G. Ordered roadmap and acceptance gates
 
+**Priority update, 15 October 2026:** the user has moved character art, rigging,
+clothing and animation work to the final development phase. The active Phase 1
+is now onboarding only; its fixes and evidence are in [onboarding-review.md](onboarding-review.md).
+The table below records the original audit sequence, not authorization to proceed
+to deferred character/HUD/map work.
+
 | Phase | Existing files to evolve | Deliverable and acceptance |
 | --- | --- | --- |
 | 1a: current milestone | `character.js`, `human.js`, `room.js`; small cache/fit helpers | Shared geometry ownership, smoother shirt fit; unit and browser stress/pose checks, actual-game visual review. |

@@ -12,7 +12,7 @@ export function authScreen(ui) {
     const set = (m) => { mode = m; tabs.children[0].classList.toggle('on', m === 'signup'); tabs.children[1].classList.toggle('on', m === 'login'); dobF.hidden = agreeF.hidden = m === 'login'; btn.textContent = m === 'signup' ? 'Start my Accra life' : 'Log in'; p.autocomplete = m === 'signup' ? 'new-password' : 'current-password'; err.textContent = ''; };
     const form = h('form.card', { onsubmit: async (e) => { e.preventDefault(); err.textContent = ''; btn.disabled = true;
       try { const body = mode === 'signup' ? { username: u.value.trim(), password: p.value, dob: dob.value, agree: agree.checked } : { username: u.value.trim(), password: p.value };
-        const r = await fetch('/api/' + mode, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }).then((x) => x.json());
+        const r = await fetch('/api/' + mode, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), signal:AbortSignal.timeout(15000) }).then((x) => x.json());
         if (r.error) { err.textContent = r.error; btn.disabled = false; return; }
         try { localStorage.removeItem('awd_token'); } catch {} p.value=''; el.remove(); resolve('cookie');
       } catch { err.textContent = 'Network problem. Try again.'; btn.disabled = false; } } },

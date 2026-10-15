@@ -39,29 +39,32 @@ import { makeApps } from './phone/apps.js';
 
 const ui = document.getElementById('ui');
 const loadEl = document.getElementById('load');
-const stage = new Stage(document.getElementById('c'));
+let stage = null, visualsReady = false;
+try { stage = new Stage(document.getElementById('c')); } catch (error) { console.warn('3D view unavailable', error); }
 window.__G = G; window.__stage = stage; window.__net = net;
-let chat = null; let joy = null; let view = 'room', world = null, map = null, hud = null, phone = null, rideEnd = null, backdrop = null; const studio = new Studio(stage); window.__studio = studio; const ride = new Ride(stage); window.__ride = ride;
+let chat = null; let joy = null; let view = 'room', world = null, map = null, hud = null, phone = null, rideEnd = null, backdrop = null; const studio = stage ? new Studio(stage) : null; window.__studio = studio; const ride = stage ? new Ride(stage) : null; window.__ride = ride;
 
 // ---------------------------------------------------------------- boot
 async function boot() {
-  const cat = fetch('/api/data').then((r) => r.json()); const av = loadAvatars();
+  const cat = fetch('/api/data', { signal: AbortSignal.timeout(15000) }).then((r) => { if(!r.ok)throw Error('City information is unavailable.');return r.json(); });
+  const av = stage ? bounded(loadAvatars(),30000).then(()=>{visualsReady=true;}).catch(error=>console.warn('Preview unavailable; setup can continue.',error)) : Promise.resolve();
   G.cat = await cat; G.offset = 0;
   // shared render loop (backdrop, onboarding preview, game)
   const clock = new THREE.Clock(); let tAcc = 0, lastFrame = 0; const frameMs = matchMedia('(pointer: coarse)').matches || innerWidth < 600 ? 1000/30 : 1000/60;
-  stage.setTime(accraClock().h);
+  stage?.setTime(accraClock().h);
   const loop = (time) => { requestAnimationFrame(loop); if (document.hidden || time - lastFrame < frameMs - 1) return; lastFrame = time; const dt = Math.min(0.05, clock.getDelta()); tAcc += dt;
     if (backdrop) backdrop(dt); studio.update(dt); if (ride.active) ride.update(dt); else if (world && view === 'room' && !studio.open) world.update(dt); if (map && view === 'map') map.update(dt);
     if (hud && tAcc > 0.25) { tAcc = 0; hud.progress(); if (joy) joy.hidden = view !== 'room' || ride.active || studio.open || !world || !world.room || !!document.querySelector('.sheet-back, .phone-back, .screen.ob, .chat-panel:not([hidden])'); }
     cityAudio.update(G.state?.place,view==='room'&&!!world?.me?.path.length,!studio.open&&!ride.active);stage.render(); };
-  requestAnimationFrame(loop);
+  if(stage)requestAnimationFrame(loop);
   await av;
-  const session=await fetch('/api/session',{cache:'no-store'}).then(r=>r.json());
+  const session=await fetch('/api/session',{cache:'no-store',signal:AbortSignal.timeout(15000)}).then(r=>{if(!r.ok)throw Error('Account service is unavailable.');return r.json();});
   let token=session.authenticated?'cookie':null;
   if(session.dev&&!token){token=new URLSearchParams(location.search).get('token');try{token ||= localStorage.getItem('awd_token');}catch{}}
   try{localStorage.removeItem('awd_token');}catch{}
   const cleanUrl=new URL(location.href);if(cleanUrl.searchParams.has('token')){cleanUrl.searchParams.delete('token');history.replaceState(null,'',cleanUrl);}
   net.on('auth_expired',()=>{net.close();location.reload();});
+  net.on('reconnected',w=>{G.myId=w.id;G.shard=w.shard;G.offset=net.offset;});
   hideLoad();
   for (;;) {
     if (!token) { showBackdrop(); token = await authScreen(ui); }
@@ -72,7 +75,7 @@ async function boot() {
 function hideLoad() { loadEl.style.opacity = 0; setTimeout(() => loadEl.remove(), 400); }
 // a live venue behind the login card, slowly orbiting
 function showBackdrop() {
-  if (backdrop) return; const room = new Room(stage).build(structuredClone(VENUES.oxford)); fitRoom(stage, room.spec); stage.view.zoom *= 1.05; stage.offsetY = 0.27; stage.setTime(13); stage.applyView();
+  if (backdrop || !stage || !visualsReady) return; const room = new Room(stage).build(structuredClone(VENUES.oxford)); fitRoom(stage, room.spec); stage.view.zoom *= 1.05; stage.offsetY = 0.27; stage.setTime(13); stage.applyView();
   (room.spec.npcs || []).forEach((n, i) => { const P = placeNpc(room, n); room.addPerson('n' + i, new Avatar(n.look), P.x, P.z); room.placeAt('n' + i, P.x, P.z, P.yaw, P.pose, P.y); });
   const walkers = [0, 1, 2].map((i) => { const id = 'w' + i; const L = [{ body: 'f', skinTone: 5, top: '#ff4f8b', bottom: '#1d2433' }, { body: 'm', skinTone: 6, top: '#ffc83d', bottom: '#2b3a55' }, { body: 'm', skinTone: 4, top: '#0e7a4e', bottom: '#e9e2d0' }][i]; room.addPerson(id, new Avatar(L), 0, 0); return id; });
   let t = 0; const wander = () => { for (const id of walkers) { const p = room.people.get(id); if (!p.path.length) { const s = room.spec; room.walkTo(id, (Math.random() - 0.5) * s.w * 0.8, (Math.random() - 0.5) * s.d * 0.8); } } };
@@ -85,14 +88,14 @@ function stopBackdrop() { if (!backdrop) return; const r = backdrop.room; for (c
 async function start(w) {
   G.myId = w.id; G.shard = w.shard; G.state = w.state; G.dev = w.dev; G.offset = net.offset; G.gemsFound = w.gems || 0;
   if (!w.state.onboarded) {
-    // fitting room: the character, full size, while you dress
-    studio.show(G.cat.defaultLook.m, 0.245, 5.0); studio.setFrame = (k) => { stage.offsetY = k === 'edit' ? 0.245 : 0.3; stage.view.zoom = k === 'edit' ? 5.0 : 6.2; stage.applyView(); };
-    const r = await onboardScreen(ui, { preview: (l) => studio.preview(l), username: w.state.name, studio });
-    studio.hide(); stage.offsetY = 0; stage.setTime(accraClock().h);
-    net.send({ t: 'onboard', name: r.name, traits: r.traits, dream: r.dream, look: r.look, home: r.home });
-    const ob = await new Promise((res) => { const off = net.on('onboarded', (m) => { off(); res(m); }); net.on('toast', (m) => { if (!G.state.onboarded && m.k === 'bad') toast(m.m, 'bad'); }); });
-    G.state = ob.state; 
-    await new Promise((res) => celebrate({ icon: 'icon:map-pin', title: 'Welcome to Accra', text: `Your ${G.cat.origins[ob.state.origin]?.name || 'new'} life starts here. You have ${cedi(ob.state.cash+ob.state.momo)} and a home. Careers and ambitions are yours to choose.`, cta: 'Enter Accra', onclose: res }));
+    const creator = visualsReady ? studio : null;
+    if(creator){studio.show(w.state.onboarding?.look || G.cat.defaultLook.m);stage.setTime(13);}
+    const saved = await onboardScreen(ui, { preview: creator ? l => studio.preview(l) : null, username: w.state.name, studio: creator, stage });
+    G.state = saved;
+    if(creator){studio.hide();stage.offsetY=0;stage.setTime(accraClock().h);}
+  }
+  if(!stage || !visualsReady){
+    return showStartError('Your setup is saved. The 3D city could not load on this browser. Enable WebGL or reload to try again.');
   }
   game();
 }
@@ -327,4 +330,8 @@ function bindNet() {
   net.on('gem_gone', (m) => { G.gem = null; world.hideGem(); if (m.by) toast(` ${m.by} found the gem at ${m.place} (+${cedi(m.prize)})`, ''); refresh(); if (view === 'map') drawPins(); });
   net.on('gem_won', (m) => { G.gem = null; world.hideGem(); G.state.momo = m.momo; celebrate({ icon: 'icon:diamond', title: `You found the gem!`, text: `+${cedi(m.prize)} to your MoMo. ${m.found.toLocaleString()} gem${m.found === 1 ? "" : "s"} found in Accra so far.` }); refresh(); });
 }
-boot().catch((e) => { console.error(e); loadEl.querySelector('.lw') && (loadEl.querySelector('.lw').textContent = 'Could not start: ' + e.message); });
+function bounded(promise,ms){let timer;return Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('Preview took too long to load.')),ms);})]).finally(()=>clearTimeout(timer));}
+function showStartError(message){
+  hideLoad();const card=h('section.screen.auth',null,h('div.card',null,h('h1',null,'Let’s reconnect.'),h('p',null,message),h('button.btn.primary.wide',{onclick:()=>location.reload()},'Try again')));ui.append(card);
+}
+boot().catch(error=>{console.error(error);showStartError('Could not load your life. Check your connection, then try again.');});

@@ -60,9 +60,13 @@ export class Shard {
     if(!acct.bot&&(CFG.production||redis?.status==='ready')){
       if(redis?.status!=='ready'||await redis.set(leaseKey,leaseToken,'EX',90,'NX')!=='OK')return {error:'This account is active on another server. Log out there first.'};
     }
-    let saved;
-    try{saved=acct.bot?null:await loadPlayer(acct.id);}catch(e){if(redis?.status==='ready')await redis.eval("if redis.call('GET',KEYS[1])==ARGV[1] then return redis.call('DEL',KEYS[1]) end return 0",1,leaseKey,leaseToken);throw e;}
-    const fresh = !saved; const state = Game.migrate(saved, acct);
+    let saved, state;
+    try{
+      saved=acct.bot?null:await loadPlayer(acct.id);state=Game.migrate(saved,acct);
+      // Save the assigned birth background before exposing a first welcome packet.
+      if(!saved&&!acct.bot)await savePlayers([{id:acct.id,state,worth:Game.netWorth(state)}]);
+    }catch(e){if(redis?.status==='ready')await redis.eval("if redis.call('GET',KEYS[1])==ARGV[1] then return redis.call('DEL',KEYS[1]) end return 0",1,leaseKey,leaseToken);throw e;}
+    const fresh = !saved;
     const p = { id: this.nextId++ >>> 0, acct: acct.id, name: acct.u, ws, state, x: 0, z: 0, rx: null, rz: null, it: null, zn: null, room: null,
       chatAt: 0, chatBurst: 0, dirty: fresh, bot: !!acct.bot, dev: DEV,leaseKey,leaseToken };
     if (state.place) Game.goPlace(p, state.place);
@@ -85,10 +89,11 @@ export class Shard {
     this.oware.leave(p); this.leaveRoom(p); this.players.delete(p.id); if (this.byAcctMap.get(p.acct) === p) this.byAcctMap.delete(p.acct); p.gone = true;
     clearInterval(p.leaseTimer);
     if (!p.bot) {
+      const pendingOnboarding=p.onboardingTask||(p.onboardingSave?this.saves.get(p.acct):null);
       const save = (async()=>{
         if(p.moneyTask)await p.moneyTask.catch(()=>{});
         if(p.saving)await p.saving.catch(()=>{});
-        if(p.onboardingSave&&this.saves.has(p.acct))await this.saves.get(p.acct).catch(()=>{});
+        if(pendingOnboarding)await pendingOnboarding.catch(()=>{});
         await savePlayers([{id:p.acct,state:this.persist(p),worth:Game.netWorth(p.state)}]);
         if(this.bus?.pub?.status==='ready')await this.bus.pub.eval("if redis.call('GET',KEYS[1])==ARGV[1] then return redis.call('DEL',KEYS[1]) end return 0",1,p.leaseKey,p.leaseToken);
       })();
@@ -133,6 +138,7 @@ export class Shard {
     this.stats.inMsgs++;
     if (!msg || typeof msg.t !== 'string') return;
     if(p.gone)return;
+    if(msg.t==='onboarding')return this.progressOnboarding(p,msg);
     if((p.moneyBusy||p.onboardingSave)&&!['ping','rmv'].includes(msg.t))return this.send(p,{t:'toast',k:'bad',m:'Saving your account. Try again shortly.'});
     switch (msg.t) {
       case 'chat': return this.chat(p, msg);
@@ -162,6 +168,26 @@ export class Shard {
     }
     if (r && r.look && p.room) this.toRoom(p.room, { t: 'rlook', id: p.id, lk: p.state.look }, p);
     if (r) { p.dirty = true; if (msg.t === 'act' && r.t === 'busy') { p.zn = typeof msg.zn === 'string' ? msg.zn.slice(0, 24) : null; } this.send(p, r); this.after(p, r); }
+  }
+  progressOnboarding(p,msg) {
+    const id=typeof msg.id==='string'?msg.id.slice(0,48):'';
+    if(!id)return;
+    if(p.onboardingSave||p.moneyBusy||p.pending||p.gistPending)return this.send(p,{t:'onboarding',id,ok:false,error:'Saving your account. Try again shortly.',state:Game.view(p.onboardingBefore||p.state)});
+    p.onboardingSave=true;p.onboardingBefore=structuredClone(p.state);
+    const task=(async()=>{
+      const before=structuredClone(p.state);
+      try{
+        if(p.saving)await p.saving;
+        if(p.gone)return;
+        const result=Game.onboardingProgress(p,{...msg,id});
+        if(result.ok&&!p.bot)await savePlayers([{id:p.acct,state:structuredClone(this.persist(p)),worth:Game.netWorth(p.state)}]);
+        this.send(p,result);
+        if(result.ok&&!before.onboarded&&p.state.onboarded){Game.goPlace(p,p.state.place);this.after(p,{t:'onboarded',state:Game.view(p.state)});}
+      }catch(e){p.state=before;this.fault(p,'onboarding progress',e);this.send(p,{t:'onboarding',id,ok:false,error:'Could not save your setup. Try again.',state:Game.view(p.state)});}
+    })();
+    p.onboardingTask=task;this.saves.set(p.acct,task);
+    task.catch(e=>this.fault(p,'onboarding',e)).finally(()=>{p.onboardingSave=false;p.onboardingBefore=null;if(p.onboardingTask===task)p.onboardingTask=null;if(this.saves.get(p.acct)===task)this.saves.delete(p.acct);});
+    return task;
   }
   // async (database) requests; one in flight per player
   async async(p, msg) {
@@ -223,6 +249,7 @@ export class Shard {
   after(p, r) {
     const list = r.t === 'multi' ? r.list : [r];
     for (const m of list) {
+      if(m.t==='onboarded'&&!p.gone&&p.state.place!==p.roomPlace)this.enterRoom(p);
       if (m.t === 'moved' || (m.t === 'done' && m.place) || m.t === 'arrived') if (p.state.place !== p.roomPlace) this.enterRoom(p);
       if (m.t === 'busy' && m.busy && m.busy.travel) this.leaveRoom(p), (p.roomPlace = null);
     }

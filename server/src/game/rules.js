@@ -5,6 +5,7 @@ import { CFG } from '../config.js';
 import * as D from './data.js';
 import * as ST from './story.js';
 import * as W from './wardrobe.js';
+import { onboardingDraft, transitionOnboarding } from './onboarding.js';
 import { matchBoard, validateBet, makeBet, settleBets } from './matches.js';
 export const WARD = W;
 export const DATA = D;
@@ -62,6 +63,7 @@ export function migrate(saved, acct) {
   if (out.place !== 'home' && !LOC[out.place]) out.place = out.home ? 'home' : 'circle';
   if (out.place === 'home' && !out.home) out.place = 'circle';
   if (!out.friends || typeof out.friends !== 'object') out.friends = {};
+  if(!out.onboarded)out.onboarding=onboardingDraft(out);
   return out;
 }
 export function newState(acct) {
@@ -148,6 +150,18 @@ function onboard(p, m) {
   s.rentPaidUntil = nextSaturday9(Date.now()+6*86400000); s.onboarded = true; s.flags.bornAt = Date.now();
   goPlace(p, 'home');
   return { t: 'onboarded', origin: s.origin, state: view(s) };
+}
+export function onboardingProgress(p,m,now=Date.now()) {
+  const result=transitionOnboarding(p.state,m,now);
+  if(result.error)return {t:'onboarding',id:m.id,ok:false,error:result.error,conflict:!!result.conflict,state:view(p.state)};
+  const candidate={...p,state:result.state};
+  if(result.finish){
+    const done=onboard(candidate,result.finish);
+    if(done.t!=='onboarded')return {t:'onboarding',id:m.id,ok:false,error:done.m,state:view(p.state)};
+    candidate.state.onboarding.step='complete';candidate.state.onboarding.revision++;
+  }
+  p.state=candidate.state;
+  return {t:'onboarding',id:m.id,ok:true,complete:!!p.state.onboarded,state:view(p.state)};
 }
 // Stable across reconnects and server restarts, independent of client input.
 // Configure BIRTH_SEED in production to keep the roll unpredictable to clients.
@@ -444,7 +458,9 @@ export function onMsg(p, msg, shard, now) {
       }
       return toast('Use your home door to reach your neighbourhood.','bad');
     }
-    case 'onboard': return onboard(p, msg);
+    // Older development load tools may use the one-shot command. Public accounts
+    // must complete saved checkpoints; a cached old client needs a reload.
+    case 'onboard': return !s.onboarded&&(CFG.production||s.onboarding?.started)?toast('Reload the game and finish your saved setup steps.','bad'):onboard(p, msg);
     case 'act': { if (msg.home) return homeAction(p, String(msg.id), now); const loc = LOC[msg.loc]; const a = loc && loc.acts.find((x) => x.id === msg.id); if (!a) return toast('Not available.', 'bad'); return startAction(p, loc, a, now, shard.policy); }
     case 'mgResult': { const b = s.busy; if (!b || !b.mg) return null; s.busy = null; const secs = (now - b.start) / 1000; if (secs < 20) return toast('Too fast.', 'bad'); const stars = Math.max(0, Math.min(3, msg.stars | 0)); const skill = { trotro: 'hustle', waakye: 'cooking', bolu: 'driving', bughunt: 'coding', azonto: 'dance', boxing: 'fitness' }[b.mg]; let amt = (18 + stars * 22) * (1 + lvl(s, skill) * 0.07); amt *= hustleMult(s, b.id, now, skill); s.gd.earned += amt; const got = earn(s, amt, 'Gig'); addSkill(s, skill, 0.3 + stars * 0.25); s.gigRest[b.id] = now + 60 * 60000; s.stats.gigs++; return { t: 'done', id: b.id, earned: got, stars }; }
     case 'work': return msg.op === 'start' ? startShift(p, now) : msg.op === 'task' && s.shift ? toast('Work performance is calculated by the server.') : msg.op === 'quit' ? ((s.job = null), (s.shift = null), { t: 'st', state: view(s) }) : msg.op === 'end' && s.shift ? ((s.shift = null), { t: 'st', state: view(s) }) : null;

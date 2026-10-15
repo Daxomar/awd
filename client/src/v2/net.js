@@ -10,18 +10,18 @@ export class Net {
     if (this.ws) { this.ws.onclose = null; this.ws.close(); }
     this.connected = false;
     return new Promise((res, rej) => {
-      let settled = false; const ws = (this.ws = new WebSocket(this.url()));
+      let settled = false, welcomed = false; if(this.holding)this.held=[]; const ws = (this.ws = new WebSocket(this.url()));
       const timeout = setTimeout(() => ws.close(), 30000);
       ws.onmessage = (ev) => { if (generation !== this.generation || typeof ev.data !== 'string') return; let m; try { m = JSON.parse(ev.data); } catch { return; }
         this.lastSeen = Date.now();
-        if (m.t === 'welcome') { clearTimeout(timeout); this.connected = true; this.backoff = 1000; this.offset = m.now - Date.now();
+        if (m.t === 'welcome') { welcomed=true;clearTimeout(timeout); this.connected = true; this.backoff = 1000; this.offset = m.now - Date.now();
           this.heartbeat = setInterval(() => { if (Date.now() - this.lastSeen > 45000) return ws.close(); this.send({ t: 'ping', c: Date.now() }); }, 20000);
           if (retry) this.emit('reconnected', m); this.emit('connection', { connected: true });
           if (!settled) { settled = true; res(m); } }
-        if (this.holding && !['welcome', 'onboarded', 'toast', 'pong', 'reconnected'].includes(m.t)) { this.held.push(m); if (this.held.length > 200) this.held.shift(); return; } this.emit(m.t, m); };
-      ws.onclose = (e) => { if (generation !== this.generation) return; clearTimeout(timeout); clearInterval(this.heartbeat); this.connected = false; if (!settled) { settled = true; rej(new Error(e.code === 1006 ? 'Can’t reach the server.' : 'Disconnected')); } this.emit('close', e); this.emit('connection', { connected: false, terminal: [4000,4001,4003].includes(e.code) });
+        if (this.holding && !['welcome', 'onboarding', 'onboarded', 'toast', 'pong', 'reconnected'].includes(m.t)) { this.held.push(m); if (this.held.length > 200) this.held.shift(); return; } this.emit(m.t, m); };
+      ws.onclose = (e) => { if (generation !== this.generation) return; clearTimeout(timeout); clearInterval(this.heartbeat); this.connected = false; if (!settled) { settled = true; rej(new Error(e.code === 1006 ? 'Can’t reach the server.' : 'Disconnected')); } this.emit('close', e); this.emit('connection', { connected: false, terminal: [4000,4001,4003,4008].includes(e.code) });
         if(e.code===4003&&!this.stopped)this.emit('auth_expired',{});
-        if ((retry || !this.holding) && ![4000,4001,4003,4008].includes(e.code) && this.token && !this.stopped) { this.retryTimer = setTimeout(() => this.reconnect(), this.backoff); this.backoff = Math.min(15000, this.backoff * 1.7); } };
+        if ((welcomed || retry || !this.holding) && ![4000,4001,4003,4008].includes(e.code) && this.token && !this.stopped) { this.retryTimer = setTimeout(() => this.reconnect(), this.backoff); this.backoff = Math.min(15000, this.backoff * 1.7); } };
       ws.onerror = () => {};
     });
   }

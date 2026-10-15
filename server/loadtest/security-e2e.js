@@ -41,7 +41,11 @@ try{
   await pool.query('update sessions set last_seen=now() where token_hash=$1',[sidHash]);
   await pool.query('update accounts set banned=true where id=$1',[a.id]);assert.equal(await refused({origin,cookie}),401);await pool.query('update accounts set banned=false where id=$1',[a.id]);
   const c=connect(cookie);sockets.push(c.ws);const w=await c.wait(m=>m.t==='welcome');assert.equal(w.dev,false);
-  c.ws.send(JSON.stringify({t:'onboard',traits:['hustler','sweetmouth'],home:w.state.birthOrigin==='dbee'?'osu':'nima'}));await c.wait(m=>m.t==='onboarded');
+  let setup=w.state;
+  for(const [op,fields] of [['begin',{}],['character',{name:a.username,look:{body:'m'},traits:['hustler','sweetmouth']}],['roll',{}],['homes',{}],['home',{home:w.state.birthOrigin==='dbee'?'osu':'nima'}],['finish',{}]]){
+    const id='security-'+op;c.ws.send(JSON.stringify({t:'onboarding',id,op,revision:setup.onboarding?.revision||0,...fields}));const reply=await c.wait(m=>m.t==='onboarding'&&m.id===id);assert.ok(reply.ok,reply.error);setup=reply.state;
+  }
+  assert.equal(setup.onboarded,true);
   const saved=(await pool.query('select state from players where id=$1',[a.id])).rows[0].state;
   saved.momo=1000;saved.flags.bornAt=Date.now()-24*3600000;
   // Direct persistence tests use a separate, disconnected player to avoid a live save overwriting test fixtures.
