@@ -9,7 +9,7 @@
     "test": "node --test loadtest/regression.test.js loadtest/phone-games.test.js loadtest/city.test.js loadtest/security.test.js loadtest/onboarding.test.js loadtest/onboarding-durability.test.js"
   },
   "dependencies": {
-    "ioredis": "5.4.2",
+    "ioredis": "6.0.0",
     "pg": "8.13.1",
     "sharp": "0.35.5",
     "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.52.0",
