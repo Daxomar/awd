@@ -1,3 +1,4 @@
+import {dialogKeys} from './overlays.js';
 // Tiny DOM toolkit: h() element builder, money/time formatting, bottom sheets, toasts.
 export function h(tag, props, ...kids) {
   const [t, ...cls] = tag.split('.'); const el = document.createElement(t || 'div'); if (cls.length) el.className = cls.join(' ');
@@ -27,16 +28,19 @@ export const vibrate = (ms = 12) => { try { navigator.vibrate && navigator.vibra
 // ---------- bottom sheets ----------
 const stack = [];
 export function sheet(content, opts = {}) {
+  const previousFocus=document.activeElement;
   const back = h('div.sheet-back' + (opts.tall ? '.tall' : ''));
-  const body = h('div.sheet' + (opts.dark ? '.dark' : ''), null, h('div.sheet-grip'), opts.title ? h('div.sheet-head', null, h('div.sheet-title', null, opts.title), opts.sub ? h('div.sheet-sub', null, opts.sub) : null, h('button.sheet-x', { onclick: () => close(), 'aria-label': 'Close' }, ic('x'))) : null, content);
+  back.addEventListener('pointerdown',e=>e.stopPropagation());
+  const body = h('div.sheet' + (opts.dark ? '.dark' : ''), {role:'dialog','aria-modal':'true','aria-label':opts.title||'Game menu',tabIndex:-1}, h('div.sheet-grip'), opts.title ? h('div.sheet-head', null, h('div.sheet-title', null, opts.title), opts.sub ? h('div.sheet-sub', null, opts.sub) : null, h('button.sheet-x', { onclick: () => close(), 'aria-label': 'Close' }, ic('x'))) : null, content);
   back.append(body); document.getElementById('ui').append(back);
-  requestAnimationFrame(() => back.classList.add('in'));
-  const close = () => { if (back.closing) return; back.closing = true; back.classList.remove('in'); setTimeout(() => back.remove(), 260); const i = stack.indexOf(api); if (i >= 0) stack.splice(i, 1); opts.onclose && opts.onclose(); };
+  requestAnimationFrame(() => {back.classList.add('in');body.focus({preventScroll:true});});
+  const close = () => { if (back.closing) return; back.closing=true;back.setAttribute('aria-hidden','true');back.inert=true;offKeys();back.classList.remove('in'); setTimeout(() => back.remove(), 260); const i = stack.indexOf(api); if (i >= 0) stack.splice(i, 1); opts.onclose && opts.onclose();if(!topSheet()&&previousFocus?.isConnected)previousFocus.focus({preventScroll:true}); };
   back.addEventListener('pointerdown', (e) => { if (e.target === back) close(); });
   // drag the grip down to dismiss
   let y0 = null; body.querySelector('.sheet-grip').addEventListener('pointerdown', (e) => { y0 = e.clientY; body.setPointerCapture(e.pointerId); });
   body.addEventListener('pointermove', (e) => { if (y0 == null) return; const d = Math.max(0, e.clientY - y0); body.style.transform = `translateY(${d}px)`; });
   body.addEventListener('pointerup', (e) => { if (y0 == null) return; const d = e.clientY - y0; y0 = null; body.style.transform = ''; if (d > 90) close(); });
+  const offKeys=dialogKeys(body,close,()=>topSheet()===api);
   const api = { el: body, back, close, set: (c) => { const old = body.querySelector('.sheet-body'); if (old) old.replaceWith(c); } };
   stack.push(api); return api;
 }
@@ -44,9 +48,10 @@ export const closeSheets = () => { for (const s of [...stack]) s.close(); };
 export const topSheet = () => stack[stack.length - 1];
 
 // ---------- toasts ----------
+const recentToasts=new Map();
 export function toast(m, k = '') {
-  if (!m) return; let box = document.getElementById('toasts'); if (!box) { box = h('div', { id: 'toasts' }); document.getElementById('ui').append(box); } const el = h('div.toast' + (k ? '.' + k : ''), null, m);
-  box.append(el); while (box.children.length > 3) box.firstChild.remove();
+  if (!m) return; const key=k+':'+m,now=Date.now();if(now-(recentToasts.get(key)||0)<1500)return;recentToasts.set(key,now);if(recentToasts.size>50)for(const [k,t] of recentToasts)if(now-t>10000)recentToasts.delete(k);let box = document.getElementById('toasts'); if (!box) { box = h('div', { id: 'toasts' }); document.getElementById('ui').append(box); } const el = h('div.toast' + (k ? '.' + k : ''), null, m);
+  box.append(el); while (box.children.length > 2) box.firstChild.remove();
   requestAnimationFrame(() => el.classList.add('in')); setTimeout(() => { el.classList.remove('in'); setTimeout(() => el.remove(), 300); }, Math.min(6000, 2600 + m.length * 35));
 }
 // centred celebration card (promotions, dream tiers, gems)
@@ -56,5 +61,5 @@ export function celebrate({ icon, title, text, cta = 'Nice!', tone = 'gold', onc
   document.getElementById('ui').append(back); requestAnimationFrame(() => back.classList.add('in')); vibrate(30); return close;
 }
 export function confirmBox({ title, text, yes = 'Yes', no = 'Cancel', danger }) {
-  return new Promise((res) => { const s = sheet(h('div.sheet-body.confirm', null, text ? h('p.muted', null, text) : null, h('div.row.gap', null, h('button.btn.ghost.grow', { onclick: () => { s.close(); res(false); } }, no), h('button.btn.grow.' + (danger ? 'danger' : 'primary'), { onclick: () => { s.close(); res(true); } }, yes))), { title, onclose: () => res(false) }); });
+  return new Promise((res) => { const s = sheet(h('div.sheet-body.confirm', null, text ? h('p.muted', null, text) : null, h('div.row.gap', null, h('button.btn.ghost.grow', { onclick: () => { res(false);s.close(); } }, no), h('button.btn.grow.' + (danger ? 'danger' : 'primary'), { onclick: () => { res(true);s.close(); } }, yes))), { title, onclose: () => res(false) }); });
 }

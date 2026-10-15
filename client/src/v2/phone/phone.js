@@ -2,6 +2,7 @@
 // iOS-style navigation, and notification banners (inside the phone and over the game when the phone is down).
 import { h, ic, icf, cedi, clockStr, vibrate } from '../ui/dom.js';
 import { G, accraNow, money } from '../store.js';
+import {dialogKeys} from '../ui/overlays.js';
 import './phone.css';
 import '../ui/phone-refined.css';
 
@@ -19,11 +20,12 @@ export class Phone {
     this.ind = h('div.homeind'); const hit = h('div.homehit', { onclick: () => (this.win ? this.closeApp() : this.close()) });
     this.screen = h('div.screen-ph', null, this.home, this.status, this.island, this.ind, hit);
     this.handset = h('div.handset', null, h('i.btn-side.b1'), h('i.btn-side.b2'), h('i.btn-side.b3'), h('i.btn-side.b4'), this.screen);
-    this.back.append(this.handset); ui.append(this.back);
+    const controls=h('div.phone-return',null,h('button',{'aria-label':'Phone home',onclick:()=>this.closeApp()},ic('squares-four'),'Phone home'),h('button',{'aria-label':'Put phone away',onclick:()=>this.close()},ic('device-mobile-slash'),'Back to Accra'));
+    this.back.setAttribute('role','dialog');this.back.setAttribute('aria-label','Your phone');this.back.setAttribute('aria-modal','true');this.back.append(this.handset,controls);ui.append(this.back);
     // swipe up from the bottom edge = home
     let y0 = null; this.screen.addEventListener('pointerdown', (e) => { const r = this.screen.getBoundingClientRect(); if (e.clientY > r.bottom - 34) y0 = e.clientY; });
     this.screen.addEventListener('pointerup', (e) => { if (y0 != null && y0 - e.clientY > 40) { this.win ? this.closeApp() : this.close(); } y0 = null; });
-    this.banner = h('div.notif'); ui.append(this.banner);
+    this.banner=h('div.notif',{hidden:true,role:'button',tabIndex:-1,'aria-label':'Open notification',onkeydown:e=>{if(['Enter',' '].includes(e.key)){e.preventDefault();this.banner.onclick?.();}}}); ui.append(this.banner);
     setInterval(() => this.tickStatus(), 1000 * 10); this.tickStatus();
   }
   tickStatus() {
@@ -33,10 +35,10 @@ export class Phone {
     this.status.innerHTML = `<span class="tnum">${t}</span><span class="sr">${SIG}${WIFI}${BATT(batt)}</span>`;
   }
   show(appId, arg) {
-    if (!this.open) { this.open = true; this.back.hidden = false; requestAnimationFrame(() => this.back.classList.add('in')); this.renderHome(); vibrate(10); }
-    if (appId) this.openApp(appId, arg);
+    if (!this.open) { this.previousFocus=document.activeElement;this.offKeys=dialogKeys(this.back,()=>this.win?this.closeApp():this.close(),()=>this.open&&!document.querySelector('.sheet-back,.ios-alert'));this.open = true; this.back.hidden = false;this.back.inert=false;this.back.removeAttribute('aria-hidden');requestAnimationFrame(() => {this.back.classList.add('in');this.back.querySelector('.phone-return button').focus({preventScroll:true});}); this.renderHome(); vibrate(10); }
+    if (appId) this.openApp(appId, arg);this.onchange?.();
   }
-  close() { if (!this.open) return; const w = this.win; this.win = null; if(w){w.closed=true;w.onclose?.();} this.back.classList.remove('in'); this.open = false; setTimeout(() => { w?.el.remove(); if (!this.open) { this.back.hidden = true; this.home.classList.remove('behind'); } }, 360); this.onclose?.(); }
+  close() { if (!this.open) return;this.cancelAlerts(); const w = this.win; this.win = null; if(w){w.closed=true;w.onclose?.();} this.offKeys?.();this.back.classList.remove('in');this.back.inert=true;this.back.setAttribute('aria-hidden','true');this.open = false; setTimeout(() => { w?.el.remove(); if (!this.open) { this.back.hidden = true; this.home.classList.remove('behind'); } }, 360); this.onclose?.();this.onchange?.();if(this.previousFocus?.isConnected)this.previousFocus.focus({preventScroll:true}); }
   badgeOf(a) { return a.badge ? a.badge() : 0; }
   renderHome() {
     const s = G.state; if (!s) return; const t = accraNow(); const d = new Date(t);
@@ -60,15 +62,17 @@ export class Phone {
     const win = (this.win = new AppWin(this, el, a)); try { a.open(win, arg); } catch (e) { console.error(e); win.page(a.name, () => h('div.empty', null, 'Something went wrong.')); }
     this.tickStatus(); vibrate(6);
   }
-  closeApp() { const w = this.win; if (!w) return; this.win = null; w.closed = true; w.el.classList.add('closing'); this.home.classList.remove('behind'); setTimeout(() => w.el.remove(), 240); this.renderHome(); this.tickStatus(); w.onclose && w.onclose(); }
+  cancelAlerts(){for(const alert of this.back.querySelectorAll('.ios-alert'))alert.dispatchEvent(new Event('cancel'));}
+  closeApp() { this.cancelAlerts();const w = this.win; if (!w) return; this.win = null; w.closed = true; w.el.classList.add('closing'); this.home.classList.remove('behind'); setTimeout(() => w.el.remove(), 240); this.renderHome(); this.tickStatus(); w.onclose && w.onclose(); }
   refresh() { if (this.win && this.win.refresh) this.win.refresh(); else if (this.open && !this.win) this.renderHome(); }
   // iOS-style banner; tap → open the app
   notify({ app, title, body, icon, bg, arg }) {
     const A = this.apps.find((x) => x.id === app) || {}; const b = this.banner; b.innerHTML = '';
     b.append(h('div.ni', { style: { background: bg || A.bg || '#34c759' } }, icon ? h('span', { style: { fontSize: '20px' } }, icon) : icf(A.icon || 'bell')), h('div.nm', null, h('div.nh', null, h('span', null, (A.name || 'Accra').toUpperCase()), h('span', null, 'now')), h('div.nt', null, title), body ? h('div.nb', null, body) : null));
-    b.onclick = () => { b.classList.remove('in'); this.show(app, arg); };
+    const dismiss=()=>{b.classList.remove('in');b.tabIndex=-1;setTimeout(()=>{if(!b.classList.contains('in'))b.hidden=true;},400);};
+    b.onclick = () => { dismiss();this.show(app, arg); };
     if (this.open) { b.style.top = 'calc(var(--safe-t) + 60px)'; } else b.style.top = '';
-    b.classList.add('in'); vibrate([10, 40, 10]); clearTimeout(this.notifTimer); this.notifTimer = setTimeout(() => b.classList.remove('in'), 4200);
+    b.hidden=false;b.tabIndex=0;b.classList.add('in'); vibrate([10, 40, 10]); clearTimeout(this.notifTimer); this.notifTimer = setTimeout(dismiss, 4200);
     this.island.classList.add('live'); setTimeout(() => this.island.classList.remove('live'), 1600);
   }
 }
@@ -95,8 +99,9 @@ export function iosAlert({ title, text, buttons = [['OK', 'ok']], input }) {
   return new Promise((res) => {
     const host = document.querySelector('.phone-back:not([hidden]) .screen-ph') || document.getElementById('ui');
     const inp = input ? h('input', { placeholder: input, type: input.toLowerCase().includes('email') ? 'email' : 'text', style: { width: '100%', height: '34px', borderRadius: '8px', border: '.5px solid #c7c7cc', padding: '0 8px', fontSize: '15px', marginTop: '10px', background: '#fff' } }) : null;
-    const back = h('div', { style: { position: 'absolute', inset: '0', zIndex: 80, background: 'rgba(0,0,0,.3)', display: 'grid', placeItems: 'center', animation: 'fadeup .15s' } });
-    const done = (v) => { back.remove(); res(v); };
+    const back = h('div.ios-alert', {role:'dialog','aria-modal':'true','aria-label':title, style: { position: 'absolute', inset: '0', zIndex: 80, background: 'rgba(0,0,0,.3)', display: 'grid', placeItems: 'center', animation: 'fadeup .15s' } });
+    let settled=false;const previous=document.activeElement;const done=(v)=>{if(settled)return;settled=true;offKeys();back.remove();if(previous?.isConnected)previous.focus({preventScroll:true});res(v);};
+    const offKeys=dialogKeys(back,()=>done(null));back.addEventListener('cancel',()=>done(null),{once:true});
     back.append(h('div', { style: { width: '270px', borderRadius: '14px', background: 'rgba(242,242,247,.97)', overflow: 'hidden', textAlign: 'center', fontFamily: '-apple-system, var(--body)', color: '#000' } },
       h('div', { style: { padding: '18px 16px 14px' } }, h('div', { style: { fontWeight: 600, fontSize: '17px' } }, title), text ? h('div', { style: { fontSize: '13px', marginTop: '4px', lineHeight: 1.35 } }, text) : null, inp),
       h('div', { style: { display: 'flex', borderTop: '.5px solid rgba(60,60,67,.3)' } }, ...buttons.map(([l, v, style], i) => h('button', { style: { flex: 1, height: '44px', fontSize: '17px', color: style === 'destructive' ? '#ff3b30' : '#007aff', fontWeight: i === buttons.length - 1 ? 600 : 400, borderLeft: i ? '.5px solid rgba(60,60,67,.3)' : '0' }, onclick: () => done(inp ? (v ? inp.value.trim() : null) : v) }, l)))));

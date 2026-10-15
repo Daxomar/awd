@@ -1,56 +1,76 @@
-// Heads-up display: identity + place + money on top, needs rings and mood, quest chips, the activity bar,
-// venue zones and the bottom navigation.
-import { h, ic, icf, cedi, DAYS } from './dom.js';
+// Compact world HUD. Secondary systems remain in the phone or the status sheet.
+import {h,ic,cedi,sheet,closeSheets} from './dom.js';
 import {portrait} from './portrait.js';
-import { G, money, accraClock, NEED_IC, NEED_COL, repTitle } from '../store.js';
+import {G,accraClock,accraNow} from '../store.js';
+import {NEEDS,needView,locationView,activityView,walletValue,moodView,zoneActions} from './hud-state.js';
+import './game-ui.css';
 
-export function buildHud(ui, act) {
-  const ringSvg = (k) => `<svg viewBox="0 0 38 38" width="38" height="38"><circle cx="19" cy="19" r="16.5" fill="none" stroke="#efe5d2" stroke-width="3.5"/><circle class="rv" cx="19" cy="19" r="16.5" fill="none" stroke="${NEED_COL[k]}" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="103.7" stroke-dashoffset="0"/></svg>`;
-  const needs = h('div.needs', null, ...Object.keys(NEED_IC).map((k) => { const n = h('button.need', { 'data-k': k, onclick: () => act.needs(), 'aria-label': k }); n.innerHTML = ringSvg(k); n.append(h('span', null, ic(NEED_IC[k]))); return n; }));
-  const moodEl = h('button.mood', { onclick: () => act.needs() }, h('span.face', null, 'icon:smiley'), h('span.mv', null, '0'));
-  const badge = h('button.me-badge', { onclick: () => act.me() }, h('div.ring'), h('div.ini'), h('div.lvl', null, '0'));
-  const placeName = h('div.place-name', null, '…'), placeMeta = h('div.place-meta');
-  const moneyEl = h('button.money', { onclick: () => act.wallet() }, h('span.mt.tnum', null, 'GH₵0'), h('span.plus', { onclick: (e) => { e.stopPropagation(); act.topup(); } }, ic('plus')));
-  const chips = h('div.chips'); const busy = h('div.busy', { hidden: true });
-  const top = h('div.hud', null, h('div.hud-top', null, badge, h('button.place-box', { onclick: () => act.map() }, placeName, placeMeta), moneyEl), h('div.row', { style: { gap: '6px' } }, needs, moodEl));
-  const zones = h('div.zones'); const chatlog = h('div.chatlog');
-  const navBtn = (id, icon, label) => h('button', { 'data-nav': id, onclick: () => act.nav(id) }, ic(icon), label, h('span.badge', { hidden: true }));
-  const nav = h('div.nav', null, navBtn('home', 'house', 'Home'), navBtn('map', 'map-trifold', 'Map'), h('button.phone-btn', { 'data-nav': 'phone', onclick: () => act.nav('phone') }, h('div.pb', { 'aria-label': 'Phone' }, icf('device-mobile'), h('span.badge', { hidden: true }))), navBtn('shop', 'shopping-bag', 'Shop'), navBtn('chat', 'chat-circle-dots', 'Chat'));
-  const chatInput = h('input', { placeholder: 'Say something…', maxLength: 160, enterkeyhint: 'send' });
-  const chatbar = h('form.chatbar', { hidden: true, onsubmit: (e) => { e.preventDefault(); const t = chatInput.value.trim(); if (t) act.say(t); chatInput.value = ''; chatbar.hidden = true; chatInput.blur(); } }, chatInput, h('button.btn.primary', { type: 'submit' }, ic('paper-plane-right')));
-  const bottom = h('div.bottom', null, busy, zones, chatbar, nav);
-  ui.append(top, chips, chatlog, bottom);
-  const H = { top, zones, nav, chips, busy, chatbar, chatInput, chatlog, bottom,
-    toggleChat() { chatbar.hidden = !chatbar.hidden; if (!chatbar.hidden) chatInput.focus(); },
-    setNav(id) { nav.querySelectorAll('[data-nav]').forEach((b) => b.classList.toggle('on', b.dataset.nav === id)); },
-    badge(id, n) { const b = nav.querySelector(`[data-nav="${id}"] .badge`); if (b) { b.hidden = !n; b.textContent = n > 99 ? '99+' : n; } },
-    stats() {
-      const s = G.state; if (!s) return; const n = s.n || {};
-      for (const el of needs.children) { const k = el.dataset.k, v = Math.max(0, Math.min(100, n[k] || 0)); el.querySelector('.rv').setAttribute('stroke-dashoffset', String(103.7 * (1 - v / 100))); el.classList.toggle('low', v < 20); }
-      const m = s.mood ?? 0; moodEl.querySelector('.face').replaceChildren(ic(m > 15 ? 'smiley' : m > -15 ? 'smiley-meh' : 'smiley-sad')); moodEl.querySelector('.mv').textContent = (m > 0 ? '+' : '') + m;
-      moneyEl.querySelector('.mt').textContent = cedi(money(), true);
-      const lookKey=JSON.stringify(s.look);if(badge.lookKey!==lookKey){badge.lookKey=lookKey;badge.querySelector('.ini').replaceChildren(portrait(s.look,s.name,'hud-portrait'));} badge.querySelector('.ini').style.cssText = 'width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font:600 19px var(--disp);color:#fff;background:var(--green)';
-      badge.querySelector('.lvl').textContent = s.rep || 0;
-      const mc = m > 15 ? '#22c55e' : m > -15 ? '#ffc83d' : '#d7263d'; badge.querySelector('.ring').style.background = `conic-gradient(${mc} ${Math.round((m + 100) / 2)}%, #efe5d2 0)`; badge.querySelector('.ring').style.cssText += ';mask:radial-gradient(circle,transparent 24px,#000 25px);-webkit-mask:radial-gradient(circle,transparent 24px,#000 25px)';
-    },
-    clock() { const c = accraClock(); placeName.textContent = G.placeName || (G.state && G.state.busy && G.state.busy.travel ? 'On the road' : 'Accra'); placeMeta.innerHTML = ''; placeMeta.append(`${DAYS[c.wd]} ${String(c.hh).padStart(2, '0')}:${String(c.mm).padStart(2, '0')}`, h('span', null, '·'), h('span.dot', {style:{background:G.connected === false ? '#b55b35' : '#23745c'}}), G.connected === false ? 'Reconnecting…' : `${(G.online || 1).toLocaleString()} online`, ...(G.state && G.state.dumsor ? [h('span', { style: { color: '#d7263d' } }, '·  Dumsor')] : [])); },
-    // busy / shift progress bar
-    progress() {
-      const s = G.state; const b = s && s.busy; const sh = s && s.shift;
-      if (b && !b.travel) { const t = Date.now() + (G.offset || 0); const f = Math.max(0, Math.min(1, (t - b.start) / (b.end - b.start))); if (busy.hidden || busy.dataset.id !== b.id + b.start) { busy.hidden = false; busy.dataset.id = b.id + b.start; busy.innerHTML = ''; busy.append(h('div.bi', null, b.ic || ''), h('div.grow', null, h('div.bl', null, b.label || (b.mg ? 'Mini-game' : 'Busy')), h('div.bar', null, h('i'))), b.sleep || b.mg ? null : h('button.bx', { onclick: () => act.cancel(), 'aria-label': 'Stop' }, ic('x'))); } busy.querySelector('.bar i').style.width = (f * 100).toFixed(1) + '%'; }
-      else if (sh) { const t = Date.now() + (G.offset || 0); const f = Math.min(1, (t - sh.start) / 3600000); if (busy.hidden || busy.dataset.id !== 'shift') { busy.hidden = false; busy.dataset.id = 'shift'; busy.innerHTML = ''; busy.append(h('div.bi', null, ''), h('div.grow', null, h('div.bl.shl'), h('div.bar', null, h('i'))), h('button.bx', { onclick: () => act.work() }, ic('briefcase'))); } busy.querySelector('.shl').textContent = `At work · ${Math.round((1 - f) * 60)} min left`; busy.querySelector('.bar i').style.width = (f * 100).toFixed(1) + '%'; }
-      else if (!busy.hidden) { busy.hidden = true; busy.dataset.id = ''; }
-    },
-    quests() {
-      chips.innerHTML = ''; const s = G.state; if (!s) return;
-      if (G.gem) chips.append(h('button.qchip.gem', { onclick: () => act.gem() }, h('span.qi', null, 'icon:diamond'), h('span', null, `Gem hunt · GH₵${G.gem.prize}`, h('br'), h('span.muted', { style: { fontWeight: 600 } }, G.gem.area ? `Somewhere in ${G.gem.area}` : 'Hidden in Accra'))));
-      const d = s.daily; if (d && d.list && d.list.length) { const done = d.list.filter((x) => x.done).length; chips.append(h('button.qchip', { onclick: () => act.goals() }, h('span.qi', null, done === d.list.length ? 'icon:check-circle' : 'icon:target'), h('span', null, `Today ${done}/${d.list.length}`, d.streak ? ` · ${d.streak}` : ''))); }
-      const g = null; if (g) chips.append(h('button.qchip', { onclick: () => act.goals() }, h('span.qi', null, 'icon:map-pin'), h('span', null, g.label.length > 34 ? g.label.slice(0, 33) + '…' : g.label)));
-      if (s.job && !s.shift) { const c = G.cat.careers[s.job.id]; chips.append(h('button.qchip', { onclick: () => act.work() }, h('span.qi', null, c.ic), h('span', null, c.ranks[s.job.rank][0], h('br'), h('span.muted', { style: { fontWeight: 600 } }, 'Start shift')))); }
-      if (s.sick) chips.append(h('button.qchip', { onclick: () => act.needs() }, h('span.qi', null, 'icon:first-aid'), h('span', null, s.sick.kind || 'Sick', h('br'), h('span', { style: { color: '#d7263d' } }, 'See a doctor'))));
-      if (!s.home) chips.append(h('button.qchip', { onclick: () => act.app('houses') }, h('span.qi', null, 'icon:house'), h('span', null, 'No home', h('br'), h('span', { style: { color: '#d7263d' } }, 'Find a room'))));
-    },
-    chatLine(name, text) { const d = h('div', null, h('b', null, name), text); chatlog.append(d); while (chatlog.children.length > 5) chatlog.firstChild.remove(); setTimeout(() => d.remove(), 12000); },
+export function buildHud(ui,act){
+ const name=h('strong'),condition=h('small'),face=h('span.player-face');
+ const identity=h('button.player-status',{'aria-label':'Character status','aria-expanded':'false',onclick:()=>openStatus()},face,h('span.player-copy',null,name,condition),ic('caret-down'));
+ const balance=h('strong.tnum'),wallet=h('button.wallet-control',{'aria-label':'Open wallet',onclick:()=>act.wallet()},ic('wallet'),balance);
+ const location=h('span.current-location'),time=h('time'),place=h('button.location-control',{'aria-label':'Current location and city map',onclick:()=>act.map()},ic('map-pin'),location,time,ic('caret-right'));
+ const offline=h('p.connection-note',{hidden:true,role:'status'},ic('wifi-slash'),'Reconnecting. Your saved life is safe.');
+ const top=h('header.hud.play-hud',{'aria-label':'Player and location'},h('div.hud-surface',null,h('div.hud-top',null,identity,wallet),place),offline);
+ const busy=h('div.busy.activity-hud',{hidden:true}),zones=h('div.zones.interaction-options'),chips=h('div.status-extras');
+ const navBtn=(id,icon,label)=>h('button',{'data-nav':id,'aria-label':label,onclick:()=>act.nav(id)},ic(icon),h('span',null,label),h('span.badge',{hidden:true}));
+ const nav=h('nav.nav.play-nav',{'aria-label':'Game controls'},navBtn('home','house','Home'),navBtn('map','map-trifold','Map'),navBtn('interact','hand-tap','Interact'),navBtn('chat','chat-circle-dots','Chat'),navBtn('phone','device-mobile','Phone'));
+ const bottom=h('div.bottom.play-bottom',null,busy,nav),chatlog=h('div.chatlog',{ 'aria-hidden':'true' });
+ ui.append(top,chatlog,bottom);
+ let lookSig='',needSig='',extrasSig='',lastNeeds={},needViews={},statusDraw=null;
+ const patch=(el,text)=>{if(el.textContent!==text)el.textContent=text;};
+ function openStatus(){
+  closeSheets();identity.setAttribute('aria-expanded','true');const content=h('div.sheet-body.status-body');
+  statusDraw=()=>{
+   const s=G.state,m=moodView(s),career=G.cat.careers[s.job?.id];
+   if(content.childElementCount){
+    patch(content.querySelector('.status-identity h3'),s.name);patch(content.querySelector('.status-identity p'),`${m.label} (${m.value>0?'+':''}${m.value})`);
+    for(const button of content.querySelectorAll('[data-need]')){const k=button.dataset.need,v=needViews[k]||needView(s.n?.[k]);button.dataset.status=v.status;button.setAttribute('aria-label',`${NEEDS[k].label}: ${v.value} out of 100. ${v.label}`);patch(button.querySelector('strong'),String(v.value));patch(button.querySelector('small'),v.label);button.querySelector('.need-track i').style.width=v.value+'%';}
+    patch(content.querySelector('.status-links .world-row span'),career?career.ranks[s.job.rank]?.[0]||career.name:'Find your next opportunity');return;
+   }
+   content.replaceChildren(h('div.status-identity',null,portrait(s.look,s.name,'status-portrait'),h('div',null,h('h3',null,s.name),h('p',null,m.label,` (${m.value>0?'+':''}${m.value})`))),h('h3.panel-heading',null,'Your needs'),h('div.needs',null,...Object.entries(NEEDS).map(([k,n])=>{
+    const v=needViews[k]||needView(s.n?.[k]);return h('button.need-detail',{'data-need':k,'data-status':v.status,'aria-label':`${n.label}: ${v.value} out of 100. ${v.label}`,onclick:()=>openNeed(k)},h('span.need-heading',null,ic(n.icon),n.label,h('strong',null,String(v.value))),h('span.need-track',null,h('i',{style:{width:v.value+'%'}})),h('small',null,v.label));
+   })),h('h3.panel-heading',null,'Your life'),h('div.status-links',null,
+    actionLink('briefcase',career?career.ranks[s.job.rank]?.[0]||career.name:'Find your next opportunity',()=>act.work()),
+    actionLink('users','Relationships & contacts',()=>act.phone('contacts')),
+    actionLink('user-circle',`Your life · reputation ${s.rep||0}`,()=>act.me()),
+    actionLink('speaker-high','Sound settings',()=>act.sound()),actionLink('question','Quick tour',()=>act.tutorial())),chips);
   };
-  return H;
+  statusDraw();sheet(content,{title:'How you dey?',sub:'Your character and what they need',onclose:()=>{identity.setAttribute('aria-expanded','false');statusDraw=null;}});
+ }
+ function actionLink(icon,label,fn){return h('button.world-row',{onclick:()=>{closeSheets();fn();}},ic(icon),h('span',null,label),ic('caret-right'));}
+ function openNeed(key){
+  closeSheets();const s=G.state,n=NEEDS[key],v=needViews[key]||needView(s.n?.[key]);
+  const context=act.context?.(),options=[];
+  if(context)for(const z of context.spec?.zones||[])for(const a of zoneActions(z,context.actions))if((a.fx?.[key]||0)>0)options.push({z,a});
+  const body=h('div.sheet-body.need-explanation',null,h('div.need-score',{'data-status':v.status},ic(n.icon),h('strong',null,String(v.value)),h('span',null,'/ 100 · '+v.label)),h('p',null,n.tip),h('h3.panel-heading',null,options.length?'Available here':'Look around Accra'),...options.slice(0,5).map(({z,a})=>actionLink(z.icon?.replace('ph-','')||n.icon,a.label,()=>act.openZone(z))),options.length?null:h('p.muted',null,'There is no matching activity in this room.'),actionLink('map-trifold','Open city map',()=>act.map()),actionLink('heart','Health details in your phone',()=>act.needs()));
+  sheet(body,{title:n.label,sub:'Based on your current needs'});
+ }
+ const H={top,zones,nav,chips,busy,bottom,chatlog,
+  setNav(id){for(const b of nav.children){const on=b.dataset.nav===id;b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on));}},
+  badge(id,n){const b=nav.querySelector(`[data-nav="${id}"] .badge`);if(b){b.hidden=!n;patch(b,n>99?'99+':String(n));}},
+  stats(){const s=G.state;if(!s)return;
+   patch(name,s.name);const m=moodView(s),critical=Object.keys(NEEDS).find(k=>(s.n?.[k]??100)<20);
+   patch(condition,s.jail>0?'In police custody':s.sick?(s.sick.kind||'Feeling unwell'):critical?NEEDS[critical].label+' needs attention':m.label);identity.classList.toggle('critical',!!critical||!!s.sick);
+   patch(balance,cedi(walletValue(s),true));wallet.setAttribute('aria-label',`Wallet ${cedi(walletValue(s))}. Open MoMo`);
+   const look=JSON.stringify(s.look);if(look!==lookSig){lookSig=look;face.replaceChildren(portrait(s.look,s.name,'hud-portrait'));}
+   const sig=JSON.stringify(s.n);if(sig!==needSig){needSig=sig;for(const k of Object.keys(NEEDS))needViews[k]=needView(s.n?.[k],lastNeeds[k]);lastNeeds={...s.n};}statusDraw?.();
+  },
+  clock(){if(!G.state)return;const c=accraClock(),l=locationView(G.state,G.cat,G.placeName);patch(location,l.name+(l.area&&!l.name.toLowerCase().includes(l.area.toLowerCase())?' · '+l.area:''));place.title=location.textContent;patch(time,`${String(c.hh).padStart(2,'0')}:${String(c.mm).padStart(2,'0')}`);offline.hidden=G.connected!==false;},
+  progress(){const a=activityView(G.state,accraNow());nav.querySelector('[data-nav="map"]').setAttribute('aria-disabled',String(!!a?.travel));if(!a||a.travel){busy.hidden=true;busy.dataset.id='';return;}busy.hidden=false;
+   if(busy.dataset.id!==a.id){busy.dataset.id=a.id;busy.replaceChildren(ic(a.travel?'bus':a.shift?'briefcase':'hourglass-medium'),h('div.grow',null,h('strong.bl',null,a.label),h('div.activity-meta'),h('div.bar',{role:'progressbar','aria-label':a.label,'aria-valuemin':'0','aria-valuemax':'100'},h('i'))),a.canCancel?h('button.bx',{'aria-label':'Stop activity',onclick:()=>act.cancel()},ic('x')):a.shift?h('button.bx',{'aria-label':'View shift',onclick:()=>act.work()},ic('briefcase')):null);}
+   patch(busy.querySelector('.activity-meta'),a.remaining?(a.remaining>60?`${Math.ceil(a.remaining/60)} min remaining`:`${a.remaining}s remaining`):'Finishing…');busy.querySelector('.bar i').style.width=(a.progress*100).toFixed(1)+'%';busy.querySelector('.bar').setAttribute('aria-valuenow',String(Math.round(a.progress*100)));
+  },
+  quests(){const s=G.state;if(!s)return;const sig=JSON.stringify([G.gem,s.job,s.shift,s.sick,s.home,s.daily,s.dumsor]);if(sig===extrasSig)return;extrasSig=sig;chips.replaceChildren();
+   if(G.gem)chips.append(actionLink('diamond',`Gem hunt · ${cedi(G.gem.prize)}`,()=>act.gem()));
+   if(s.daily?.list?.length)chips.append(actionLink('target',`Today ${s.daily.list.filter(x=>x.done).length}/${s.daily.list.length}`,()=>act.goals()));
+   if(s.sick)chips.append(actionLink('first-aid',s.sick.kind||'See health details',()=>act.needs()));
+   if(s.dumsor)chips.append(h('p.context-hint',null,'Power outage in this area'));
+   if(!s.home)chips.append(actionLink('house','Find a home',()=>act.app('houses')));
+  },
+  chatLine(name,text){const line=h('div',null,h('b',null,name),text);chatlog.replaceChildren(line);setTimeout(()=>line.remove(),4500);},
+  connection(m){G.connected=m.connected;offline.replaceChildren(ic(m.connected?'wifi-high':'wifi-slash'),m.terminal?'Session ended. Reload to sign in again.':'Reconnecting. Your saved life is safe.',...(m.terminal?[h('button',{onclick:()=>window.location.reload()},'Reload')]:[]));},
+  openStatus,openNeed,
+ };
+ return H;
 }

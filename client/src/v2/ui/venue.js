@@ -1,12 +1,12 @@
-// Venue interaction: zone chips along the bottom, and the zone sheet full of action cards (Lagos Life style).
-import { h, ic, sheet, cedi, mins } from './dom.js';
+// Contextual object actions and the current room’s Around you options.
+import { h, ic, sheet, cedi, mins, closeSheets } from './dom.js';
+import {zoneActions} from './hud-state.js';
 import { G, loc, actBlock, actColor, NEED_IC, isOpen } from '../store.js';
 
-const ZONE_EMOJI = { 'ph-bowl-food': 'icon:bowl-food', 'ph-toilet': 'icon:toilet', 'ph-bed': 'icon:bed', 'ph-shower': 'icon:shower', 'ph-cooking-pot': 'icon:cooking-pot', 'ph-television': 'icon:television', 'ph-laptop': 'icon:laptop', 'ph-guitar': 'icon:guitar', 'ph-barbell': 'icon:barbell' };
 export function actsFor(place) {
   if (place === 'home') return G.cat.homeActs; const l = loc(place); return l ? l.acts : [];
 }
-// fill the zone chip row for the current room spec
+// Fill the reusable options container for the current room.
 export function renderZones(el, spec, place, act) {
   el.innerHTML = ''; if (!spec) return;
   const acts = actsFor(place); const byId = Object.fromEntries(acts.map((a) => [a.id, a]));
@@ -14,7 +14,7 @@ export function renderZones(el, spec, place, act) {
   if (car && !place.startsWith('visit')) { const [cid, c] = car; const mine = s.job && s.job.id === cid; el.append(h('button.zone', { onclick: () => act.jobHere(cid) }, h('span.zi', { style: { background: '#17150f' } }, c.ic), mine ? (s.shift ? 'At work' : 'Start shift') : 'Jobs here')); }
   if (place === 'home') el.append(h('button.zone', { onclick: () => act.wardrobe('wardrobe') }, h('span.zi', { style: { background: '#bf5af2' } }, h('i', { class: 'ph-fill ph-coat-hanger' })), 'Wardrobe'));
   for (const z of spec.zones || []) {
-    if(z.route){el.append(h('button.zone',{onclick:()=>act.route(z)},h('span.zi',null,ic(z.icon||'person-simple-walk')),z.label));continue;}
+    if(z.route){el.append(h('button.zone',{onclick:()=>openZone(z,place,act)},h('span.zi',null,ic(z.icon||'person-simple-walk')),z.label));continue;}
     const zacts = z.acts.map((id) => byId[id]).filter(Boolean); if (!zacts.length) continue;
     const col = actColor(zacts[0]); const iconName = (z.icon || 'ph-star').replace(/^ph-/, '');
     const b = h('button.zone', { onclick: () => openZone(z, place, act) }, h('span.zi', { style: { background: col } }, h('i', { class: 'ph-fill ph-' + iconName })), z.label);
@@ -43,10 +43,25 @@ export function actCard(a, place, onGo) {
     h('div.lbl', null, a.label), h('div.meta', null, ...effectChips(a)));
 }
 export function openZone(z, place, act) {
-  if(z.route)return act.route(z);
-  const acts = actsFor(place); const list = z.acts.map((id) => acts.find((a) => a.id === id)).filter(Boolean);
+  if(z.route){
+    closeSheets();const error=h('p.context-error',{role:'alert',hidden:true});
+    const s=sheet(h('div.sheet-body',null,h('p.context-hint',null,'Move through this doorway.'),h('button.btn.primary.wide',{onclick:()=>{
+      if(G.state.busy||G.state.shift||G.connected===false){error.hidden=false;error.textContent=G.connected===false?'Reconnect before moving to another place.':'Finish your current activity first.';return;}
+      s.close();act.route(z);
+    }},ic('person-simple-walk'),z.label),error),{title:z.label,onclose:()=>act.clearFocus?.()});act.zoneFocus?.(z);return s;
+  }
+  closeSheets();const list = zoneActions(z,actsFor(place));
   const l = place === 'home' ? null : loc(place); const placeTxt = l ? `${l.name}${isOpen(l) ? '' : ' · closed now'}` : 'Home';
-  const s = sheet(h('div.sheet-body', null, h('div.acts', null, ...list.map((a) => actCard(a, place, (a2, why) => { if (why) return act.toast(why, 'bad'); s.close(); act.start(a2, z); })))), { title: z.label, sub: placeTxt });
+  const error=h('p.context-error',{role:'alert',hidden:true}),status=h('p.context-state',{role:'status'});
+  let pending=false;
+  const cards=list.map(a=>actCard(a,place,async(a2,why)=>{
+    if(pending)return;if(why){error.hidden=false;error.textContent=why;return;}
+    pending=true;error.hidden=true;status.textContent='Waiting for confirmation…';cards.forEach(c=>c.disabled=true);
+    try{await act.start(a2,z);s.close();}
+    catch(e){error.hidden=false;error.textContent=e.message;}
+    finally{pending=false;status.textContent='';cards.forEach(c=>c.disabled=false);}
+  }));
+  const s = sheet(h('div.sheet-body', null,h('div.context-target',null,ic((z.icon||'hand-tap').replace(/^ph-/,'')),h('span',null,'Selected: '+z.label)),h('p.context-hint',null,'Choose an action. Costs and effects are shown before you start.'), h('div.acts', null,...cards),status,error), { title: z.label, sub: placeTxt,onclose:()=>act.clearFocus?.() });
   act.zoneFocus && act.zoneFocus(z);
   return s;
 }

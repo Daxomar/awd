@@ -1,0 +1,35 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {needView,locationView,activityView,walletValue,moodView,zoneActions} from '../src/v2/ui/hud-state.js';
+import {ActivityRequests} from '../src/v2/ui/activity-requests.js';
+test('needs reflect actual values and confirmed recovery; mood and money remain real',()=>{
+ assert.equal(needView(15,25).status,'critical');assert.equal(needView(30,40).status,'declining');assert.equal(needView(55,30).status,'recovering');assert.equal(needView(75,75).status,'normal');assert.equal(needView(120).value,100);
+ assert.equal(walletValue({cash:200,momo:600}),800);assert.equal(walletValue({cash:175,momo:600}),775);assert.equal(moodView({mood:-22}).value,-22);
+});
+test('location uses current state, not a previous room label, including transport and visits',()=>{
+ const cat={homes:{nima:{area:'Nima'}},locs:[{id:'oxford',name:'Oxford Street',area:'Osu'},{id:'n:nima',name:'Nima streets',area:'Nima'}]};
+ assert.deepEqual(locationView({place:'home',home:'nima'},cat,'Stale venue'),{name:'Home',area:'Nima'});
+ assert.equal(locationView({place:'oxford'},cat,'Nima').area,'Osu');assert.equal(locationView({place:'n:nima'},cat).name,'Nima streets');
+ assert.equal(locationView({place:'home',busy:{travel:{},label:'Taxi to Osu'}},cat,'Home').name,'On the road');assert.equal(locationView({place:'visit:1'},cat,'Ama’s place').area,'Visiting a player');
+});
+test('activity progress is bounded; cancel follows existing server rules, not a new timer',()=>{
+ const b={id:'nap',label:'Nap',start:1000,end:11000,sleep:true};assert.equal(activityView({busy:b},6000).progress,.5);assert.equal(activityView({busy:b},12000).remaining,0);assert.equal(activityView({busy:b},-1).progress,0);assert.equal(activityView({busy:b},5000).canCancel,true);
+ assert.equal(activityView({busy:{...b,mg:'azonto'}},5000).canCancel,false);assert.equal(activityView({busy:{...b,travel:{mode:'walk'}}},5000).canCancel,false);assert.equal(activityView({shift:{start:1000}},1000).remaining,3600);
+ assert.equal(activityView({},5000),null);
+});
+test('context menus contain only actions mapped to that selected object',()=>{
+ assert.deepEqual(zoneActions({acts:['sleep','nap','imagined']},[{id:'sleep'},{id:'nap'},{id:'cook'}]).map(a=>a.id),['sleep','nap']);
+});
+function netMock(){const h={};return {connected:true,h,on(t,f){(h[t]||=[]).push(f);return()=>h[t]=h[t].filter(x=>x!==f);},emit(t,m){for(const f of [...h[t]||[]])f(m);},send(){return true;}};}
+test('action listener exists before send; only the matching confirmed action resolves',async()=>{
+ const n=netMock(),q=new ActivityRequests(n);n.send=m=>{n.emit('busy',{busy:{id:'unrelated'}});n.emit('busy',{busy:{id:m.id}});return true;};await q.request({t:'act',id:'bath'});
+ n.send=()=>true;let resolved=false;const game=q.request({id:'dance'}).then(()=>resolved=true);n.emit('mg',{act:'unrelated'});await Promise.resolve();assert.equal(resolved,false);n.emit('mg',{act:'dance'});await game;assert.equal(resolved,true);
+ q.dispose();assert.ok(Object.values(n.h).every(a=>a.length===0));
+});
+test('rejections, connection loss, duplicate taps and timeouts recover without duplicate listeners',async()=>{
+ const n=netMock(),q=new ActivityRequests(n,{timeout:25});const count=Object.values(n.h).reduce((s,a)=>s+a.length,0);
+ for(let i=0;i<3;i++){const request=q.request({id:'bath'});await assert.rejects(q.request({id:'bath'}),/Wait/);n.emit('toast',{k:'bad',m:'Not available here'});await assert.rejects(request,/Not available/);}
+ const disconnected=q.request({id:'nap'});n.emit('connection',{connected:false});await assert.rejects(disconnected,/Connection lost/);await assert.rejects(q.request({id:'nap'}),/not confirmed/);
+ n.connected=false;await assert.rejects(q.request({id:'bath'}),/Reconnecting/);n.connected=true;n.send=()=>false;await assert.rejects(q.request({id:'bath'}),/Could not send/);
+ assert.equal(Object.values(n.h).reduce((s,a)=>s+a.length,0),count);q.dispose();assert.ok(Object.values(n.h).every(a=>a.length===0));
+});

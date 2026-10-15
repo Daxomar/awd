@@ -16,6 +16,7 @@ export class World {
   constructor(stage, tagsEl) { this.stage = stage; this.tagsEl = tagsEl; this.room = null; this.others = new Map(); this.bubbles = []; this.ray = new THREE.Raycaster(); this.v = new THREE.Vector3(); }
   get spec() { return this.room && this.room.spec; }
   clear() {
+    this.clearSelection();
     if (this.room) { for (const id of [...this.room.people.keys()]) this.room.removePerson(id); this.room.dispose(); }
     this.room = null; this.others.clear(); this.tagsEl.innerHTML = ''; this.bubbles = []; this.gemObj = null; this.npcs = [];
   }
@@ -95,6 +96,15 @@ export class World {
   }
   hideGem() { if (this.gemObj) { this.gemObj.parent && this.gemObj.parent.remove(this.gemObj); this.gemObj = null; } }
   // ---- input ----
+  clearSelection(){this.selectionPerson=null;if(!this.selection)return;this.selection.removeFromParent();this.selection.geometry.dispose();this.selection.material.dispose();this.selection=null;}
+  focusTarget({item,person}){
+    this.clearSelection();if(!this.room)return;this.selectionPerson=person;
+    const obj=person?this.room.people.get(person)?.av.root:this.room.items[item]?.obj;if(!obj)return;
+    const box=new THREE.Box3().setFromObject(obj),center=box.getCenter(new THREE.Vector3()),size=box.getSize(new THREE.Vector3());
+    const radius=person ? .5 :Math.max(.45,Math.max(size.x,size.z)*.6);
+    this.selection=new THREE.Mesh(new THREE.RingGeometry(radius,radius+.045,48),new THREE.MeshBasicMaterial({color:'#edc75f',transparent:true,opacity:.95,side:THREE.DoubleSide,depthWrite:false}));
+    this.selection.rotation.x=-Math.PI/2;this.selection.position.set(center.x,.03,center.z);this.room.group.add(this.selection);
+  }
   pick(cx, cy) {
     if (!this.room) return null; const ndc = new THREE.Vector2((cx / innerWidth) * 2 - 1, -(cy / innerHeight) * 2 + 1);
     if (this.gemObj) { this.ray.setFromCamera(ndc, this.stage.camera); if (this.ray.intersectObject(this.gemObj, false).length) return { type: 'gem' }; const sp = this.screenOf(this.gemObj.position.x, 0.5, this.gemObj.position.z); if (Math.hypot(sp[0] - cx, sp[1] - cy) < 34) return { type: 'gem' }; }
@@ -109,7 +119,9 @@ export class World {
   }
   zoneForNpc(id) {
     const p = this.room.people.get(id); if (!p) return null;
-    const zones = (this.spec.zones || []).filter((z) => this.room.items[z.item]);
+    if(this.spec.neighbourhood&&p.info.label?.startsWith('Neighbour'))return null;
+    const staff=p.info.label?.includes('Aboki')?'khebab':p.info.label?.includes('FanYogo')?'fanyogo':null;
+    const zones=(this.spec.zones||[]).filter(z=>!z.route&&z.acts?.length&&this.room.items[z.item]&&(!staff||z.acts.includes(staff)));
     return zones.sort((a, b) => { const A = this.room.items[a.item].spec, B = this.room.items[b.item].spec; return Math.hypot(A.x - p.x, A.z - p.z) - Math.hypot(B.x - p.x, B.z - p.z); })[0] || null;
   }
   screenOf(x, y, z) { return this.room.screen(x, y, z); }
@@ -124,6 +136,7 @@ export class World {
     m.owners.forEach((owner,i)=>{const x=[-5,5,-14,14][i%4],z=[0,-8,13][Math.floor(i/4)];r.addItem({kind:'street_building:6,4',x,z,rot:z>6?Math.PI:0,label:'@'+owner.name,owner,color:['#f0e6d4','#e0d2bf','#d6e1d7'][i%3]});});r.buildNav();this.estate=m;
   }
   update(dt) {
+    const selected=this.room?.people.get(this.selectionPerson);if(selected&&this.selection){this.selection.position.x=selected.x;this.selection.position.z=selected.z;}
     if (!this.room) return; this.elapsed+=dt;const hour=new Date(accraNow()).getUTCHours();const isAvailable=open=>!open||(open[1]>24?hour>=open[0]||hour<open[1]-24:hour>=open[0]&&hour<open[1]);
     for(const id of this.npcs){const p=this.room.people.get(id),n=p.schedule;const on=isAvailable(n.open);p.av.root.visible=on;if(p.tagEl)p.tagEl.hidden=!on;if(!on)continue;if(this.elapsed>p.nextMove){p.nextMove=this.elapsed+5+(id.length%3);if(n.patrol&&!p.path.length){const target=n.patrol[p.patrolIndex++%n.patrol.length];this.room.walkTo(id,...target);}else p.av.gesture(n.gesture||'agree');}}
     for(const r of this.room.items)if(r.spec.open)r.obj.visible=isAvailable(r.spec.open);

@@ -1,9 +1,11 @@
 import { h, ic } from './dom.js';
 import { net } from '../net.js';
 import { G } from '../store.js';
+import {dialogKeys} from './overlays.js';
 
 export function buildChat(ui, onUnread = () => {}) {
-  let channel = 'city', unread = 0, pending = null;
+  let channel = 'city', unread = 0, pending = null,offKeys;
+  const close=()=>{panel.hidden=true;input.blur();offKeys?.();};
   const history = { city: [], room: [] };
   const title = h('strong', null, 'City chat');
   const info = h('div.chat-context');
@@ -13,7 +15,7 @@ export function buildChat(ui, onUnread = () => {}) {
   const status = h('div.chat-status', { role: 'status' });
   const tabs = h('div.chat-tabs', null, ...[['city', 'City'], ['room', 'Nearby']].map(([id, label]) => h('button', { type: 'button', 'data-channel': id, onclick: () => { channel = id; draw(); } }, label)));
   const panel = h('section.chat-panel', { hidden: true, 'aria-label': 'Player chat' },
-    h('div.chat-heading', null, title, h('button.chat-close', { 'aria-label': 'Close chat', onclick: () => { panel.hidden = true; input.blur(); } }, ic('x'))), tabs, info, log,
+    h('div.chat-heading', null, title, h('button.chat-close', { 'aria-label': 'Close chat', onclick:close }, ic('x'))), tabs, info, log,
     h('form.chat-compose', { onsubmit: (e) => {
       e.preventDefault(); const text = input.value.trim(); if (!text || pending) return;
       const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -41,5 +43,5 @@ export function buildChat(ui, onUnread = () => {}) {
   net.on('connection', (m) => { status.textContent = m.connected ? 'Connected' : m.terminal ? 'Session ended. Sign in again to chat.' : 'Reconnecting… drafts are kept.'; if (!m.connected) finish(false, status.textContent); });
   const viewport = () => { const v = window.visualViewport; panel.style.bottom = `${Math.max(0, innerHeight - (v?.height || innerHeight) - (v?.offsetTop || 0)) + 12}px`; panel.style.maxHeight = `${Math.max(180, (v?.height || innerHeight) - 32)}px`; };
   window.visualViewport?.addEventListener('resize', viewport); viewport(); draw();
-  return { toggle() { panel.hidden = !panel.hidden; if (!panel.hidden) { unread = 0; onUnread(0); draw(); input.focus(); } else input.blur(); }, get unread() { return unread; }, panel };
+  return {close,toggle() {if(!panel.hidden)return close();panel.hidden=false;offKeys=dialogKeys(panel,close,()=>!panel.hidden);if (!panel.hidden) { unread = 0; onUnread(0); draw(); input.focus(); } else input.blur(); }, get unread() { return unread; }, panel };
 }

@@ -163,26 +163,27 @@ No external character/animation asset is introduced by milestone 1.
 
 ## G. Ordered roadmap and acceptance gates
 
-**Priority update, 15 October 2026:** the user has moved character art, rigging,
-clothing and animation work to the final development phase. The active Phase 1
-is now onboarding only; its fixes and evidence are in [onboarding-review.md](onboarding-review.md).
-The table below records the original audit sequence, not authorization to proceed
-to deferred character/HUD/map work.
+**Priority update, 15 October 2026:** the following user-approved sequence
+supersedes the original audit order. Phase 1 onboarding is preserved; its evidence
+is in [onboarding-review.md](onboarding-review.md). Phase 2 implementation and
+verification are documented in [hud-review.md](hud-review.md). Later phases require
+their own implementation milestones; this change does not begin Phase 3.
 
-| Phase | Existing files to evolve | Deliverable and acceptance |
-| --- | --- | --- |
-| 1a: current milestone | `character.js`, `human.js`, `room.js`; small cache/fit helpers | Shared geometry ownership, smoother shirt fit; unit and browser stress/pose checks, actual-game visual review. |
-| 1b: remaining character art | model builders, `poses.js`, `character.js` | Hand/wrist and foot measurements, corrected anatomy/bind/pose causes, tailored starter garments, hair/face refinement; both bodies at morph extremes, walk/sit/greet/dance inspected. |
-| 2: creator/onboarding | `stylist.js`, `studio.js`, `onboard.js`, tutorial | Full-body framing/zoom/rotation, organized controls, transitions/reduced motion, animated deterministic birth reveal; persisted looks survive reconnects. |
-| 3: scene quality/budgets | `stage.js`, `room.js`, `kit.js`, materials/audio | Consistent daylight/night/interior materials, graphics settings and lifecycle checks; instrument CPU/GPU/frame-time budgets. Compact expandable HUD in `hud.js`/CSS, preserve phone apps. |
-| 4: district map | `map.js`, `bake.js`, road data/tools | Jamestown/Circle/East Legon rules, geography, chunk culling/LOD, cached assets and clustered markers; existing destination/travel IDs retained. |
-| 5: one neighborhood | `neighbourhood.js`, `world.js`, `room.js`, shard movement | A polished Jamestown street from an existing home, compound/shop/food/MoMo/barber/transport interactions, return-home path, server-valid movement and two-player presence. |
-| 6: emergent systems | authoritative rules, `social.js`, phone apps and Shard | Businesses/customers/commerce, invitations/gatherings and fictional crime consequences connected to existing progression; targeted abuse/replay/concurrency tests. |
-| 7: release gate | tests, CI, deployment docs, profiling | Physical Android performance matrix, multiplayer soak/reconnect, data/asset provenance, restore/security and container checks. Production deployment remains separately authorized. |
+| Phase | Scope and acceptance |
+| --- | --- |
+| 1: onboarding | Persisted character setup, birth lottery, eligible starting home, recovery and first entry; completed milestone. |
+| 2: current HUD milestone | Compact playable HUD, expandable needs, contextual actions, phone integration, confirmed feedback, mobile/input and two-player regression checks. |
+| 3: Accra city map | Geographic identity and city-map layout, retaining destination and travel compatibility. |
+| 4: environmental visuals | Buildings, interiors, lighting and world presentation. |
+| 5: explorable neighborhoods | Connected local streets and everyday places of interest. |
+| 6: connected gameplay | Transportation and NPC interaction. |
+| 7: life systems | Businesses, careers, relationships, crime, policing and social systems. |
+| 8: release preparation | Multiplayer, economy, optimization, physical-device profiling and release gates. |
+| Final: character art | Anatomy, clothing, rigging, hair, face and animation overhaul; deferred. |
 
-Phase 3's HUD/render instrumentation can move earlier if it obstructs the street
-playtest. No destructive migration, framework replacement or simultaneous whole
-city rebuild is required by this roadmap.
+Preserve server authority, saved data and existing phone applications throughout.
+No destructive migration, framework replacement or production deployment is
+implied by the roadmap.
 
 ## H. First milestone and evidence
 
