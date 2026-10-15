@@ -1,0 +1,255 @@
+{
+  "conditions": {
+    "viewport": [
+      390,
+      844
+    ],
+    "pixelRatio": 0.6,
+    "renderer": "Chromium SwiftShader",
+    "hour": 13,
+    "phoneFpsClaim": false
+  },
+  "before": {
+    "syncBuildMs": 3045,
+    "terrainReadyMs": 12608.800000011921,
+    "initMs": 13937.600000023842,
+    "renderer": {
+      "frame": 13,
+      "calls": 58,
+      "triangles": 741511,
+      "points": 0,
+      "lines": 0
+    },
+    "memory": {
+      "geometries": 93,
+      "textures": 18
+    },
+    "mapMeshes": 120,
+    "mapGeometryBytes": 93369726,
+    "softwareRenderMs": [
+      14.199999988079071,
+      10,
+      12.5,
+      415.0999999642372,
+      8.300000011920929,
+      5.800000011920929,
+      194.80000001192093
+    ],
+    "plots": 915,
+    "destinations": 63
+  },
+  "after": {
+    "syncBuildMs": 7.800000011920929,
+    "readyMs": 12386.699999988079,
+    "fetchMs": 8195.599999964237,
+    "terrainMs": 1635.199999988079,
+    "decodeMs": 81.60000002384186,
+    "renderer": {
+      "frame": 16,
+      "calls": 49,
+      "triangles": 141782,
+      "points": 65560,
+      "lines": 0
+    },
+    "memory": {
+      "geometries": 47,
+      "textures": 3
+    },
+    "map": {
+      "buildings": 65560,
+      "chunks": {
+        "active": 0,
+        "cached": 5,
+        "queued": 0,
+        "generated": 5,
+        "evicted": 0,
+        "capacity": 12
+      },
+      "meshes": 2140,
+      "visibleMeshes": 47,
+      "coarseRegions": 932,
+      "geometryBytes": 68550976,
+      "readyMs": 12386.699999988079,
+      "planMs": 81.60000002384186,
+      "districts": 68,
+      "destinations": 63,
+      "adTextures": 0
+    },
+    "softwareRenderMs": [
+      15.200000047683716,
+      16.19999998807907,
+      13.300000011920929,
+      24.899999976158142,
+      14.399999976158142,
+      17.200000047683716,
+      10.899999976158142
+    ],
+    "baselineFrame": {
+      "renderer": {
+        "frame": 18,
+        "calls": 41,
+        "triangles": 180066,
+        "points": 65560,
+        "lines": 0
+      },
+      "map": {
+        "buildings": 65560,
+        "chunks": {
+          "active": 0,
+          "cached": 5,
+          "queued": 0,
+          "generated": 5,
+          "evicted": 0,
+          "capacity": 12
+        },
+        "meshes": 2140,
+        "visibleMeshes": 252,
+        "coarseRegions": 932,
+        "geometryBytes": 68550976,
+        "readyMs": 12386.699999988079,
+        "planMs": 81.60000002384186,
+        "districts": 68,
+        "destinations": 63,
+        "adTextures": 0
+      }
+    },
+    "district": {
+      "renderer": {
+        "frame": 34,
+        "calls": 55,
+        "triangles": 340916,
+        "points": 0,
+        "lines": 0
+      },
+      "map": {
+        "buildings": 65560,
+        "chunks": {
+          "active": 9,
+          "cached": 12,
+          "queued": 0,
+          "generated": 131,
+          "evicted": 119,
+          "capacity": 12
+        },
+        "meshes": 2154,
+        "visibleMeshes": 322,
+        "coarseRegions": 932,
+        "geometryBytes": 68964796,
+        "readyMs": 12386.699999988079,
+        "planMs": 81.60000002384186,
+        "districts": 68,
+        "destinations": 63,
+        "adTextures": 0
+      }
+    },
+    "cacheTour": {
+      "buildings": 65560,
+      "chunks": {
+        "active": 9,
+        "cached": 12,
+        "queued": 0,
+        "generated": 702,
+        "evicted": 690,
+        "capacity": 12
+      },
+      "meshes": 2154,
+      "visibleMeshes": 330,
+      "coarseRegions": 932,
+      "geometryBytes": 68379976,
+      "readyMs": 12386.699999988079,
+      "planMs": 81.60000002384186,
+      "districts": 68,
+      "destinations": 63,
+      "adTextures": 0
+    },
+    "reentry": {
+      "map": {
+        "buildings": 65560,
+        "chunks": {
+          "active": 9,
+          "cached": 12,
+          "queued": 0,
+          "generated": 711,
+          "evicted": 699,
+          "capacity": 12
+        },
+        "meshes": 2154,
+        "visibleMeshes": 322,
+        "coarseRegions": 932,
+        "geometryBytes": 69012600,
+        "readyMs": 12386.699999988079,
+        "planMs": 81.60000002384186,
+        "districts": 68,
+        "destinations": 63,
+        "adTextures": 0
+      },
+      "memory": {
+        "geometries": 102,
+        "textures": 3
+      }
+    },
+    "travel": {
+      "before": {
+        "funds": 773,
+        "place": "circle"
+      },
+      "after": {
+        "funds": 764,
+        "place": "n:nima"
+      }
+    },
+    "dispose": {
+      "children": 0,
+      "chunks": {
+        "active": 0,
+        "cached": 0,
+        "queued": 0,
+        "generated": 720,
+        "evicted": 708,
+        "capacity": 12
+      },
+      "memory": {
+        "geometries": 113,
+        "textures": 13
+      },
+      "room": true
+    }
+  },
+  "independentPlacement": {
+    "buildings": 65560,
+    "violations": [],
+    "method": "Independent Shapely/GEOS polygon intersection; 0.01m² rounding tolerance"
+  },
+  "resourceAudit": {
+    "expected": {
+      "geometry": 252,
+      "material": 235,
+      "instance": 1903,
+      "texture": 1
+    },
+    "released": {
+      "geometry": 252,
+      "material": 235,
+      "instance": 1903,
+      "texture": 1
+    },
+    "before": {
+      "geometries": 131,
+      "textures": 13
+    },
+    "afterRelease": {
+      "geometries": 113,
+      "textures": 13
+    },
+    "afterRoomDraw": {
+      "geometries": 113,
+      "textures": 13
+    },
+    "cpuPlanReleased": true,
+    "roomVisible": true,
+    "baselineRoom": {
+      "geometries": 113,
+      "textures": 13
+    }
+  }
+}

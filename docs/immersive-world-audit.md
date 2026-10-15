@@ -167,13 +167,15 @@ No external character/animation asset is introduced by milestone 1.
 supersedes the original audit order. Phase 1 onboarding is preserved; its evidence
 is in [onboarding-review.md](onboarding-review.md). Phase 2 implementation and
 verification are documented in [hud-review.md](hud-review.md). Later phases require
-their own implementation milestones; this change does not begin Phase 3.
+their own implementation milestones. Phase 3 is now implemented and reviewed in
+[city-map-review.md](city-map-review.md), with the original inventory in
+[city-map-audit.md](city-map-audit.md). Phase 4 has not begun.
 
 | Phase | Scope and acceptance |
 | --- | --- |
 | 1: onboarding | Persisted character setup, birth lottery, eligible starting home, recovery and first entry; completed milestone. |
 | 2: current HUD milestone | Compact playable HUD, expandable needs, contextual actions, phone integration, confirmed feedback, mobile/input and two-player regression checks. |
-| 3: Accra city map | Geographic identity and city-map layout, retaining destination and travel compatibility. |
+| 3: Accra city map | Implemented geographic map with 68 districts, 65,560 deterministic buildings, sourced roads/coast/water, bounded detail, map navigation and compatibility checks. Physical-phone profiling remains a release check. |
 | 4: environmental visuals | Buildings, interiors, lighting and world presentation. |
 | 5: explorable neighborhoods | Connected local streets and everyday places of interest. |
 | 6: connected gameplay | Transportation and NPC interaction. |

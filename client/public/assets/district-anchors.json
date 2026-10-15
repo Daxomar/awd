@@ -1,0 +1,258 @@
+{
+  "jamestown": {
+    "osm": 132387846
+  },
+  "ussher": {
+    "osm": 132388828
+  },
+  "bukom": {
+    "osm": 2123937037
+  },
+  "chorkor": {
+    "osm": 132392382
+  },
+  "korle-gonno": {
+    "osm": 132391102
+  },
+  "makola": {
+    "p": [
+      -787,
+      874
+    ],
+    "source": "Art anchor: existing Makola Market game coordinate; approximate district centre"
+  },
+  "central": {
+    "osm": 11215199773
+  },
+  "high-street": {
+    "p": [
+      -862,
+      1783
+    ],
+    "source": "Representative average of sourced OSM High Street ways",
+    "osmWays": [
+      13781163,
+      514343728,
+      514351749,
+      516120687,
+      516437444,
+      517171464,
+      846061866,
+      846061874,
+      846064988
+    ]
+  },
+  "ministries": {
+    "osm": 102775650
+  },
+  "ridge": {
+    "osm": 105936375
+  },
+  "circle": {
+    "p": [
+      -1708,
+      -1503
+    ],
+    "source": "Representative average of sourced OSM Circle junction ways",
+    "osmWays": [
+      11664610,
+      510252749,
+      510252750,
+      510252751,
+      510252752,
+      510252753,
+      510252754,
+      510252755
+    ]
+  },
+  "kaneshie": {
+    "osm": 132399025
+  },
+  "lapaz": {
+    "osm": 5566513301
+  },
+  "abeka": {
+    "osm": 374289662
+  },
+  "nima": {
+    "osm": 105938734
+  },
+  "maamobi": {
+    "osm": 132404121
+  },
+  "madina": {
+    "osm": 4509337287
+  },
+  "achimota": {
+    "osm": 373425495
+  },
+  "odorkor": {
+    "osm": 132397357
+  },
+  "osu": {
+    "osm": 102778320
+  },
+  "la": {
+    "osm": 5016517876
+  },
+  "teshie": {
+    "osm": 4563121334
+  },
+  "nungua": {
+    "osm": 2629102452
+  },
+  "dansoman": {
+    "osm": 132395712
+  },
+  "dzorwulu": {
+    "osm": 30748429
+  },
+  "abelemkpe": {
+    "osm": 30748442
+  },
+  "tesano": {
+    "osm": 372939467
+  },
+  "north-kaneshie": {
+    "osm": 374287587
+  },
+  "east-legon": {
+    "osm": 373823745
+  },
+  "adjiringanor": {
+    "osm": 1803705579
+  },
+  "cantonments": {
+    "osm": 30748419
+  },
+  "airport-residential": {
+    "osm": 30748407
+  },
+  "airport-city": {
+    "osm": 11237499087
+  },
+  "roman-ridge": {
+    "osm": 132406785
+  },
+  "spintex": {
+    "osm": 6614171807
+  },
+  "baatsona": {
+    "osm": 12862487642
+  },
+  "sakumono": {
+    "osm": 7723538830
+  },
+  "legon": {
+    "osm": 8404233112
+  },
+  "haatso": {
+    "osm": 7996775277
+  },
+  "forest": {
+    "p": [
+      -2960,
+      -7851
+    ],
+    "source": "Representative centre of OSM Achimota Forest Reserve way13975296",
+    "osmWay": 13975296
+  },
+  "adenta": {
+    "osm": 2148020762
+  },
+  "oyarifa": {
+    "osm": 7723525467
+  },
+  "botwe": {
+    "osm": 4439835179
+  },
+  "dome": {
+    "osm": 2152138370
+  },
+  "taifa": {
+    "osm": 9703337660
+  },
+  "kwabenya": {
+    "osm": 2148020860
+  },
+  "tema": {
+    "osm": 735505132
+  },
+  "tema-industrial": {
+    "p": [
+      22530,
+      -8360
+    ],
+    "source": "OSM Ports & Harbour place node12862616082; representative port/industrial district, not a boundary",
+    "osmNode": 12862616082
+  },
+  "community-25": {
+    "osm": 3159027048
+  },
+  "ashaiman": {
+    "osm": 1546904137
+  },
+  "lashibi": {
+    "osm": 7723506103
+  },
+  "prampram": {
+    "osm": 3600874461
+  },
+  "weija": {
+    "osm": 2147841289
+  },
+  "gbawe": {
+    "osm": 6299238489
+  },
+  "mallam": {
+    "osm": 2147840750
+  },
+  "kasoa": {
+    "osm": 990130114
+  },
+  "labone": {
+    "osm": 102779677
+  },
+  "korle-bu": {
+    "osm": 2855438866
+  },
+  "tetteh-quarshie": {
+    "p": [
+      2892,
+      -7375
+    ],
+    "source": "Art anchor: existing Accra Mall game coordinate; approximate district centre"
+  },
+  "trasacco": {
+    "osm": 1831819675
+  },
+  "new-town": {
+    "osm": 132402202
+  },
+  "adabraka": {
+    "osm": 124076573
+  },
+  "amasaman": {
+    "osm": 4971024741
+  },
+  "pokuase": {
+    "osm": 5026833547
+  },
+  "ofankor": {
+    "osm": 8768636604
+  },
+  "bortianor": {
+    "osm": 132116626
+  },
+  "legon-hills": {
+    "osm": 8196274245
+  },
+  "tema-heavy-industry": {
+    "p": [
+      25526,
+      -13785
+    ],
+    "source": "Representative centre of OSM Heavy Industrial Area way791950334",
+    "osmWay": 791950334
+  }
+}

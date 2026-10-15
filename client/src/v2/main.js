@@ -187,7 +187,7 @@ function setView(v, focusPlace, forGem) {
   const inMap = v === 'map'; map.show(inMap); hud.chips.hidden = inMap; if (world.room) world.room.group.visible = !inMap; world.tagsEl.hidden = inMap; hud.zones.hidden = inMap;
   if (inMap) {
     const hh = accraClock().h; stage.setTime(hh); drawPins();
-    const id = focusPlace || G.state.place; const L = id === 'home' && G.state.home ? G.cat.homes[G.state.home] : loc(id) || loc('circle'); const [x, z] = map.slotOf(id === 'home' ? 'h:' + G.state.home : id) || map.toMap(L.x, L.z); map.focus(x, z, focusPlace ? 22 : 34);
+    const id = focusPlace || G.state.place; const L = id === 'home' && G.state.home ? G.cat.homes[G.state.home] : loc(id) || loc('circle'); const [x, z] = map.slotOf(id === 'home' ? 'h:' + G.state.home : id) || map.toMap(L.x, L.z); map.currentId = G.state.place === 'home' ? 'h:' + G.state.home : G.state.place; map.current = map.slotOf(map.currentId) || map.toMap(L.x, L.z); map.focus(x, z, focusPlace ? 5 : 9);
     if (focusPlace) setTimeout(() => openPlace(focusPlace, act), forGem ? 50 : 250);
   } else if (world.room) { fitRoom(stage, world.spec);if(world.spec.neighbourhood&&world.me)stage.view.target.set(world.me.x,.8,world.me.z); stage.view.zoom = world.baseZoom; stage.applyView(); const r = Math.max(world.spec.w, world.spec.d) * 0.75 + 2; const sc = stage.key.shadow.camera; sc.left = -r; sc.right = r; sc.top = r; sc.bottom = -r; sc.far = 80; sc.updateProjectionMatrix(); stage.bounds = [-world.spec.w / 2, world.spec.w / 2, -world.spec.d / 2, world.spec.d / 2]; stage.zoomMin = world.baseZoom * 0.45; stage.zoomMax = world.spec.neighbourhood?90:world.baseZoom * 1.35; }
 }
@@ -199,7 +199,7 @@ function drawPins() {
     if (f === 'open' && !open) continue; if (f === 'people' && !n) continue; if (['eat', 'gig'].includes(f) && !l.acts.some((a) => a.tags && a.tags.includes(f))) continue; if (f === 'fun' && !l.acts.some((a) => (a.tags || []).some((t) => ['party', 'nightlife', 'relax', 'sport', 'tour'].includes(t)))) continue;
     list.push({ id: l.id, ic: l.ic, name: l.name, x: l.x, z: l.z, count: n, cls: [open ? '' : 'closed', s.place === l.id ? 'here' : '', G.gem && G.gem.place === l.id ? 'gem' : ''].join(' '), keep: s.place === l.id || (G.gem && G.gem.place === l.id) });
   }
-  if (s.home) { const H = G.cat.homes[s.home]; list.push({ id: 'home', ic: 'icon:house', name: 'Home', x: H.x, z: H.z, xz: map.slotOf('h:' + s.home), cls: 'home' + (s.place === 'home' ? ' here' : ''), keep: true }); }
+  if (s.home) { const H = G.cat.homes[s.home]; list.push({ id: 'home',homeId:s.home, ic: 'icon:house', name: 'Home', x: H.x, z: H.z, xz: map.slotOf('h:' + s.home), cls: 'home' + (s.place === 'home' ? ' here' : ''), keep: true }); }
   map.setPins(list, (id) => openPlace(id, act));
 }
 
@@ -224,12 +224,13 @@ function bindInput() {
   const cv = stage.renderer.domElement; const pts = new Map(); let moved = 0, pinch0 = 0, t0 = 0;
   cv.addEventListener('pointerdown', (e) => {if(worldBlocked(ui))return; pts.set(e.pointerId, { x: e.clientX, y: e.clientY }); moved = 0; t0 = performance.now(); if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch0 = Math.hypot(a.x - b.x, a.y - b.y); } });
   cv.addEventListener('pointermove', (e) => { if(worldBlocked(ui)){pts.clear();return;}const p = pts.get(e.pointerId); if (!p) return; const dx = e.clientX - p.x, dy = e.clientY - p.y;
+    if (view === 'map') map.transition = null;
     if (pts.size === 1) { moved += Math.abs(dx) + Math.abs(dy); if (studio.open) studio.turn(dx); else if (ride.active) ride.drag(dx); else if (moved > 8) stage.pan(dx, dy); }
     else if (pts.size === 2) { p.x = e.clientX; p.y = e.clientY; const [a, b] = [...pts.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y); if (pinch0) stage.zoomBy(pinch0 / d); pinch0 = d; moved = 99; return; }
     p.x = e.clientX; p.y = e.clientY; });
   const up = (e) => { const was = pts.has(e.pointerId); pts.delete(e.pointerId); if (!was || moved > 8 || pts.size) return; if (performance.now() - t0 > 600) return; tap(e.clientX, e.clientY); };
   cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', (e) => pts.delete(e.pointerId));
-  cv.addEventListener('wheel', (e) => { e.preventDefault();if(worldBlocked(ui))return; stage.zoomBy(e.deltaY > 0 ? 1.1 : 0.9); }, { passive: false });
+  cv.addEventListener('wheel', (e) => { e.preventDefault();if(worldBlocked(ui))return; if(view==='map')map.transition=null; stage.zoomBy(e.deltaY > 0 ? 1.1 : 0.9); }, { passive: false });
 }
 function tap(x, y) {
   if(studio.open||ride.active||worldBlocked(ui))return;
@@ -340,7 +341,7 @@ function bindNet() {
   net.on('oware', (m) => { phone.close(); closeSheets(); owareView(ui, m); });
   net.on('oware_invite', async (m) => { const yes = await confirmBox({ title: ` ${m.from} challenges you to Oware`, text: m.stake ? `Stake ${cedi(m.stake)} each · winner takes ${cedi(Math.round(m.stake * 2 * 0.95))}.` : 'Friendly game, no money.', yes: 'Play', no: 'Not now' }); net.send({ t: 'oware_answer', id: m.id, yes }); });
   // world
-  net.on('places', (m) => { G.places = m.c; G.online = m.online; if (view === 'map') { for (const [id, p] of map.pins) { const c = p.el.querySelector('.pc'); const n = m.c[id] || 0; if (c) c.textContent = n; } } hud.clock(); });
+  net.on('places', (m) => { G.places = m.c; G.online = m.online; if (view === 'map') map.setPresence(m.c); hud.clock(); });
   net.on('gem_drop', (m) => { G.gem = { ...m.gem, area: m.area }; if (!m.quiet) toast(m.hint, 'gold'); if (G.state.place === m.gem.place) world.showGem(m.gem); refresh(); if (view === 'map') drawPins(); });
   net.on('gem_gone', (m) => { G.gem = null; world.hideGem(); if (m.by) toast(` ${m.by} found the gem at ${m.place} (+${cedi(m.prize)})`, ''); refresh(); if (view === 'map') drawPins(); });
   net.on('gem_won', (m) => { G.gem = null; world.hideGem(); G.state.momo = m.momo; celebrate({ icon: 'icon:diamond', title: `You found the gem!`, text: `+${cedi(m.prize)} to your MoMo. ${m.found.toLocaleString()} gem${m.found === 1 ? "" : "s"} found in Accra so far.` }); refresh(); });
