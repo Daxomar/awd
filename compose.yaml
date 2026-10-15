@@ -24,7 +24,7 @@ services:
       PAYSTACK_SECRET_FILE: /run/secrets/paystack_secret
     secrets: [db_password, redis_password, session_secret, birth_seed, admin_key, paystack_secret]
     volumes: [ads:/app/uploads]
-    tmpfs: [/tmp:rw,noexec,nosuid,size=64m]
+    tmpfs: ['/tmp:rw,noexec,nosuid,size=64m']
     networks: [edge, database]
     depends_on:
       db: {condition: service_healthy}
@@ -60,7 +60,7 @@ services:
     volumes:
       - redis:/data
       - ./docker/redis-start.sh:/config/redis-start.sh:ro
-    tmpfs: [/tmp:rw,noexec,nosuid,size=16m,uid=999,gid=999]
+    tmpfs: ['/tmp:rw,noexec,nosuid,size=16m,uid=999,gid=999']
     networks: [database]
     healthcheck:
       test: [CMD-SHELL, 'REDISCLI_AUTH="$$(cat /run/secrets/redis_password)" redis-cli ping | grep -q PONG']
@@ -85,7 +85,7 @@ services:
     cap_add: [NET_BIND_SERVICE]
     read_only: true
     pids_limit: 64
-    tmpfs: [/tmp:rw,noexec,nosuid,size=16m]
+    tmpfs: ['/tmp:rw,noexec,nosuid,size=16m']
     depends_on:
       game: {condition: service_healthy}
 networks:
