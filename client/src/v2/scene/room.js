@@ -12,6 +12,7 @@ const CELL = 0.25;
 export class Room {
   constructor(stage) { this.stage = stage; this.group = new THREE.Group(); stage.scene.add(this.group); this.people = new Map(); this.items = []; this.screens=[]; this.elapsed=0; this.ray = new THREE.Raycaster(); }
   dispose() {
+    for(const id of [...this.people.keys()])this.removePerson(id);
     for(const s of this.screens){s.dispose();s.material.dispose();}this.screens=[];
     this.stage.scene.remove(this.group); for (const l of this.stage.lamps) this.stage.scene.remove(l); this.stage.lamps = [];
     this.group.traverse((o) => { if (o.geometry) o.geometry.dispose(); });

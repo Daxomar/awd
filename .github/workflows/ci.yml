@@ -24,7 +24,7 @@ jobs:
         working-directory: server
       - run: npm audit --omit=dev
         working-directory: server
-      - run: npm ci && npm audit && npm run build
+      - run: npm ci && npm test && npm audit && npm run build
         working-directory: client
       - name: Initialize disposable Docker secrets
         run: python3 tools/init-docker-secrets.py

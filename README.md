@@ -2,6 +2,8 @@
 
 An 18+ multiplayer life game set in Accra, played in a portrait mobile browser. It plays like Lagos Life: you live in little isometric rooms, travel on a city map, and run your life from a real-looking in-game phone.
 
+Development findings and phased work: [immersive-world technical audit and roadmap](docs/immersive-world-audit.md). Character art, district streaming and representative-phone performance remain in progress.
+
 ## What's in the game
 
 | Area | Details |

@@ -1,6 +1,7 @@
 // Continuous authored adult anatomy, retargeted to the game's mocap skeleton.
 // Source mesh and gender targets: MakeHuman Community, CC0. See models/LICENSE-human.md.
 import * as THREE from 'three';
+import { shirtEnvelope } from './garment-fit.js';
 const V=(a)=>new THREE.Vector3(...a);
 const clamp=(n)=>Math.max(0,Math.min(1,Number(n??.5)));
 let neighbours; // Shared topology for the two adult shape targets.
@@ -66,6 +67,7 @@ export function humanBody(data,look,B,I) {
   if (!neighbours) { const sets=Array.from({length:p.length/3},()=>new Set()); for(let i=0;i<data.triangles.length;i+=3){const ids=data.triangles.slice(i,i+3);for(const a of ids)for(const b of ids)if(a!==b)sets[a].add(b);}neighbours=sets.map(s=>[...s]); }
   for(let pass=0;pass<(data.native?12:6);pass++){const previous=p.slice();for(let i=0;i<neighbours.length;i++){const y=previous[i*3+1],x=previous[i*3];if(y<B.Spine.y+.08||y>B.Neck.y-.02||Math.abs(x)>.20||!neighbours[i].length)continue;const z=neighbours[i].reduce((sum,j)=>sum+previous[j*3+2],0)/neighbours[i].length;p[i*3+2]=previous[i*3+2]*.35+z*.65;}}
   const base=new THREE.BufferGeometry();base.setAttribute('position',new THREE.Float32BufferAttribute(p,3));base.setAttribute('skinIndex',new THREE.Uint16BufferAttribute(si,4));base.setAttribute('skinWeight',new THREE.Float32BufferAttribute(sw,4));base.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));base.setIndex(data.triangles);base.computeVertexNormals();
+  const fitShirt=data.native&&look.full!=='bodycon'&&look.top!=='singlet'?shirtEnvelope(p,limbFields,B):null;
   // Clip garment hems and sleeves through triangles, avoiding saw-tooth material boundaries.
   const groups={},norm=base.attributes.normal;
   const vertex=id=>({p:p.slice(id*3,id*3+3),n:[norm.getX(id),norm.getY(id),norm.getZ(id)],uv:uv.slice(id*2,id*2+2),w:new Map(si.slice(id*4,id*4+4).map((bone,k)=>[bone,sw[id*4+k]])),s:sleeveFields[id],limb:limbFields[id]});
@@ -85,11 +87,12 @@ export function humanBody(data,look,B,I) {
       if(data.native&&['topF','botP'].includes(key)){
         const ease=key==='topF'?.014:.009;
         for(let axis=0;axis<3;axis++)position[axis]+=v.n[axis]*ease;
+        if(key==='topF'&&fitShirt)fitShirt(position,v.limb);
       }
       if(key==='botP'&&position[1]<B.Hips.y-.07){const ease=/jeans|chinos|joggers|suitpants/.test(look.bottom)? .012:.005;position[0]+=v.n[0]*ease;position[2]+=v.n[2]*ease;}
       if(key==='anatomicalScalp')for(let axis=0;axis<3;axis++)position[axis]+=v.n[axis]*.003;
       g.p.push(...position);g.n.push(...v.n);g.uv.push(...v.uv);const weights=[...v.w].sort((a,b)=>b[1]-a[1]).slice(0,4),sum=weights.reduce((n,w)=>n+w[1],0)||1;for(let k=0;k<4;k++){g.si.push(weights[k]?.[0]||0);g.sw.push((weights[k]?.[1]||0)/sum);}}for(let i=1;i<poly.length-1;i++)g.index.push(ids[0],ids[i],ids[i+1]);};
-  const hem=B.Hips.y+.015, collar=B.Neck.y+.015, pantsCut=look.bottom==='shorts'?B.LeftLeg.y+.12:look.full||/slit|mini|pencil|skirt/.test(look.bottom)?B.Hips.y-.16:B.LeftFoot.y+.035;
+  const hem=B.Hips.y+(look.full||look.top==='crop'?.015:-.025), collar=B.Neck.y+.015, pantsCut=look.bottom==='shorts'?B.LeftLeg.y+.12:look.full||/slit|mini|pencil|skirt/.test(look.bottom)?B.Hips.y-.16:B.LeftFoot.y+.035;
   for(let i=0;i<data.triangles.length;i+=3){const tri=data.triangles.slice(i,i+3).map(vertex);const [upper,lower]=cut(tri,v=>v.p[1]-hem);const [head,shirt]=cut(upper,v=>v.p[1]-collar-Math.max(0,Math.abs(v.p[0])-.06)*.6);emit(head,'skin');let torso=shirt;if(look.top==='crop'&&!look.full){const [top,bare]=cut(torso,v=>v.p[1]-(B.Spine1.y+.035));emit(bare,'skin');torso=top;}const [clothed,arm]=cut(torso,v=>v.s);emit(clothed,'topF');emit(arm,'skin');const [body,hands]=cut(lower,v=>v.limb);emit(hands,'skin');const [pants,bare]=cut(body,v=>v.p[1]-pantsCut);emit(pants,'botP');if(data.native&&['sneakers','loafers','boots'].includes(look.shoes)){const [ankles]=cut(bare,v=>v.p[1]-(B.LeftFoot.y+.025));emit(ankles,'skin');}else emit(bare,'skin');}
   // Clip a continuous hairline into the scalp instead of dropping whole triangles.
   if(look.hair!=='bald')for(let i=0;i<data.triangles.length;i+=3){

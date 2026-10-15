@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "test": "node --test test/character-resources.test.js",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview --port 5174"

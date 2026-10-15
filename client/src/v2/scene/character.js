@@ -7,6 +7,7 @@ import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { fabric, hairTex } from './textures.js';
 import { humanBody } from './human.js';
 import { applyPose } from './poses.js';
+import { GeometryCache } from './geometry-cache.js';
 
 export const SKIN = { 1: '#f3cfb0', 2: '#e2b08a', 3: '#c68a5f', 4: '#a26a45', 5: '#7d4b2e', 6: '#5f3621', 7: '#472616', 8: '#33190d' };
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
@@ -167,9 +168,11 @@ function buildBody(look, B, I) {
       for(let i=0;i<old.index.count;i+=3){const ids=[old.index.getX(i),old.index.getX(i+1),old.index.getX(i+2)];if(ids.every(id=>pos.getY(id)<=H.y+.035))indices.push(...ids);}
       if(indices.length){const g=old.clone();g.setIndex(indices);parts['skirt'+key]=g;}
     }
+    const shared=[BASE.headGeometry,BASE.femaleHead,BASE.eyeGeometry,BASE.teethGeometry,BASE.handGeometry];
+    if(parts[key]&&!shared.includes(parts[key]))parts[key].dispose();
     delete parts[key];
   }
-  if(['lowcut','fade','waves','twa','cornrows'].includes(look.hair))delete parts.hair;
+  if(['lowcut','fade','waves','twa','cornrows'].includes(look.hair)){parts.hair?.dispose();delete parts.hair;}
   const result={...parts,...anatomical};
   // A slightly fuller head and a visible neck balance the adult silhouette. Apply
   // the same transform to hair, eyes and accessories so customisation stays aligned.
@@ -272,7 +275,8 @@ function materials(look) {
 }
 
 // ---------- assembly ----------
-let BASE = null; const GEO = new Map();
+let BASE = null; const GEO = new GeometryCache();
+export const characterResources = () => GEO.stats();
 export function initCharacters(rpmGltf, clips, human) {
   const scene = rpmGltf.scene; scene.updateMatrixWorld(true); let sm = null; scene.traverse((o) => { if (!sm && o.isSkinnedMesh) sm = o; });
   const I = {}, B = {}; sm.skeleton.bones.forEach((b, i) => { I[b.name] = i; B[b.name] = scene.worldToLocal(b.getWorldPosition(V(0, 0, 0))); });
@@ -304,6 +308,7 @@ export function initCharacters(rpmGltf, clips, human) {
 }
 const geoKey = (l) => [l.body, l.top, l.bottom, l.full || '', l.shoes, l.hair, l.beard, l.hat, l.glasses, l.neck,...['build','hips','bust','waist','shoulders','muscle','faceWidth','nose','lips'].map(k=>l[k]??(k==='bust'?.45:.5))].join('|');
 export class Character {
+  static resourceStats() { return GEO.stats(); }
   constructor(look = {}) {
     this.native=!!BASE.human.native;this.root = new THREE.Group(); this.model = SkeletonUtils.clone(BASE.scene); this.model.scale.setScalar(BASE.scale); this.root.add(this.model);
     const metas = []; this.model.traverse((o) => { if (o.isSkinnedMesh) metas.push(o); });
@@ -325,7 +330,8 @@ export class Character {
     for (const m of this.meshes) m.parent.remove(m); this.meshes = [];
     const changedRig=BASE.human.native&&this.rigBody!==this.body;
     if(changedRig)this.fitAnatomyRig();
-    const k = geoKey(look); let geos = GEO.get(k); if (!geos) { geos = buildBody(look, this.geometryRig, BASE.I); GEO.set(k, geos); if (GEO.size > 32) GEO.delete(GEO.keys().next().value); }
+    const k = geoKey(look), geos = GEO.acquire(k, () => buildBody(look, this.geometryRig, BASE.I));
+    if(this.geometryKey!==undefined)GEO.release(this.geometryKey);this.geometryKey=k;
     const M = materials(look); M.skin=mat('anatomy'+look.skin,()=>new THREE.MeshStandardMaterial({color:SKIN[look.skin]||SKIN[5],roughness:.72,vertexColors:true}));
     M.anatomicalScalp=M.hair;
     M.humanEyes=mat('humanEyes',()=>new THREE.MeshStandardMaterial({color:'#eee9df',roughness:.4})); M.humanIris=mat('humanIris',()=>new THREE.MeshStandardMaterial({color:'#21170f',roughness:.3}));
@@ -376,5 +382,10 @@ export class Character {
   }
   gesture(name) { if (!this.actions[name]) return; this.oneShot = true; this.base = this.curName === name ? 'idle' : this.curName || 'idle'; this.cur && this.cur.fadeOut(0.2); const a = this.actions[name]; a.reset().setLoop(THREE.LoopOnce, 1).fadeIn(0.2).play(); this.cur = a; this.curName = name; }
   update(dt, speed) { if (this.curName === 'walk') this.actions.walk.timeScale = Math.max(0.6, speed / 1.5); this.mixer.update(dt);if(this.native&&this.curName==='idle')applyPose(this,'stand'); }
-  dispose() { this.mixer.stopAllAction(); for (const m of this.meshes) m.parent && m.parent.remove(m); }
+  dispose() {
+    this.mixer.stopAllAction();this.mixer.uncacheRoot(this.model);
+    for (const m of this.meshes) m.parent && m.parent.remove(m);this.meshes=[];
+    if(this.geometryKey!==undefined){GEO.release(this.geometryKey);this.geometryKey=undefined;}
+    this.skeleton.dispose();
+  }
 }

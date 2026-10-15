@@ -14,14 +14,14 @@ const dispose=root=>root?.traverse(o=>{if(o.geometry)o.geometry.dispose();for(co
 async function choose(sex){
   const request=++serial;status.textContent='Loading model…';
   try{
-    const asset=await loader.loadAsync('/assets/models/accra-'+sex+'-player.glb');
+    const asset=await loader.loadAsync('/assets/models/accra-'+sex+'-player.glb?v=20261015-fit1');
     if(request!==serial){dispose(asset.scene);return;}
     mixer?.stopAllAction();if(model){scene.remove(model);dispose(model);}
     model=asset.scene;model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.frustumCulled=false;}});scene.add(model);
     mixer=new THREE.AnimationMixer(model);actions=Object.fromEntries(asset.animations.map(a=>[a.name,mixer.clipAction(a)]));
     (walking?actions.Walk:actions.Idle).play();
     for(const key of ['male','female'])document.getElementById(key).setAttribute('aria-pressed',String(key===sex));
-    document.querySelector('#download').href='/assets/models/accra-'+sex+'-player.glb';
+    document.querySelector('#download').href='/assets/models/accra-'+sex+'-player.glb?v=20261015-fit1';
     status.textContent='Rigged GLB · '+sex+' adult';resize();window.__modelReview={ready:true,sex,model,mixer,renderer,draw:()=>renderer.render(scene,camera),animations:asset.animations.map(a=>a.name)};
   }catch(e){status.textContent='Could not load the model. '+e.message;}
 }
