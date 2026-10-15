@@ -15,7 +15,7 @@ milestone is deliberately smaller than the full seven-phase mission.
 | Game server | uWebSockets, room-based Shard, authoritative JS rules | Preserve room transport and introduce larger streets incrementally. |
 | Persistence | PostgreSQL accounts, opaque hashed sessions, JSON player state, social/game tables | Preserve schemas and saved characters. Transfers use database transactions. |
 | Cross-shard | Redis pub/sub, account leases and shared rate limits | Existing communication infrastructure is reusable. |
-| Deployment | Docker Compose game/PostgreSQL/Redis/Caddy, Linux CI workflow | Runtime verification was previously blocked by local Docker and CI account availability; not assumed resolved. |
+| Deployment | Docker Compose game/PostgreSQL/Redis/Caddy, Linux CI workflow | Linux CI build, stack startup and smoke checks passed on 15 October after correcting mount parsing. Local Docker Desktop remains unverified. |
 
 `main.js` connects through `net.js`, receives `welcome`, runs onboarding when
 needed, binds room/UI listeners and releases buffered packets. A wardrobe change
@@ -217,3 +217,7 @@ unused-UV notices remain). Creator male/female and street screenshots were rende
 and inspected. A disposable production-cookie account completed body switching,
 saved bust customization, home-to-street-to-home transitions and reload persistence.
 Creator framing still crowds the feet near the editor panel; that is phase-2 work.
+
+The [Linux CI run for cf49b04](https://github.com/Daxomar/awd/actions/runs/38658631703)
+also passed the container build, stack startup, production-cookie/WebSocket smoke
+test, proxy health and dependency audits. No public deployment was performed.
