@@ -26,8 +26,13 @@ try{
  const b1=(await pool.query('select * from life_businesses where id=$1',[id])).rows[0],events=(await pool.query("select * from life_business_events where business=$1 and kind='settlement'",[id])).rows;
  assert.equal(events.length,8);assert.ok(b1.stock>=0&&+b1.till>=0);assert.equal(+b1.till,30+events.reduce((n,e)=>n+(+e.revenue)-(+e.expense),0));assert.ok(events.some(e=>e.units>0));
  await action(a,'business_settle',{id});assert.equal((await pool.query("select count(*) n from life_business_events where business=$1 and kind='settlement'",[id])).rows[0].n,'8');checks.push('stock, expense, real profit records, offline cap and idempotent settlement');
- const earned=a.state.stats.earned;await action(a,'business_fund',{id,amount:100});await action(a,'business_withdraw',{id,amount:100});assert.ok(a.state.stats.earned-earned<=events.reduce((n,e)=>n+(+e.revenue)-(+e.cogs)-(+e.expense),0));
- await action(a,'business_configure',{id,price:16,operating:false});checks.push('capital cycling is not counted as income; closure retains stock/cash');
+ // Close first so a clock boundary cannot add new sales during this accounting check.
+ await action(a,'business_configure',{id,price:16,operating:false});
+ const taxable=+(await pool.query('select taxable from life_businesses where id=$1',[id])).rows[0].taxable,earned=a.state.stats.earned;
+ await action(a,'business_fund',{id,amount:100});await action(a,'business_withdraw',{id,amount:100});assert.equal(a.state.stats.earned-earned,Math.min(100,taxable));
+ assert.equal(+(await pool.query('select taxable from life_businesses where id=$1',[id])).rows[0].taxable,0);
+ const capitalIncome=a.state.stats.earned;await action(a,'business_fund',{id,amount:50});await action(a,'business_withdraw',{id,amount:50});assert.equal(a.state.stats.earned,capitalIncome);
+ checks.push('withdrawals count only recorded profit; a pure capital cycle earns zero and closure retains stock/cash');
  const ph={id:crypto.randomUUID(),m:'button',cond:80,paid:110,fake:false,tested:true,at:Date.now()};a.state.phones.push(ph);await savePlayers([{id:a.acct,state:a.state,worth:Game.netWorth(a.state)}]);
  const listing=await action(a,'market_list',{phone:ph.id,price:100});assert.ok(listing.listing);assert.equal(a.state.phones.length,0);
  const buys=await Promise.all([action(b,'market_buy',{id:listing.listing}),action(c,'market_buy',{id:listing.listing})]);assert.equal(buys.filter(x=>!x.error).length,1);
