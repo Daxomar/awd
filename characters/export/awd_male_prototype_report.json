@@ -1,0 +1,133 @@
+{
+  "awd_male_prototype_lod0.glb": {
+    "bytes": 2505456,
+    "meshes": 11,
+    "triangles": 27984,
+    "materials": [
+      "AWD_Skin",
+      "AWD_Fabric_denim",
+      "AWD_Brows",
+      "AWD_Eye",
+      "AWD_Hair_fade",
+      "AWD_Lashes",
+      "AWD_Shoe_sneakers_upper",
+      "AWD_Shoe_sneakers_sole",
+      "AWD_Teeth",
+      "AWD_Tongue",
+      "AWD_Fabric_tee"
+    ],
+    "animations": [
+      "idle",
+      "walk",
+      "wave"
+    ],
+    "joints": 67,
+    "morphs": [
+      "blink",
+      "browDown",
+      "browInnerUp",
+      "browUp",
+      "frown",
+      "jawOpen",
+      "mouthO",
+      "smile",
+      "squint"
+    ],
+    "images": 6
+  },
+  "awd_male_prototype_lod1.glb": {
+    "bytes": 1054760,
+    "meshes": 8,
+    "triangles": 12501,
+    "materials": [
+      "AWD_Skin",
+      "AWD_Fabric_denim",
+      "AWD_Brows",
+      "AWD_Eye",
+      "AWD_Hair_fade",
+      "AWD_Shoe_sneakers_upper",
+      "AWD_Shoe_sneakers_sole",
+      "AWD_Fabric_tee"
+    ],
+    "animations": [
+      "idle",
+      "walk",
+      "wave"
+    ],
+    "joints": 67,
+    "morphs": [],
+    "images": 5
+  },
+  "awd_male_prototype_lod2.glb": {
+    "bytes": 751440,
+    "meshes": 8,
+    "triangles": 4368,
+    "materials": [
+      "AWD_Skin",
+      "AWD_Fabric_denim",
+      "AWD_Brows",
+      "AWD_Eye",
+      "AWD_Hair_fade",
+      "AWD_Shoe_sneakers_upper",
+      "AWD_Shoe_sneakers_sole",
+      "AWD_Fabric_tee"
+    ],
+    "animations": [
+      "idle",
+      "walk",
+      "wave"
+    ],
+    "joints": 67,
+    "morphs": [],
+    "images": 5
+  },
+  "hair_fade_male.glb": {
+    "bytes": 211308,
+    "meshes": 1,
+    "triangles": 456,
+    "materials": [
+      "AWD_Hair_fade"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [],
+    "images": 1
+  },
+  "top_tee_male.glb": {
+    "bytes": 214472,
+    "meshes": 1,
+    "triangles": 3776,
+    "materials": [
+      "AWD_Fabric_tee"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [],
+    "images": 1
+  },
+  "bottom_jeans_male.glb": {
+    "bytes": 207532,
+    "meshes": 1,
+    "triangles": 2748,
+    "materials": [
+      "AWD_Fabric_denim"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [],
+    "images": 1
+  },
+  "shoes_sneakers_male.glb": {
+    "bytes": 94684,
+    "meshes": 1,
+    "triangles": 2148,
+    "materials": [
+      "AWD_Shoe_sneakers_upper",
+      "AWD_Shoe_sneakers_sole"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [],
+    "images": 0
+  }
+}

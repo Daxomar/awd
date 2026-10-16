@@ -12,3 +12,7 @@ __pycache__/
 !.env.example
 !.env.*.example
 *.log
+# Character pipeline scratch output
+characters/previews/wip/
+*.blend1
+characters/export/**/*.glb

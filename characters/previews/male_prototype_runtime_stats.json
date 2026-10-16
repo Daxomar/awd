@@ -1,0 +1,496 @@
+{
+  "front": {
+    "instances": 1,
+    "meshesPerCharacter": 12,
+    "trianglesPerCharacter": 27984,
+    "drawCalls": 13,
+    "renderedTriangles": 28032,
+    "geometries": 13,
+    "textures": 13,
+    "programs": 12,
+    "clips": {
+      "idle": 4.033,
+      "walk": 1.033,
+      "wave": 2.033
+    },
+    "morphs": [
+      "blink",
+      "browDown",
+      "browInnerUp",
+      "browUp",
+      "frown",
+      "jawOpen",
+      "mouthO",
+      "smile",
+      "squint"
+    ],
+    "skinVertexColours": true,
+    "bones": 67,
+    "materials": [
+      "AWD_Skin",
+      "AWD_Fabric_denim",
+      "AWD_Brows",
+      "AWD_Eye",
+      "AWD_Hair_fade",
+      "AWD_Lashes",
+      "AWD_Shoe_sneakers_upper",
+      "AWD_Shoe_sneakers_sole",
+      "AWD_Teeth",
+      "AWD_Tongue",
+      "AWD_Fabric_tee"
+    ]
+  },
+  "three_quarter": {
+    "instances": 1,
+    "meshesPerCharacter": 12,
+    "trianglesPerCharacter": 27984,
+    "drawCalls": 13,
+    "renderedTriangles": 28032,
+    "geometries": 13,
+    "textures": 13,
+    "programs": 12,
+    "clips": {
+      "idle": 4.033,
+      "walk": 1.033,
+      "wave": 2.033
+    },
+    "morphs": [
+      "blink",
+      "browDown",
+      "browInnerUp",
+      "browUp",
+      "frown",
+      "jawOpen",
+      "mouthO",
+      "smile",
+      "squint"
+    ],
+    "skinVertexColours": true,
+    "bones": 67,
+    "materials": [
+      "AWD_Skin",
+      "AWD_Fabric_denim",
+      "AWD_Brows",
+      "AWD_Eye",
+      "AWD_Hair_fade",
+      "AWD_Lashes",
+      "AWD_Shoe_sneakers_upper",
+      "AWD_Shoe_sneakers_sole",
+      "AWD_Teeth",
+      "AWD_Tongue",
+      "AWD_Fabric_tee"
+    ]
+  },
+  "side": {
+    "instances": 1,
+    "meshesPerCharacter": 12,
+    "trianglesPerCharacter": 27984,
+    "drawCalls": 13,
+    "renderedTriangles": 28032,
+    "geometries": 13,
+    "textures": 13,
+    "programs": 12,
+    "clips": {
+      "idle": 4.033,
+      "walk": 1.033,
+      "wave": 2.033
+    },
+    "morphs": [
+      "blink",
+      "browDown",
+      "browInnerUp",
+      "browUp",
+      "frown",
+      "jawOpen",
+      "mouthO",
+      "smile",
+      "squint"
+    ],
+    "skinVertexColours": true,
+    "bones": 67,
+    "materials": [
+      "AWD_Skin",
+      "AWD_Fabric_denim",
+      "AWD_Brows",
+      "AWD_Eye",
+      "AWD_Hair_fade",
+      "AWD_Lashes",
+      "AWD_Shoe_sneakers_upper",
+      "AWD_Shoe_sneakers_sole",
+      "AWD_Teeth",
+      "AWD_Tongue",
+      "AWD_Fabric_tee"
+    ]
+  },
+  "back": {
+    "instances": 1,
+    "meshesPerCharacter": 12,
+    "trianglesPerCharacter": 27984,
+    "drawCalls": 13,
+    "renderedTriangles": 28032,
+    "geometries": 13,
+    "textures": 13,
+    "programs": 12,
+    "clips": {
+      "idle": 4.033,
+      "walk": 1.033,
+      "wave": 2.033
+    },
+    "morphs": [
+      "blink",
+      "browDown",
+      "browInnerUp",
+      "browUp",
+      "frown",
+      "jawOpen",
+      "mouthO",
+      "smile",
+      "squint"
+    ],
+    "skinVertexColours": true,
+    "bones": 67,
+    "materials": [
+      "AWD_Skin",
+      "AWD_Fabric_denim",
+      "AWD_Brows",
+      "AWD_Eye",
+      "AWD_Hair_fade",
+      "AWD_Lashes",
+      "AWD_Shoe_sneakers_upper",
+      "AWD_Shoe_sneakers_sole",
+      "AWD_Teeth",
+      "AWD_Tongue",
+      "AWD_Fabric_tee"
+    ]
+  },
+  "game_lod1": {
+    "instances": 1,
+    "meshesPerCharacter": 9,
+    "trianglesPerCharacter": 12501,
+    "drawCalls": 10,
+    "renderedTriangles": 12549,
+    "geometries": 10,
+    "textures": 7,
+    "programs": 8,
+    "clips": {
+      "idle": 4.033,
+      "walk": 1.033,
+      "wave": 2.033
+    },
+    "morphs": [],
+    "skinVertexColours": true,
+    "bones": 67,
+    "materials": [
+      "AWD_Skin",
+      "AWD_Fabric_denim",
+      "AWD_Brows",
+      "AWD_Eye",
+      "AWD_Hair_fade",
+      "AWD_Shoe_sneakers_upper",
+      "AWD_Shoe_sneakers_sole",
+      "AWD_Fabric_tee"
+    ]
+  },
+  "face_neutral": {
+    "instances": 1,
+    "meshesPerCharacter": 12,
+    "trianglesPerCharacter": 27984,
+    "drawCalls": 13,
+    "renderedTriangles": 28032,
+    "geometries": 13,
+    "textures": 13,
+    "programs": 12,
+    "clips": {
+      "idle": 4.033,
+      "walk": 1.033,
+      "wave": 2.033
+    },
+    "morphs": [
+      "blink",
+      "browDown",
+      "browInnerUp",
+      "browUp",
+      "frown",
+      "jawOpen",
+      "mouthO",
+      "smile",
+      "squint"
+    ],
+    "skinVertexColours": true,
+    "bones": 67,
+    "materials": [
+      "AWD_Skin",
+      "AWD_Fabric_denim",
+      "AWD_Brows",
+      "AWD_Eye",
+      "AWD_Hair_fade",
+      "AWD_Lashes",
+      "AWD_Shoe_sneakers_upper",
+      "AWD_Shoe_sneakers_sole",
+      "AWD_Teeth",
+      "AWD_Tongue",
+      "AWD_Fabric_tee"
+    ]
+  },
+  "face_happy": {
+    "instances": 1,
+    "meshesPerCharacter": 12,
+    "trianglesPerCharacter": 27984,
+    "drawCalls": 13,
+    "renderedTriangles": 28032,
+    "geometries": 13,
+    "textures": 13,
+    "programs": 12,
+    "clips": {
+      "idle": 4.033,
+      "walk": 1.033,
+      "wave": 2.033
+    },
+    "morphs": [
+      "blink",
+      "browDown",
+      "browInnerUp",
+      "browUp",
+      "frown",
+      "jawOpen",
+      "mouthO",
+      "smile",
+      "squint"
+    ],
+    "skinVertexColours": true,
+    "bones": 67,
+    "materials": [
+      "AWD_Skin",
+      "AWD_Fabric_denim",
+      "AWD_Brows",
+      "AWD_Eye",
+      "AWD_Hair_fade",
+      "AWD_Lashes",
+      "AWD_Shoe_sneakers_upper",
+      "AWD_Shoe_sneakers_sole",
+      "AWD_Teeth",
+      "AWD_Tongue",
+      "AWD_Fabric_tee"
+    ]
+  },
+  "face_surprised": {
+    "instances": 1,
+    "meshesPerCharacter": 12,
+    "trianglesPerCharacter": 27984,
+    "drawCalls": 13,
+    "renderedTriangles": 28032,
+    "geometries": 13,
+    "textures": 13,
+    "programs": 12,
+    "clips": {
+      "idle": 4.033,
+      "walk": 1.033,
+      "wave": 2.033
+    },
+    "morphs": [
+      "blink",
+      "browDown",
+      "browInnerUp",
+      "browUp",
+      "frown",
+      "jawOpen",
+      "mouthO",
+      "smile",
+      "squint"
+    ],
+    "skinVertexColours": true,
+    "bones": 67,
+    "materials": [
+      "AWD_Skin",
+      "AWD_Fabric_denim",
+      "AWD_Brows",
+      "AWD_Eye",
+      "AWD_Hair_fade",
+      "AWD_Lashes",
+      "AWD_Shoe_sneakers_upper",
+      "AWD_Shoe_sneakers_sole",
+      "AWD_Teeth",
+      "AWD_Tongue",
+      "AWD_Fabric_tee"
+    ]
+  },
+  "face_angry": {
+    "instances": 1,
+    "meshesPerCharacter": 12,
+    "trianglesPerCharacter": 27984,
+    "drawCalls": 13,
+    "renderedTriangles": 28032,
+    "geometries": 13,
+    "textures": 13,
+    "programs": 12,
+    "clips": {
+      "idle": 4.033,
+      "walk": 1.033,
+      "wave": 2.033
+    },
+    "morphs": [
+      "blink",
+      "browDown",
+      "browInnerUp",
+      "browUp",
+      "frown",
+      "jawOpen",
+      "mouthO",
+      "smile",
+      "squint"
+    ],
+    "skinVertexColours": true,
+    "bones": 67,
+    "materials": [
+      "AWD_Skin",
+      "AWD_Fabric_denim",
+      "AWD_Brows",
+      "AWD_Eye",
+      "AWD_Hair_fade",
+      "AWD_Lashes",
+      "AWD_Shoe_sneakers_upper",
+      "AWD_Shoe_sneakers_sole",
+      "AWD_Teeth",
+      "AWD_Tongue",
+      "AWD_Fabric_tee"
+    ]
+  },
+  "walk": {
+    "instances": 1,
+    "meshesPerCharacter": 12,
+    "trianglesPerCharacter": 27984,
+    "drawCalls": 13,
+    "renderedTriangles": 28032,
+    "geometries": 13,
+    "textures": 13,
+    "programs": 12,
+    "clips": {
+      "idle": 4.033,
+      "walk": 1.033,
+      "wave": 2.033
+    },
+    "morphs": [
+      "blink",
+      "browDown",
+      "browInnerUp",
+      "browUp",
+      "frown",
+      "jawOpen",
+      "mouthO",
+      "smile",
+      "squint"
+    ],
+    "skinVertexColours": true,
+    "bones": 67,
+    "materials": [
+      "AWD_Skin",
+      "AWD_Fabric_denim",
+      "AWD_Brows",
+      "AWD_Eye",
+      "AWD_Hair_fade",
+      "AWD_Lashes",
+      "AWD_Shoe_sneakers_upper",
+      "AWD_Shoe_sneakers_sole",
+      "AWD_Teeth",
+      "AWD_Tongue",
+      "AWD_Fabric_tee"
+    ]
+  },
+  "wave": {
+    "instances": 1,
+    "meshesPerCharacter": 12,
+    "trianglesPerCharacter": 27984,
+    "drawCalls": 13,
+    "renderedTriangles": 28032,
+    "geometries": 13,
+    "textures": 13,
+    "programs": 12,
+    "clips": {
+      "idle": 4.033,
+      "walk": 1.033,
+      "wave": 2.033
+    },
+    "morphs": [
+      "blink",
+      "browDown",
+      "browInnerUp",
+      "browUp",
+      "frown",
+      "jawOpen",
+      "mouthO",
+      "smile",
+      "squint"
+    ],
+    "skinVertexColours": true,
+    "bones": 67,
+    "materials": [
+      "AWD_Skin",
+      "AWD_Fabric_denim",
+      "AWD_Brows",
+      "AWD_Eye",
+      "AWD_Hair_fade",
+      "AWD_Lashes",
+      "AWD_Shoe_sneakers_upper",
+      "AWD_Shoe_sneakers_sole",
+      "AWD_Teeth",
+      "AWD_Tongue",
+      "AWD_Fabric_tee"
+    ]
+  },
+  "crowd_lod1": {
+    "instances": 12,
+    "meshesPerCharacter": 9,
+    "trianglesPerCharacter": 12501,
+    "drawCalls": 109,
+    "renderedTriangles": 150060,
+    "geometries": 10,
+    "textures": 18,
+    "programs": 8,
+    "clips": {
+      "idle": 4.033,
+      "walk": 1.033,
+      "wave": 2.033
+    },
+    "morphs": [],
+    "skinVertexColours": true,
+    "bones": 67,
+    "materials": [
+      "AWD_Skin",
+      "AWD_Fabric_denim",
+      "AWD_Brows",
+      "AWD_Eye",
+      "AWD_Hair_fade",
+      "AWD_Shoe_sneakers_upper",
+      "AWD_Shoe_sneakers_sole",
+      "AWD_Fabric_tee"
+    ]
+  },
+  "tones_lod2": {
+    "instances": 8,
+    "meshesPerCharacter": 9,
+    "trianglesPerCharacter": 4368,
+    "drawCalls": 73,
+    "renderedTriangles": 34992,
+    "geometries": 10,
+    "textures": 14,
+    "programs": 8,
+    "clips": {
+      "idle": 4.033,
+      "walk": 1.033,
+      "wave": 2.033
+    },
+    "morphs": [],
+    "skinVertexColours": true,
+    "bones": 67,
+    "materials": [
+      "AWD_Skin",
+      "AWD_Fabric_denim",
+      "AWD_Brows",
+      "AWD_Eye",
+      "AWD_Hair_fade",
+      "AWD_Shoe_sneakers_upper",
+      "AWD_Shoe_sneakers_sole",
+      "AWD_Fabric_tee"
+    ]
+  }
+}

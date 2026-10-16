@@ -1,0 +1,1306 @@
+{
+  "version": 1,
+  "generated": "2026-10-16",
+  "pipeline": {
+    "build": "characters/scripts/build_prototype.py",
+    "capture": "characters/tools/capture_lab.py",
+    "lab": "client/character-lab.html"
+  },
+  "units": {
+    "length": "m",
+    "up": "+Y",
+    "forward": "+Z",
+    "fps": 30
+  },
+  "licences": {
+    "anatomy": "MakeHuman Community base mesh, targets and weights, CC0 1.0",
+    "artwork": "Original procedural textures and geometry, Accra We Dey"
+  },
+  "rigs": {
+    "awd_adult_v1": {
+      "bones": 67,
+      "names": [
+        "Hips",
+        "Spine",
+        "Spine1",
+        "Spine2",
+        "Neck",
+        "Head",
+        "HeadTop_End",
+        "LeftEye",
+        "RightEye",
+        "LeftShoulder",
+        "LeftArm",
+        "LeftForeArm",
+        "LeftHand",
+        "LeftHandThumb1",
+        "LeftHandThumb2",
+        "LeftHandThumb3",
+        "LeftHandThumb4",
+        "LeftHandIndex1",
+        "LeftHandIndex2",
+        "LeftHandIndex3",
+        "LeftHandIndex4",
+        "LeftHandMiddle1",
+        "LeftHandMiddle2",
+        "LeftHandMiddle3",
+        "LeftHandMiddle4",
+        "LeftHandRing1",
+        "LeftHandRing2",
+        "LeftHandRing3",
+        "LeftHandRing4",
+        "LeftHandPinky1",
+        "LeftHandPinky2",
+        "LeftHandPinky3",
+        "LeftHandPinky4",
+        "LeftUpLeg",
+        "LeftLeg",
+        "LeftFoot",
+        "LeftToeBase",
+        "LeftToe_End",
+        "RightShoulder",
+        "RightArm",
+        "RightForeArm",
+        "RightHand",
+        "RightHandThumb1",
+        "RightHandThumb2",
+        "RightHandThumb3",
+        "RightHandThumb4",
+        "RightHandIndex1",
+        "RightHandIndex2",
+        "RightHandIndex3",
+        "RightHandIndex4",
+        "RightHandMiddle1",
+        "RightHandMiddle2",
+        "RightHandMiddle3",
+        "RightHandMiddle4",
+        "RightHandRing1",
+        "RightHandRing2",
+        "RightHandRing3",
+        "RightHandRing4",
+        "RightHandPinky1",
+        "RightHandPinky2",
+        "RightHandPinky3",
+        "RightHandPinky4",
+        "RightUpLeg",
+        "RightLeg",
+        "RightFoot",
+        "RightToeBase",
+        "RightToe_End"
+      ],
+      "nonDeforming": [
+        "HeadTop_End",
+        "*Toe_End",
+        "*Hand*4"
+      ],
+      "rest": "relaxed A-pose"
+    }
+  },
+  "bodies": {
+    "m": {
+      "status": "prototype",
+      "rig": "awd_adult_v1",
+      "height": 1.76,
+      "source": "characters/source/awd_male_prototype.blend",
+      "lods": {
+        "0": {
+          "asset": "client/public/assets/characters/prototype/awd_male_prototype_lod0.glb",
+          "bytes": 2505456,
+          "triangles": 27984,
+          "meshes": 11
+        },
+        "1": {
+          "asset": "client/public/assets/characters/prototype/awd_male_prototype_lod1.glb",
+          "bytes": 1054760,
+          "triangles": 12501,
+          "meshes": 8
+        },
+        "2": {
+          "asset": "client/public/assets/characters/prototype/awd_male_prototype_lod2.glb",
+          "bytes": 751440,
+          "triangles": 4368,
+          "meshes": 8
+        }
+      }
+    },
+    "f": {
+      "status": "planned",
+      "rig": "awd_adult_v1",
+      "height": 1.68,
+      "source": "characters/source/awd_female_prototype.blend",
+      "lods": {
+        "0": null,
+        "1": null,
+        "2": null
+      }
+    }
+  },
+  "materials": {
+    "AWD_Skin": {
+      "tint": "SKIN[look.skin] x 1/0.9 into baseColor; COLOR_0 holds AO and tonal detail",
+      "tones": {
+        "1": "#f3cfb0",
+        "2": "#e2b08a",
+        "3": "#c68a5f",
+        "4": "#a26a45",
+        "5": "#7d4b2e",
+        "6": "#5f3621",
+        "7": "#472616",
+        "8": "#33190d"
+      }
+    },
+    "AWD_Hair_*": {
+      "tint": "look.hairCol x 1/0.78",
+      "colours": [
+        "#141010",
+        "#3a2416",
+        "#6b3e1f",
+        "#b5651d",
+        "#d9a441",
+        "#8e1b1b",
+        "#e8e2d6",
+        "#6b2d8c"
+      ],
+      "alpha": "MASK 0.5 for fades"
+    },
+    "AWD_Brows": {
+      "tint": "look.hairCol x 1/0.78",
+      "alpha": "MASK 0.45"
+    },
+    "AWD_Fabric_*": {
+      "tint": "slot colour (topCol, bottomCol, fullCol)"
+    },
+    "AWD_Shoe_*_upper": {
+      "tint": "look.shoesCol"
+    }
+  },
+  "morphs": [
+    "blink",
+    "jawOpen",
+    "smile",
+    "frown",
+    "mouthO",
+    "browUp",
+    "browDown",
+    "browInnerUp",
+    "squint"
+  ],
+  "expressions": {
+    "neutral": {},
+    "happy": {
+      "smile": 0.85,
+      "squint": 0.35,
+      "browUp": 0.15
+    },
+    "sad": {
+      "frown": 0.8,
+      "browInnerUp": 0.8,
+      "squint": 0.1
+    },
+    "angry": {
+      "browDown": 1,
+      "frown": 0.35,
+      "squint": 0.45
+    },
+    "surprised": {
+      "browUp": 1,
+      "jawOpen": 0.35,
+      "mouthO": 0.35
+    },
+    "concerned": {
+      "browInnerUp": 0.75,
+      "frown": 0.3,
+      "browDown": 0.15
+    },
+    "laughing": {
+      "smile": 1,
+      "jawOpen": 0.55,
+      "squint": 0.7,
+      "browUp": 0.2
+    },
+    "talking": {
+      "jawOpen": 0.3,
+      "mouthO": 0.2
+    },
+    "blinking": {
+      "blink": 1
+    }
+  },
+  "animations": {
+    "idle": {
+      "loop": true,
+      "status": "done"
+    },
+    "walk": {
+      "loop": true,
+      "inPlace": true,
+      "status": "done"
+    },
+    "wave": {
+      "loop": false,
+      "status": "done"
+    },
+    "run": {
+      "loop": true,
+      "status": "planned"
+    },
+    "agree": {
+      "loop": false,
+      "status": "planned"
+    },
+    "shake": {
+      "loop": false,
+      "status": "planned"
+    },
+    "sad": {
+      "loop": false,
+      "status": "planned"
+    },
+    "dance": {
+      "loop": true,
+      "status": "planned"
+    }
+  },
+  "uniforms": [
+    "police",
+    "nurse",
+    "doctor",
+    "chef",
+    "bank",
+    "civil",
+    "tech",
+    "trotro",
+    "ride",
+    "hotel",
+    "aviation",
+    "boxer",
+    "fisher",
+    "pastor",
+    "radio",
+    "dj",
+    "teacher",
+    "trader",
+    "fashion",
+    "doctorF"
+  ],
+  "appearance": {
+    "top": {
+      "tee": {
+        "name": "Plain tee",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 0,
+        "colours": [
+          "#f4f4f2",
+          "#17150f",
+          "#c8102e",
+          "#1f6fb8",
+          "#0e7a4e",
+          "#f2b632",
+          "#7b2d8e",
+          "#e76f51",
+          "#8a9aa8",
+          "#ff8fb1"
+        ],
+        "status": "partial",
+        "assets": {
+          "m": {
+            "asset": "client/public/assets/characters/prototype/parts/top_tee_male.glb",
+            "bytes": 214472,
+            "triangles": 3776
+          }
+        }
+      },
+      "flagtee": {
+        "name": "Ghana flag tee",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 0,
+        "colours": [
+          "#17150f",
+          "#f4f4f2"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "singlet": {
+        "name": "Singlet",
+        "bodies": [
+          "m"
+        ],
+        "price": 0,
+        "colours": [
+          "#f4f4f2",
+          "#17150f",
+          "#c8102e",
+          "#1f6fb8",
+          "#0e7a4e",
+          "#f2b632",
+          "#7b2d8e",
+          "#e76f51",
+          "#8a9aa8",
+          "#ff8fb1"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "crop": {
+        "name": "Crop top",
+        "bodies": [
+          "f"
+        ],
+        "price": 0,
+        "colours": [
+          "#f4f4f2",
+          "#17150f",
+          "#c8102e",
+          "#1f6fb8",
+          "#0e7a4e",
+          "#f2b632",
+          "#7b2d8e",
+          "#e76f51",
+          "#8a9aa8",
+          "#ff8fb1"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "polo": {
+        "name": "Polo shirt",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 150,
+        "colours": [
+          "#f4f4f2",
+          "#17150f",
+          "#c8102e",
+          "#1f6fb8",
+          "#0e7a4e",
+          "#f2b632",
+          "#7b2d8e",
+          "#e76f51",
+          "#8a9aa8",
+          "#ff8fb1"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "hoodie": {
+        "name": "Hoodie",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 300,
+        "colours": [
+          "#f4f4f2",
+          "#17150f",
+          "#c8102e",
+          "#1f6fb8",
+          "#0e7a4e",
+          "#f2b632",
+          "#7b2d8e",
+          "#e76f51",
+          "#8a9aa8",
+          "#ff8fb1"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "jersey": {
+        "name": "Ghana 2026 · Home",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 0,
+        "colours": [
+          "#f4f4f2"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "jerseyaway": {
+        "name": "Ghana 2026 · Away",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 0,
+        "colours": [
+          "#f2b632"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "ankara": {
+        "name": "Ankara shirt",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 350,
+        "colours": [
+          "#e76f51",
+          "#1f6fb8",
+          "#0e7a4e",
+          "#7b2d8e",
+          "#f2b632",
+          "#c8102e"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "kenteshirt": {
+        "name": "Kente shirt",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 800,
+        "colours": [
+          "#f2b632",
+          "#0e7a4e",
+          "#c8102e",
+          "#1f6fb8"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "fugu": {
+        "name": "Fugu smock",
+        "bodies": [
+          "m"
+        ],
+        "price": 600,
+        "colours": [
+          "#1f3f8f",
+          "#8a1c2b",
+          "#2a5d3a",
+          "#17150f"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "office": {
+        "name": "Office shirt & tie",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 350,
+        "colours": [
+          "#f4f4f2",
+          "#cfe0f5",
+          "#f6d6dc",
+          "#e9e2d0"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "kaftan": {
+        "name": "Kaftan",
+        "bodies": [
+          "m"
+        ],
+        "price": 600,
+        "colours": [
+          "#c2a878",
+          "#6b4f2f",
+          "#2a5d3a",
+          "#1d2433",
+          "#e9e2d0",
+          "#8a1c2b"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "suit": {
+        "name": "Tailored suit jacket",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 2500,
+        "colours": [
+          "#1d2433",
+          "#17150f",
+          "#5b6170",
+          "#2a5d3a",
+          "#8a1c2b",
+          "#e9e2d0"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "kaba": {
+        "name": "Kaba blouse",
+        "bodies": [
+          "f"
+        ],
+        "price": 450,
+        "colours": [
+          "#e76f51",
+          "#1f6fb8",
+          "#0e7a4e",
+          "#7b2d8e",
+          "#f2b632",
+          "#c8102e"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "blouse": {
+        "name": "Office blouse",
+        "bodies": [
+          "f"
+        ],
+        "price": 280,
+        "colours": [
+          "#f4f4f2",
+          "#f6d6dc",
+          "#cfe0f5",
+          "#17150f"
+        ],
+        "status": "planned",
+        "assets": {}
+      }
+    },
+    "bottom": {
+      "jeans": {
+        "name": "Jeans",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 0,
+        "colours": [
+          "#2b3a55",
+          "#3d5a80",
+          "#1d2433",
+          "#7a8ea8",
+          "#17150f"
+        ],
+        "status": "partial",
+        "assets": {
+          "m": {
+            "asset": "client/public/assets/characters/prototype/parts/bottom_jeans_male.glb",
+            "bytes": 207532,
+            "triangles": 2748
+          }
+        }
+      },
+      "shorts": {
+        "name": "Shorts",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 0,
+        "colours": [
+          "#2b3a55",
+          "#3d5a80",
+          "#1d2433",
+          "#7a8ea8",
+          "#17150f",
+          "#c2a878",
+          "#17150f"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "joggers": {
+        "name": "Joggers",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 120,
+        "colours": [
+          "#17150f",
+          "#5b6170",
+          "#2a5d3a",
+          "#1d2433"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "chinos": {
+        "name": "Chinos",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 220,
+        "colours": [
+          "#c2a878",
+          "#6b4f2f",
+          "#2a5d3a",
+          "#1d2433",
+          "#e9e2d0",
+          "#8a1c2b"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "suitpants": {
+        "name": "Suit trousers",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 600,
+        "colours": [
+          "#1d2433",
+          "#17150f",
+          "#5b6170",
+          "#e9e2d0"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "ankarapants": {
+        "name": "Ankara trousers",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 350,
+        "colours": [
+          "#e76f51",
+          "#1f6fb8",
+          "#0e7a4e",
+          "#7b2d8e",
+          "#f2b632",
+          "#c8102e"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "slit": {
+        "name": "Ankara slit",
+        "bodies": [
+          "f"
+        ],
+        "price": 350,
+        "colours": [
+          "#e76f51",
+          "#1f6fb8",
+          "#0e7a4e",
+          "#7b2d8e",
+          "#f2b632",
+          "#c8102e"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "mini": {
+        "name": "Mini skirt",
+        "bodies": [
+          "f"
+        ],
+        "price": 0,
+        "colours": [
+          "#f4f4f2",
+          "#17150f",
+          "#c8102e",
+          "#1f6fb8",
+          "#0e7a4e",
+          "#f2b632",
+          "#7b2d8e",
+          "#e76f51",
+          "#8a9aa8",
+          "#ff8fb1"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "pencil": {
+        "name": "Pencil skirt",
+        "bodies": [
+          "f"
+        ],
+        "price": 250,
+        "colours": [
+          "#17150f",
+          "#1d2433",
+          "#8a1c2b",
+          "#e9e2d0"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "kenteskirt": {
+        "name": "Kente wrap skirt",
+        "bodies": [
+          "f"
+        ],
+        "price": 900,
+        "colours": [
+          "#f2b632",
+          "#0e7a4e",
+          "#c8102e",
+          "#1f6fb8"
+        ],
+        "status": "planned",
+        "assets": {}
+      }
+    },
+    "full": {
+      "sundress": {
+        "name": "Sundress",
+        "bodies": [
+          "f"
+        ],
+        "price": 0,
+        "colours": [
+          "#f4f4f2",
+          "#17150f",
+          "#c8102e",
+          "#1f6fb8",
+          "#0e7a4e",
+          "#f2b632",
+          "#7b2d8e",
+          "#e76f51",
+          "#8a9aa8",
+          "#ff8fb1"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "ankaradress": {
+        "name": "Ankara dress",
+        "bodies": [
+          "f"
+        ],
+        "price": 700,
+        "colours": [
+          "#e76f51",
+          "#1f6fb8",
+          "#0e7a4e",
+          "#7b2d8e",
+          "#f2b632",
+          "#c8102e"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "kentedress": {
+        "name": "Kente gown",
+        "bodies": [
+          "f"
+        ],
+        "price": 3500,
+        "colours": [
+          "#f2b632",
+          "#0e7a4e",
+          "#c8102e",
+          "#1f6fb8"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "bodycon": {
+        "name": "Bodycon dress",
+        "bodies": [
+          "f"
+        ],
+        "price": 600,
+        "colours": [
+          "#17150f",
+          "#c8102e",
+          "#f4f4f2",
+          "#7b2d8e",
+          "#d4a017"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "kentecloth": {
+        "name": "Kente cloth",
+        "bodies": [
+          "m"
+        ],
+        "price": 6000,
+        "colours": [
+          "#f2b632",
+          "#0e7a4e",
+          "#c8102e",
+          "#1f6fb8"
+        ],
+        "status": "planned",
+        "assets": {}
+      }
+    },
+    "shoes": {
+      "slides": {
+        "name": "Charlie wote",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 0,
+        "colours": [
+          "#17150f",
+          "#1f6fb8",
+          "#c8102e",
+          "#f2b632"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "sneakers": {
+        "name": "Sneakers",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 600,
+        "colours": [
+          "#f4f4f2",
+          "#17150f",
+          "#c8102e",
+          "#6b4f2f",
+          "#f2b632"
+        ],
+        "status": "partial",
+        "assets": {
+          "m": {
+            "asset": "client/public/assets/characters/prototype/parts/shoes_sneakers_male.glb",
+            "bytes": 94684,
+            "triangles": 2148
+          }
+        }
+      },
+      "ahenema": {
+        "name": "Ahenema sandals",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 350,
+        "colours": [
+          "#6b4f2f",
+          "#17150f",
+          "#d4a017"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "loafers": {
+        "name": "Loafers",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 700,
+        "colours": [
+          "#17150f",
+          "#6b4f2f",
+          "#8a1c2b"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "heels": {
+        "name": "Heels",
+        "bodies": [
+          "f"
+        ],
+        "price": 450,
+        "colours": [
+          "#17150f",
+          "#c8102e",
+          "#d4a017",
+          "#f4f4f2"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "boots": {
+        "name": "Boots",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 650,
+        "colours": [
+          "#17150f",
+          "#6b4f2f"
+        ],
+        "status": "planned",
+        "assets": {}
+      }
+    },
+    "hair": {
+      "lowcut": {
+        "name": "Low cut",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 0,
+        "colours": null,
+        "status": "planned",
+        "assets": {}
+      },
+      "fade": {
+        "name": "Skin fade",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 0,
+        "colours": null,
+        "status": "partial",
+        "assets": {
+          "m": {
+            "asset": "client/public/assets/characters/prototype/parts/hair_fade_male.glb",
+            "bytes": 211308,
+            "triangles": 456
+          }
+        }
+      },
+      "waves": {
+        "name": "360 waves",
+        "bodies": [
+          "m"
+        ],
+        "price": 0,
+        "colours": null,
+        "status": "planned",
+        "assets": {}
+      },
+      "afro": {
+        "name": "Afro",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 0,
+        "colours": null,
+        "status": "planned",
+        "assets": {}
+      },
+      "twists": {
+        "name": "Twists",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 0,
+        "colours": null,
+        "status": "planned",
+        "assets": {}
+      },
+      "locs": {
+        "name": "Dreadlocks",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 0,
+        "colours": null,
+        "status": "planned",
+        "assets": {}
+      },
+      "cornrows": {
+        "name": "Cornrows",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 0,
+        "colours": null,
+        "status": "planned",
+        "assets": {}
+      },
+      "bald": {
+        "name": "Clean shave",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 0,
+        "colours": null,
+        "status": "planned",
+        "assets": {}
+      },
+      "puff": {
+        "name": "Afro puff",
+        "bodies": [
+          "f"
+        ],
+        "price": 0,
+        "colours": null,
+        "status": "planned",
+        "assets": {}
+      },
+      "bun": {
+        "name": "Bun",
+        "bodies": [
+          "f"
+        ],
+        "price": 0,
+        "colours": null,
+        "status": "planned",
+        "assets": {}
+      },
+      "twa": {
+        "name": "Short natural",
+        "bodies": [
+          "f"
+        ],
+        "price": 0,
+        "colours": null,
+        "status": "planned",
+        "assets": {}
+      },
+      "braids": {
+        "name": "Knotless braids",
+        "bodies": [
+          "f"
+        ],
+        "price": 600,
+        "colours": null,
+        "status": "planned",
+        "assets": {}
+      },
+      "bob": {
+        "name": "Bob wig",
+        "bodies": [
+          "f"
+        ],
+        "price": 900,
+        "colours": null,
+        "status": "planned",
+        "assets": {}
+      },
+      "bonestraight": {
+        "name": "Bone straight wig",
+        "bodies": [
+          "f"
+        ],
+        "price": 2500,
+        "colours": null,
+        "status": "planned",
+        "assets": {}
+      },
+      "duku": {
+        "name": "Duku headwrap",
+        "bodies": [
+          "f"
+        ],
+        "price": 150,
+        "colours": null,
+        "status": "planned",
+        "assets": {}
+      }
+    },
+    "beard": {
+      "nobeard": {
+        "name": "Clean",
+        "bodies": [
+          "m"
+        ],
+        "price": 0,
+        "colours": null,
+        "status": "planned",
+        "assets": {}
+      },
+      "stubble": {
+        "name": "Stubble",
+        "bodies": [
+          "m"
+        ],
+        "price": 0,
+        "colours": null,
+        "status": "planned",
+        "assets": {}
+      },
+      "goatee": {
+        "name": "Goatee",
+        "bodies": [
+          "m"
+        ],
+        "price": 0,
+        "colours": null,
+        "status": "planned",
+        "assets": {}
+      },
+      "fullbeard": {
+        "name": "Full beard",
+        "bodies": [
+          "m"
+        ],
+        "price": 0,
+        "colours": null,
+        "status": "planned",
+        "assets": {}
+      }
+    },
+    "hat": {
+      "nohat": {
+        "name": "No hat",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 0,
+        "colours": null,
+        "status": "planned",
+        "assets": {}
+      },
+      "cap": {
+        "name": "Snapback",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 100,
+        "colours": [
+          "#f4f4f2",
+          "#17150f",
+          "#c8102e",
+          "#1f6fb8",
+          "#0e7a4e",
+          "#f2b632",
+          "#7b2d8e",
+          "#e76f51",
+          "#8a9aa8",
+          "#ff8fb1"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "bucket": {
+        "name": "Bucket hat",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 120,
+        "colours": [
+          "#f4f4f2",
+          "#17150f",
+          "#c8102e",
+          "#1f6fb8",
+          "#0e7a4e",
+          "#f2b632",
+          "#7b2d8e",
+          "#e76f51",
+          "#8a9aa8",
+          "#ff8fb1"
+        ],
+        "status": "planned",
+        "assets": {}
+      },
+      "kufi": {
+        "name": "Kufi",
+        "bodies": [
+          "m"
+        ],
+        "price": 80,
+        "colours": [
+          "#f4f4f2",
+          "#17150f",
+          "#2a5d3a"
+        ],
+        "status": "planned",
+        "assets": {}
+      }
+    },
+    "glasses": {
+      "noglasses": {
+        "name": "None",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 0,
+        "colours": null,
+        "status": "planned",
+        "assets": {}
+      },
+      "shades": {
+        "name": "Shades",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 150,
+        "colours": null,
+        "status": "planned",
+        "assets": {}
+      },
+      "specs": {
+        "name": "Specs",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 250,
+        "colours": null,
+        "status": "planned",
+        "assets": {}
+      }
+    },
+    "neck": {
+      "nochain": {
+        "name": "None",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 0,
+        "colours": null,
+        "status": "planned",
+        "assets": {}
+      },
+      "chain": {
+        "name": "Gold chain",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 4000,
+        "colours": null,
+        "status": "planned",
+        "assets": {}
+      },
+      "beads": {
+        "name": "Waist & neck beads",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 120,
+        "colours": null,
+        "status": "planned",
+        "assets": {}
+      },
+      "stole": {
+        "name": "Kente stole",
+        "bodies": [
+          "m",
+          "f"
+        ],
+        "price": 350,
+        "colours": [
+          "#f2b632",
+          "#0e7a4e",
+          "#c8102e",
+          "#1f6fb8"
+        ],
+        "status": "planned",
+        "assets": {}
+      }
+    }
+  }
+}
