@@ -16,6 +16,8 @@ docs/images/phase8/business-stock-and-pricing.jpg
 docs/images/phase8/business-unconfirmed-reconnect.jpg
 docs/images/phase8/career-at-station.jpg
 docs/images/phase8/career-hired.jpg
+docs/images/phase8/career-paid-persistent.jpg
+docs/images/phase8/career-persistent-history.jpg
 docs/images/phase8/career-promotion-eligibility.jpg
 docs/images/phase8/crime-consequence.jpg
 docs/images/phase8/crime-financial-history.jpg
@@ -47,6 +49,7 @@ docs/phase8/economy-simulation.json
 docs/phase8/initial-inventory.json
 docs/phase8/operations.md
 docs/phase8/report.md
+docs/phase8/save-compatibility.json
 docs/phase8/validation.json
 server/loadtest/life-economy-sim.js
 server/loadtest/life-integration.js

@@ -1,6 +1,6 @@
 {
   "date": "2026-10-16",
-  "status": "pending final career attendance and exact-commit container CI",
+  "status": "complete",
   "characterBaseline": "1315e76; clean candidate excludes concurrent uncommitted character files",
   "automated": {
     "server": {
@@ -87,7 +87,7 @@
       "checks": [
         "business startup and action replay debit once",
         "stock, expense, real profit records, offline cap and idempotent settlement",
-        "capital cycling is not counted as income; closure retains stock/cash",
+        "withdrawals count only recorded profit; a pure capital cycle earns zero and closure retains stock/cash",
         "two competing buyers transfer one escrowed phone and one durable seller payment without duplicate financial history",
         "closed, unauthorized and duplicate marketplace actions cannot duplicate inventory",
         "nonexistent relationships cannot be removed/ended to create unsolicited notices or rows",
@@ -116,22 +116,22 @@
       ],
       "performance": {
         "databaseQueries": {
-          "samples": 663,
+          "samples": 687,
           "medianMs": 0.94,
-          "p95Ms": 6.53,
-          "maxMs": 2832.34
+          "p95Ms": 3.94,
+          "maxMs": 2896.01
         },
         "lifeActions": {
-          "samples": 43,
-          "medianMs": 18.36,
-          "p95Ms": 40.8,
-          "maxMs": 372.65
+          "samples": 45,
+          "medianMs": 13.65,
+          "p95Ms": 31.08,
+          "maxMs": 176.54
         },
         "businessSettlements": {
           "samples": 2,
-          "medianMs": 22.72,
-          "p95Ms": 22.72,
-          "maxMs": 22.72
+          "medianMs": 20.76,
+          "p95Ms": 20.76,
+          "maxMs": 20.76
         },
         "scope": "Loopback PostgreSQL; three disposable participants, including two concurrent buyers. Not a production capacity benchmark."
       }
@@ -139,7 +139,24 @@
   },
   "browser": {
     "career_resume": {
-      "status": "pending"
+      "passed": [
+        "same natural GH800 Hustler fixture",
+        "actual physical assignment retained",
+        "recorded attended work resumes after reconnect/server restart",
+        "one real attended hour pays unchanged GH150",
+        "skills/professional progress retained",
+        "two reloads preserve one salary and assignment history"
+      ],
+      "salary": 150,
+      "clock": "Real server time and recorded attendance; no accelerated clock or attendance grant. Early long run was interrupted by software-GPU host contention; continuation used the same stored fixture.",
+      "errors": []
+    },
+    "career_evidence": {
+      "passed": [
+        "saved paid career opened again without another reward",
+        "actual Coding skill value, progress and effect inspected in the game"
+      ],
+      "errors": []
     },
     "commerce": {
       "passed": [
@@ -410,5 +427,98 @@
   "diagnosticScope": "8 GB Windows desktop; local PostgreSQL and Chromium/SwiftShader, low pixel ratio, sampled rendering, later runs pace animation callbacks and disable CSS animation/blur, WebGL shadows and GPU compositing. No physical-phone FPS or production-capacity claim. Early failed runs exposed save/queue/reconnect defects and host CPU contention; they were not counted as passes.",
   "publicDeployment": false,
   "realPayments": false,
-  "phase9Started": false
+  "phase9Started": false,
+  "ci": {
+    "codeCommit": "243f295918bf8c097a29b0253e9c63f1974c9f84",
+    "runId": 38919631137,
+    "jobId": 117035892939,
+    "url": "https://github.com/Daxomar/awd/actions/runs/38919631137",
+    "conclusion": "success",
+    "verified": [
+      "73 server tests",
+      "60 client tests",
+      "62 PostgreSQL integration checks",
+      "client/server dependency audits",
+      "Vite production build",
+      "full Docker Compose stack",
+      "cookie-authenticated HTTP/WebSocket smoke",
+      "proxy health"
+    ],
+    "previousAttempt": {
+      "runId": 38918629345,
+      "commit": "b2e87a854146683b64be44e74df59ca4a94954ed",
+      "conclusion": "failure",
+      "cause": "An integration assertion assumed nonnegative operating profit. Replaced with exact taxable-profit accounting and a zero-income pure-capital-cycle check; production rules unchanged."
+    }
+  },
+  "saveCompatibility": {
+    "date": "2026-10-16",
+    "database": "Existing local preview, isolated from browser QA fixtures",
+    "compatible": true,
+    "protectedTables": {
+      "accounts": {
+        "count": 103,
+        "sha256": "fc066b139054f1963bcafd1e00ea597208341e05875b42dd6b4df5b0cd68c88f"
+      },
+      "players": {
+        "count": 103,
+        "sha256": "2f95cc67c22c6d912aafddae6a2dd218d03d3c451494cd0f08efeb89c9c17148"
+      },
+      "ledger": {
+        "count": 11,
+        "sha256": "9aa02a13edd5eb44d519cad77caf5ed6fca2af3e474a990b65e6a027f0d87dc4"
+      },
+      "credits": {
+        "count": 11,
+        "sha256": "44cd0dec5f14fd4156eec3fe9c3b1f58592337d2af4cc1b4f637a8367a210403"
+      },
+      "topups": {
+        "count": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "ad_orders": {
+        "count": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "ad_reservations": {
+        "count": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "payment_orders": {
+        "count": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "payment_attempts": {
+        "count": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "payment_events": {
+        "count": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "homes": {
+        "count": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "player_objectives": {
+        "count": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "objective_rewards": {
+        "count": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "intro_completions": {
+        "count": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "intro_rewards": {
+        "count": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    "invalidWallets": 0,
+    "comparison": "Counts and SHA-256 of complete records match before/after additive life migrations. Player updated_at metadata excluded; full saved player JSON, account records, possessions, appearance, birth fields and financial records are included. No individual records or credentials are exported.",
+    "runtime": "Local port 8080 updated; existing birth/session secret files reused. No public deployment."
+  }
 }

@@ -1,0 +1,70 @@
+{
+  "date": "2026-10-16",
+  "database": "Existing local preview, isolated from browser QA fixtures",
+  "compatible": true,
+  "protectedTables": {
+    "accounts": {
+      "count": 103,
+      "sha256": "fc066b139054f1963bcafd1e00ea597208341e05875b42dd6b4df5b0cd68c88f"
+    },
+    "players": {
+      "count": 103,
+      "sha256": "2f95cc67c22c6d912aafddae6a2dd218d03d3c451494cd0f08efeb89c9c17148"
+    },
+    "ledger": {
+      "count": 11,
+      "sha256": "9aa02a13edd5eb44d519cad77caf5ed6fca2af3e474a990b65e6a027f0d87dc4"
+    },
+    "credits": {
+      "count": 11,
+      "sha256": "44cd0dec5f14fd4156eec3fe9c3b1f58592337d2af4cc1b4f637a8367a210403"
+    },
+    "topups": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ad_orders": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ad_reservations": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "payment_orders": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "payment_attempts": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "payment_events": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "homes": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "player_objectives": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "objective_rewards": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "intro_completions": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "intro_rewards": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  },
+  "invalidWallets": 0,
+  "comparison": "Counts and SHA-256 of complete records match before/after additive life migrations. Player updated_at metadata excluded; full saved player JSON, account records, possessions, appearance, birth fields and financial records are included. No individual records or credentials are exported.",
+  "runtime": "Local port 8080 updated; existing birth/session secret files reused. No public deployment."
+}

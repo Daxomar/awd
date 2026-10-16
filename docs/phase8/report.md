@@ -194,6 +194,10 @@ five shifts/week, business three, social two, mixed four, casual two visits/shif
 The model includes basic food/data, capped offline meals, rent, salary tax and
 the actual bounded provision-demand function. Missed rent is counted without
 simulating eviction/relocation. It is a budget stress test, not a full needs model.
+Both starting wallets afford the GH₵28 basic meal/data benchmark immediately;
+the simulation also records later days below that cost. The GH₵960 Jamestown
+advance benchmark is an upgrade from Nima and a cheaper option than Dbee's Osu
+start; it is not presented as a Dbee housing upgrade.
 
 | Style | Hustler mean wallet after 28d | Dbee mean wallet | Hustler mean missed rents |
 | --- | ---: | ---: | ---: |
@@ -221,6 +225,13 @@ Indexes cover own-account history, market status/expiry, business owner,
 relationships and active shared sessions. Migrations are idempotent; the legacy
 relationship import tolerates absent/malformed old fields and uses conflict-safe
 inserts. No existing IDs, balances, birth values or Paystack schemas are replaced.
+
+[Local save compatibility](save-compatibility.json) passes: complete-record hashes
+and counts match before/after migration across fifteen protected tables, including
+all 103 accounts and 103 saved players. Full player JSON, appearance, possessions,
+birth fields and financial records were compared; only player update metadata
+was excluded. There are zero invalid wallets. The original local preview on
+port 8080 now runs Phase 8 using its existing session and birth secret files.
 
 See [deployment/operations notes](operations.md). Rolling back code must retain
 these tables and escrow/credits; dropping them would destroy owned possessions
@@ -257,7 +268,7 @@ release their account lease and remove partial presence entries.
 
 ## 17. Automated tests
 
-[Validation](validation.json) contains the actual run outputs and pending items.
+[Validation](validation.json) contains the actual run outputs and their scope.
 The local server suite passes 73 tests; the clean client candidate passes 60 with
 zero skips. Existing database regressions pass: payments 9, advertising 9, First
 Friend 10 and introductory objectives 6. Phase 8 adds 28 integration scenarios,
@@ -267,8 +278,13 @@ insufficient funds at completion, lost COMMIT confirmation, loading-account and
 internal-queue protection, notification replay and final wallet reconciliation.
 That is 195 automated checks, plus the separately reported 300 simulation runs.
 Production build passes; client and production-server dependency audits report
-zero vulnerabilities. Exact-commit Docker/HTTP/WebSocket/proxy CI is recorded
-separately in validation; a pending result is not a pass.
+zero vulnerabilities. [CI run 38919631137](https://github.com/Daxomar/awd/actions/runs/38919631137)
+passes on Phase 8 code commit `243f295918bf8c097a29b0253e9c63f1974c9f84`,
+including the full Docker stack, cookie-authenticated HTTP/WebSocket smoke and
+proxy health. An earlier integration assertion incorrectly assumed positive net
+profit; it was replaced with exact stored-profit reconciliation and a separate
+zero-income capital contribution/withdrawal check. The successful run includes
+that stronger test. Concurrent character commits are a separate validation scope.
 
 The clean candidate uses committed character assets from 1315e76. Concurrent
 uncommitted Blender/runtime/asset-test edits are not weakened or included here.
@@ -287,13 +303,13 @@ expired/ready timestamps; they are not claimed as natural player progression.
 
 | Journey | Actual exercise |
 | --- | --- |
-| A — Hustler career | Physical application and 90-second assignment; professional/skill history; ongoing real attended shift with saved reconnect continuation. Final paid result remains pending until recorded in validation. |
+| A — Hustler career | Physical application and actual 90-second assignment; sixty real attended minutes pay the unchanged GH₵150 once. Attendance survives reconnect/server restart; skills and professional history persist; two reloads retain one salary and one completed assignment. |
 | B — Entrepreneurship | Hustler funds a provision stall, buys stock, configures prices/open state, makes ten simulated sales, reviews expenses and withdraws till cash; reload persists it. |
 | C — Commerce | Existing Circle phone purchase, escrow, Dbee buyer pays GH₵101 including GH₵1 fee; seller receives GH₵100 once and both reload inventories/finance. |
 | D — Social | Same public room, mutual friendship, actual 30-second conversation, dating acceptance, reload, unilateral breakup and cancellation of another activity on reconnect. |
 | E — Crime | Actual fictional pickpocket outcome: detection, GH₵240 fine, separate legal history and saved finance. No random outcome was forced in the browser. |
 | F — Housing | Dbee travels, earns actual Circle gig income, returns home, buys/uses a cooker, checks expenses, pays GH₵960 Jamestown advance and sees the room rebuild; reload retains the item. |
-| G — Reconnection | Real business contribution with deliberately withheld UI receipt, actual reload and safe same-key retry; ongoing career reconnect/restart; shared-session disconnect with no extra reward. |
+| G — Reconnection | Real business contribution with deliberately withheld UI receipt, actual reload and safe same-key retry; completed career reconnect/restart and paid-result reload; shared-session disconnect with no extra reward. |
 | H — Dbee | Existing career application, accessory operation/stock/sales/statement, real transport, mutual friendship/shared activity and saved career/business after reload. |
 
 Some existing travel/phone-market actions use their ordinary authenticated game
@@ -311,10 +327,10 @@ changes from 49,987,796 to 50,145,560 bytes (+157,764); no sustained DOM/listene
 growth was observed in this small sample. This is not an indefinite leak proof.
 Measured status round trips: median 218.57 ms, nearest-rank p95/max 886.75 ms.
 
-The final integration sample measures 663 PostgreSQL queries: median 0.94 ms,
-p95 6.53 ms, max 2,832.34 ms (includes migration/setup queries). Forty-three life
-actions: median 18.36 ms, p95 40.8 ms, max 372.65 ms. Two bounded settlement
-samples take at most 22.72 ms. These are loopback samples with three main fixture
+The final integration sample measures 687 PostgreSQL queries: median 0.94 ms,
+p95 3.94 ms, max 2,896.01 ms (includes migration/setup queries). Forty-five life
+actions: median 13.65 ms, p95 31.08 ms, max 176.54 ms. Two bounded settlement
+samples take at most 20.76 ms. These are loopback samples with three main fixture
 participants/two competing buyers, not a production-load or multi-shard capacity
 certification. Raw measurements are preserved in validation.
 
@@ -338,6 +354,7 @@ and misleading state. Small/landscape phone content scrolls inside the handset.
 The diagnostics above apply; no design mockups substitute for gameplay.
 
 - [Career and promotion eligibility](../images/phase8/career-promotion-eligibility.jpg), [skills](../images/phase8/skills.jpg).
+- [Persistent paid shift](../images/phase8/career-paid-persistent.jpg), [saved career history](../images/phase8/career-persistent-history.jpg).
 - [Business setup](../images/phase8/business-setup.jpg), [stock/pricing](../images/phase8/business-stock-and-pricing.jpg), [statement](../images/phase8/business-financial-statement.jpg).
 - [Trade escrow](../images/phase8/trade-escrow.jpg), [purchase](../images/phase8/trade-purchase.jpg), [unconfirmed business recovery](../images/phase8/business-unconfirmed-reconnect.jpg).
 - [Friend consent](../images/phase8/friendship-consent.jpg), [shared activity](../images/phase8/shared-activity.jpg), [persistent dating](../images/phase8/relationship-persistent.jpg).
@@ -358,6 +375,8 @@ fonts retain their existing licences; no new media licence is required. Budget G
 - Managed demand is numerical; shops are phone-managed, not staffed by Phase 7 NPCs.
 - Commerce supports the existing Circle phone inventory, not every item category.
 - Shared meals/exercise use existing eligible public venues; no invented locations.
+- Legacy paired gestures use shared-conversation consent; no new paired character
+  animation is introduced in this systems milestone.
 - Relationship interactions require a current shared shard; DMs/credits retain
   their existing wider delivery. Legacy asymmetric friendships need fresh consent.
 - Financial/life audit tables and action receipts need a future retention/archival
@@ -365,8 +384,8 @@ fonts retain their existing licences; no new media licence is required. Budget G
 - Local contention produced timeouts during early runs. Recovery safeguards and
   bounded configurable connection waits were added; this is not load certification.
 - Physical-device, sustained multi-shard/load and real-provider sandbox-release
-  checks remain release work. Local Docker availability is reported honestly;
-  container validation must be tied to the exact CI commit.
+  checks remain release work. Docker Desktop was unavailable locally; Linux CI
+  passed the full container stack on the exact Phase 8 code commit linked above.
 - No movement overhaul, autonomous NPCs, character redesign or Phase 9 is included.
 
 ## 23. Changes requiring separate approval
