@@ -12,6 +12,7 @@ import { streetSpec, extraVenue } from './neighbourhood.js';
 import { fitLook } from '../fits.js';
 import { connectedStreetSpec,streetArrivalYaw } from './connected-streets.js';
 import { nearestStreetSegment } from '../../../../shared/local-streets.js';
+import {WORKPLACES} from '../../../../shared/workplaces.js';
 
 const h = (cls, txt) => { const e = document.createElement('div'); e.className = cls; if (txt != null) e.textContent = txt; return e; };
 export class World {
@@ -41,6 +42,11 @@ export class World {
     if (msg.home) spec = homeSpec(msg.home.id || 'nima', msg.home.items || {}); else if(msg.place.startsWith('n:'))spec=connectedStreetSpec(msg.place.slice(2),G.cat.locs);else if(msg.place.startsWith('e:')){const home=G.cat.homes[msg.place.slice(2)];spec=streetSpec(home?.area||'Accra',true);}else spec = extraVenue(msg.place)||VENUES[msg.place];
     if (!spec) spec = VENUES.circle;
     spec = structuredClone(spec);
+    for(const [id,c] of Object.entries(G.cat.careers))if(c.at===msg.place){
+      const w=WORKPLACES[id];let item=0,best=Infinity;
+      spec.items.forEach((it,i)=>{const d=Math.hypot(it.x-w.x,it.z-w.z);if(d<best){best=d;item=i;}});
+      spec.zones.push({id:'work-'+id,label:w.label,icon:'ph-briefcase',item,acts:[],work:id});
+    }
     if(msg.home?.mine){const item=spec.items.length,sp=spec.spawn||{x:0,z:0};spec.items.push({kind:'doormat',x:sp.x,z:sp.z,label:'Home door'});spec.zones.push({id:'exit',label:'Walk outside',icon:'ph-person-simple-walk',item,acts:[],route:'neighbourhood'});}
     if(msg.place==='n:'+G.state.home){const item=spec.items.findIndex(it=>it.localHome);spec.items[item].label='HOME ENTRANCE';spec.zones.push({id:'home',label:'Go indoors',icon:'ph-house',item,acts:[],route:'home'});}
     const returning=G.state.streetReturn;

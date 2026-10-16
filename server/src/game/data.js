@@ -1,4 +1,5 @@
 import { EXTRA_LOCATIONS, neighbourhoodLocations } from './city-content.js';
+import { NEIGHBOURHOOD_ACTIVITIES } from './discovery.js';
 // ============================================================================================
 // ACCRA WE DEY · game content. Prices in GH₵ calibrated to 2025–26 Accra (see ll/ACCRA_RESEARCH.md).
 // Time is the real Accra clock (GMT). Action `min` = in-game minutes; real duration is compressed.
@@ -299,3 +300,9 @@ export const DUMSOR = { 0: [20, 23], 1: [18, 22], 2: null, 3: [6, 10], 4: [19, 2
 export const POLICIES = { trotro: 'Half-price trotro fares', food: 'Chop bar food 25% cheaper', wages: 'All shift pay +10%', light: 'ECG promises fewer outages', tax: 'Income tax −5 points' };
 
 Object.assign(LOCATIONS, EXTRA_LOCATIONS, neighbourhoodLocations(HOMES));
+for(const [id,act] of Object.entries(NEIGHBOURHOOD_ACTIVITIES))LOCATIONS['n:'+id].acts=[...LOCATIONS['n:'+id].acts,{...act,rest:30}];
+// Retire employment-only minigame scoring, retaining action IDs and midpoint pay.
+for(const [place,id,label,skill]of [['circle','mate','Help dispatch trotro trips','hustle'],['chopbar','rush','Coordinate the lunch rush','cooking'],['hub','freelance','Complete a freelance maintenance assignment','coding']]){
+  const a=LOCATIONS[place].acts.find(a=>a.id===id);delete a.mg;
+  Object.assign(a,{label,min:60,earn:{base:62,per:4.34,skill},skill:{[skill]:.8},needs:{energy:-8,fun:-4},rest:60});
+}

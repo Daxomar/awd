@@ -12,16 +12,25 @@ import { migrate, topWorth, pool } from './db.js';
 import * as Ads from './ads.js';
 import { migrateGist } from './gist.js';
 import * as Social from './social.js';
+import * as Payments from './payments.js';
+import * as FirstFriend from './first-friend.js';
+import * as Objectives from './objectives.js';
 import { signup, login, check, authenticate, cookieToken, sessionCookie, revoke, changePassword } from './auth.js';
 import { securityHeaders, inlineScriptHashes, staticPath, allowedOrigin, clientIp, RateLimiter, parseMessage, takeMessage } from './security.js';
 import { Shard } from './shard.js';
 import { Bus } from './bus.js';
 
-for (let i = 1; ; i++) { try { await migrate(); await Ads.migrateAds(); await migrateGist(); await Social.migrateSocial(); break; } catch (e) { console.error(`[db] not ready (${e.code || e.message}), retry ${i} in 3s`); await new Promise((r) => setTimeout(r, 3000)); } }
+for (let i = 1; ; i++) { try { await migrate(); await Ads.migrateAds(); await migrateGist(); await Social.migrateSocial(); await Payments.migratePayments();await FirstFriend.migrateFirstFriend();await Objectives.migrateObjectives(); break; } catch (e) { console.error(`[db] not ready (${e.code || e.message}), retry ${i} in 3s`); await new Promise((r) => setTimeout(r, 3000)); } }
 let shard;
 const bus = new Bus(CFG.shardId, (ch, m) => shard && shard.fromBus(ch, m));
 shard = new Shard(bus);
-Ads.setTopupHook((ref, amt) => Social.topupPaid(ref, amt, shard));
+Payments.registerPayment('ad',Ads.fulfillPayment);
+Payments.registerPayment('topup',Social.fulfillPayment);
+Social.observeMessages(FirstFriend.reply);
+let introReconciling=false;
+setInterval(async()=>{if(introReconciling)return;introReconciling=true;try{await FirstFriend.reconcile(shard);}catch(e){console.error('[introduction reconciliation]',e.code||'deferred');}finally{introReconciling=false;}},60000).unref();
+let reconciling=false;
+setInterval(async()=>{if(reconciling)return;reconciling=true;try{await Payments.reconcile();}catch(e){console.error('[payment reconciliation]',e.code||'unavailable');}finally{reconciling=false;}},60000).unref();
 setInterval(() => bus.heartbeat(shard.online), 5000);
 
 const BOT_KEY = CFG.dev ? process.env.BOT_KEY || '' : '';
@@ -121,21 +130,45 @@ for (const route of ['/api/logout','/api/logout-all','/api/password']) app.post(
 const qs = (req) => new URLSearchParams(req.getQuery() || '');
 let adsActive=0;
 limitedRead('/api/billboards',()=>async()=>({slots:await Ads.listSlots()}));
-app.post('/api/ads', (res, req) => { if(!mutationAllowed(res,req))return; const ip = clientIp(res,req);
+app.post('/api/ads', (res, req) => { if(!mutationAllowed(res,req))return; const ip = clientIp(res,req),token=cookieToken(req.getHeader('cookie'));
   readJson(res, async (b, isAborted) => { if(!await allow(res,isAborted,'ads',ip,5,3600))return;
     if(adsActive>=2)return json(res,isAborted,{error:'Artwork processing is busy. Try again shortly.'},'503 Service Unavailable');
     adsActive++;
-    try { json(res, isAborted, await Ads.createOrder(b)); } catch (e) { console.error('[ads]', e.code||'request failed'); json(res, isAborted, { error: 'Server error' }, '500 Internal Server Error'); }finally{adsActive--;} }, 6 * 1024 * 1024); });
+    try { const a=await authenticate(token);if(!a)return json(res,isAborted,{error:'Sign in to the game before booking an advertisement.'},'401 Unauthorized');json(res, isAborted, await Ads.createOrder(b,a.id)); } catch (e) { console.error('[ads]', e.code||'request failed'); json(res, isAborted, { error: 'Server error' }, '500 Internal Server Error'); }finally{adsActive--;} }, 6 * 1024 * 1024); });
 limitedRead('/api/ads/verify',req=>{const ref=qs(req).get('ref');return()=>Ads.verify(ref);},10,60,'payment-verify');
 app.post('/api/paystack/webhook', (res, req) => { const sig = req.getHeader('x-paystack-signature'); let buf = Buffer.alloc(0), ab = false; res.onAborted(() => (ab = true));
   res.onData((c, last) => { if(ab)return; if(buf.length+c.byteLength>65536){ab=true;buf=null;res.cork(()=>securityHeaders(res.writeStatus('413 Payload Too Large')).end());return;} buf=Buffer.concat([buf,Buffer.from(c)]); if(last) Ads.webhook(buf,sig).then(ok=>{if(!ab)res.cork(()=>securityHeaders(res.writeStatus(ok?'200 OK':'401 Unauthorized')).end());}).catch(()=>{if(!ab)res.cork(()=>res.writeStatus('503 Service Unavailable').end());}); }); });
 app.get('/api/admin/ads', (res, req) => { const k = req.getHeader('x-admin-key'),ip=clientIp(res,req); let ab = false; res.onAborted(() => (ab = true)); (async()=>{if(!await allow(res,()=>ab,'admin',ip,10,60))return;const r=await Ads.adminList(k);json(res,()=>ab,r,r.error?'403 Forbidden':'200 OK');})().catch(()=>json(res,()=>ab,{error:'Service unavailable.'},'503 Service Unavailable')); });
 app.post('/api/admin/ads', (res, req) => { if(!mutationAllowed(res,req))return; const k = req.getHeader('x-admin-key'),ip=clientIp(res,req); readJson(res, async (b, isAborted) => { if(!await allow(res,isAborted,'admin',ip,10,60))return; const r = await Ads.adminAct(k, b); json(res, isAborted, r, r.error === 'forbidden' ? '403 Forbidden' : '200 OK'); }); });
 limitedRead('/api/topup/verify',req=>{const ref=qs(req).get('ref');return()=>Social.topupVerify(ref,shard);},10,60,'payment-verify');
+app.post('/api/payment/return',(res,req)=>{
+  if(!mutationAllowed(res,req))return;
+  const token=cookieToken(req.getHeader('cookie')),ip=clientIp(res,req);
+  readJson(res,async(b,ab)=>{
+    if(!await allow(res,ab,'payment-return',ip,10,60))return;
+    const a=await authenticate(token);if(!a)return json(res,ab,{error:'Sign in to resume your payment.'},'401 Unauthorized');
+    const result=await Payments.paymentReturn(b.state,a.id);if(result.status==='fulfilled')shard.deliverCredit(a.id);json(res,ab,result);
+  });
+});
+for(const route of ['/api/ads/mine','/api/ads/cancel','/api/ads/retry','/api/ads/exposure'])app.post(route,(res,req)=>{
+  if(!mutationAllowed(res,req))return;
+  const token=cookieToken(req.getHeader('cookie')),ip=clientIp(res,req);
+  readJson(res,async(b,ab)=>{
+    if(!await allow(res,ab,route,ip,route.endsWith('exposure')?60:30,60))return;
+    const a=await authenticate(token);if(!a)return json(res,ab,{error:'Sign in to your account.'},'401 Unauthorized');
+    if(!await allow(res,ab,route+'-account',a.id,route.endsWith('exposure')?60:30,60))return;
+    if(route.endsWith('mine'))return json(res,ab,await Ads.campaigns(a.id));
+    if(route.endsWith('cancel'))return json(res,ab,await Ads.cancelOrder(a.id,b.id));
+    if(route.endsWith('retry'))return json(res,ab,await Ads.retryOrder(a.id,b.id));
+    const p=shard.byAcct(a.id);if(!p?.state.onboarded||p.gone)return json(res,ab,{error:'Active game session required.'},'403 Forbidden');
+    json(res,ab,await Ads.exposure(a.id,b));
+  });
+});
+setInterval(()=>pool.query("delete from ad_exposures where at<now()-interval '90 days'").catch(e=>console.error('[ad retention]',e.code)),86400000).unref();
 app.get('/api/packs', (res) => res.cork(() => securityHeaders(res).writeHeader('content-type', 'application/json').end(JSON.stringify({ packs: Social.PACKS, cap: Social.TOPUP_WEEK_CAP, live: Social.paymentsLive }))));
 app.get('/ads/:id',(res,req)=>{
-  const id=Number(req.getParameter(0).replace(/\.jpg$/,'')),key=req.getHeader('x-admin-key');let ab=false;res.onAborted(()=>{ab=true;});
-  Ads.adImagePath(id,key).then(f=>{if(ab)return;res.cork(()=>{if(!f){res.writeStatus('404 Not Found');securityHeaders(res).end();return;}securityHeaders(res).writeHeader('content-type','image/jpeg').writeHeader('cache-control',key?'private, no-store':'public, max-age=300').writeHeader('vary','x-admin-key').end(fs.readFileSync(f));});})
+  const id=Number(req.getParameter(0).replace(/\.jpg$/,'')),key=req.getHeader('x-admin-key'),token=cookieToken(req.getHeader('cookie'));let ab=false;res.onAborted(()=>{ab=true;});
+  (async()=>{const a=token?await authenticate(token):null;return Ads.adImagePath(id,key,a?.id);})().then(f=>{if(ab)return;res.cork(()=>{if(!f){res.writeStatus('404 Not Found');securityHeaders(res).end();return;}securityHeaders(res).writeHeader('content-type','image/jpeg').writeHeader('cache-control','private, no-store').end(fs.readFileSync(f));});})
     .catch(()=>{if(!ab)res.cork(()=>res.writeStatus('503 Service Unavailable').end());});
 });
 

@@ -6,6 +6,11 @@ import { LEVELS, level } from '../ui/people.js';
 import { iosAlert, iosConfirm } from './phone.js';
 import { phoneGames } from './games.js';
 import { portrait } from '../ui/portrait.js';
+import { purchaseKey } from '../payments.js';
+import { advertising } from './advertising.js';
+import { explore } from './explore.js';
+import { firstFriend } from './first-friend.js';
+import { milestones } from './objectives.js';
 
 const grad = (a, b) => `linear-gradient(160deg, ${a}, ${b})`;
 const cell = (o) => h('button.cell' + (o.ic ? '' : '.noic'), { onclick: o.onclick }, o.ic instanceof Node ? o.ic : o.ic ? h('div.ci', { style: { background: o.icbg || '#8e8e93' } }, typeof o.ic === 'string' && o.ic.length <= 3 && !/^[a-z]/.test(o.ic) ? o.ic : icf(o.ic)) : null, h('div.cm', null, h('div.c1', null, o.t), o.s ? h('div.c2', null, o.s) : null), o.r != null ? h('div.cr', null, o.r) : null, o.onclick && o.chev !== false ? ic('caret-right', 'chev') : null);
@@ -119,7 +124,8 @@ export function makeApps(act) {
           hist && hist.length ? group('Transfers', ...hist.slice(0, 12).map((x) => cell({ ic: x.out ? 'icon:circle' : 'icon:circle', icbg: x.out ? '#ff9f0a' : '#34c759', t: x.kind === 'topup' ? 'Wallet top-up' : (x.out ? 'To ' : 'From ') + '@' + x.who, s: `${ago(x.at)} · ${x.ref}${x.note ? ' · ' + x.note : ''}`, r: (x.out ? '−' : '+') + cedi(x.amount).replace('GH₵', '₵') }))) : null,
           group('Recent activity', ...(led.length ? led.slice(0, 25).map(([t, a, why]) => cell({ t: why, s: ago(t), r: h('span', { style: { color: a > 0 ? '#34c759' : '#000', fontWeight: 600 } }, (a > 0 ? '+' : '−') + cedi(Math.abs(a)).replace('GH₵', '₵')) })) : [cell({ t: 'No transactions yet' })])));
       });
-      if (arg === 'send') sendFlow(win); else if (arg && arg.send) sendFlow(win, arg.send); else if (arg === 'topup') topupPage(win); else if (arg === 'cash') cashPage(win);
+      if (arg?.payment)win.page('Payment status',()=>h('div.group',{style:{padding:'16px'}},h('strong',null,arg.payment.status==='fulfilled'?'Payment verified':arg.payment.status==='review'?'Payment requires review':arg.payment.status==='failed'?'Payment failed':'Payment is still being checked'),h('p',null,'Reference: '+arg.payment.ref),h('p',null,arg.payment.status==='fulfilled'?'Your wallet credit is saved. It may take a moment to appear on your connected account.':'The game verifies payment with the provider before crediting your wallet. Keep this reference.'),arg.payment.status!=='fulfilled'?h('button.ibtn.wide',{onclick:()=>act.recheckPayment()},'Check payment again'):null,h('button.ibtn.wide.gray',{onclick:()=>win.pop()},'Open wallet')));
+      else if (arg === 'send') sendFlow(win); else if (arg && arg.send) sendFlow(win, arg.send); else if (arg === 'topup') topupPage(win); else if (arg === 'cash') cashPage(win);
     } };
   function cashPage(win) {
     win.page('Cash in / out', () => { const at = AT_AGENT(); const s = G.state;
@@ -132,9 +138,20 @@ export function makeApps(act) {
     let P = null; fetch('/api/packs').then((r) => r.json()).then((j) => { P = j; win.refresh(); }).catch(() => {});
     win.page('Top up', () => { if (!P) return h('div.empty', null, 'Loading…');
       return h('div', null, h('div', { style: { color: '#6d6d72', fontSize: '14px', margin: '4px 2px 12px' } }, `Add game money with Mobile Money or card (Paystack). Max GH₵${P.cap} real money per week. Game money has no cash value.`),
-        h('div.group', null, ...P.packs.map((k) => cell({ ic: 'icon:wallet', icbg: '#ffcc00', t: `${cedi(k.coins)} game money`, s: `${k.label}${k.tag ? ' · ' + k.tag : ''}`, r: h('span.ibtn' + (P.live ? '' : '.gray'), { style: { height: '34px', fontSize: '14px' } }, `GH₵${k.ghs}`), chev: false, onclick: () => { if (!P.live) return act.toast('Top-ups are not live on this server yet.', 'bad'); iosAlert({ title: 'Receipt email', text: 'Paystack sends your receipt here.', input: 'Email address', buttons: [['Cancel', false], ['Continue', true]] }).then((email) => { if (!email) return; const off = net.on('topup', (r) => { off(); if (r.payUrl) location.href = r.payUrl; else act.toast(r.error || 'Could not start payment', 'bad'); }); net.send({ t: 'topup', pack: k.id, email }); }); } }))),
+        h('div.group', null, ...P.packs.map((k) => cell({ ic: 'icon:wallet', icbg: '#ffcc00', t: `${cedi(k.coins)} game money`, s: `${k.label}${k.tag ? ' · ' + k.tag : ''}`, r: `GH₵${k.ghs}`, onclick: () => { if (!P.live) return act.toast('Top-ups are not live on this server yet.', 'bad'); topupCheckout(win,k); } }))),
         !P.live ? h('div', { style: { color: '#8e8e93', fontSize: '13px', textAlign: 'center' } }, 'Top-ups switch on when the server has a Paystack key.') : null);
     }, { small: true });
+  }
+  function topupCheckout(win,pack){
+    const email=h('input',{type:'email',autocomplete:'email',placeholder:'Receipt email','aria-label':'Receipt email'}),phone=h('input',{type:'tel',autocomplete:'tel',placeholder:'Mobile-money number','aria-label':'Ghana mobile-money number'}),status=h('p',{role:'status'});
+    let waiting=false;
+    const go=h('button.ibtn.wide.green',{onclick:()=>{
+      if(waiting)return;waiting=true;go.disabled=true;
+      const off=net.on('topup',r=>{off();clearTimeout(timer);waiting=false;go.disabled=false;if(r.payUrl)location.assign(r.payUrl);else status.textContent=r.error||r.message||'Purchase saved. Payment is being checked.';});
+      const timer=setTimeout(()=>{off();waiting=false;go.disabled=false;status.textContent='No response. Retry resumes this same purchase.';},15000);
+      net.send({t:'topup',pack:pack.id,email:email.value,phone:phone.value,orderKey:purchaseKey('topup:'+pack.id)});
+    }},`Continue · GH₵${pack.ghs}`);
+    win.page('Mobile-money checkout',()=>h('div.group',{style:{padding:'16px'}},h('p',null,`${cedi(pack.coins)} game money. Choose Mobile Money at Paystack and approve payment on your phone. Your receipt email is required; this form never authorizes a charge.`),phone,email,go,status));
   }
   // ------------------------------------------------------------------ Gist
   const gist = { id: 'gist', name: 'Accra Gist', icon: 'megaphone-simple', bg: grad('#1d9bf0', '#0b5fae'), dock: true, white: true,
@@ -163,6 +180,7 @@ export function makeApps(act) {
             h('div.row', { style: { gap: '8px', marginTop: '12px' } }, s.shift ? h('button.ibtn.grow', { disabled: true }, 'On shift now') : today ? h('button.ibtn.grow.gray', { disabled: true }, 'Done for today') : atWork ? h('button.ibtn.green.grow', { onclick: () => { net.send({ t: 'work', op: 'start' }); act.closePhone(); } }, 'Start shift') : h('button.ibtn.grow', { onclick: () => { act.closePhone(); act.place(c.at); } }, 'Go to work'), h('button.ibtn.red', { onclick: () => { iosConfirm('Quit your job?', 'You lose your rank and progress at this job.', 'Quit', true).then((ok) => ok && net.send({ t: 'work', op: 'quit' })); } }, 'Quit'))));
         }
         out.append(h('div.group-h', null, s.job ? 'Other careers' : 'Careers in Accra'));
+        if(s.shift){const task=s.shift.assignment;out.prepend(h('div.group',{style:{padding:'16px'}},h('strong',null,task?.title||'Workplace attendance'),h('p',null,`${Math.floor(s.shift.worked||0)}/60 minutes attended · ${s.shift.tasks||0}/3 assignments · satisfaction ${s.job.satisfaction??60}%`),h('p',null,task?.situation||'Your next assignment opens after more time on shift. Salary still depends on attendance.'),task?h('button.ibtn.wide',{onclick:()=>act.workAssignment()},task.stage==='working'?'View current work station':'Go to assignment station'):null));}
         out.append(h('div.group', null, ...Object.entries(C).filter(([id]) => !s.job || s.job.id !== id).map(([id, c]) => { const reqs = Object.entries(c.req || {}); const ok = reqs.every(([k, v]) => lvl(k) >= v);
           return cell({ ic: c.ic, icbg: ok ? '#f2f2f7' : '#f2f2f7', t: `${c.ranks[0][0]} · ${c.name}`, s: `${cedi(c.ranks[0][1])}/shift → up to ${cedi(c.ranks[4][1])} · ${loc(c.at).name}${reqs.length ? ' · needs ' + reqs.map(([k, v]) => `${G.cat.skills[k]} ${v}`).join(', ') : ''}`, onclick: () => careerPage(win, id) }); })));
         return out;
@@ -288,6 +306,9 @@ export function makeApps(act) {
     }); } };
   const help = { id: 'help', name: 'Help', icon: 'lifebuoy', bg: grad('#0a84ff', '#0040dd'),
     open(win) { win.page('How to play', () => h('div', null, h('button.ibtn.wide', { onclick: () => act.tutorial() }, 'Start the quick tour'), ...[['Your needs', 'The six rings at the top are Hunger, Energy, Fun, Social, Hygiene and Bladder. Keep them up or bad things happen (fainting, falling sick, public disgrace).'], ['Places', 'Open the Map, tap a place, choose a trotro, okada or taxi. Each place has zones along the bottom — tap one to see what you can do there.'], ['Money', 'Street hustles pay small and get tired. A job pays per 1-hour shift (real time) and promotions raise it. Businesses and land grow wealth over weeks.'], ['People', 'Tap other players to chat, joke, dance. Friendship unlocks more. Send money and messages from your phone.'], ['Free play', 'There is no scripted storyline. Choose your own work, friends, home and optional aspirations. City chat reaches everyone; Nearby reaches your room.'], ['Rent', 'Rent is due every Saturday 09:00. Two missed weeks and you are out.']].map(([t, d]) => h('div.group', { style: { padding: '14px' } }, h('div', { style: { fontWeight: 700, marginBottom: '4px' } }, t), h('div', { style: { fontSize: '15px', color: '#3a3a3c' } }, d))))); } };
-  const ads = { id: 'ads', name: 'My Ads', icon: 'presentation-chart', bg: grad('#ffd60a', '#ff9f0a'), isNew: true, open(win) { win.page('My Ads', () => h('div', null, h('div.group', { style: { padding: '16px' } }, h('div', { style: { fontWeight: 700, fontSize: '17px' } }, 'Advertise in Accra We Dey'), h('div', { style: { fontSize: '15px', color: '#3a3a3c', margin: '6px 0 12px' } }, 'Your artwork on billboards across the city map. Ads rotate every 15 seconds on shared boards; airport boards are exclusive. Pay with MoMo or card.'), h('button.ibtn.wide', { onclick: () => window.open('/advertise.html', '_blank') }, 'Book a billboard')))); } };
-  return [messages, momo, gist, jobs, goals, games, boutique, houses, cars, shop, invest, bank, forbes, contacts, life, health, police, civic, map, ads, help, settings].map((a) => ({ ...a, dock: ['messages', 'momo', 'gist', 'jobs'].includes(a.id) }));
+  const ads = { id: 'ads', name: 'My Ads', icon: 'presentation-chart', bg: grad('#ffd60a', '#ff9f0a'), isNew: true, open(win,arg) {advertising(win,act,arg);} };
+  const discovery={id:'explore',name:'Explore',icon:'compass',bg:grad('#397d64','#164635'),open(win){explore(win,act);}};
+  const meet={id:'meet',name:'Meet',icon:'hand-waving',bg:grad('#367b91','#244f6c'),open(win){firstFriend(win,act);}};
+  const objectives={id:'milestones',name:'Milestones',icon:'flag',bg:grad('#b08b3e','#685326'),open(win){milestones(win,act);}};
+  return [messages, momo, gist, jobs, discovery, meet, objectives, goals, games, boutique, houses, cars, shop, invest, bank, forbes, contacts, life, health, police, civic, map, ads, help, settings].map((a) => ({ ...a, dock: ['messages', 'momo', 'gist', 'jobs'].includes(a.id) }));
 }

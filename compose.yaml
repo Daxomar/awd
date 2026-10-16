@@ -22,6 +22,10 @@ services:
       BIRTH_SEED_FILE: /run/secrets/birth_seed
       ADMIN_KEY_FILE: /run/secrets/admin_key
       PAYSTACK_SECRET_FILE: /run/secrets/paystack_secret
+      PAYMENT_ADMIN_EMAIL: ${PAYMENT_ADMIN_EMAIL:-}
+      FIRST_FRIEND_REWARDS_ENABLED: ${FIRST_FRIEND_REWARDS_ENABLED:-0}
+      FIRST_FRIEND_NEW_REWARD: ${FIRST_FRIEND_NEW_REWARD:-1000}
+      FIRST_FRIEND_HOST_REWARD: ${FIRST_FRIEND_HOST_REWARD:-500}
     secrets: [db_password, redis_password, session_secret, birth_seed, admin_key, paystack_secret]
     volumes: [ads:/app/uploads]
     tmpfs: ['/tmp:rw,noexec,nosuid,size=64m']

@@ -8,6 +8,9 @@ import { pool } from './db.js';
 import { moderate, BLOCK_MSG } from './filter.js';
 import * as D from './game/data.js';
 import * as Game from './game/rules.js';
+import * as Payments from './payments.js';
+let dmObserver=null;
+export function observeMessages(fn){dmObserver=fn;}
 
 export async function migrateSocial() {
   await pool.query(`
@@ -70,7 +73,7 @@ export async function claim(p) {
       const out=[];
       for(const c of rows){
         const amt=+c.amount;state.momo+=amt;
-        const why=c.kind==='topup'?'Wallet top-up':c.kind==='refund'?'Transfer reversed':`From @${c.from_name}`;
+        const why=c.kind==='topup'?'Wallet top-up':c.kind==='intro'?'First friend in Accra':c.kind==='refund'?'Transfer reversed':`From @${c.from_name}`;
         state.ledger.push([Date.now(),amt,why+(c.note?` · ${c.note}`:'')]);if(state.ledger.length>60)state.ledger.shift();
         if(c.kind==='transfer'){state.stats.received=(state.stats.received||0)+amt;Game.bump(state,'recv');}
         out.push({t:'money_in',id:+c.id,amount:amt,from:c.from_name,note:c.note,kind:c.kind,momo:state.momo});
@@ -138,6 +141,7 @@ export async function dm(shard, p, msg) {
   const row = { id: +r.rows[0].id, from: p.name, to: to.username, text, kind, amount, at: +r.rows[0].at, mine: true, request };
   shard.deliverDm(to.id, { t: 'dm_in', m: { ...row, mine: false }, from: p.name, fromAcct: p.acct });
   Game.bump(s, 'dm'); s.n.social = Math.min(100,s.n.social + 6); p.dirty = true;
+  if(dmObserver&&kind==='text'&&!request)try{await dmObserver(shard,p.acct,to.id,row.id);}catch(e){console.error('[introduction progress]',e.code||'deferred');}
   return { t: 'dm_sent', m: row };
 }
 export async function threads(p) {
@@ -215,18 +219,26 @@ export const PACKS = [
 export const TOPUP_WEEK_CAP = 200; // GH₵ real money per account per week
 const PAYSTACK = secret('PAYSTACK_SECRET'), PUBLIC_URL = process.env.PUBLIC_URL || 'http://localhost:8080';
 export const paymentsLive = !!PAYSTACK;
-export async function topupInit(acct, packId, email) {
+export async function topupInit(acct, packId, email, orderKey, phone) {
   const pk = PACKS.find((x) => x.id === packId); if (!pk) return { error: 'Pick a pack.' };
   const wk = await pool.query(`select coalesce(sum(ghs),0)::int s from topups where acct=$1 and status='paid' and at > now() - interval '7 days'`, [acct]);
   if (wk.rows[0].s + pk.ghs > TOPUP_WEEK_CAP) return { error: `Weekly top-up limit is GH₵${TOPUP_WEEK_CAP}. Play smart, come back next week.` };
   if (!PAYSTACK) return { error: 'Top-ups are not live yet on this server.', disabled: true };
   if (typeof email!=='string'||email.length>120||!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)) return { error: 'Enter your email for the receipt.' };
-  const ref = 'awt_' + crypto.randomBytes(10).toString('hex');
-  await pool.query(`insert into topups (acct, pack, ghs, coins, ref) values ($1,$2,$3,$4,$5)`, [acct, pk.id, pk.ghs, pk.coins, ref]);
-  const pr = await fetch('https://api.paystack.co/transaction/initialize', { method: 'POST', signal: AbortSignal.timeout(10000), headers: { authorization: `Bearer ${PAYSTACK}`, 'content-type': 'application/json' },
-    body: JSON.stringify({ email, amount: pk.ghs * 100, currency: 'GHS', reference: ref, callback_url: `${PUBLIC_URL}/?topup=${ref}`, channels: ['mobile_money', 'card'], metadata: { acct, pack: pk.id } }) }).then((x) => x.json()).catch(() => null);
-  if (!pr || !pr.status) return { error: 'Payment service unavailable. Try again shortly.' };
-  return { ok: true, ref, payUrl: pr.data.authorization_url };
+  return Payments.startPayment({acct,type:'topup',key:orderKey,amount:pk.ghs*100,email,phone,context:{screen:'momo',pack:pk.id}},async(db,ref)=>{
+    const r=await db.query('insert into topups(acct,pack,ghs,coins,ref) values($1,$2,$3,$4,$5) returning id',[acct,pk.id,pk.ghs,pk.coins,ref]);return +r.rows[0].id;
+  });
+}
+export async function fulfillPayment(db,order){
+  const row=(await db.query('select * from topups where id=$1 for update',[order.legacy_id])).rows[0];
+  if(!row||row.ghs*100!==+order.amount)return {review:'Wallet order missing or amount changed'};
+  if(row.status==='paid')return;
+  if(row.status!=='pending')return {review:'Wallet order requires refund review'};
+  await db.query('select pg_advisory_xact_lock($1)',[row.acct]);
+  const spent=+(await db.query("select coalesce(sum(ghs),0) as n from topups where acct=$1 and status='paid' and at>now()-interval '7 days'",[row.acct])).rows[0].n;
+  if(spent+row.ghs>TOPUP_WEEK_CAP){await db.query("update topups set status='refund_required' where id=$1",[row.id]);return {review:'Weekly wallet cap; refund required'};}
+  await db.query("update topups set status='paid' where id=$1",[row.id]);
+  await db.query("insert into credits(to_id,from_name,amount,kind) values($1,'Accra We Dey',$2,'topup')",[row.acct,row.coins]);
 }
 // called from verify and from the Paystack webhook; idempotent
 export async function topupPaid(ref, pesewas, shard) {
@@ -246,9 +258,7 @@ export async function topupPaid(ref, pesewas, shard) {
   shard&&shard.deliverCredit(acct);return true;
 }
 export async function topupVerify(ref, shard) {
-  if (!/^awt_[0-9a-f]{20}$/.test(ref || '')) return { error: 'bad ref' };
-  if (!PAYSTACK) return { status: 'disabled' };
-  const v = await fetch(`https://api.paystack.co/transaction/verify/${ref}`, { signal: AbortSignal.timeout(10000), headers: { authorization: `Bearer ${PAYSTACK}` } }).then((x) => x.json()).catch(() => null);
-  if (v && v.status && v.data && v.data.status === 'success' && v.data.currency === 'GHS' && v.data.reference===ref) { await topupPaid(ref, v.data.amount, shard); const row=(await pool.query('select status from topups where ref=$1',[ref])).rows[0];return {status:row?.status||'unknown'}; }
-  return { status: 'pending' };
+  const result=await Payments.verifyPayment(ref);
+  if(result.status==='fulfilled'&&shard){const row=(await pool.query('select acct from topups where ref=$1',[ref])).rows[0];if(row)shard.deliverCredit(row.acct);}
+  return result;
 }

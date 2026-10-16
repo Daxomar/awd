@@ -58,6 +58,34 @@ Monitor failed logins, rate-limit responses, session/lease failures, database er
 
 ## Validation
 
+### Interim engagement milestone configuration
+
+Startup adds payment, advertising reservation/metrics, introduction and milestone
+tables after the existing account, ad and social schema. Legacy references and
+paid status are backfilled without replaying credits. Back up and test on a
+staging copy before any approved production rollout. Application rollback must
+retain these ledgers and paid reservations; no destructive down migration is run.
+
+The default `FIRST_FRIEND_REWARDS_ENABLED=0` leaves introductions available with
+no cash reward. Enabling the proposed configurable GH₵1,000/500 rewards requires
+the economy review in `engagement-audit.md`. `PAYMENT_ADMIN_EMAIL` is optional and
+queues administrative receipt copies only; an operator-supplied delivery worker
+is still needed. Paystack retains the customer's required receipt email.
+
+Configure the provider webhook to `/api/paystack/webhook` on the exact HTTPS
+`PUBLIC_URL`. The runtime reconciles payments once a minute, checking each
+unresolved reference at most every ten minutes. A manual run is available with
+`docker compose exec game node reconcile-payments.js`. Monitor
+`payment_orders.review_reason`, review attempts and the receipt outbox; perform
+refunds through the provider and preserve all audit records. Callback navigation
+alone never authorizes fulfillment. Do not enable real checkout before merchant,
+carrier authorization, customer receipts and refund procedures pass staging.
+
+The transaction integration scripts refuse production mode and require a
+loopback database ending in `_security`. Never point fixtures or the mocked
+browser provider at an existing game database. See `engagement-review.md` for
+scope, validation and remaining release checks. No public deployment is implied.
+
 ```sh
 cd server
 npm test

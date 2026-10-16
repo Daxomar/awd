@@ -1,0 +1,9 @@
+# Stage D: exploration and public gathering
+
+All 55 authoritative destination IDs remain, including eight neighbourhoods and eight residential estates. All 68 map districts remain geography; none becomes an invented destination. `engagement-inventory.json` records the initial action coverage. Existing food, entertainment, shops, education, sports and services are exposed through Phone → Explore, with identity, reason to visit, actions, hours, price, real room presence and entrance/travel options. Estates describe visiting residents rather than advertising generic activities.
+
+Public hub shortlist: Makola, Labadi, University of Ghana, Vibes, Jamestown neighbourhood. Counts come from the existing server `places` packet, across its public room instances, explicitly labelled **this server**. No private home coordinates or fake players. Existing direct messages, player interactions and games remain available at these locations.
+
+Eight optional authored local activities add contrasting reasons to visit: Nima courtyard conversation, Jamestown harbour stories, Kaneshie provisions comparison, Labadi mobility session, Osu photography walk, Airport Residential language exchange, East Legon study circle, Trasacco garden circuit. They use existing timed authoritative actions, needs/skill gains, with no added cash. Existing street NPCs remain atmospheric guides, not fake online players. Additional actions appear in the current room's context menu; no unreachable activity is listed just because a geographic marker exists. Standard home/street/estate and paid travel entry/exit behavior is retained.
+
+This is a focused content extension, not a promise that every scenic building has a simulated business or an interior. Existing service-only places remain service destinations; users can continue to choose their own activities without a storyline.

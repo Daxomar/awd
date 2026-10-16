@@ -1,0 +1,1 @@
+export const NEIGHBOURHOOD_ACTIVITY_IDS={nima:'nima_courtyard',jtown:'jtown_harbour',kaneshie:'kaneshie_prices',labadi:'labadi_stretch',osu:'osu_photo',airres:'airres_exchange',legon:'legon_study',trasacco:'trasacco_walk'};

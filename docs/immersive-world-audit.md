@@ -188,6 +188,12 @@ Phase 6 has not begun.
 | 8: release preparation | Multiplayer, economy, optimization, physical-device profiling and release gates. |
 | Final: character art | Anatomy, clothing, rigging, hair, face and animation overhaul; deferred. |
 
+Interim milestone (16 October 2026): exploration discovery, workplace assignments,
+advertising rentals/reporting, durable payments, consent-based introductions and
+optional milestones. See [engagement-review.md](engagement-review.md) for scope
+and validation. This is an addition between Phases 5 and 6. Phase 6 has not begun.
+Character art remains a separate development stream and is untouched here.
+
 Preserve server authority, saved data and existing phone applications throughout.
 No destructive migration, framework replacement or production deployment is
 implied by the roadmap.

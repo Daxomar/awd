@@ -61,7 +61,12 @@ test('baseline zone IDs, action IDs, item indices, routes and authored spawns st
     const spec=id.startsWith('home:')?homeSpec(id.slice(5),{}):id.includes(':')?streetSpec(cat.homes[id.slice(2)].area,id[0]==='e'):extraVenue(id)||VENUES[id];
     assert.deepEqual(spec.spawn,contract.spawn,id+' spawn');
     const zones=spec.zones.map(z=>Object.fromEntries(['id','item','acts','route','use'].map(k=>[k,z[k]??null])));
-    assert.deepEqual(zones,contract.zones,id+' interaction contract');
+    const originalActs=new Set(contract.zones.flatMap(z=>z.acts));
+    const baseline=zones.map(z=>({...z,acts:z.acts.filter(a=>originalActs.has(a))}));
+    assert.deepEqual(baseline,contract.zones,id+' original interaction contract');
+    // Authored milestone additions may extend a zone without moving/removing old actions.
+    const additions=zones.flatMap(z=>z.acts.filter(a=>!originalActs.has(a)));
+    assert.equal(additions.length,id.startsWith('n:')?1:0,id+' deliberate activity extension');
   }
 });
 test('all neighbourhoods differ in composition and every occupied estate plot is reachable',()=>{

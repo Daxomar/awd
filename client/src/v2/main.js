@@ -18,6 +18,7 @@ import { stylist } from './ui/stylist.js';
 import { fitLook, myFit } from './fits.js';
 import { CityMap } from './scene/map.js';
 import { net } from './net.js';
+import { resumePayment } from './payments.js';
 import { G, money, loc, accraNow, accraClock, isOpen } from './store.js';
 import { h, ic, toast, sheet, closeSheets, celebrate, cedi, vibrate, confirmBox } from './ui/dom.js';
 import { buildChat } from './ui/chat.js';
@@ -121,14 +122,25 @@ function game() {
   net.on('connection',m=>{hud.connection(m);hud.clock();}); G.connected = net.connected;
   bindInput(); joy = bindJoystick(); bindNet(); chat = buildChat(ui, n => hud.badge('chat', n)); net.release();if(G.state.busy?.travel&&!ride.active)net.emit('busy',{busy:G.state.busy});
   showTutorial(ui);
+  resumePayment(phone,toast);
+  setTimeout(()=>net.send({t:'objective_status'}),2000);
+  if(new URLSearchParams(location.search).get('openAds')==='1')phone.show('ads');
   const tu = new URLSearchParams(location.search).get('topup'); if (tu) fetch('/api/topup/verify?ref=' + encodeURIComponent(tu)).then((r) => r.json()).then((r) => toast(r.status === 'paid' ? 'Top-up received! It will land in your MoMo.' : 'Payment still processing…', r.status === 'paid' ? 'good' : '')).catch(() => {});
 }
-let phoneSig = '';
+let phoneSig = '',workZoneSig='',closeAdPreview=null;
 function refresh() {
   if (!hud) return; if(world&&G.state)world.custody=(G.state.jail??G.state.flags?.jailUntil??0)>accraNow(); if (world && world.me && G.state) { const f = myFit(); const lk = G.state.look; const key = JSON.stringify(lk) + f; if (key !== world.me.av.styleKey) { world.me.av.styleKey = key; world.me.av.baseLook = lk; world.restyle('me', lk, f); } }
   hud.stats(); hud.quests(); hud.clock(); hud.progress(); hud.badge('phone', phoneBadge());
   // the phone only redraws when something it shows actually changed (keeps taps and scroll stable)
-  const s = G.state; const sig = JSON.stringify([s.cash, s.momo, s.job, !!s.shift, s.items, s.home, s.car, s.loan, s.story && s.story.inbox.map((m) => m.id + ':' + m.ans), s.story && s.story.goals.length, s.daily, Object.keys(s.biz || {}), Object.keys(s.land || {}), Object.keys(s.friends || {}).length, G.unreadDm, s.dream, s.dreamTier, s.place, s.flags && s.flags.flirtOff]);
+  const s = G.state; const sig = JSON.stringify([s.cash, s.momo, s.job&&[s.job.id,s.job.rank,s.job.grade,Math.round(s.job.perf),s.job.shifts,s.job.satisfaction,s.job.lastDay], s.shift && [Math.floor(s.shift.worked),s.shift.tasks,s.shift.assignment?.id,s.shift.assignment?.stage], s.items, s.home, s.car, s.loan, s.story && s.story.inbox.map((m) => m.id + ':' + m.ans), s.story && s.story.goals.length, s.daily, Object.keys(s.biz || {}), Object.keys(s.land || {}), Object.keys(s.friends || {}).length, G.unreadDm, s.dream, s.dreamTier, s.place, s.flags && s.flags.flirtOff]);
+  const workKey=[world?.place,s.job?.id,!!s.shift].join(':');
+  if(world?.spec&&world.place===s.place&&workKey!==workZoneSig){
+    workZoneSig=workKey;renderZones(hud.zones,world.spec,world.place,act);
+    for(const z of world.spec.zones.filter(z=>z.work)){
+      const normal=world.spec.zones.find(a=>!a.work&&a.item===z.item);
+      if(s.shift&&s.job?.id===z.work)world.itemZone.set(z.item,z);else if(normal)world.itemZone.set(z.item,normal);else world.itemZone.delete(z.item);
+    }
+  }
   if (sig !== phoneSig) { phoneSig = sig; phone && phone.refresh(); }
 }
 const phoneBadge = () => { const s = G.state; return (s && s.story ? s.story.inbox.filter((m) => m.ans === null).length : 0) + (G.unreadDm || 0); };
@@ -138,6 +150,7 @@ const OPENS = { loans: 'bank', deposit: 'bank', 'shop:home': 'shop', 'shop:gadge
 const STYLE_OPENS = { wardrobe: 'boutique', 'shop:fashion': 'boutique', boutique: 'boutique' };
 const act = (window.__act = {
   toast, refresh: () => refresh(), nav(id) {
+    closeAdPreview?.();
     closeSheets(); if(id!=='chat')chat?.close();hud.setNav(id);
     if(id==='phone')return phone.open?phone.close():phone.show();
     phone.close();
@@ -153,9 +166,32 @@ const act = (window.__act = {
   zoneFocus(z){world.focusTarget({item:z.item});},clearFocus(){world.clearSelection();},
   sound(){cityAudio.controls();},
   interact(){if(ride.active||G.state.busy?.travel){hud.setNav('home');return toast('You can interact with places after you arrive.');}if(view==='map'){hud.setNav('map');return toast('Enter a place to interact with its surroundings.');}closeSheets();sheet(h('div.sheet-body',null,h('p.context-hint',null,'Tap an object in the world, or choose what is nearby.'),hud.zones,h('h3.panel-heading',null,'Players here'),world.others.size?h('div',null,...[...world.others.values()].map(p=>h('button.world-row',{onclick:()=>openPerson(p.id,p.n,act)},ic('user'),h('span',null,'@'+p.n),ic('caret-right')))):h('p.context-hint',null,'No other players in this room. City chat reaches everyone online.')),{title:'Around you',sub:G.placeName,onclose:()=>hud.setNav(view==='map'?'map':'home')});},
-  map() { act.nav('map'); }, phone(app, arg) { phone.show(app, arg); }, app(id) { phone.show(id); }, closePhone() { phone.close(); },
+  map() { act.nav('map'); }, phone(app, arg) { closeAdPreview?.();phone.show(app, arg); }, app(id) { closeAdPreview?.();phone.show(id); }, closePhone() { phone.close(); },
+  previewAd(slot,image){
+    if(!map.ready)return toast('The city map is still loading. Try the preview again shortly.');
+    closeAdPreview?.();phone.close();setView('map');map.ads.preview(slot.id,image);const b=map.ads.boards.find(b=>b.slot.id===slot.id);
+    const limits=map.limits,min=stage.zoomMin;map.limits={...limits,min:.85};stage.zoomMin=.85;
+    if(b)map.focus(b.root.position.x,b.root.position.z,.9);
+    const back=h('button.btn.primary',{style:{position:'fixed',bottom:'100px',left:'16px',right:'16px',zIndex:50},onclick:()=>{closeAdPreview?.();phone.show('ads',{slot:slot.id});}},'Preview only · return to booking');ui.append(back);
+    closeAdPreview=()=>{map.ads.clearPreview();map.limits=limits;stage.zoomMin=min;stage.view.zoom=Math.max(min,stage.view.zoom);stage.applyView();back.remove();closeAdPreview=null;};
+  },
+  adInventory(slots){map.setBillboards(slots);},
+  recheckPayment(){resumePayment(phone,toast);},
   wallet() { phone.show('momo'); }, topup() { phone.show('momo', 'topup'); }, goals() { phone.show('goals'); }, me() { phone.show('life'); }, needs() { phone.show('health'); },
   work() { phone.show('jobs'); }, jobHere(cid) { const s = G.state; if (s.job && s.job.id === cid && !s.shift) { net.send({ t: 'work', op: 'start' }); } else phone.show('jobs'); },
+  workStation(z){
+    closeSheets();const task=G.state.shift?.assignment;if(!task||G.state.job?.id!==z.work)return toast('The next assignment opens as your shift progresses.');
+    const status=h('p',{role:'status'});let waiting=false;
+    const panel=sheet(h('div.sheet-body',null,h('p',null,task.situation),h('p',null,task.stage==='working'?`Working here until ${new Date(task.readyAt).toLocaleTimeString()}. Stay near this station.`:`Choose your approach, then work here for ${task.seconds} seconds. The server checks your attendance.`),
+      ...task.choices.map((choice,index)=>h('button.btn.wide',{disabled:task.stage==='working',onclick:()=>{
+        if(waiting)return;waiting=true;status.textContent='Walking to the work station…';
+        const go=()=>{net.send({t:'work',op:'beginTask',id:task.id,choice:index});panel.close();};
+        const [i,j]=world.room.nearestFree(task.station.x,task.station.z+.9),x=(i+.5)*.25-world.spec.w/2,zpos=(j+.5)*.25-world.spec.d/2;
+        if(Math.hypot(x-task.station.x,zpos-task.station.z)>3){waiting=false;status.textContent='Approach the station from its clear side and try again.';return;}
+        world.walkMe(x,zpos,go);net.send({t:'rmv',x,z:zpos,it:null,zn:null});
+      }},choice)),status),{title:task.title,sub:z.label});
+  },
+  workAssignment(){phone.close();const z=world.spec?.zones.find(z=>z.work===G.state.job?.id);if(z)act.workStation(z);},
   route(zone) {
     if(G.state.busy||G.state.shift)return toast('Finish your current activity first.','bad');
     const district=/^[ne]:/.test(G.state.place)?G.state.place.slice(2):G.state.home;
@@ -184,6 +220,7 @@ const act = (window.__act = {
 
 // ---------------------------------------------------------------- views
 function setView(v, focusPlace, forGem) {
+  closeAdPreview?.();
   if(v==='map'&&ride.active)return toast('Your journey is in progress. The map reopens on arrival.');
   view = v; hud.setNav(v === 'map' ? 'map' : 'home');
   const inMap = v === 'map'; map.show(inMap); hud.chips.hidden = inMap; if (world.room) world.room.group.visible = !inMap; world.tagsEl.hidden = inMap; hud.zones.hidden = inMap;
@@ -259,8 +296,9 @@ function tap(x, y) {
 }
 
 function adSheet(b) {
+  if(b.ad)fetch('/api/ads/exposure',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({campaign:b.ad.id,placement:b.slot.id,kind:'click'})}).catch(()=>{});
   const ad = b.ad; sheet(h('div.sheet-body', null, ad ? h('div', null, h('img', { src: ad.img, style: { width: '100%', borderRadius: '16px', display: 'block', marginBottom: '12px' } }), ad.url ? h('a.btn.primary.wide', { href: ad.url, target: '_blank', rel: 'noopener nofollow' }, 'Visit sponsor') : null)
-    : h('div', null, h('p', null, `${b.slot.onAir}/${b.slot.cap} ads on air. From GH₵${b.slot.price} per week. Your ad rotates on this board for everyone on the map.`), h('a.btn.gold.wide', { href: '/advertise.html', target: '_blank' }, 'Advertise here'))), { title: b.slot.name, sub: `${b.slot.tier} billboard` });
+    : h('div', null, h('p', null, `${b.slot.onAir}/${b.slot.cap} campaigns active. From GH₵${b.slot.price} per week. ${b.slot.exclusive?'Exclusive advertising rental.':'Shared rotation every 15 seconds.'}`), h('button.btn.gold.wide', { onclick:()=>{closeSheets();phone.show('ads',{slot:b.slot.id});} }, 'Advertise here'))), { title: b.slot.name, sub: b.slot.type==='ground'?'Ground advertising rental':`${b.slot.tier} billboard` });
 }
 // fitting room in the game: your wardrobe (what you own) or the boutique (try on and buy)
 function openStylist(mode) {
@@ -333,6 +371,7 @@ function bindNet() {
     if (m.place === 'police') return; const p = world.standUp(); if (p) net.send({ t: 'rmv', x: p.x, z: p.z, it: null, zn: null }); refresh();
   });
   net.on('shift', (m) => { G.state.shift = m.shift; toast(`Shift started · ${m.title} · ${cedi(m.pay)} for the hour. Stay here to get paid.`, 'good'); refresh(); });
+  net.on('worktask',m=>{G.state.shift=m.shift;toast('Assignment started. Stay at this station.','good');refresh();});
   net.on('shiftDone', (m) => { G.state.shift = null; if (m.promoted) celebrate({ icon: 'icon:confetti', title: `Promoted: ${m.promoted}!`, text: `New pay ${cedi(m.newPay)} per shift.` }); else toast(`Shift done · +${cedi(m.pay)}${m.stars ? '  great work bonus' : ''}${m.grade ? ` · grade ${m.grade}` : ''}`, 'good'); if (m.needs) toast(m.needs, ''); refresh(); });
   net.on('hired', (m) => { celebrate({ icon: 'icon:briefcase', title: 'You’re hired!', text: `${m.title} · ${cedi(m.pay)} per shift. Shifts are 1 real hour.` }); });
   net.on('bought', (m) => { toast(`Bought: ${m.what}`, 'good'); if (G.state.place === 'home') setTimeout(() => net.send({ t: 'state' }), 200); });
@@ -349,6 +388,13 @@ function bindNet() {
   net.on('money_in', (m) => { G.state.momo = m.momo; phone.notify({ app: 'momo', title: m.kind === 'topup' ? 'Top-up received' : `You received ${cedi(m.amount)}`, body: m.kind === 'topup' ? `${cedi(m.amount)} added to your wallet.` : `From @${m.from}${m.note ? ` · “${m.note}”` : ''}. New balance ${cedi(m.momo)}.` }); world.floater(`+${cedi(m.amount)}`); vibrate([20, 40, 20]); refresh(); });
   net.on('dm_in', (m) => { G.unreadDm = (G.unreadDm || 0) + 1; phone.notify({ app: 'messages', title: '@' + m.from, body: m.m.kind === 'req' ? ` Requested ${cedi(m.m.amount)} · ${m.m.text}` : m.m.text, arg: { dm: m.from } }); refresh(); });
   net.on('dm_unread', (m) => { G.unreadDm = m.n; refresh(); }); net.on('dm_thread', () => { G.unreadDm = 0; refresh(); });
+  net.on('intro_offer',()=>phone.notify({app:'meet',title:'Someone new wants to say hello',body:'Accept or decline an optional introduction in Meet.'}));
+  net.on('intro_update',m=>{toast(m.status==='accepted'?'Your introduction was accepted. Open Meet or Messages.':'The player declined. You can try another introduction later.');});
+  net.on('intro_complete',()=>{toast('Your first conversation is complete.','good');});
+  net.on('intro',m=>{if(G.introPaused!==m.optedOut){G.introPaused=m.optedOut;setTimeout(()=>net.send({t:'objective_status'}),2000);}});
+  net.on('objectives',m=>{G.objectives=m.rows;if(m.state)G.state=m.state;hud.objective(m.rows);refresh();});
+  let objectiveTimer;
+  for(const event of ['arrived','done','shiftDone','bought','dm_sent','intro_complete'])net.on(event,()=>{clearTimeout(objectiveTimer);objectiveTimer=setTimeout(()=>net.send({t:'objective_status'}),2000);});
   // Oware
   net.on('oware', (m) => { phone.close(); closeSheets(); owareView(ui, m); });
   net.on('oware_invite', async (m) => { const yes = await confirmBox({ title: ` ${m.from} challenges you to Oware`, text: m.stake ? `Stake ${cedi(m.stake)} each · winner takes ${cedi(Math.round(m.stake * 2 * 0.95))}.` : 'Friendly game, no money.', yes: 'Play', no: 'Not now' }); net.send({ t: 'oware_answer', id: m.id, yes }); });

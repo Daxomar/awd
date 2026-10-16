@@ -14,12 +14,15 @@ export function renderZones(el, spec, place, act) {
   if (car && !place.startsWith('visit')) { const [cid, c] = car; const mine = s.job && s.job.id === cid; el.append(h('button.zone', { onclick: () => act.jobHere(cid) }, h('span.zi', { style: { background: '#17150f' } }, c.ic), mine ? (s.shift ? 'At work' : 'Start shift') : 'Jobs here')); }
   if (place === 'home') el.append(h('button.zone', { onclick: () => act.wardrobe('wardrobe') }, h('span.zi', { style: { background: '#bf5af2' } }, h('i', { class: 'ph-fill ph-coat-hanger' })), 'Wardrobe'));
   for (const z of spec.zones || []) {
+    if(z.work){if(s.job?.id===z.work&&s.shift)el.append(h('button.zone',{onclick:()=>openZone(z,place,act)},h('span.zi',null,ic('briefcase')),z.label));continue;}
     if(z.route){el.append(h('button.zone',{onclick:()=>openZone(z,place,act)},h('span.zi',null,ic(z.icon||'person-simple-walk')),z.label));continue;}
     const zacts = z.acts.map((id) => byId[id]).filter(Boolean); if (!zacts.length) continue;
     const col = actColor(zacts[0]); const iconName = (z.icon || 'ph-star').replace(/^ph-/, '');
     const b = h('button.zone', { onclick: () => openZone(z, place, act) }, h('span.zi', { style: { background: col } }, h('i', { class: 'ph-fill ph-' + iconName })), z.label);
     el.append(b);
   }
+  const mapped=new Set((spec.zones||[]).flatMap(z=>z.acts||[])),extra=acts.filter(a=>!mapped.has(a.id));
+  if(extra.length){const z={id:'local-activities',label:spec.localNetwork?'Neighbourhood gathering spot':'More activities here',icon:'ph-compass',acts:extra.map(a=>a.id)};el.append(h('button.zone',{onclick:()=>openZone(z,place,act)},h('span.zi',null,ic('compass')),z.label));}
   if (place.startsWith('visit:')) el.append(h('button.zone', { onclick: () => act.nav('home') }, h('span.zi', { style: { background: '#0e7a4e' } }, 'icon:house'), 'Go home'));
 }
 export function effectChips(a) {
@@ -43,6 +46,7 @@ export function actCard(a, place, onGo) {
     h('div.lbl', null, a.label), h('div.meta', null, ...effectChips(a)));
 }
 export function openZone(z, place, act) {
+  if(z.work)return act.workStation(z);
   if(z.route){
     closeSheets();const error=h('p.context-error',{role:'alert',hidden:true});
     const s=sheet(h('div.sheet-body',null,h('p.context-hint',null,z.destination?'Approach this entrance to choose walking or transport. The journey time still applies.':'Move through this doorway.'),h('button.btn.primary.wide',{onclick:()=>{

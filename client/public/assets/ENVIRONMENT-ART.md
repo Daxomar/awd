@@ -27,3 +27,13 @@ project work with the same commercial-use status described above. The local
 plans use artistic neighbourhood cues, not traced third-party street layouts.
 Existing Phase 4 building templates are reused. No external assets, recordings,
 map requests, paid service or new runtime dependency were added.
+
+The 16 October interim engagement milestone adds original billboard frames,
+horizontal commercial ground-panel geometry, a generated house advertisement
+and QA campaign artwork. Sources: `scene/city/ads.js`,
+`shared/ad-placements.js` and `tools/engagement-browser-test.py`. These additions
+have the same commercial-use status stated above. No third-party advertising
+images, brand campaign, city recording or paid asset was downloaded. Existing
+OpenStreetMap-derived geography remains covered by `CITY-DATA-LICENSE.md`;
+the three approved simulated panels do not imply ownership of real property.
+QA screenshots use disposable local accounts and mocked payments only.

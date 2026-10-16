@@ -20,6 +20,7 @@ WORKDIR /app/server
 COPY --from=server-deps /build/server/node_modules ./node_modules
 COPY server/package*.json ./
 COPY server/src ./src
+COPY server/reconcile-payments.js ./reconcile-payments.js
 COPY shared/ /app/shared/
 COPY --from=client-build /build/client/dist /app/client/dist
 RUN mkdir -p /app/uploads/ads && chown -R node:node /app/uploads

@@ -1,0 +1,291 @@
+{
+  "date": "2026-10-16",
+  "scope": "Interim milestone, local disposable accounts and mocked payment provider; no public deployment",
+  "serverTests": {
+    "passed": 62,
+    "failed": 0
+  },
+  "clientTests": {
+    "passed": 59,
+    "failed": 0
+  },
+  "productionBuild": "passed",
+  "regularLocalDatabase": {
+    "rows": {
+      "accounts": 103,
+      "players": 103,
+      "ledger": 11,
+      "credits": 11,
+      "topups": 0,
+      "ad_orders": 0,
+      "homes": 0
+    },
+    "preservedSnapshot": true
+  },
+  "integrations": {
+    "payments": {
+      "passed": 9,
+      "checks": [
+        "concurrent initialization/reload creates one persistent order and checkout",
+        "signed callback and account ownership",
+        "wrong amount/currency never credit",
+        "verification and signed webhook retries fulfill once",
+        "second provider charge retained for refund review, no second credit",
+        "missing webhook reconciles independently of browser return",
+        "interrupted initialization persists and cannot start a second charge",
+        "migration rerun does not replay historical fulfillment",
+        "confirmed failure retries the same order with a durable new attempt; late old success flagged without double credit"
+      ]
+    },
+    "ads": {
+      "passed": 9,
+      "checks": [
+        "SVG/executable artwork rejected",
+        "exclusive ground rental concurrent booking prevented",
+        "campaign and pending artwork ownership",
+        "verified payment requires moderation before activation",
+        "activation once; no duplicate extension",
+        "measured exposure threshold, persisted metrics and deduplication",
+        "expired campaign stops rendering/counting and releases surface",
+        "late charge after reservation expiry cannot activate",
+        "additive migration preserves existing orders"
+      ]
+    },
+    "first-friend": {
+      "passed": 10,
+      "checks": [
+        "no eligible player offers honest waiting fallback, no fake match",
+        "consent required; declined introduction sends no DM",
+        "declined pair is never re-offered",
+        "pending consent persists through disconnect/reconnect",
+        "safe rematch, acceptance and existing DM delivery once",
+        "short replies and client-invented DM IDs earn nothing",
+        "genuine stored reply completes once; duplicate events cannot pay twice",
+        "recipient daily reward cap blocks manufactured repeated welcomes",
+        "opt-out respected, self matching excluded",
+        "expired request cannot be accepted"
+      ]
+    },
+    "objectives": {
+      "passed": 6,
+      "checks": [
+        "incomplete/forged claim rejected",
+        "server visit records real progress",
+        "duplicate claim awards once",
+        "no cash balance change",
+        "reload persists XP and claim",
+        "migration rerun preserves claim"
+      ]
+    }
+  },
+  "browser": {
+    "social": {
+      "passed": [
+        "UI login and cookie-authenticated sockets",
+        "online consent",
+        "intro delivered through private inbox",
+        "genuine reply completes",
+        "cash disabled",
+        "XP claim once and reload persistence"
+      ],
+      "errors": []
+    },
+    "work": {
+      "passed": [
+        "existing career and salary display",
+        "room work station exposed after shift start",
+        "walk to station",
+        "server timed assignment completes",
+        "no per-task salary or duplicate task"
+      ],
+      "errors": []
+    },
+    "explore": {
+      "passed": [
+        "real destination directory",
+        "home to actual neighbourhood",
+        "authored local activity usable",
+        "authoritative milestone progress"
+      ],
+      "errors": []
+    },
+    "ads": {
+      "passed": [
+        "phone catalogue",
+        "artwork validation/upload",
+        "in-location preview",
+        "mocked hosted checkout",
+        "signed callback restores campaign",
+        "independent verification before activation",
+        "moderation required",
+        "active ground render",
+        "persistent campaign report",
+        "mobile-money wallet form",
+        "top-up verified and credited once with reference restored"
+      ],
+      "metrics": {
+        "estimatedImpressions": "1",
+        "clicks": "1",
+        "uniqueViewers": "1"
+      },
+      "sampler": {
+        "seen": 0,
+        "sent": 1,
+        "board": 14,
+        "stats": {
+          "lastMs": 0,
+          "maxMs": 356,
+          "samples": 43,
+          "occluders": 0
+        }
+      },
+      "performance": {
+        "environment": "Desktop Chromium SwiftShader; diagnostic only, not phone FPS",
+        "boards": 17,
+        "cachedCampaignTextures": 1,
+        "visible": {
+          "calls": 37,
+          "triangles": 278778,
+          "geometries": 79,
+          "textures": 19
+        },
+        "hidden": {
+          "calls": 35,
+          "triangles": 278764,
+          "geometries": 79,
+          "textures": 19
+        },
+        "samplerMedianMs": 2.300000011920929,
+        "samplerMaxMs": 3.399999976158142,
+        "stats": {
+          "lastMs": 0.10000002384185791,
+          "maxMs": 356,
+          "samples": 55,
+          "occluders": 0
+        }
+      },
+      "errors": []
+    },
+    "layouts": {
+      "viewports": [
+        {
+          "width": 375,
+          "height": 812,
+          "horizontalOverflow": false
+        },
+        {
+          "width": 390,
+          "height": 844,
+          "horizontalOverflow": false
+        },
+        {
+          "width": 430,
+          "height": 932,
+          "horizontalOverflow": false
+        },
+        {
+          "width": 390,
+          "height": 530,
+          "horizontalOverflow": false
+        },
+        {
+          "width": 844,
+          "height": 390,
+          "horizontalOverflow": false
+        }
+      ],
+      "errors": [],
+      "visualBaseline": "New screens: manual inspection; no prior pixel baseline."
+    },
+    "performance": {
+      "environment": "Desktop Chromium SwiftShader, 390x844, diagnostic only; no physical-phone FPS claim",
+      "boards": 17,
+      "cachedCampaignTextures": 1,
+      "visible": {
+        "calls": 37,
+        "triangles": 278778,
+        "geometries": 16,
+        "textures": 3
+      },
+      "hidden": {
+        "calls": 35,
+        "triangles": 278764,
+        "geometries": 16,
+        "textures": 3
+      },
+      "eligibleSamplerMs": [
+        133.0999999642372,
+        24.899999976158142,
+        33.80000001192093,
+        16.19999998807907,
+        14.800000011920929,
+        12,
+        10,
+        12.5,
+        11.5,
+        9.899999976158142,
+        13.5,
+        12.399999976158142
+      ],
+      "samplerMedianMs": 13.5,
+      "samplerMaxMs": 133.0999999642372,
+      "stats": {
+        "lastMs": 11.199999988079071,
+        "maxMs": 129.89999997615814,
+        "samples": 13,
+        "occluders": 309
+      },
+      "repeatedMapResources": [
+        {
+          "calls": 37,
+          "triangles": 278778,
+          "geometries": 16,
+          "textures": 3
+        },
+        {
+          "calls": 37,
+          "triangles": 278778,
+          "geometries": 16,
+          "textures": 3
+        },
+        {
+          "calls": 37,
+          "triangles": 278778,
+          "geometries": 16,
+          "textures": 3
+        },
+        {
+          "calls": 37,
+          "triangles": 278778,
+          "geometries": 16,
+          "textures": 3
+        },
+        {
+          "calls": 37,
+          "triangles": 278778,
+          "geometries": 16,
+          "textures": 3
+        },
+        {
+          "calls": 37,
+          "triangles": 278778,
+          "geometries": 16,
+          "textures": 3
+        },
+        {
+          "calls": 37,
+          "triangles": 278778,
+          "geometries": 16,
+          "textures": 3
+        },
+        {
+          "calls": 37,
+          "triangles": 278778,
+          "geometries": 16,
+          "textures": 3
+        }
+      ],
+      "errors": []
+    }
+  }
+}

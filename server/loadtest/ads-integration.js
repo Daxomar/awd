@@ -1,0 +1,44 @@
+import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
+assert.notEqual(process.env.NODE_ENV,'production','Do not run fixture mutation against a production environment.');
+const url=new URL(process.env.DATABASE_URL||'postgres://invalid/invalid');
+assert.ok(['localhost','127.0.0.1'].includes(url.hostname)&&url.pathname.endsWith('_security'),'Isolated local *_security database required');
+delete process.env.PAYSTACK_SECRET_FILE;delete process.env.ADMIN_KEY_FILE;
+process.env.PAYSTACK_SECRET='sk_test_mock_only';process.env.ADMIN_KEY='local-mock-admin-key-for-integration-only';
+const {pool,migrate}=await import('../src/db.js');
+const Ads=await import('../src/ads.js'),Social=await import('../src/social.js'),Pay=await import('../src/payments.js');
+const sharp=(await import('sharp')).default;const passed=[];
+globalThis.fetch=async(_,opts)=>{const b=JSON.parse(opts.body);return {json:async()=>({status:true,data:{reference:b.reference,authorization_url:'https://checkout.paystack.com/mock-'+b.reference}})};};
+try{
+  await migrate();await Ads.migrateAds();await Social.migrateSocial();await Pay.migratePayments();Pay.registerPayment('ad',Ads.fulfillPayment);
+  const make=async suffix=>+(await pool.query('insert into accounts(username,pass) values($1,$2) returning id',['ad'+Date.now().toString(36)+suffix,'unused-mock-account'])).rows[0].id;
+  const a=await make('a'),b=await make('b');
+  const image='data:image/png;base64,'+(await sharp({create:{width:1024,height:512,channels:3,background:'#24805b'}}).png().toBuffer()).toString('base64');
+  // A fresh isolated approved placement avoids altering existing campaigns.
+  const slot='ground_hotel';const occupied=(await Ads.listSlots()).find(s=>s.id===slot);
+  assert.equal(occupied.availability,'available','Integration slot already reserved; use a fresh isolated QA database/run');
+  const form={slot,weeks:1,title:'QA campaign',contact:'0240000000',email:'qa@example.com',image,orderKey:crypto.randomUUID()};
+  assert.ok((await Ads.createOrder({...form,image:'data:image/svg+xml;base64,PHN2Zz4='},a)).error);passed.push('SVG/executable artwork rejected');
+  const orders=await Promise.all([Ads.createOrder(form,a),Ads.createOrder({...form,orderKey:crypto.randomUUID()},b)]);
+  const winner=orders.find(o=>o.ok),loser=orders.find(o=>o.error);assert.ok(winner&&loser);passed.push('exclusive ground rental concurrent booking prevented');
+  const owner=(await pool.query("select acct from payment_orders where type='ad' and legacy_id=$1",[winner.id])).rows[0].acct;
+  assert.equal((await Ads.campaigns(owner)).rows.length,1);assert.equal(await Ads.adImagePath(winner.id,'',owner===a?b:a),null);assert.ok(await Ads.adImagePath(winner.id,'',owner));passed.push('campaign and pending artwork ownership');
+  const charge={reference:winner.ref,id:Date.now(),amount:100000,currency:'GHS',status:'success'};
+  assert.equal((await Pay.finalize({...charge,status:'failed'})).status,'failed');assert.equal((await Ads.listSlots()).find(s=>s.id===slot).live.length,0);
+  assert.equal((await Pay.finalize(charge)).status,'fulfilled');assert.equal((await Ads.listSlots()).find(s=>s.id===slot).live.length,0);passed.push('verified payment requires moderation before activation');
+  assert.equal((await Ads.adminAct(process.env.ADMIN_KEY,{id:winner.id,action:'approve'})).ok,true);
+  assert.equal((await Ads.listSlots()).find(s=>s.id===slot).live.length,1);assert.ok((await Ads.adminAct(process.env.ADMIN_KEY,{id:winner.id,action:'approve'})).error);passed.push('activation once; no duplicate extension');
+  const signal={campaign:winner.id,placement:slot,seconds:3,pixels:900};
+  assert.ok((await Ads.exposure(a,{...signal,seconds:0})).error);assert.equal((await Ads.exposure(a,signal)).counted,true);assert.equal((await Ads.exposure(a,signal)).counted,false);
+  assert.equal((await Ads.exposure(a,{...signal,kind:'click'})).counted,true);assert.equal((await Ads.exposure(a,{...signal,kind:'click'})).counted,false);
+  const metrics=(await Ads.campaigns(owner)).rows[0];assert.equal(metrics.impressions,'1');assert.equal(metrics.clicks,'1');assert.equal(metrics.unique_viewers,'1');passed.push('measured exposure threshold, persisted metrics and deduplication');
+  await pool.query('update ad_orders set ends=$2 where id=$1',[winner.id,Date.now()-1]);await pool.query('update ad_reservations set expires=$2 where order_id=$1',[winner.id,Date.now()-1]);
+  assert.equal((await Ads.listSlots()).find(s=>s.id===slot).availability,'available');assert.ok((await Ads.exposure(a,signal)).error);passed.push('expired campaign stops rendering/counting and releases surface');
+  const late=await Ads.createOrder({...form,orderKey:crypto.randomUUID()},a);
+  await Pay.finalize({...charge,reference:late.ref,id:charge.id+1,status:'failed'});
+  await pool.query('update ad_reservations set expires=$2 where order_id=$1',[late.id,Date.now()-1]);await Ads.expireReservations();
+  assert.ok((await Ads.retryOrder(a,late.id)).error,'Expired inventory must be rejected before opening another checkout');
+  assert.equal((await Pay.finalize({...charge,reference:late.ref,id:charge.id+1})).status,'review');passed.push('late charge after reservation expiry cannot activate');
+  await Ads.cancelOrder(a,late.id);await Ads.migrateAds();await Pay.migratePayments();assert.equal((await pool.query('select status from ad_orders where id=$1',[winner.id])).rows[0].status,'approved');passed.push('additive migration preserves existing orders');
+  console.log(JSON.stringify({passed:passed.length,checks:passed},null,2));
+}finally{await pool.end();}

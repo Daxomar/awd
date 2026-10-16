@@ -1,4 +1,5 @@
 import { neighbourhoodArt, dressVenue } from './environment-profiles.js';
+import { NEIGHBOURHOOD_ACTIVITY_IDS } from '../../../../shared/exploration.js';
 const I = (kind, x, z, extra = {}) => ({ kind, x, z, ...extra });
 const Z = (id, label, icon, item, acts, extra = {}) => ({ id, label, icon: 'ph-' + icon, item, acts, ...extra });
 export function streetSpec(area, estate = false) {
@@ -14,6 +15,7 @@ export function streetSpec(area, estate = false) {
   if (!estate) zones.push(Z('estate','Player-owned estate','buildings',items.length-1,[],{route:'estate'}));
   zones.push(Z('provisions', 'Provisions shop', 'storefront', 15, ['provisionsnack']), Z('barber', 'Barber shop', 'scissors', 16, ['barber']), Z('food', 'Neighbourhood food joint', 'bowl-food', 17, ['streetmeal']));
   const look = (body,top,topCol,hair) => ({ body,skin:5,top,topCol,hair,beard:'nobeard',bottom:'chinos',bottomCol:'#37465a',shoes:'sneakers' });
+  if(NEIGHBOURHOOD_ACTIVITY_IDS[art.id])zones[0].acts.push(NEIGHBOURHOOD_ACTIVITY_IDS[art.id]);
   const spec={ w:36,d:30,outdoor:true,floor:'pavers',floorColor:'#d6c8ad',items,zones,spawn:{x:0,z:10},neighbourhood:true,estate,area,
     npcs:[{label:'Aboki grill seller',x:11,z:6,rot:0,pose:'work',look:look('m','kaftan','#ebe6d8','lowcut'),open:[17,26],gesture:'agree'}, {label:'FanYogo vendor',x:-9,z:7,rot:-.7,pose:'stand',look:look('m','tee','#f3f4f0','fade'),open:[9,19],patrol:[[-9,7],[-6,5],[-12,4]]}, {label:'Neighbour Ama',x:-2,z:5,rot:1,pose:'stand',look:look('f','blouse','#397b69','bun'),patrol:[[-2,5],[5,5],[7,9],[-3,10]]}],
     lights:[{x:-10,z:4,intensity:8,dist:12},{x:11,z:6,intensity:8,dist:12}] };

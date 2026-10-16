@@ -8,6 +8,9 @@ import * as W from './wardrobe.js';
 import { onboardingDraft, transitionOnboarding } from './onboarding.js';
 import { matchBoard, validateBet, makeBet, settleBets } from './matches.js';
 import { enterLocal, updateStreetReturn } from '../street-world.js';
+import { discoverable } from './discovery.js';
+import {WORKPLACES} from '../../../shared/workplaces.js';
+import {taskView,beginTask,tickTask} from './work-tasks.js';
 export const WARD = W;
 export const DATA = D;
 
@@ -24,6 +27,11 @@ export function goPlace(p, place, pos, from) {
   const s = p.state; s.place = place;
   const P = pos || (place === 'home' ? HOME_POS[s.home] : LOC[place]); if (P) { p.x = P.x; p.z = P.z; }
   enterLocal(s,from);
+  if(s.onboarded&&(LOC[place]||place==='home')){
+    s.discovery||={visited:{}};s.discovery.visited||={};
+    if(place==='home'&&Object.keys(s.discovery.visited).some(id=>LOC[id]&&!LOC[id].estate))s.discovery.returned=true;
+    if(LOC[place]&&!LOC[place].estate)s.discovery.visited[place]=true;
+  }
 }
 export const placeName = (s, place) => (place === 'home' ? (s.home ? D.HOMES[s.home].name : 'Home') : LOC[place] ? LOC[place].name : '');
 const at = (p, id) => p.state.place === id;
@@ -78,13 +86,13 @@ export function newState(acct) {
     place: null, friends: {}, rel: {}, cnt: {}, dc: { day: -1, cnt: {}, visits: [] }, story: { seen: {}, inbox: [], goals: [], at: 0 }, dreamTier: 0, dreamProgress: {}, dreamsDone: [], daily: { day: -1, list: [], streak: 0, lastFull: -1 } };
 }
 export const netWorth = (s) => Math.round((s.cash || 0) + (s.momo || 0) + (s.flags?.fixed?.amount || 0) - (s.loan ? s.loan.owed : 0) + Object.keys(s.biz).reduce((a, k) => a + D.BUSINESSES[k].price * 0.6, 0) + Object.values(s.land).reduce((a, l) => a + l.value, 0) + (s.car ? D.CARS[s.car].price * 0.7 : 0) + Object.keys(s.owned).reduce((a, k) => a + (D.HOMES[k].buy || 0) * 0.85, 0));
-export const me = (s, now, policy) => ({ t: 'me', heat: Math.round(s.heat || 0), n: Object.fromEntries(Object.entries(s.n).map(([k, v]) => [k, Math.round(v)])), cash: s.cash, momo: s.momo, mood: mood(s), busy: s.busy, shift: s.shift && { start: s.shift.start, worked: Math.round(s.shift.worked * 10) / 10, wins: s.shift.wins }, job: s.job, sick: s.sick, food: s.food, home: s.home, rep: s.rep, xp: s.xp, moodlets: s.moodlets.map((m) => [m.label, m.v]), dumsor: dumsorNow(now, policy), jail: s.flags.jailUntil > now ? s.flags.jailUntil : 0 });
+export const me = (s, now, policy) => ({ t: 'me', heat: Math.round(s.heat || 0), n: Object.fromEntries(Object.entries(s.n).map(([k, v]) => [k, Math.round(v)])), cash: s.cash, momo: s.momo, mood: mood(s), busy: s.busy, shift: s.shift && { start: s.shift.start, worked: Math.round(s.shift.worked * 10) / 10, wins: s.shift.wins,tasks:s.shift.tasks,assignment:taskView(s) }, job: s.job, sick: s.sick, food: s.food, home: s.home, rep: s.rep, xp: s.xp, moodlets: s.moodlets.map((m) => [m.label, m.v]), dumsor: dumsorNow(now, policy), jail: s.flags.jailUntil > now ? s.flags.jailUntil : 0 });
 export function catalog() {
   const strip = (a) => { const fx = {}; const hrs = (a.min || 10) / 60; for (const k in a.needs || {}) fx[k] = Math.round(a.needs[k] * hrs); for (const k in a.inst || {}) if (k !== 'food') fx[k] = (fx[k] || 0) + a.inst[k]; if (a.sleep) fx.energy = a.restore || 100;
     return { id: a.id, label: a.label, ic: a.ic, min: a.min, cost: a.cost, earn: a.earn ? [a.earn.base, a.earn.per || 0, a.earn.skill || null] : null, mg: a.mg, crime: a.crime ? Math.round(a.crime.catch * 100) : 0, open: a.open, days: a.days, req: a.req, tags: a.tags, opens: a.opens, sleep: a.sleep, rest: a.rest, fx, skill: a.skill ? Object.keys(a.skill) : null, food: a.inst && a.inst.food, rep: a.rep, cures: a.cures }; };
-  return { locs: Object.values(LOC).map((l) => ({ id: l.id, name: l.name, area: l.area, neighbourhood:l.neighbourhood, estate:l.estate, ic: l.ic, x: Math.round(l.x), z: Math.round(l.z), open: l.open, days: l.days, blurb: l.blurb, acts: l.acts.map(strip) })),
+  return { locs: Object.values(LOC).map((l) => ({ id: l.id, name: l.name, area: l.area, neighbourhood:l.neighbourhood, estate:l.estate, ic: l.ic, x: Math.round(l.x), z: Math.round(l.z), open: l.open, days: l.days, blurb: l.blurb,discovery:discoverable(l), acts: l.acts.map(strip) })),
     homes: Object.fromEntries(Object.entries(D.HOMES).map(([k, h]) => [k, { ...h, x: Math.round(HOME_POS[k].x), z: Math.round(HOME_POS[k].z) }])), homeActs: Object.values(HOME_ACTS).map(strip),
-    careers: D.CAREERS, transport: D.TRANSPORT, rush: D.RUSH, cars: D.CARS, traits: D.TRAITS, dreams: D.DREAMS, origins: D.ORIGINS, skills: D.SKILLS, items: ITEMS, biz: D.BUSINESSES, lands: D.LANDS, repTitles: REP_TITLES, promoSkill: D.PROMO_SKILL, promoShifts: D.PROMO_SHIFTS,
+    careers: Object.fromEntries(Object.entries(D.CAREERS).map(([id,{mg,...c}])=>[id,{...c,workplace:{x:WORKPLACES[id].x,z:WORKPLACES[id].z,label:WORKPLACES[id].label}}])), transport: D.TRANSPORT, rush: D.RUSH, cars: D.CARS, traits: D.TRAITS, dreams: D.DREAMS, origins: D.ORIGINS, skills: D.SKILLS, items: ITEMS, biz: D.BUSINESSES, lands: D.LANDS, repTitles: REP_TITLES, promoSkill: D.PROMO_SKILL, promoShifts: D.PROMO_SHIFTS,
     allDreams: { ...D.DREAMS, ...ST.DREAM_INFO }, dreamTiers: Object.fromEntries(Object.entries(ST.DREAM_TIERS).map(([k, t]) => [k, t.map((x) => x[0])])), tierReward: ST.TIER_REWARD, contacts: ST.CONTACTS,
     missions: Object.fromEntries(ST.MISSIONS.map((m) => [m.id, m.label])), missionReward: ST.MISSION_REWARD, streakBonus: ST.STREAK_BONUS, wear: W.WEAR, uniform: W.UNIFORM, skinTones: W.SKIN, hairColors: W.HAIR_COLORS, defaultLook: W.DEFAULT_LOOK };
 }
@@ -257,16 +265,17 @@ function startShift(p, now) {
   if (!shiftWindowOk(c, now)) return toast(c.night ? 'Shifts here are 20:00–04:00 on work nights.' : 'Shifts run 06:00–22:00 on work days.', 'bad');
   if (j.lastDay === clock(now).day) return toast('You already worked today. Come back tomorrow.', 'bad');
   if (workDay(s, now).mins > WORK_DAY - 480) return toast(`You've already hustled ${Math.round(s.gd.mins / 60)} hours today. Too tired for a full shift.`, 'bad');
-  s.gd.mins += 480;
   if (s.sick && s.sick.level === 'serious') return toast('Too sick to work.', 'bad');
+  s.gd.mins += 480;
   s.shift = { start: now, worked: 0, last: now, perf0: j.perf, tasks: 0, wins: 0, tone: 'normal' };
-  return { t: 'shift', shift: s.shift, title: c.ranks[j.rank][0], pay: shiftPay(s, now) };
+  return { t: 'shift', shift: {...s.shift,assignment:taskView(s)}, title: c.ranks[j.rank][0], pay: shiftPay(s, now) };
 }
 function shiftPay(s, now, policy) { const j = s.job, c = D.CAREERS[j.id]; return Math.round(c.ranks[j.rank][1] * (1 + 0.05 * j.grade) * (policy === 'wages' ? 1.1 : 1)); }
 function tickShift(p, now, policy) {
   const s = p.state, sh = s.shift, j = s.job, c = D.CAREERS[j.id], loc = LOC[c.at];
   const dt = (now - sh.last) / 60000; sh.last = now;
   if (at(p, loc.id)) sh.worked += dt; // you only get paid for time actually at work
+  const task=tickTask(p,c,now);if(task?.completed)addSkill(s,task.skill,.12);
   const m = mood(s); let perfH = (0.6 + m / 80) * 7 + 0.6 * lvl(s, c.skill); for (const t of s.traits) if (D.TRAITS[t].work) perfH *= 1 + D.TRAITS[t].work;
   j.perf = clamp(j.perf + perfH * dt / 60, 0, 100);
   for (const [k, v] of [['energy', -5], ['fun', -5], ['hygiene', -3]]) s.n[k] = clamp(s.n[k] + v * dt / 60);
@@ -466,13 +475,13 @@ export function onMsg(p, msg, shard, now) {
     case 'onboard': return !s.onboarded&&(CFG.production||s.onboarding?.started)?toast('Reload the game and finish your saved setup steps.','bad'):onboard(p, msg);
     case 'act': { if (msg.home) return homeAction(p, String(msg.id), now); const loc = LOC[msg.loc]; const a = loc && loc.acts.find((x) => x.id === msg.id); if (!a) return toast('Not available.', 'bad'); return startAction(p, loc, a, now, shard.policy); }
     case 'mgResult': { const b = s.busy; if (!b || !b.mg) return null; s.busy = null; const secs = (now - b.start) / 1000; if (secs < 20) return toast('Too fast.', 'bad'); const stars = Math.max(0, Math.min(3, msg.stars | 0)); const skill = { trotro: 'hustle', waakye: 'cooking', bolu: 'driving', bughunt: 'coding', azonto: 'dance', boxing: 'fitness' }[b.mg]; let amt = (18 + stars * 22) * (1 + lvl(s, skill) * 0.07); amt *= hustleMult(s, b.id, now, skill); s.gd.earned += amt; const got = earn(s, amt, 'Gig'); addSkill(s, skill, 0.3 + stars * 0.25); s.gigRest[b.id] = now + 60 * 60000; s.stats.gigs++; return { t: 'done', id: b.id, earned: got, stars }; }
-    case 'work': return msg.op === 'start' ? startShift(p, now) : msg.op === 'task' && s.shift ? toast('Work performance is calculated by the server.') : msg.op === 'quit' ? ((s.job = null), (s.shift = null), { t: 'st', state: view(s) }) : msg.op === 'end' && s.shift ? ((s.shift = null), { t: 'st', state: view(s) }) : null;
+    case 'work': if(msg.op==='beginTask'){const c=D.CAREERS[s.job?.id];if(!s.shift||!c)return toast('Start your shift at work first.','bad');const error=beginTask(p,msg,c,now);return error?toast(error,'bad'):{t:'worktask',shift:{...s.shift,assignment:taskView(s)}};}return msg.op === 'start' ? startShift(p, now) : msg.op === 'task' && s.shift ? toast('Work performance is calculated by the server.') : msg.op === 'quit' ? ((s.job = null), (s.shift = null), { t: 'st', state: view(s) }) : msg.op === 'end' && s.shift ? ((s.shift = null), { t: 'st', state: view(s) }) : null;
     case 'apply': return apply(p, String(msg.id), now);
     case 'buy': return buy(p, msg, now);
     case 'travel': return travel(p, msg, now, shard);
     case 'bank': return bank(p, msg);
     case 'bizcheck': { if (!Object.keys(s.biz).length) return toast('You have no businesses yet.'); for (const k in s.biz) s.biz[k].seen = now; s.n.fun = clamp(s.n.fun - 3); return toast(' You called your managers and checked the books. They know you dey watch.', 'good'); }
-    case 'look': if (msg.look && typeof msg.look === 'object') { s.look = W.cleanLook(msg.look, s.wardrobe); bump(s, 'outfit'); return { t: 'st', state: view(s), look: true }; } return null;
+    case 'look': if (msg.look && typeof msg.look === 'object') { const next=W.cleanLook(msg.look,s.wardrobe);if(JSON.stringify(next)!==JSON.stringify(s.look))bump(s,'outfit');s.look=next; return { t: 'st', state: view(s), look: true }; } return null;
     case 'cancel': { const b = s.busy; if (b && !b.travel && !b.mg) { s.busy = null; return { t: 'cancelled', id: b.id }; } return null; }
     case 'state': return { t: 'st', state: view(s), mood: mood(s), dumsor: dumsorNow(now, shard.policy) };
     case 'reply': return toast('Accra is now free play. Story conversations have been retired.');

@@ -12,6 +12,8 @@ import * as PhoneGames from './game/phone-games.js';
 import { loadPlayer, savePlayers, pool } from './db.js';
 import { randomUUID } from 'node:crypto';
 import { localRoomInfo, saveLocalMove } from './street-world.js';
+import * as FirstFriend from './first-friend.js';
+import * as Objectives from './objectives.js';
 
 const DEV = CFG.dev;
 const GYM = new Set(['workout', 'beachworkout', 'train', 'jog', 'stadiumjog', 'spar']);
@@ -141,7 +143,10 @@ export class Shard {
     if (!msg || typeof msg.t !== 'string') return;
     if(p.gone)return;
     if(msg.t==='onboarding')return this.progressOnboarding(p,msg);
-    if((p.moneyBusy||p.onboardingSave)&&!['ping','rmv'].includes(msg.t))return this.send(p,{t:'toast',k:'bad',m:'Saving your account. Try again shortly.'});
+    if((p.moneyBusy||p.onboardingSave)&&!['ping','rmv'].includes(msg.t)){
+      const error='Saving your account. Try again shortly.';
+      return this.send(p,msg.t.startsWith('objective_')?{t:'objective_error',error}:msg.t.startsWith('intro_')?{t:'intro_result',error}:msg.t==='topup'?{t:'topup',error}:{t:'toast',k:'bad',m:error});
+    }
     switch (msg.t) {
       case 'chat': return this.chat(p, msg);
       case 'rmv': return this.roomMove(p, msg);
@@ -160,6 +165,8 @@ export class Shard {
       case 'settings': { const f = p.state.flags; if (typeof msg.flirtOff === 'boolean') f.flirtOff = msg.flirtOff; if (typeof msg.dmFriends === 'boolean') f.dmFriends = msg.dmFriends; p.dirty = true; return this.send(p, { t: 'settings', flirtOff: !!f.flirtOff, dmFriends: !!f.dmFriends }); }
     }
     if (msg.t.startsWith('gist_')) return this.gist(p, msg);
+    if(['objective_status','objective_claim'].includes(msg.t)){if(Date.now()-(p.objectiveAt||0)<1500)return this.send(p,{t:'objective_error',error:'Please wait a moment before refreshing milestones.'});p.objectiveAt=Date.now();return this.async(p,msg);}
+    if(['intro_status','intro_request','intro_answer','intro_preferences'].includes(msg.t)){if(Date.now()-(p.introMessageAt||0)<1000)return this.send(p,{t:'intro_result',error:'Please wait a moment.'});p.introMessageAt=Date.now();return this.async(p,msg);}
     if (['estate_list','ballot','game_list','game_create','game_answer','game_move','game_resign'].includes(msg.t)) return this.async(p,msg);
     if (['send', 'dm', 'dm_answer','dm_threads', 'dm_thread', 'block', 'find', 'profile', 'forbes', 'momo_hist', 'topup'].includes(msg.t)) return this.async(p, msg);
     const beforeOnboard=msg.t==='onboard'?structuredClone(p.state):null;
@@ -204,6 +211,12 @@ export class Shard {
     try {
       let r = null;
       switch (msg.t) {
+        case 'objective_status':r=await Objectives.list(p);break;
+        case 'objective_claim':r=await Objectives.claim(p,msg.id);break;
+        case 'intro_status':r=await FirstFriend.status(p);break;
+        case 'intro_request':r=await FirstFriend.request(this,p,msg);break;
+        case 'intro_answer':r=await FirstFriend.answer(this,p,msg);break;
+        case 'intro_preferences':r=await FirstFriend.preferences(p,msg);break;
         case 'estate_list': {
           const area=String(msg.area||'');if(!Object.hasOwn(D.HOMES,area)||p.state.place!=='e:'+area){r={t:'toast',k:'bad',m:'Enter the estate first.'};break;}
           const page=Math.max(0,Math.min(100000,Number.isInteger(msg.page)?msg.page:0));
@@ -229,7 +242,7 @@ export class Shard {
         case 'profile': r = await Social.profile(this, p, msg.name); break;
         case 'forbes': r = await Social.forbes(); break;
         case 'momo_hist': r = await Social.history(p); break;
-        case 'topup': r = { t: 'topup', ...(await Social.topupInit(p.acct, msg.pack, msg.email)) }; break;
+        case 'topup': if(Date.now()-(p.topupAt||0)<5000){r={t:'topup',error:'Please wait before retrying.'};break;}p.topupAt=Date.now();r = { t: 'topup', ...(await Social.topupInit(p.acct, msg.pack, msg.email,msg.orderKey,msg.phone)) }; break;
       }
       if (r) this.send(p, r);
       if (msg.t === 'dm') this.send(p, { t: 'dm_ack', clientId: typeof msg.clientId === 'string' ? msg.clientId.slice(0,80) : null, ok: r?.t === 'dm_sent', m: r?.m || 'Message was not sent.' });

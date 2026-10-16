@@ -16,6 +16,7 @@ export function buildHud(ui,act){
  const top=h('header.hud.play-hud',{'aria-label':'Player and location'},h('div.hud-surface',null,h('div.hud-top',null,identity,wallet),place),offline);
  const streetName=h('span'),entrance=h('button.street-entrance',{hidden:true,onclick:()=>{if(nearbyZone)act.openZone(nearbyZone);}});
  const streetRow=h('div.street-context',{hidden:true},streetName,entrance);top.querySelector('.hud-surface').append(streetRow);
+ const objective=h('button.optional-objective',{hidden:true,onclick:()=>act.phone(objective.dataset.app||'milestones')});top.querySelector('.hud-surface').append(objective);
  let nearbyZone=null,streetKey='';
  const busy=h('div.busy.activity-hud',{hidden:true}),zones=h('div.zones.interaction-options'),chips=h('div.status-extras');
  const navBtn=(id,icon,label)=>h('button',{'data-nav':id,'aria-label':label,onclick:()=>act.nav(id)},ic(icon),h('span',null,label),h('span.badge',{hidden:true}));
@@ -52,6 +53,7 @@ export function buildHud(ui,act){
   sheet(body,{title:n.label,sub:'Based on your current needs'});
  }
  const H={top,zones,nav,chips,busy,bottom,chatlog,
+  objective(rows){const d=rows?.find(d=>d.completed&&!d.claimed)||rows?.find(d=>d.id==='first_friend'&&!d.claimed)||rows?.find(d=>!d.claimed);objective.hidden=!d;if(d){const friend=d.id==='first_friend'&&!d.completed;objective.dataset.app=friend?'meet':'milestones';patch(objective,(d.completed?'Ready to claim: ':'Optional: ')+(friend?'Say hello to your first online friend':d.title));objective.title=d.description;objective.setAttribute('aria-label',objective.textContent+'. Open '+(friend?'Meet':'milestones'));}},
   setNav(id){for(const b of nav.children){const on=b.dataset.nav===id;b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on));}},
   badge(id,n){const b=nav.querySelector(`[data-nav="${id}"] .badge`);if(b){b.hidden=!n;patch(b,n>99?'99+':String(n));}},
   stats(){const s=G.state;if(!s)return;

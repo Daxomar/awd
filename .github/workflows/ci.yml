@@ -8,6 +8,17 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    services:
+      integration-db:
+        image: postgres:17-bookworm
+        env:
+          POSTGRES_USER: awd
+          POSTGRES_PASSWORD: disposable-ci-database-only
+          POSTGRES_DB: awd_security
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U awd -d awd_security"
+          --health-interval 5s --health-timeout 3s --health-retries 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -24,6 +35,15 @@ jobs:
         working-directory: server
       - run: npm audit --omit=dev
         working-directory: server
+      - name: Verify payment, advertising, social and milestone transactions
+        working-directory: server
+        env:
+          DATABASE_URL: postgres://awd:disposable-ci-database-only@127.0.0.1:5432/awd_security
+        run: |
+          node loadtest/payments-integration.js
+          node loadtest/ads-integration.js
+          node loadtest/first-friend-integration.js
+          node loadtest/objectives-integration.js
       - run: npm ci && npm test && npm audit && npm run build
         working-directory: client
       - name: Initialize disposable Docker secrets
