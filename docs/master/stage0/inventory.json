@@ -1,0 +1,2035 @@
+{
+  "date": "2026-10-16T17:31:09.493Z",
+  "head": "6d61381f6255e06f46395cf08079fa9d453d2285",
+  "workingTree": [
+    "?? .claude/",
+    "?? tools/master-inventory.mjs",
+    "?? tools/master-world-browser-test.py"
+  ],
+  "destinations": [
+    {
+      "id": "circle",
+      "name": "Kwame Nkrumah Circle",
+      "area": "Circle",
+      "x": -1673,
+      "z": -1581,
+      "actions": [
+        "toilet",
+        "phonemarket",
+        "fitter",
+        "unlock",
+        "accessories",
+        "preacher",
+        "purewater",
+        "sellwater",
+        "mate",
+        "pickpocket"
+      ]
+    },
+    {
+      "id": "muni",
+      "name": "Auntie Muni's Waakye",
+      "area": "Circle",
+      "x": -1551,
+      "z": -1493,
+      "actions": [
+        "waakye",
+        "waakyeSmall",
+        "gistMuni"
+      ]
+    },
+    {
+      "id": "makola",
+      "name": "Makola Market",
+      "area": "Accra Central",
+      "x": -787,
+      "z": 874,
+      "actions": [
+        "foodstuff",
+        "haggle",
+        "kayayo",
+        "resell",
+        "toilet"
+      ]
+    },
+    {
+      "id": "kantamanto",
+      "name": "Kantamanto Market",
+      "area": "Accra Central",
+      "x": -1385,
+      "z": 774,
+      "actions": [
+        "thrift",
+        "bale"
+      ]
+    },
+    {
+      "id": "chopbar",
+      "name": "Who Jah Bless Chop Bar",
+      "area": "Accra Central",
+      "x": -554,
+      "z": 663,
+      "actions": [
+        "fufu",
+        "banku",
+        "redred",
+        "washplates",
+        "rush",
+        "toilet"
+      ]
+    },
+    {
+      "id": "kenkey",
+      "name": "Sweet Mother Kenkey",
+      "area": "Jamestown",
+      "x": -942,
+      "z": 2377,
+      "actions": [
+        "kenkey",
+        "kenkeyTake"
+      ]
+    },
+    {
+      "id": "oxford",
+      "name": "Oxford Street, Osu",
+      "area": "Osu",
+      "x": 1884,
+      "z": -276,
+      "actions": [
+        "kelewele",
+        "stroll",
+        "photoOsu",
+        "hawk"
+      ]
+    },
+    {
+      "id": "vibes",
+      "name": "Vibes Lounge, Osu",
+      "area": "Osu",
+      "x": 2050,
+      "z": -199,
+      "actions": [
+        "party",
+        "drinks",
+        "battle",
+        "vip",
+        "shutdown",
+        "sneakvip",
+        "toilet"
+      ]
+    },
+    {
+      "id": "hub",
+      "name": "Sankofa Tech Hub, Osu",
+      "area": "Osu",
+      "x": 2327,
+      "z": -166,
+      "actions": [
+        "cowork",
+        "bootcamp",
+        "freelance",
+        "buildmvp",
+        "sakawa",
+        "pitch",
+        "toilet"
+      ]
+    },
+    {
+      "id": "bank",
+      "name": "Gold Coast Bank, Ridge",
+      "area": "Ridge",
+      "x": 499,
+      "z": -829,
+      "actions": [
+        "loans",
+        "fixed",
+        "toilet"
+      ]
+    },
+    {
+      "id": "ridge",
+      "name": "Ridge Hospital",
+      "area": "Ridge",
+      "x": 78,
+      "z": -719,
+      "actions": [
+        "checkup",
+        "treatment",
+        "toilet"
+      ]
+    },
+    {
+      "id": "korlebu",
+      "name": "Korle Bu Teaching Hospital",
+      "area": "Korle Bu",
+      "x": -2903,
+      "z": 2001,
+      "actions": [
+        "checkup2",
+        "nhis",
+        "hospfood"
+      ]
+    },
+    {
+      "id": "police",
+      "name": "Osu Police Station",
+      "area": "Osu",
+      "x": 1662,
+      "z": 0,
+      "actions": [
+        "report",
+        "community_service"
+      ]
+    },
+    {
+      "id": "memorial",
+      "name": "Kwame Nkrumah Memorial Park",
+      "area": "Accra Central",
+      "x": -355,
+      "z": 1261,
+      "actions": [
+        "tour",
+        "shoot"
+      ]
+    },
+    {
+      "id": "blackstar",
+      "name": "Black Star Square",
+      "area": "Osu",
+      "x": 864,
+      "z": 951,
+      "actions": [
+        "jog",
+        "kite"
+      ]
+    },
+    {
+      "id": "castle",
+      "name": "Osu Castle",
+      "area": "Osu",
+      "x": 2249,
+      "z": 1117,
+      "actions": [
+        "castletour",
+        "guide"
+      ]
+    },
+    {
+      "id": "lighthouse",
+      "name": "Jamestown Lighthouse",
+      "area": "Jamestown",
+      "x": -1396,
+      "z": 2587,
+      "actions": [
+        "climb"
+      ]
+    },
+    {
+      "id": "bukom",
+      "name": "Bukom Boxing Arena",
+      "area": "Jamestown",
+      "x": -2305,
+      "z": 2200,
+      "actions": [
+        "train",
+        "spar",
+        "fightnight"
+      ]
+    },
+    {
+      "id": "canoes",
+      "name": "Jamestown Canoe Beach",
+      "area": "Jamestown",
+      "x": -1141,
+      "z": 2676,
+      "actions": [
+        "net",
+        "fish"
+      ]
+    },
+    {
+      "id": "labadi",
+      "name": "Labadi Beach",
+      "area": "La",
+      "x": 5872,
+      "z": -398,
+      "actions": [
+        "ruins",
+        "helpvendor",
+        "donatefund",
+        "swim",
+        "palmwine",
+        "tilapia",
+        "beachworkout",
+        "drumjam",
+        "toilet"
+      ]
+    },
+    {
+      "id": "funeral",
+      "name": "La Funeral Grounds",
+      "area": "La",
+      "x": 4875,
+      "z": -885,
+      "actions": [
+        "attend",
+        "mourn",
+        "djfuneral"
+      ]
+    },
+    {
+      "id": "church",
+      "name": "Glorious Fire Ministry",
+      "area": "Osu",
+      "x": 1330,
+      "z": -442,
+      "actions": [
+        "service",
+        "prayer",
+        "choir",
+        "seed"
+      ]
+    },
+    {
+      "id": "mosque",
+      "name": "Nima Central Mosque",
+      "area": "Nima",
+      "x": 166,
+      "z": -2985,
+      "actions": [
+        "pray",
+        "jumah"
+      ]
+    },
+    {
+      "id": "stadium",
+      "name": "Accra Sports Stadium",
+      "area": "Osu",
+      "x": 853,
+      "z": 520,
+      "actions": [
+        "match",
+        "stadiumjog"
+      ]
+    },
+    {
+      "id": "viewing",
+      "name": "Nima Football Viewing Centre",
+      "area": "Nima",
+      "x": 0,
+      "z": -2654,
+      "actions": [
+        "watch",
+        "bet"
+      ]
+    },
+    {
+      "id": "radio",
+      "name": "Sankofa FM Studios",
+      "area": "Labone",
+      "x": 3324,
+      "z": -995,
+      "actions": [
+        "callin",
+        "tourfm"
+      ]
+    },
+    {
+      "id": "mall",
+      "name": "Accra Mall",
+      "area": "Tetteh Quarshie",
+      "x": 2892,
+      "z": -7375,
+      "actions": [
+        "homestore",
+        "fashion",
+        "gadgets",
+        "cinema",
+        "foodcourt",
+        "window",
+        "toilet"
+      ]
+    },
+    {
+      "id": "ug",
+      "name": "University of Ghana, Legon",
+      "area": "Legon",
+      "x": 1440,
+      "z": -10482,
+      "actions": [
+        "lecture",
+        "balme",
+        "nightmarket",
+        "tutor"
+      ]
+    },
+    {
+      "id": "airport",
+      "name": "Kotoka International Airport",
+      "area": "Airport",
+      "x": 3678,
+      "z": -5440,
+      "actions": [
+        "planes",
+        "kumasi",
+        "toilet"
+      ]
+    },
+    {
+      "id": "hotel",
+      "name": "Labadi Beach Hotel",
+      "area": "La",
+      "x": 5207,
+      "z": -608,
+      "actions": [
+        "pool",
+        "brunch",
+        "room",
+        "emcee",
+        "toilet"
+      ]
+    },
+    {
+      "id": "ama",
+      "name": "Accra Metropolitan Assembly",
+      "area": "Accra Central",
+      "x": -111,
+      "z": 663,
+      "actions": [
+        "vote",
+        "townhall"
+      ]
+    },
+    {
+      "id": "cars",
+      "name": "Correct Cars, Spintex Road",
+      "area": "Spintex",
+      "x": 6094,
+      "z": -6524,
+      "actions": [
+        "showroom",
+        "rent"
+      ]
+    },
+    {
+      "id": "momo",
+      "name": "Blessed MoMo Agent",
+      "area": "Circle",
+      "x": -1773,
+      "z": -1681,
+      "actions": [
+        "momo"
+      ]
+    },
+    {
+      "id": "cinema",
+      "name": "Silverbird Cinemas, Accra Mall",
+      "area": "Tetteh Quarshie",
+      "x": 2980,
+      "z": -7386,
+      "actions": [
+        "film",
+        "popcorn"
+      ]
+    },
+    {
+      "id": "court",
+      "name": "Law Court Complex, High Street",
+      "area": "Accra Central",
+      "x": -620,
+      "z": 1327,
+      "actions": [
+        "gallery",
+        "legal"
+      ]
+    },
+    {
+      "id": "aboki",
+      "name": "Aboki Khebab Joint, Oxford Street",
+      "area": "Osu",
+      "x": 2138,
+      "z": -885,
+      "actions": [
+        "khebab",
+        "chickenkhebab"
+      ]
+    },
+    {
+      "id": "fanyogo",
+      "name": "FanYogo Ice Cream Stop, Circle",
+      "area": "Circle",
+      "x": -2194,
+      "z": -1482,
+      "actions": [
+        "fanyogo",
+        "fanice"
+      ]
+    },
+    {
+      "id": "restaurant",
+      "name": "Oxford Street Restaurant, Osu",
+      "area": "Osu",
+      "x": 2260,
+      "z": -166,
+      "actions": [
+        "jollof",
+        "tilapia"
+      ]
+    },
+    {
+      "id": "gymlegon",
+      "name": "East Legon Fitness Club",
+      "area": "East Legon",
+      "x": 4044,
+      "z": -8735,
+      "actions": [
+        "train"
+      ]
+    },
+    {
+      "id": "e:nima",
+      "name": "Nima player estate",
+      "area": "Nima",
+      "x": 332,
+      "z": -2952,
+      "estate": "nima",
+      "actions": []
+    },
+    {
+      "id": "n:nima",
+      "name": "Nima neighbourhood",
+      "area": "Nima",
+      "x": 199,
+      "z": -2897,
+      "neighbourhood": "nima",
+      "actions": [
+        "khebab",
+        "chickenkhebab",
+        "fanyogo",
+        "fanice",
+        "provisionsnack",
+        "streetmeal",
+        "barber",
+        "stroll",
+        "streetgames",
+        "streetwatch",
+        "streetbet",
+        "nima_courtyard"
+      ]
+    },
+    {
+      "id": "e:jtown",
+      "name": "Jamestown player estate",
+      "area": "Jamestown",
+      "x": -886,
+      "z": 2411,
+      "estate": "jtown",
+      "actions": []
+    },
+    {
+      "id": "n:jtown",
+      "name": "Jamestown neighbourhood",
+      "area": "Jamestown",
+      "x": -1019,
+      "z": 2466,
+      "neighbourhood": "jtown",
+      "actions": [
+        "khebab",
+        "chickenkhebab",
+        "fanyogo",
+        "fanice",
+        "provisionsnack",
+        "streetmeal",
+        "barber",
+        "stroll",
+        "streetgames",
+        "streetwatch",
+        "streetbet",
+        "jtown_harbour"
+      ]
+    },
+    {
+      "id": "e:kaneshie",
+      "name": "Kaneshie player estate",
+      "area": "Kaneshie",
+      "x": -3656,
+      "z": -1570,
+      "estate": "kaneshie",
+      "actions": []
+    },
+    {
+      "id": "n:kaneshie",
+      "name": "Kaneshie neighbourhood",
+      "area": "Kaneshie",
+      "x": -3789,
+      "z": -1515,
+      "neighbourhood": "kaneshie",
+      "actions": [
+        "khebab",
+        "chickenkhebab",
+        "fanyogo",
+        "fanice",
+        "provisionsnack",
+        "streetmeal",
+        "barber",
+        "stroll",
+        "streetgames",
+        "streetwatch",
+        "streetbet",
+        "kaneshie_prices"
+      ]
+    },
+    {
+      "id": "e:labadi",
+      "name": "Labadi player estate",
+      "area": "Labadi",
+      "x": 5097,
+      "z": -575,
+      "estate": "labadi",
+      "actions": []
+    },
+    {
+      "id": "n:labadi",
+      "name": "Labadi neighbourhood",
+      "area": "Labadi",
+      "x": 4964,
+      "z": -520,
+      "neighbourhood": "labadi",
+      "actions": [
+        "khebab",
+        "chickenkhebab",
+        "fanyogo",
+        "fanice",
+        "provisionsnack",
+        "streetmeal",
+        "barber",
+        "stroll",
+        "streetgames",
+        "streetwatch",
+        "streetbet",
+        "labadi_stretch"
+      ]
+    },
+    {
+      "id": "e:osu",
+      "name": "Osu player estate",
+      "area": "Osu",
+      "x": 2216,
+      "z": -243,
+      "estate": "osu",
+      "actions": []
+    },
+    {
+      "id": "n:osu",
+      "name": "Osu neighbourhood",
+      "area": "Osu",
+      "x": 2083,
+      "z": -188,
+      "neighbourhood": "osu",
+      "actions": [
+        "khebab",
+        "chickenkhebab",
+        "fanyogo",
+        "fanice",
+        "provisionsnack",
+        "streetmeal",
+        "barber",
+        "stroll",
+        "streetgames",
+        "streetwatch",
+        "streetbet",
+        "osu_photo"
+      ]
+    },
+    {
+      "id": "e:airres",
+      "name": "Airport Residential player estate",
+      "area": "Airport Residential",
+      "x": 2438,
+      "z": -4998,
+      "estate": "airres",
+      "actions": []
+    },
+    {
+      "id": "n:airres",
+      "name": "Airport Residential neighbourhood",
+      "area": "Airport Residential",
+      "x": 2305,
+      "z": -4943,
+      "neighbourhood": "airres",
+      "actions": [
+        "khebab",
+        "chickenkhebab",
+        "fanyogo",
+        "fanice",
+        "provisionsnack",
+        "streetmeal",
+        "barber",
+        "stroll",
+        "streetgames",
+        "streetwatch",
+        "streetbet",
+        "airres_exchange"
+      ]
+    },
+    {
+      "id": "e:legon",
+      "name": "East Legon player estate",
+      "area": "East Legon",
+      "x": 4432,
+      "z": -8757,
+      "estate": "legon",
+      "actions": []
+    },
+    {
+      "id": "n:legon",
+      "name": "East Legon neighbourhood",
+      "area": "East Legon",
+      "x": 4299,
+      "z": -8702,
+      "neighbourhood": "legon",
+      "actions": [
+        "khebab",
+        "chickenkhebab",
+        "fanyogo",
+        "fanice",
+        "provisionsnack",
+        "streetmeal",
+        "barber",
+        "stroll",
+        "streetgames",
+        "streetwatch",
+        "streetbet",
+        "legon_study"
+      ]
+    },
+    {
+      "id": "e:trasacco",
+      "name": "Trasacco player estate",
+      "area": "Trasacco",
+      "x": 6426,
+      "z": -9642,
+      "estate": "trasacco",
+      "actions": []
+    },
+    {
+      "id": "n:trasacco",
+      "name": "Trasacco neighbourhood",
+      "area": "Trasacco",
+      "x": 6293,
+      "z": -9587,
+      "neighbourhood": "trasacco",
+      "actions": [
+        "khebab",
+        "chickenkhebab",
+        "fanyogo",
+        "fanice",
+        "provisionsnack",
+        "streetmeal",
+        "barber",
+        "stroll",
+        "streetgames",
+        "streetwatch",
+        "streetbet",
+        "trasacco_walk"
+      ]
+    }
+  ],
+  "economy": {
+    "homes": {
+      "nima": {
+        "name": "Single room · Nima",
+        "area": "Nima",
+        "ll": [
+          5.5815,
+          -0.199
+        ],
+        "rent": 110,
+        "advance": 8,
+        "comfort": 0.85,
+        "toilet": "shared",
+        "power": "grid",
+        "theft": 0.05,
+        "grid": 6,
+        "start": true,
+        "x": 111,
+        "z": -2820
+      },
+      "jtown": {
+        "name": "Fisher room · Jamestown",
+        "area": "Jamestown",
+        "ll": [
+          5.533,
+          -0.21
+        ],
+        "rent": 120,
+        "advance": 8,
+        "comfort": 0.85,
+        "toilet": "shared",
+        "power": "grid",
+        "theft": 0.04,
+        "grid": 6,
+        "start": true,
+        "x": -1108,
+        "z": 2543
+      },
+      "kaneshie": {
+        "name": "Chamber & hall · Kaneshie",
+        "area": "Kaneshie",
+        "ll": [
+          5.569,
+          -0.235
+        ],
+        "rent": 260,
+        "advance": 12,
+        "comfort": 0.92,
+        "toilet": "shared",
+        "power": "grid",
+        "theft": 0.03,
+        "grid": 7,
+        "x": -3878,
+        "z": -1437
+      },
+      "labadi": {
+        "name": "Self-contain · La",
+        "area": "Labadi",
+        "ll": [
+          5.56,
+          -0.156
+        ],
+        "rent": 450,
+        "advance": 12,
+        "comfort": 0.95,
+        "toilet": "own",
+        "power": "grid",
+        "theft": 0.02,
+        "grid": 7,
+        "x": 4875,
+        "z": -442
+      },
+      "osu": {
+        "buy": 1600000,
+        "name": "1-bed apartment · Osu",
+        "area": "Osu",
+        "ll": [
+          5.557,
+          -0.182
+        ],
+        "rent": 1600,
+        "advance": 24,
+        "comfort": 1,
+        "toilet": "own",
+        "power": "estate",
+        "theft": 0,
+        "grid": 9,
+        "x": 1994,
+        "z": -111
+      },
+      "airres": {
+        "buy": 3200000,
+        "name": "2-bed flat · Airport Residential",
+        "area": "Airport Residential",
+        "ll": [
+          5.6,
+          -0.18
+        ],
+        "rent": 2600,
+        "advance": 24,
+        "comfort": 1.05,
+        "toilet": "own",
+        "power": "estate",
+        "theft": 0,
+        "grid": 10,
+        "x": 2216,
+        "z": -4865
+      },
+      "legon": {
+        "name": "Family house · East Legon",
+        "area": "East Legon",
+        "ll": [
+          5.634,
+          -0.162
+        ],
+        "rent": 7500,
+        "advance": 12,
+        "buy": 4200000,
+        "comfort": 1.1,
+        "toilet": "own",
+        "power": "grid",
+        "theft": 0,
+        "grid": 12,
+        "x": 4210,
+        "z": -8625
+      },
+      "trasacco": {
+        "name": "Villa · Trasacco Valley",
+        "area": "Trasacco",
+        "ll": [
+          5.642,
+          -0.144
+        ],
+        "rent": 45000,
+        "advance": 24,
+        "buy": 25000000,
+        "comfort": 1.25,
+        "toilet": "own",
+        "power": "estate",
+        "theft": 0,
+        "grid": 14,
+        "x": 6205,
+        "z": -9509
+      }
+    },
+    "cars": {
+      "vitz": {
+        "name": "Toyota Vitz (home-used)",
+        "price": 95000,
+        "rep": 5
+      },
+      "corolla": {
+        "name": "Toyota Corolla",
+        "price": 180000,
+        "rep": 12
+      },
+      "prado": {
+        "name": "Land Cruiser Prado",
+        "price": 1100000,
+        "rep": 40
+      },
+      "gwagon": {
+        "name": "G-Wagon",
+        "price": 4500000,
+        "rep": 90
+      }
+    },
+    "careers": {
+      "trotro": {
+        "name": "Trotro",
+        "ic": "icon:bus",
+        "at": "circle",
+        "skill": "driving",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "ranks": [
+          [
+            "Trotro Mate",
+            100
+          ],
+          [
+            "Senior Mate",
+            140
+          ],
+          [
+            "Trotro Driver",
+            190
+          ],
+          [
+            "Station Master",
+            280
+          ],
+          [
+            "GPRTU Chairman",
+            420
+          ]
+        ],
+        "workplace": {
+          "x": -2.4,
+          "z": -3.1,
+          "label": "Dispatch vehicle"
+        }
+      },
+      "chef": {
+        "name": "Chop Bar",
+        "ic": "icon:bowl-food",
+        "at": "chopbar",
+        "skill": "cooking",
+        "days": [
+          0,
+          1,
+          3,
+          4,
+          5,
+          6
+        ],
+        "ranks": [
+          [
+            "Kitchen Hand",
+            60
+          ],
+          [
+            "Fufu Pounder",
+            90
+          ],
+          [
+            "Line Cook",
+            140
+          ],
+          [
+            "Head Cook",
+            230
+          ],
+          [
+            "Chop Bar Queen",
+            380
+          ]
+        ],
+        "workplace": {
+          "x": 0.2,
+          "z": -2.9,
+          "label": "Kitchen preparation counter"
+        }
+      },
+      "trader": {
+        "name": "Market Trading",
+        "ic": "icon:circle",
+        "at": "makola",
+        "skill": "hustle",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "ranks": [
+          [
+            "Kayayo",
+            50
+          ],
+          [
+            "Table Seller",
+            90
+          ],
+          [
+            "Shop Assistant",
+            150
+          ],
+          [
+            "Wholesaler",
+            270
+          ],
+          [
+            "Market Queen",
+            520
+          ]
+        ],
+        "workplace": {
+          "x": 1.9,
+          "z": 1,
+          "label": "Market stock station"
+        }
+      },
+      "tech": {
+        "name": "Tech",
+        "ic": "icon:laptop",
+        "at": "hub",
+        "skill": "coding",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "ranks": [
+          [
+            "Intern",
+            150
+          ],
+          [
+            "Junior Developer",
+            260
+          ],
+          [
+            "Software Engineer",
+            420
+          ],
+          [
+            "Senior Engineer",
+            650
+          ],
+          [
+            "CTO",
+            1000
+          ]
+        ],
+        "req": {},
+        "workplace": {
+          "x": 0.9,
+          "z": -2.4,
+          "label": "Engineering desk"
+        }
+      },
+      "bank": {
+        "name": "Banking",
+        "ic": "icon:bank",
+        "at": "bank",
+        "skill": "charisma",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "ranks": [
+          [
+            "Teller",
+            140
+          ],
+          [
+            "Customer Service",
+            210
+          ],
+          [
+            "Relationship Manager",
+            340
+          ],
+          [
+            "Branch Manager",
+            560
+          ],
+          [
+            "Regional Director",
+            980
+          ]
+        ],
+        "req": {
+          "charisma": 2
+        },
+        "workplace": {
+          "x": 0.6,
+          "z": -2.6,
+          "label": "Banking counter"
+        }
+      },
+      "nurse": {
+        "name": "Nursing",
+        "ic": "icon:first-aid",
+        "at": "ridge",
+        "skill": "charisma",
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "ranks": [
+          [
+            "Nurse Aide",
+            100
+          ],
+          [
+            "Staff Nurse",
+            170
+          ],
+          [
+            "Senior Staff Nurse",
+            260
+          ],
+          [
+            "Nursing Officer",
+            380
+          ],
+          [
+            "Matron",
+            600
+          ]
+        ],
+        "workplace": {
+          "x": -2.8,
+          "z": -2.8,
+          "label": "Ward administration desk"
+        }
+      },
+      "doctor": {
+        "name": "Medicine",
+        "ic": "icon:circle",
+        "at": "korlebu",
+        "skill": "coding",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "ranks": [
+          [
+            "House Officer",
+            260
+          ],
+          [
+            "Medical Officer",
+            420
+          ],
+          [
+            "Senior MO",
+            620
+          ],
+          [
+            "Specialist",
+            900
+          ],
+          [
+            "Chief Consultant",
+            1500
+          ]
+        ],
+        "req": {
+          "coding": 3,
+          "fitness": 2
+        },
+        "workplace": {
+          "x": -3.6,
+          "z": -3,
+          "label": "OPD administration desk"
+        }
+      },
+      "police": {
+        "name": "Ghana Police",
+        "ic": "icon:police-car",
+        "at": "police",
+        "skill": "fitness",
+        "days": [
+          0,
+          1,
+          2,
+          4,
+          5,
+          6
+        ],
+        "ranks": [
+          [
+            "Constable",
+            120
+          ],
+          [
+            "Corporal",
+            180
+          ],
+          [
+            "Sergeant",
+            260
+          ],
+          [
+            "Inspector",
+            400
+          ],
+          [
+            "Commissioner",
+            800
+          ]
+        ],
+        "req": {
+          "fitness": 2
+        },
+        "workplace": {
+          "x": 1.4,
+          "z": -2.2,
+          "label": "Charge office records"
+        }
+      },
+      "radio": {
+        "name": "Radio & TV",
+        "ic": "icon:circle",
+        "at": "radio",
+        "skill": "comedy",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "ranks": [
+          [
+            "Studio Intern",
+            80
+          ],
+          [
+            "Producer",
+            150
+          ],
+          [
+            "Co-host",
+            260
+          ],
+          [
+            "Morning Show Host",
+            460
+          ],
+          [
+            "Media Mogul",
+            1000
+          ]
+        ],
+        "workplace": {
+          "x": -0.6,
+          "z": -0.8,
+          "label": "Studio production desk"
+        }
+      },
+      "dj": {
+        "name": "Nightlife",
+        "ic": "icon:headphones",
+        "at": "vibes",
+        "skill": "music",
+        "days": [
+          0,
+          3,
+          4,
+          5,
+          6
+        ],
+        "ranks": [
+          [
+            "Hype Dancer",
+            80
+          ],
+          [
+            "Resident Dancer",
+            140
+          ],
+          [
+            "DJ",
+            250
+          ],
+          [
+            "Headline DJ",
+            430
+          ],
+          [
+            "Afrobeats Star",
+            1150
+          ]
+        ],
+        "night": true,
+        "workplace": {
+          "x": 0.6,
+          "z": -0.4,
+          "label": "Event floor station"
+        }
+      },
+      "boxer": {
+        "name": "Boxing",
+        "ic": "icon:circle",
+        "at": "bukom",
+        "skill": "fitness",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "ranks": [
+          [
+            "Sparring Partner",
+            60
+          ],
+          [
+            "Amateur",
+            110
+          ],
+          [
+            "Pro Boxer",
+            230
+          ],
+          [
+            "Contender",
+            420
+          ],
+          [
+            "Bukom Champion",
+            950
+          ]
+        ],
+        "workplace": {
+          "x": -4.4,
+          "z": -3,
+          "label": "Training station"
+        }
+      },
+      "teacher": {
+        "name": "University",
+        "ic": "icon:graduation-cap",
+        "at": "ug",
+        "skill": "coding",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "ranks": [
+          [
+            "Teaching Assistant",
+            120
+          ],
+          [
+            "Lecturer",
+            270
+          ],
+          [
+            "Senior Lecturer",
+            420
+          ],
+          [
+            "Professor",
+            680
+          ],
+          [
+            "Vice-Chancellor",
+            1050
+          ]
+        ],
+        "req": {
+          "coding": 2
+        },
+        "workplace": {
+          "x": -2.6,
+          "z": -2.8,
+          "label": "Lecture preparation desk"
+        }
+      },
+      "hotel": {
+        "name": "Hospitality",
+        "ic": "icon:circle",
+        "at": "hotel",
+        "skill": "charisma",
+        "days": [
+          0,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "ranks": [
+          [
+            "Waiter",
+            80
+          ],
+          [
+            "Receptionist",
+            140
+          ],
+          [
+            "Chef de Partie",
+            240
+          ],
+          [
+            "Hotel Manager",
+            430
+          ],
+          [
+            "General Manager",
+            760
+          ]
+        ],
+        "workplace": {
+          "x": -5,
+          "z": -3,
+          "label": "Reception desk"
+        }
+      },
+      "aviation": {
+        "name": "Aviation",
+        "ic": "icon:airplane",
+        "at": "airport",
+        "skill": "driving",
+        "days": [
+          0,
+          1,
+          4,
+          5,
+          6
+        ],
+        "ranks": [
+          [
+            "Ground Staff",
+            150
+          ],
+          [
+            "Cabin Crew",
+            290
+          ],
+          [
+            "First Officer",
+            520
+          ],
+          [
+            "Captain",
+            920
+          ],
+          [
+            "Chief Pilot",
+            1450
+          ]
+        ],
+        "req": {
+          "driving": 3
+        },
+        "workplace": {
+          "x": 1.2,
+          "z": -3.2,
+          "label": "Ground operations desk"
+        }
+      },
+      "civil": {
+        "name": "Civil Service",
+        "ic": "icon:circle",
+        "at": "ama",
+        "skill": "charisma",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "ranks": [
+          [
+            "Clerk",
+            110
+          ],
+          [
+            "Assistant Officer",
+            170
+          ],
+          [
+            "Senior Officer",
+            250
+          ],
+          [
+            "Director",
+            400
+          ],
+          [
+            "Metro Chief Executive",
+            720
+          ]
+        ],
+        "workplace": {
+          "x": 0.6,
+          "z": -1.4,
+          "label": "Public service desk"
+        }
+      },
+      "ride": {
+        "name": "Ride-hailing",
+        "ic": "icon:car",
+        "at": "cars",
+        "skill": "driving",
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "ranks": [
+          [
+            "Okada Rider",
+            90
+          ],
+          [
+            "Bolt Driver",
+            150
+          ],
+          [
+            "Gold Driver",
+            230
+          ],
+          [
+            "Fleet Manager",
+            340
+          ],
+          [
+            "Fleet Owner",
+            620
+          ]
+        ],
+        "workplace": {
+          "x": -4.6,
+          "z": 0.6,
+          "label": "Vehicle handover desk"
+        }
+      },
+      "fisher": {
+        "name": "Fishing",
+        "ic": "icon:sailboat",
+        "at": "canoes",
+        "skill": "fitness",
+        "days": [
+          0,
+          1,
+          3,
+          4,
+          5,
+          6
+        ],
+        "ranks": [
+          [
+            "Deckhand",
+            60
+          ],
+          [
+            "Net Mender",
+            90
+          ],
+          [
+            "Canoe Crew",
+            140
+          ],
+          [
+            "Canoe Captain",
+            230
+          ],
+          [
+            "Chief Fisherman",
+            410
+          ]
+        ],
+        "workplace": {
+          "x": 2.6,
+          "z": -1.2,
+          "label": "Net preparation station"
+        }
+      },
+      "fashion": {
+        "name": "Fashion",
+        "ic": "icon:circle",
+        "at": "kantamanto",
+        "skill": "photo",
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "ranks": [
+          [
+            "Apprentice",
+            55
+          ],
+          [
+            "Seamstress",
+            100
+          ],
+          [
+            "Master Tailor",
+            170
+          ],
+          [
+            "Designer",
+            310
+          ],
+          [
+            "Fashion House Owner",
+            620
+          ]
+        ],
+        "workplace": {
+          "x": 1.7,
+          "z": 0.5,
+          "label": "Garment finishing table"
+        }
+      },
+      "pastor": {
+        "name": "Ministry",
+        "ic": "icon:church",
+        "at": "church",
+        "skill": "charisma",
+        "days": [
+          0,
+          3,
+          5
+        ],
+        "ranks": [
+          [
+            "Usher",
+            50
+          ],
+          [
+            "Choir Member",
+            90
+          ],
+          [
+            "Deacon",
+            160
+          ],
+          [
+            "Associate Pastor",
+            320
+          ],
+          [
+            "General Overseer",
+            950
+          ]
+        ],
+        "workplace": {
+          "x": 3.8,
+          "z": -3.6,
+          "label": "Community programme desk"
+        }
+      }
+    },
+    "transport": {
+      "walk": {
+        "name": "Walk",
+        "ic": "icon:person-simple-walk",
+        "base": 0,
+        "perKm": 0,
+        "speed": 1.4,
+        "sb": 4,
+        "sk": 14,
+        "rush": 1,
+        "surge": 1,
+        "maxKm": 5,
+        "hyg": -4,
+        "energy": -3,
+        "note": "Free, slow, and you will sweat"
+      },
+      "trotro": {
+        "name": "Trotro",
+        "ic": "icon:bus",
+        "base": 5.94,
+        "perKm": 0.972,
+        "speed": 6,
+        "sb": 9,
+        "sk": 3.4,
+        "rush": 1.6,
+        "surge": 1,
+        "fun": -3,
+        "hyg": -3,
+        "mood": "trotroWahala",
+        "note": "Cheap. Waits to fill up. Traffic hits hard"
+      },
+      "okada": {
+        "name": "Okada",
+        "ic": "icon:motorcycle",
+        "base": 10,
+        "perKm": 2.2,
+        "speed": 11,
+        "sb": 3,
+        "sk": 2.1,
+        "rush": 1.05,
+        "surge": 1.2,
+        "maxKm": 15,
+        "fun": 4,
+        "risk": 0.02,
+        "note": "Fastest in traffic. Small risk"
+      },
+      "taxi": {
+        "name": "Taxi (drop)",
+        "ic": "icon:car",
+        "base": 25,
+        "perKm": 4.5,
+        "speed": 8,
+        "sb": 4,
+        "sk": 2.6,
+        "rush": 1.6,
+        "surge": 1,
+        "note": "Door to door"
+      },
+      "bolu": {
+        "name": "Bolt ride",
+        "ic": "icon:car",
+        "base": 18,
+        "perKm": 4.2,
+        "speed": 8,
+        "sb": 5,
+        "sk": 2.5,
+        "rush": 1.6,
+        "surge": 1.6,
+        "fun": 2,
+        "note": "AC. Surge pricing in rush hour"
+      },
+      "car": {
+        "name": "Own car",
+        "ic": "icon:circle",
+        "base": 0,
+        "perKm": 1.3,
+        "speed": 9,
+        "sb": 2,
+        "sk": 2.3,
+        "rush": 1.6,
+        "surge": 1,
+        "fun": 2,
+        "note": "Fuel only. Flex on them"
+      }
+    },
+    "businesses": {
+      "munishare": {
+        "name": "Share in Auntie Muni's Kaneshie waakye",
+        "ic": "icon:bowl-food",
+        "price": 4000,
+        "pay": 40,
+        "hidden": true
+      },
+      "water": {
+        "name": "Sachet water distribution",
+        "ic": "icon:circle",
+        "price": 3500,
+        "pay": 45
+      },
+      "kelewele": {
+        "name": "Kelewele stand, Oxford St",
+        "ic": "icon:circle",
+        "price": 8000,
+        "pay": 95
+      },
+      "barber": {
+        "name": "Barbering salon, Nima",
+        "ic": "icon:circle",
+        "price": 25000,
+        "pay": 230
+      },
+      "momoagent": {
+        "name": "MoMo agent kiosk",
+        "ic": "icon:circle",
+        "price": 40000,
+        "pay": 270
+      },
+      "chopbar": {
+        "name": "Chop bar, Makola",
+        "ic": "icon:bowl-food",
+        "price": 120000,
+        "pay": 880
+      },
+      "trotro": {
+        "name": "Trotro (Sprinter) \"God Dey\"",
+        "ic": "",
+        "price": 260000,
+        "pay": 560
+      },
+      "pharmacy": {
+        "name": "Pharmacy, East Legon",
+        "ic": "icon:first-aid",
+        "price": 650000,
+        "pay": 3100
+      },
+      "events": {
+        "name": "Event centre, La",
+        "ic": "icon:circle",
+        "price": 1600000,
+        "pay": 7400
+      },
+      "club": {
+        "name": "Share of Vibes Lounge",
+        "ic": "icon:circle",
+        "price": 5000000,
+        "pay": 21000
+      }
+    },
+    "origins": {
+      "hustler": {
+        "name": "Hustler",
+        "ic": "icon:briefcase",
+        "perks": [
+          "GH₵800 starting savings",
+          "Choose a room in Nima or Jamestown",
+          "Every career, business and aspiration is open"
+        ],
+        "cash": 200,
+        "momo": 600,
+        "homes": [
+          "nima",
+          "jtown"
+        ],
+        "learn": 1
+      },
+      "dbee": {
+        "name": "Dbee",
+        "ic": "icon:diamond",
+        "perks": [
+          "GH₵25,000 family savings",
+          "Choose a home in Osu, Airport Residential or East Legon",
+          "Every career, business and aspiration is open"
+        ],
+        "cash": 1000,
+        "momo": 24000,
+        "homes": [
+          "osu",
+          "airres",
+          "legon"
+        ],
+        "learn": 1
+      }
+    }
+  },
+  "economyHash": "7e1037d75374a835aab1472c515bbf9fcb3494f92319f90c5f397723f30ff832",
+  "destinationHash": "530d16ef2db699905fe5d9270dd3c452f9ccbfd05a5283d3bfa4fd428c7b7413",
+  "database": {
+    "accounts": {
+      "count": 103
+    },
+    "ad_exposures": {
+      "count": 0
+    },
+    "ad_metrics_daily": {
+      "count": 0
+    },
+    "ad_orders": {
+      "count": 0
+    },
+    "ad_placements": {
+      "count": 17
+    },
+    "ad_requests": {
+      "count": 0
+    },
+    "ad_reservations": {
+      "count": 0
+    },
+    "ads": {
+      "count": 0
+    },
+    "candidates": {
+      "count": 0
+    },
+    "credits": {
+      "count": 11
+    },
+    "dm_links": {
+      "count": 20
+    },
+    "dms": {
+      "count": 39
+    },
+    "gist": {
+      "count": 5
+    },
+    "gist_follows": {
+      "count": 0
+    },
+    "gist_likes": {
+      "count": 0
+    },
+    "homes": {
+      "count": 0
+    },
+    "intro_completions": {
+      "count": 0
+    },
+    "intro_matches": {
+      "count": 0
+    },
+    "intro_profiles": {
+      "count": 0
+    },
+    "intro_rewards": {
+      "count": 0
+    },
+    "kv": {
+      "count": 0
+    },
+    "ledger": {
+      "count": 11
+    },
+    "life_business_events": {
+      "count": 0
+    },
+    "life_businesses": {
+      "count": 0
+    },
+    "life_events": {
+      "count": 0
+    },
+    "life_listings": {
+      "count": 0
+    },
+    "life_partners": {
+      "count": 0
+    },
+    "life_relations": {
+      "count": 0
+    },
+    "life_requests": {
+      "count": 0
+    },
+    "life_shared": {
+      "count": 0
+    },
+    "life_shared_members": {
+      "count": 0
+    },
+    "objective_definitions": {
+      "count": 24
+    },
+    "objective_rewards": {
+      "count": 0
+    },
+    "payment_attempts": {
+      "count": 0
+    },
+    "payment_events": {
+      "count": 0
+    },
+    "payment_orders": {
+      "count": 0
+    },
+    "payment_receipt_outbox": {
+      "count": 0
+    },
+    "phone_games": {
+      "count": 10
+    },
+    "player_objectives": {
+      "count": 0
+    },
+    "players": {
+      "count": 103
+    },
+    "reports": {
+      "count": 6
+    },
+    "sessions": {
+      "count": 0
+    },
+    "topups": {
+      "count": 0
+    },
+    "votes": {
+      "count": 1
+    }
+  },
+  "ownership": {
+    "housed": "102",
+    "vehicles": "0",
+    "home_owners": "5",
+    "investors": "0"
+  },
+  "geography": {
+    "bounds": [
+      -28807,
+      38779,
+      -25874,
+      6192
+    ],
+    "roads": 77171,
+    "decorativeBuildings": 65560,
+    "districts": 68,
+    "source": "Existing OSM data and compiled blueprint retained"
+  },
+  "privacy": "Only aggregate ownership/table counts and public catalogue are exported. No player, session, message or payment records."
+}

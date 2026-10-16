@@ -1,0 +1,33 @@
+{
+  "coldToMapSeconds": 36.888,
+  "map": {
+    "buildings": 65560,
+    "chunks": {
+      "active": 5,
+      "cached": 5,
+      "queued": 4,
+      "generated": 5,
+      "evicted": 0,
+      "capacity": 12
+    },
+    "meshes": 2152,
+    "visibleMeshes": 373,
+    "coarseRegions": 932,
+    "geometryBytes": 68670948,
+    "readyMs": 7869.099999964237,
+    "planMs": 131.39999997615814,
+    "districts": 68,
+    "destinations": 63,
+    "adTextures": 1
+  },
+  "renderer": {
+    "calls": 64,
+    "triangles": 401772,
+    "memory": {
+      "geometries": 115,
+      "textures": 61
+    }
+  },
+  "errors": [],
+  "scope": "Local desktop SwiftShader, .5 pixel ratio and paced rendering; real timers. No phone FPS or production capacity claim."
+}
