@@ -169,7 +169,9 @@ is in [onboarding-review.md](onboarding-review.md). Phase 2 implementation and
 verification are documented in [hud-review.md](hud-review.md). Later phases require
 their own implementation milestones. Phase 3 is now implemented and reviewed in
 [city-map-review.md](city-map-review.md), with the original inventory in
-[city-map-audit.md](city-map-audit.md). Phase 4 has not begun.
+[city-map-audit.md](city-map-audit.md). Phase 4's environment implementation,
+complete scene inventory, comparison images and validation are documented in
+[environment-review.md](environment-review.md). Phase 5 has not begun.
 
 | Phase | Scope and acceptance |
 | --- | --- |

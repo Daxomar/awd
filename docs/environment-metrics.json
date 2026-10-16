@@ -1,0 +1,3775 @@
+{
+  "conditions": {
+    "baselineCommit": "bdf4c42",
+    "viewport": [
+      390,
+      844
+    ],
+    "pixelRatio": 0.7,
+    "hour": 13,
+    "renderer": "Chromium SwiftShader",
+    "physicalPhoneFps": null,
+    "syntheticRenderCoverage": true
+  },
+  "before": {
+    "home-nima": {
+      "initMs": 485.5,
+      "render": {
+        "frame": 6,
+        "calls": 117,
+        "triangles": 60722,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 120,
+        "textures": 17
+      },
+      "meshes": 119,
+      "geometryBytes": 4208660,
+      "materials": 78,
+      "textures": 15,
+      "softwareFrameMs": [
+        28.69999998807907,
+        6.400000035762787,
+        7.199999988079071,
+        7,
+        5.800000011920929
+      ]
+    },
+    "home-jtown": {
+      "initMs": 2181.5,
+      "render": {
+        "frame": 13,
+        "calls": 115,
+        "triangles": 60882,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 118,
+        "textures": 20
+      },
+      "meshes": 117,
+      "geometryBytes": 4224020,
+      "materials": 77,
+      "textures": 15,
+      "softwareFrameMs": [
+        4.799999952316284,
+        6.600000023841858,
+        9,
+        5.5,
+        4.699999988079071
+      ]
+    },
+    "home-kaneshie": {
+      "initMs": 143.69999998807907,
+      "render": {
+        "frame": 19,
+        "calls": 126,
+        "triangles": 65250,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 132,
+        "textures": 25
+      },
+      "meshes": 131,
+      "geometryBytes": 4725068,
+      "materials": 89,
+      "textures": 16,
+      "softwareFrameMs": [
+        9.900000035762787,
+        4.399999976158142,
+        3.699999988079071,
+        3.800000011920929,
+        8.400000035762787
+      ]
+    },
+    "home-labadi": {
+      "initMs": 191.0999999642372,
+      "render": {
+        "frame": 25,
+        "calls": 135,
+        "triangles": 66114,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 144,
+        "textures": 29
+      },
+      "meshes": 143,
+      "geometryBytes": 4773908,
+      "materials": 93,
+      "textures": 16,
+      "softwareFrameMs": [
+        86.69999998807907,
+        36.60000002384186,
+        3.899999976158142,
+        31.5,
+        22.80000001192093
+      ]
+    },
+    "home-osu": {
+      "initMs": 239.5999999642372,
+      "render": {
+        "frame": 31,
+        "calls": 152,
+        "triangles": 79356,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 158,
+        "textures": 35
+      },
+      "meshes": 157,
+      "geometryBytes": 6022936,
+      "materials": 106,
+      "textures": 15,
+      "softwareFrameMs": [
+        18.80000001192093,
+        4.699999988079071,
+        26.399999976158142,
+        16.200000047683716,
+        18.299999952316284
+      ]
+    },
+    "home-airres": {
+      "initMs": 248.30000001192093,
+      "render": {
+        "frame": 37,
+        "calls": 158,
+        "triangles": 81018,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 164,
+        "textures": 37
+      },
+      "meshes": 163,
+      "geometryBytes": 6127192,
+      "materials": 105,
+      "textures": 17,
+      "softwareFrameMs": [
+        4.199999988079071,
+        2314.600000023842,
+        21.799999952316284,
+        7.800000011920929,
+        6.800000011920929
+      ]
+    },
+    "home-legon": {
+      "initMs": 185.30000001192093,
+      "render": {
+        "frame": 43,
+        "calls": 166,
+        "triangles": 84682,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 180,
+        "textures": 42
+      },
+      "meshes": 179,
+      "geometryBytes": 6590488,
+      "materials": 108,
+      "textures": 19,
+      "softwareFrameMs": [
+        49.89999997615814,
+        44.40000003576279,
+        28.099999964237213,
+        13.600000023841858,
+        12.599999964237213
+      ]
+    },
+    "home-trasacco": {
+      "initMs": 990.8000000119209,
+      "render": {
+        "frame": 49,
+        "calls": 192,
+        "triangles": 90258,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 202,
+        "textures": 48
+      },
+      "meshes": 201,
+      "geometryBytes": 7158232,
+      "materials": 125,
+      "textures": 20,
+      "softwareFrameMs": [
+        5,
+        5.200000047683716,
+        6,
+        4.5,
+        4.899999976158142
+      ]
+    },
+    "circle": {
+      "initMs": 10792.399999976158,
+      "render": {
+        "frame": 56,
+        "calls": 245,
+        "triangles": 279500,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 244,
+        "textures": 87
+      },
+      "meshes": 243,
+      "geometryBytes": 15728192,
+      "materials": 140,
+      "textures": 38,
+      "softwareFrameMs": [
+        97.19999998807907,
+        9,
+        9.5,
+        51.39999997615814,
+        9.600000023841858
+      ]
+    },
+    "muni": {
+      "initMs": 3242.300000011921,
+      "render": {
+        "frame": 62,
+        "calls": 121,
+        "triangles": 177471,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 171,
+        "textures": 96
+      },
+      "meshes": 132,
+      "geometryBytes": 10316974,
+      "materials": 93,
+      "textures": 21,
+      "softwareFrameMs": [
+        333.19999998807907,
+        5.5,
+        5.300000011920929,
+        5.5,
+        4.399999976158142
+      ]
+    },
+    "makola": {
+      "initMs": 646.3000000119209,
+      "render": {
+        "frame": 68,
+        "calls": 127,
+        "triangles": 171592,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 171,
+        "textures": 105
+      },
+      "meshes": 126,
+      "geometryBytes": 8137010,
+      "materials": 76,
+      "textures": 18,
+      "softwareFrameMs": [
+        5.199999988079071,
+        5,
+        4.699999988079071,
+        5,
+        5.300000011920929
+      ]
+    },
+    "kantamanto": {
+      "initMs": 718.1999999880791,
+      "render": {
+        "frame": 74,
+        "calls": 103,
+        "triangles": 121394,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 176,
+        "textures": 110
+      },
+      "meshes": 101,
+      "geometryBytes": 6711916,
+      "materials": 62,
+      "textures": 14,
+      "softwareFrameMs": [
+        5.5,
+        4.199999988079071,
+        5.200000047683716,
+        4.799999952316284,
+        4.100000023841858
+      ]
+    },
+    "chopbar": {
+      "initMs": 441.60000002384186,
+      "render": {
+        "frame": 80,
+        "calls": 136,
+        "triangles": 163514,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 219,
+        "textures": 119
+      },
+      "meshes": 143,
+      "geometryBytes": 9829876,
+      "materials": 99,
+      "textures": 16,
+      "softwareFrameMs": [
+        40.09999996423721,
+        15.5,
+        29.400000035762787,
+        8.599999964237213,
+        5.600000023841858
+      ]
+    },
+    "kenkey": {
+      "initMs": 1814.5,
+      "render": {
+        "frame": 86,
+        "calls": 93,
+        "triangles": 134759,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 200,
+        "textures": 125
+      },
+      "meshes": 98,
+      "geometryBytes": 8257974,
+      "materials": 70,
+      "textures": 15,
+      "softwareFrameMs": [
+        32.39999997615814,
+        46,
+        40.5,
+        31.100000023841858,
+        31.5
+      ]
+    },
+    "oxford": {
+      "initMs": 944.5999999642372,
+      "render": {
+        "frame": 92,
+        "calls": 127,
+        "triangles": 163282,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 243,
+        "textures": 137
+      },
+      "meshes": 125,
+      "geometryBytes": 9387104,
+      "materials": 94,
+      "textures": 18,
+      "softwareFrameMs": [
+        55.40000003576279,
+        54.5,
+        59.59999996423721,
+        32.80000001192093,
+        34.60000002384186
+      ]
+    },
+    "vibes": {
+      "initMs": 508.30000001192093,
+      "render": {
+        "frame": 98,
+        "calls": 127,
+        "triangles": 147454,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 236,
+        "textures": 144
+      },
+      "meshes": 124,
+      "geometryBytes": 6400136,
+      "materials": 82,
+      "textures": 12,
+      "softwareFrameMs": [
+        44.59999996423721,
+        34.69999998807907,
+        4.600000023841858,
+        4.299999952316284,
+        4.900000035762787
+      ]
+    },
+    "hub": {
+      "initMs": 871.5,
+      "render": {
+        "frame": 105,
+        "calls": 131,
+        "triangles": 152127,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 256,
+        "textures": 151
+      },
+      "meshes": 143,
+      "geometryBytes": 8350078,
+      "materials": 84,
+      "textures": 20,
+      "softwareFrameMs": [
+        44.69999998807907,
+        67.39999997615814,
+        36.40000003576279,
+        6.599999964237213,
+        6.199999988079071
+      ]
+    },
+    "bank": {
+      "initMs": 655.3999999761581,
+      "render": {
+        "frame": 111,
+        "calls": 122,
+        "triangles": 141906,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 240,
+        "textures": 155
+      },
+      "meshes": 121,
+      "geometryBytes": 6079720,
+      "materials": 74,
+      "textures": 15,
+      "softwareFrameMs": [
+        63.09999996423721,
+        106.5,
+        65.19999998807907,
+        30.100000023841858,
+        15.199999988079071
+      ]
+    },
+    "ridge": {
+      "initMs": 1067,
+      "render": {
+        "frame": 117,
+        "calls": 130,
+        "triangles": 150704,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 247,
+        "textures": 163
+      },
+      "meshes": 129,
+      "geometryBytes": 8517928,
+      "materials": 80,
+      "textures": 15,
+      "softwareFrameMs": [
+        41.80000001192093,
+        60.09999996423721,
+        29,
+        34.5,
+        5.199999988079071
+      ]
+    },
+    "korlebu": {
+      "initMs": 125.40000003576279,
+      "render": {
+        "frame": 123,
+        "calls": 140,
+        "triangles": 174204,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 234,
+        "textures": 168
+      },
+      "meshes": 138,
+      "geometryBytes": 10292464,
+      "materials": 82,
+      "textures": 15,
+      "softwareFrameMs": [
+        58.69999998807907,
+        62.69999998807907,
+        55.60000002384186,
+        60.19999998807907,
+        40.80000001192093
+      ]
+    },
+    "police": {
+      "initMs": 634.4000000357628,
+      "render": {
+        "frame": 129,
+        "calls": 93,
+        "triangles": 123216,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 210,
+        "textures": 174
+      },
+      "meshes": 95,
+      "geometryBytes": 6184212,
+      "materials": 67,
+      "textures": 12,
+      "softwareFrameMs": [
+        35,
+        69.89999997615814,
+        32.30000001192093,
+        8,
+        31.19999998807907
+      ]
+    },
+    "memorial": {
+      "initMs": 2055.899999976158,
+      "render": {
+        "frame": 135,
+        "calls": 115,
+        "triangles": 111526,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 241,
+        "textures": 181
+      },
+      "meshes": 117,
+      "geometryBytes": 5864844,
+      "materials": 58,
+      "textures": 12,
+      "softwareFrameMs": [
+        119,
+        33.30000001192093,
+        4.600000023841858,
+        5,
+        4.399999976158142
+      ]
+    },
+    "blackstar": {
+      "initMs": 383.80000001192093,
+      "render": {
+        "frame": 141,
+        "calls": 79,
+        "triangles": 103573,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 200,
+        "textures": 185
+      },
+      "meshes": 82,
+      "geometryBytes": 5131202,
+      "materials": 50,
+      "textures": 13,
+      "softwareFrameMs": [
+        32.5,
+        52.10000002384186,
+        81.5,
+        32.39999997615814,
+        17.19999998807907
+      ]
+    },
+    "castle": {
+      "initMs": 620.5,
+      "render": {
+        "frame": 147,
+        "calls": 88,
+        "triangles": 138942,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 209,
+        "textures": 189
+      },
+      "meshes": 90,
+      "geometryBytes": 6739328,
+      "materials": 56,
+      "textures": 11,
+      "softwareFrameMs": [
+        4.600000023841858,
+        3.300000011920929,
+        3.5,
+        3.399999976158142,
+        52.40000003576279
+      ]
+    },
+    "lighthouse": {
+      "initMs": 371.30000001192093,
+      "render": {
+        "frame": 153,
+        "calls": 91,
+        "triangles": 141508,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 201,
+        "textures": 195
+      },
+      "meshes": 91,
+      "geometryBytes": 7882648,
+      "materials": 70,
+      "textures": 14,
+      "softwareFrameMs": [
+        81.10000002384186,
+        127,
+        42.60000002384186,
+        63.89999997615814,
+        36.80000001192093
+      ]
+    },
+    "bukom": {
+      "initMs": 2114.300000011921,
+      "render": {
+        "frame": 159,
+        "calls": 96,
+        "triangles": 151928,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 207,
+        "textures": 202
+      },
+      "meshes": 92,
+      "geometryBytes": 8097572,
+      "materials": 59,
+      "textures": 14,
+      "softwareFrameMs": [
+        30.600000023841858,
+        58.69999998807907,
+        74.19999998807907,
+        32.40000003576279,
+        30.799999952316284
+      ]
+    },
+    "canoes": {
+      "initMs": 669.5,
+      "render": {
+        "frame": 165,
+        "calls": 94,
+        "triangles": 141276,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 210,
+        "textures": 205
+      },
+      "meshes": 93,
+      "geometryBytes": 7109568,
+      "materials": 61,
+      "textures": 15,
+      "softwareFrameMs": [
+        4.5,
+        4.300000011920929,
+        4.399999976158142,
+        4.700000047683716,
+        3.599999964237213
+      ]
+    },
+    "labadi": {
+      "initMs": 955.6000000238419,
+      "render": {
+        "frame": 171,
+        "calls": 147,
+        "triangles": 196844,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 265,
+        "textures": 214
+      },
+      "meshes": 146,
+      "geometryBytes": 11098712,
+      "materials": 92,
+      "textures": 21,
+      "softwareFrameMs": [
+        92.39999997615814,
+        55.19999998807907,
+        118.90000003576279,
+        26.899999976158142,
+        5.199999988079071
+      ]
+    },
+    "funeral": {
+      "initMs": 187.30000001192093,
+      "render": {
+        "frame": 178,
+        "calls": 107,
+        "triangles": 174539,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 205,
+        "textures": 222
+      },
+      "meshes": 106,
+      "geometryBytes": 8975558,
+      "materials": 72,
+      "textures": 17,
+      "softwareFrameMs": [
+        33.5,
+        33.299999952316284,
+        74.5,
+        66.90000003576279,
+        83.30000001192093
+      ]
+    },
+    "church": {
+      "initMs": 2612.399999976158,
+      "render": {
+        "frame": 184,
+        "calls": 139,
+        "triangles": 156362,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 263,
+        "textures": 228
+      },
+      "meshes": 140,
+      "geometryBytes": 8325282,
+      "materials": 75,
+      "textures": 16,
+      "softwareFrameMs": [
+        5,
+        7.100000023841858,
+        4.5,
+        3.899999976158142,
+        4
+      ]
+    },
+    "mosque": {
+      "initMs": 853.5999999642372,
+      "render": {
+        "frame": 190,
+        "calls": 101,
+        "triangles": 113934,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 229,
+        "textures": 237
+      },
+      "meshes": 102,
+      "geometryBytes": 6294136,
+      "materials": 68,
+      "textures": 15,
+      "softwareFrameMs": [
+        34.19999998807907,
+        4.700000047683716,
+        5.099999964237213,
+        4.199999988079071,
+        3.800000011920929
+      ]
+    },
+    "stadium": {
+      "initMs": 1873.6000000238419,
+      "render": {
+        "frame": 196,
+        "calls": 68,
+        "triangles": 169644,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 187,
+        "textures": 242
+      },
+      "meshes": 66,
+      "geometryBytes": 8869444,
+      "materials": 45,
+      "textures": 14,
+      "softwareFrameMs": [
+        3,
+        2.899999976158142,
+        2.800000011920929,
+        3.5,
+        2.900000035762787
+      ]
+    },
+    "viewing": {
+      "initMs": 1061.0999999642372,
+      "render": {
+        "frame": 202,
+        "calls": 98,
+        "triangles": 142082,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 225,
+        "textures": 250
+      },
+      "meshes": 99,
+      "geometryBytes": 7600646,
+      "materials": 69,
+      "textures": 15,
+      "softwareFrameMs": [
+        68.10000002384186,
+        28.099999964237213,
+        51.80000001192093,
+        50.799999952316284,
+        63.5
+      ]
+    },
+    "radio": {
+      "initMs": 4230.399999976158,
+      "render": {
+        "frame": 208,
+        "calls": 103,
+        "triangles": 152379,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 231,
+        "textures": 253
+      },
+      "meshes": 102,
+      "geometryBytes": 8592114,
+      "materials": 70,
+      "textures": 15,
+      "softwareFrameMs": [
+        56.700000047683716,
+        41,
+        17.69999998807907,
+        63.39999997615814,
+        36
+      ]
+    },
+    "mall": {
+      "initMs": 4588.600000023842,
+      "render": {
+        "frame": 214,
+        "calls": 152,
+        "triangles": 180919,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 275,
+        "textures": 261
+      },
+      "meshes": 155,
+      "geometryBytes": 10092698,
+      "materials": 88,
+      "textures": 23,
+      "softwareFrameMs": [
+        125.70000004768372,
+        3.899999976158142,
+        4.300000011920929,
+        6.399999976158142,
+        5.400000035762787
+      ]
+    },
+    "ug": {
+      "initMs": 939.6999999880791,
+      "render": {
+        "frame": 220,
+        "calls": 127,
+        "triangles": 163529,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 260,
+        "textures": 265
+      },
+      "meshes": 129,
+      "geometryBytes": 9186224,
+      "materials": 77,
+      "textures": 15,
+      "softwareFrameMs": [
+        252,
+        19.299999952316284,
+        13,
+        11.800000011920929,
+        21
+      ]
+    },
+    "airport": {
+      "initMs": 808,
+      "render": {
+        "frame": 226,
+        "calls": 96,
+        "triangles": 147895,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 215,
+        "textures": 276
+      },
+      "meshes": 93,
+      "geometryBytes": 7600774,
+      "materials": 57,
+      "textures": 16,
+      "softwareFrameMs": [
+        146,
+        5.699999988079071,
+        10.300000011920929,
+        11.399999976158142,
+        14.600000023841858
+      ]
+    },
+    "hotel": {
+      "initMs": 674.8000000119209,
+      "render": {
+        "frame": 232,
+        "calls": 142,
+        "triangles": 162023,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 262,
+        "textures": 280
+      },
+      "meshes": 140,
+      "geometryBytes": 8995500,
+      "materials": 88,
+      "textures": 20,
+      "softwareFrameMs": [
+        44,
+        72.89999997615814,
+        61.19999998807907,
+        38.80000001192093,
+        18
+      ]
+    },
+    "ama": {
+      "initMs": 491.19999998807907,
+      "render": {
+        "frame": 238,
+        "calls": 92,
+        "triangles": 200868,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 204,
+        "textures": 284
+      },
+      "meshes": 94,
+      "geometryBytes": 12218268,
+      "materials": 61,
+      "textures": 14,
+      "softwareFrameMs": [
+        58.60000002384186,
+        54.299999952316284,
+        19.400000035762787,
+        36.59999996423721,
+        59.10000002384186
+      ]
+    },
+    "cars": {
+      "initMs": 344.69999998807907,
+      "render": {
+        "frame": 244,
+        "calls": 116,
+        "triangles": 113481,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 242,
+        "textures": 286
+      },
+      "meshes": 121,
+      "geometryBytes": 5704894,
+      "materials": 71,
+      "textures": 13,
+      "softwareFrameMs": [
+        4.299999952316284,
+        5.400000035762787,
+        5.699999988079071,
+        5.699999988079071,
+        5.900000035762787
+      ]
+    },
+    "momo": {
+      "initMs": 650.7000000476837,
+      "render": {
+        "frame": 250,
+        "calls": 71,
+        "triangles": 130249,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 198,
+        "textures": 291
+      },
+      "meshes": 69,
+      "geometryBytes": 7442634,
+      "materials": 55,
+      "textures": 15,
+      "softwareFrameMs": [
+        81.69999998807907,
+        35.80000001192093,
+        37.39999997615814,
+        35.69999998807907,
+        30.400000035762787
+      ]
+    },
+    "cinema": {
+      "initMs": 1992.300000011921,
+      "render": {
+        "frame": 256,
+        "calls": 80,
+        "triangles": 55730,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 201,
+        "textures": 293
+      },
+      "meshes": 74,
+      "geometryBytes": 3669768,
+      "materials": 31,
+      "textures": 9,
+      "softwareFrameMs": [
+        33.30000001192093,
+        20.80000001192093,
+        7.5,
+        3.199999988079071,
+        24.399999976158142
+      ]
+    },
+    "court": {
+      "initMs": 25.200000047683716,
+      "render": {
+        "frame": 262,
+        "calls": 38,
+        "triangles": 33984,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 159,
+        "textures": 293
+      },
+      "meshes": 32,
+      "geometryBytes": 1582204,
+      "materials": 33,
+      "textures": 7,
+      "softwareFrameMs": [
+        57.69999998807907,
+        13.199999988079071,
+        19.900000035762787,
+        10.199999988079071,
+        2.899999976158142
+      ]
+    },
+    "aboki": {
+      "initMs": 288.60000002384186,
+      "render": {
+        "frame": 268,
+        "calls": 29,
+        "triangles": 66726,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 155,
+        "textures": 295
+      },
+      "meshes": 28,
+      "geometryBytes": 3073944,
+      "materials": 22,
+      "textures": 5,
+      "softwareFrameMs": [
+        1.399999976158142,
+        1.300000011920929,
+        24.899999976158142,
+        13.800000011920929,
+        19.30000001192093
+      ]
+    },
+    "fanyogo": {
+      "initMs": 332.5,
+      "render": {
+        "frame": 274,
+        "calls": 27,
+        "triangles": 32736,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 151,
+        "textures": 295
+      },
+      "meshes": 33,
+      "geometryBytes": 2603152,
+      "materials": 27,
+      "textures": 6,
+      "softwareFrameMs": [
+        1.9000000357627869,
+        1.899999976158142,
+        18.5,
+        17.30000001192093,
+        34.09999996423721
+      ]
+    },
+    "restaurant": {
+      "initMs": 69.80000001192093,
+      "render": {
+        "frame": 280,
+        "calls": 42,
+        "triangles": 60070,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 154,
+        "textures": 296
+      },
+      "meshes": 39,
+      "geometryBytes": 4106812,
+      "materials": 34,
+      "textures": 6,
+      "softwareFrameMs": [
+        4.099999964237213,
+        2.100000023841858,
+        2,
+        1.699999988079071,
+        2
+      ]
+    },
+    "gymlegon": {
+      "initMs": 25.19999998807907,
+      "render": {
+        "frame": 286,
+        "calls": 35,
+        "triangles": 34814,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 144,
+        "textures": 297
+      },
+      "meshes": 29,
+      "geometryBytes": 1661884,
+      "materials": 28,
+      "textures": 5,
+      "softwareFrameMs": [
+        11,
+        18.80000001192093,
+        7,
+        10.800000011920929,
+        15.099999964237213
+      ]
+    },
+    "e-nima": {
+      "initMs": 1518.800000011921,
+      "render": {
+        "frame": 292,
+        "calls": 40,
+        "triangles": 38000,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 163,
+        "textures": 301
+      },
+      "meshes": 48,
+      "geometryBytes": 2013124,
+      "materials": 32,
+      "textures": 8,
+      "softwareFrameMs": [
+        1.699999988079071,
+        1.9000000357627869,
+        1.399999976158142,
+        1.5,
+        3.599999964237213
+      ]
+    },
+    "n-nima": {
+      "initMs": 3599.400000035763,
+      "render": {
+        "frame": 298,
+        "calls": 60,
+        "triangles": 91162,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 230,
+        "textures": 310
+      },
+      "meshes": 129,
+      "geometryBytes": 6763776,
+      "materials": 64,
+      "textures": 18,
+      "softwareFrameMs": [
+        4.599999964237213,
+        6.5,
+        42.60000002384186,
+        52.69999998807907,
+        27.600000023841858
+      ]
+    },
+    "e-jtown": {
+      "initMs": 76.09999996423721,
+      "render": {
+        "frame": 304,
+        "calls": 40,
+        "triangles": 38000,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 157,
+        "textures": 308
+      },
+      "meshes": 48,
+      "geometryBytes": 2013124,
+      "materials": 32,
+      "textures": 8,
+      "softwareFrameMs": [
+        1.600000023841858,
+        1.5999999642372131,
+        16.900000035762787,
+        1.2999999523162842,
+        1.100000023841858
+      ]
+    },
+    "n-jtown": {
+      "initMs": 65.5,
+      "render": {
+        "frame": 310,
+        "calls": 60,
+        "triangles": 91162,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 198,
+        "textures": 310
+      },
+      "meshes": 123,
+      "geometryBytes": 6561984,
+      "materials": 62,
+      "textures": 17,
+      "softwareFrameMs": [
+        3.199999988079071,
+        4.899999976158142,
+        2.899999976158142,
+        3.600000023841858,
+        2.800000011920929
+      ]
+    },
+    "e-kaneshie": {
+      "initMs": 34.80000001192093,
+      "render": {
+        "frame": 316,
+        "calls": 40,
+        "triangles": 38000,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 157,
+        "textures": 308
+      },
+      "meshes": 48,
+      "geometryBytes": 2013124,
+      "materials": 32,
+      "textures": 8,
+      "softwareFrameMs": [
+        1.699999988079071,
+        37.10000002384186,
+        17.80000001192093,
+        20.5,
+        22.30000001192093
+      ]
+    },
+    "n-kaneshie": {
+      "initMs": 97.30000001192093,
+      "render": {
+        "frame": 322,
+        "calls": 60,
+        "triangles": 91162,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 198,
+        "textures": 310
+      },
+      "meshes": 123,
+      "geometryBytes": 6561984,
+      "materials": 62,
+      "textures": 17,
+      "softwareFrameMs": [
+        2,
+        3.099999964237213,
+        3.800000011920929,
+        2.600000023841858,
+        58.299999952316284
+      ]
+    },
+    "e-labadi": {
+      "initMs": 103.09999996423721,
+      "render": {
+        "frame": 328,
+        "calls": 40,
+        "triangles": 38000,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 157,
+        "textures": 308
+      },
+      "meshes": 48,
+      "geometryBytes": 2013124,
+      "materials": 32,
+      "textures": 8,
+      "softwareFrameMs": [
+        1.800000011920929,
+        57.39999997615814,
+        14,
+        52.80000001192093,
+        6.300000011920929
+      ]
+    },
+    "n-labadi": {
+      "initMs": 67.69999998807907,
+      "render": {
+        "frame": 334,
+        "calls": 60,
+        "triangles": 91162,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 198,
+        "textures": 310
+      },
+      "meshes": 123,
+      "geometryBytes": 6561984,
+      "materials": 62,
+      "textures": 17,
+      "softwareFrameMs": [
+        2.199999988079071,
+        12.900000035762787,
+        53.40000003576279,
+        147.39999997615814,
+        3.300000011920929
+      ]
+    },
+    "e-osu": {
+      "initMs": 105,
+      "render": {
+        "frame": 340,
+        "calls": 40,
+        "triangles": 38000,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 157,
+        "textures": 308
+      },
+      "meshes": 48,
+      "geometryBytes": 2013124,
+      "materials": 32,
+      "textures": 8,
+      "softwareFrameMs": [
+        1.600000023841858,
+        1.899999976158142,
+        35.89999997615814,
+        11.300000011920929,
+        16.400000035762787
+      ]
+    },
+    "n-osu": {
+      "initMs": 68.60000002384186,
+      "render": {
+        "frame": 346,
+        "calls": 60,
+        "triangles": 91162,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 198,
+        "textures": 310
+      },
+      "meshes": 123,
+      "geometryBytes": 6561984,
+      "materials": 62,
+      "textures": 17,
+      "softwareFrameMs": [
+        3.100000023841858,
+        74.69999998807907,
+        40.89999997615814,
+        37,
+        51.5
+      ]
+    },
+    "e-airres": {
+      "initMs": 38.19999998807907,
+      "render": {
+        "frame": 353,
+        "calls": 40,
+        "triangles": 38000,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 157,
+        "textures": 308
+      },
+      "meshes": 48,
+      "geometryBytes": 2013124,
+      "materials": 32,
+      "textures": 8,
+      "softwareFrameMs": [
+        2.199999988079071,
+        1.2000000476837158,
+        4.5,
+        1.899999976158142,
+        1.800000011920929
+      ]
+    },
+    "n-airres": {
+      "initMs": 73.10000002384186,
+      "render": {
+        "frame": 359,
+        "calls": 60,
+        "triangles": 91162,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 198,
+        "textures": 310
+      },
+      "meshes": 123,
+      "geometryBytes": 6561984,
+      "materials": 62,
+      "textures": 17,
+      "softwareFrameMs": [
+        5.399999976158142,
+        47.40000003576279,
+        61.299999952316284,
+        33.60000002384186,
+        38.69999998807907
+      ]
+    },
+    "e-legon": {
+      "initMs": 92,
+      "render": {
+        "frame": 365,
+        "calls": 40,
+        "triangles": 38000,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 157,
+        "textures": 308
+      },
+      "meshes": 48,
+      "geometryBytes": 2013124,
+      "materials": 32,
+      "textures": 8,
+      "softwareFrameMs": [
+        1.699999988079071,
+        22.599999964237213,
+        31.700000047683716,
+        38.89999997615814,
+        17.5
+      ]
+    },
+    "n-legon": {
+      "initMs": 81,
+      "render": {
+        "frame": 371,
+        "calls": 60,
+        "triangles": 91162,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 198,
+        "textures": 310
+      },
+      "meshes": 123,
+      "geometryBytes": 6561984,
+      "materials": 62,
+      "textures": 17,
+      "softwareFrameMs": [
+        3.300000011920929,
+        72.10000002384186,
+        40.80000001192093,
+        64.90000003576279,
+        43.5
+      ]
+    },
+    "e-trasacco": {
+      "initMs": 100,
+      "render": {
+        "frame": 377,
+        "calls": 40,
+        "triangles": 38000,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 157,
+        "textures": 308
+      },
+      "meshes": 48,
+      "geometryBytes": 2013124,
+      "materials": 32,
+      "textures": 8,
+      "softwareFrameMs": [
+        2,
+        16.69999998807907,
+        21.80000001192093,
+        22.100000023841858,
+        45.5
+      ]
+    },
+    "n-trasacco": {
+      "initMs": 75.40000003576279,
+      "render": {
+        "frame": 383,
+        "calls": 60,
+        "triangles": 91162,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 198,
+        "textures": 310
+      },
+      "meshes": 123,
+      "geometryBytes": 6561984,
+      "materials": 62,
+      "textures": 17,
+      "softwareFrameMs": [
+        4.399999976158142,
+        11,
+        46.10000002384186,
+        2.5,
+        43.59999996423721
+      ]
+    }
+  },
+  "after": {
+    "home-nima": {
+      "initMs": 1816.3999999761581,
+      "render": {
+        "frame": 9,
+        "calls": 85,
+        "triangles": 47766,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 85,
+        "textures": 20
+      },
+      "meshes": 84,
+      "geometryBytes": 3477596,
+      "materials": 38,
+      "textures": 17,
+      "softwareFrameMs": [
+        63.40000003576279,
+        5.5,
+        7.199999988079071,
+        4.800000011920929,
+        4.300000011920929
+      ]
+    },
+    "home-jtown": {
+      "initMs": 132.69999998807907,
+      "render": {
+        "frame": 16,
+        "calls": 86,
+        "triangles": 49098,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 86,
+        "textures": 21
+      },
+      "meshes": 85,
+      "geometryBytes": 3624620,
+      "materials": 39,
+      "textures": 17,
+      "softwareFrameMs": [
+        3.399999976158142,
+        3.100000023841858,
+        3,
+        3.5,
+        5.600000023841858
+      ]
+    },
+    "home-kaneshie": {
+      "initMs": 256.60000002384186,
+      "render": {
+        "frame": 22,
+        "calls": 92,
+        "triangles": 50534,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 92,
+        "textures": 23
+      },
+      "meshes": 91,
+      "geometryBytes": 3812636,
+      "materials": 41,
+      "textures": 18,
+      "softwareFrameMs": [
+        63.30000001192093,
+        3.899999976158142,
+        4.600000023841858,
+        6.5,
+        4
+      ]
+    },
+    "home-labadi": {
+      "initMs": 236.70000004768372,
+      "render": {
+        "frame": 28,
+        "calls": 97,
+        "triangles": 51434,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 97,
+        "textures": 27
+      },
+      "meshes": 96,
+      "geometryBytes": 3900284,
+      "materials": 42,
+      "textures": 19,
+      "softwareFrameMs": [
+        6.599999964237213,
+        4.300000011920929,
+        4.100000023841858,
+        4.699999988079071,
+        4.099999964237213
+      ]
+    },
+    "home-osu": {
+      "initMs": 315.5999999642372,
+      "render": {
+        "frame": 34,
+        "calls": 112,
+        "triangles": 57920,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 112,
+        "textures": 33
+      },
+      "meshes": 111,
+      "geometryBytes": 4783624,
+      "materials": 47,
+      "textures": 20,
+      "softwareFrameMs": [
+        70.39999997615814,
+        71.39999997615814,
+        10.399999976158142,
+        9.700000047683716,
+        9.5
+      ]
+    },
+    "home-airres": {
+      "initMs": 288.69999998807907,
+      "render": {
+        "frame": 40,
+        "calls": 116,
+        "triangles": 59174,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 117,
+        "textures": 35
+      },
+      "meshes": 115,
+      "geometryBytes": 4945192,
+      "materials": 49,
+      "textures": 22,
+      "softwareFrameMs": [
+        4,
+        12.599999964237213,
+        11.699999988079071,
+        9.400000035762787,
+        10.199999988079071
+      ]
+    },
+    "home-legon": {
+      "initMs": 255.19999998807907,
+      "render": {
+        "frame": 46,
+        "calls": 127,
+        "triangles": 61660,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 128,
+        "textures": 39
+      },
+      "meshes": 126,
+      "geometryBytes": 5245048,
+      "materials": 51,
+      "textures": 24,
+      "softwareFrameMs": [
+        41.40000003576279,
+        61.69999998807907,
+        45.30000001192093,
+        30.900000035762787,
+        3.5
+      ]
+    },
+    "home-trasacco": {
+      "initMs": 305.60000002384186,
+      "render": {
+        "frame": 52,
+        "calls": 139,
+        "triangles": 69122,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 140,
+        "textures": 43
+      },
+      "meshes": 138,
+      "geometryBytes": 6176968,
+      "materials": 63,
+      "textures": 25,
+      "softwareFrameMs": [
+        4.300000011920929,
+        4.300000011920929,
+        100.69999998807907,
+        27.400000035762787,
+        4.699999988079071
+      ]
+    },
+    "circle": {
+      "initMs": 5154.699999988079,
+      "render": {
+        "frame": 59,
+        "calls": 169,
+        "triangles": 248742,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 168,
+        "textures": 78
+      },
+      "meshes": 167,
+      "geometryBytes": 13684064,
+      "materials": 79,
+      "textures": 42,
+      "softwareFrameMs": [
+        76.5,
+        7.400000035762787,
+        6.399999976158142,
+        7.399999976158142,
+        15.300000011920929
+      ]
+    },
+    "muni": {
+      "initMs": 1372.4000000357628,
+      "render": {
+        "frame": 65,
+        "calls": 100,
+        "triangles": 158239,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 133,
+        "textures": 76
+      },
+      "meshes": 94,
+      "geometryBytes": 8878270,
+      "materials": 50,
+      "textures": 21,
+      "softwareFrameMs": [
+        54.30000001192093,
+        97.5,
+        12.900000035762787,
+        5.199999988079071,
+        4.300000011920929
+      ]
+    },
+    "makola": {
+      "initMs": 965.6000000238419,
+      "render": {
+        "frame": 71,
+        "calls": 88,
+        "triangles": 167770,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 132,
+        "textures": 84
+      },
+      "meshes": 87,
+      "geometryBytes": 9051554,
+      "materials": 37,
+      "textures": 21,
+      "softwareFrameMs": [
+        70.30000001192093,
+        58.59999996423721,
+        27.19999998807907,
+        4.600000023841858,
+        4.800000011920929
+      ]
+    },
+    "kantamanto": {
+      "initMs": 938,
+      "render": {
+        "frame": 77,
+        "calls": 77,
+        "triangles": 111044,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 150,
+        "textures": 85
+      },
+      "meshes": 75,
+      "geometryBytes": 6147004,
+      "materials": 37,
+      "textures": 17,
+      "softwareFrameMs": [
+        6,
+        5.600000023841858,
+        7.099999964237213,
+        7.199999988079071,
+        5.5
+      ]
+    },
+    "chopbar": {
+      "initMs": 810,
+      "render": {
+        "frame": 83,
+        "calls": 109,
+        "triangles": 150414,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 179,
+        "textures": 87
+      },
+      "meshes": 103,
+      "geometryBytes": 9133780,
+      "materials": 52,
+      "textures": 16,
+      "softwareFrameMs": [
+        3.5,
+        3.600000023841858,
+        3.600000023841858,
+        72.39999997615814,
+        7.800000011920929
+      ]
+    },
+    "kenkey": {
+      "initMs": 902.7999999523163,
+      "render": {
+        "frame": 89,
+        "calls": 82,
+        "triangles": 117479,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 178,
+        "textures": 86
+      },
+      "meshes": 76,
+      "geometryBytes": 7017846,
+      "materials": 44,
+      "textures": 15,
+      "softwareFrameMs": [
+        27.399999976158142,
+        19.700000047683716,
+        23.599999964237213,
+        30.30000001192093,
+        21
+      ]
+    },
+    "oxford": {
+      "initMs": 1006.2000000476837,
+      "render": {
+        "frame": 95,
+        "calls": 98,
+        "triangles": 143200,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 214,
+        "textures": 97
+      },
+      "meshes": 96,
+      "geometryBytes": 8134856,
+      "materials": 60,
+      "textures": 22,
+      "softwareFrameMs": [
+        4.100000023841858,
+        83.5,
+        13.599999964237213,
+        4,
+        3.900000035762787
+      ]
+    },
+    "vibes": {
+      "initMs": 436.19999998807907,
+      "render": {
+        "frame": 101,
+        "calls": 99,
+        "triangles": 137134,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 205,
+        "textures": 96
+      },
+      "meshes": 93,
+      "geometryBytes": 5905640,
+      "materials": 50,
+      "textures": 13,
+      "softwareFrameMs": [
+        29.200000047683716,
+        33.69999998807907,
+        35,
+        41.69999998807907,
+        24.80000001192093
+      ]
+    },
+    "hub": {
+      "initMs": 799.1999999880791,
+      "render": {
+        "frame": 108,
+        "calls": 106,
+        "triangles": 140925,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 218,
+        "textures": 101
+      },
+      "meshes": 100,
+      "geometryBytes": 7557478,
+      "materials": 54,
+      "textures": 22,
+      "softwareFrameMs": [
+        35.40000003576279,
+        58.19999998807907,
+        68.19999998807907,
+        7.100000023841858,
+        12.5
+      ]
+    },
+    "bank": {
+      "initMs": 811.3000000119209,
+      "render": {
+        "frame": 114,
+        "calls": 106,
+        "triangles": 135620,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 219,
+        "textures": 97
+      },
+      "meshes": 98,
+      "geometryBytes": 5748064,
+      "materials": 50,
+      "textures": 16,
+      "softwareFrameMs": [
+        39.10000002384186,
+        149.5,
+        12.099999964237213,
+        15,
+        10.900000035762787
+      ]
+    },
+    "ridge": {
+      "initMs": 761.5,
+      "render": {
+        "frame": 120,
+        "calls": 103,
+        "triangles": 136138,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 216,
+        "textures": 100
+      },
+      "meshes": 97,
+      "geometryBytes": 7478848,
+      "materials": 51,
+      "textures": 17,
+      "softwareFrameMs": [
+        39.69999998807907,
+        41.10000002384186,
+        46.89999997615814,
+        32.80000001192093,
+        24.099999964237213
+      ]
+    },
+    "korlebu": {
+      "initMs": 115.59999996423721,
+      "render": {
+        "frame": 126,
+        "calls": 102,
+        "triangles": 152162,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 192,
+        "textures": 100
+      },
+      "meshes": 96,
+      "geometryBytes": 8757016,
+      "materials": 46,
+      "textures": 17,
+      "softwareFrameMs": [
+        34.30000001192093,
+        31.30000001192093,
+        35.19999998807907,
+        36.5,
+        40.80000001192093
+      ]
+    },
+    "police": {
+      "initMs": 731.3999999761581,
+      "render": {
+        "frame": 132,
+        "calls": 84,
+        "triangles": 120844,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 192,
+        "textures": 100
+      },
+      "meshes": 77,
+      "geometryBytes": 6028668,
+      "materials": 43,
+      "textures": 13,
+      "softwareFrameMs": [
+        3.399999976158142,
+        4.300000011920929,
+        3.5,
+        4.5,
+        3.199999988079071
+      ]
+    },
+    "memorial": {
+      "initMs": 623.3000000119209,
+      "render": {
+        "frame": 138,
+        "calls": 108,
+        "triangles": 108366,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 230,
+        "textures": 102
+      },
+      "meshes": 106,
+      "geometryBytes": 5721588,
+      "materials": 43,
+      "textures": 13,
+      "softwareFrameMs": [
+        4,
+        3.299999952316284,
+        3.400000035762787,
+        3.899999976158142,
+        3.800000011920929
+      ]
+    },
+    "blackstar": {
+      "initMs": 376,
+      "render": {
+        "frame": 144,
+        "calls": 61,
+        "triangles": 101981,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 177,
+        "textures": 103
+      },
+      "meshes": 59,
+      "geometryBytes": 5072618,
+      "materials": 33,
+      "textures": 14,
+      "softwareFrameMs": [
+        2.5,
+        25,
+        58.69999998807907,
+        33.10000002384186,
+        34.80000001192093
+      ]
+    },
+    "castle": {
+      "initMs": 779.8000000119209,
+      "render": {
+        "frame": 150,
+        "calls": 81,
+        "triangles": 128652,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 199,
+        "textures": 101
+      },
+      "meshes": 80,
+      "geometryBytes": 6043924,
+      "materials": 43,
+      "textures": 12,
+      "softwareFrameMs": [
+        3.200000047683716,
+        92.39999997615814,
+        65,
+        110.19999998807907,
+        46.19999998807907
+      ]
+    },
+    "lighthouse": {
+      "initMs": 483,
+      "render": {
+        "frame": 156,
+        "calls": 62,
+        "triangles": 132386,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 170,
+        "textures": 103
+      },
+      "meshes": 60,
+      "geometryBytes": 7366524,
+      "materials": 35,
+      "textures": 15,
+      "softwareFrameMs": [
+        45.80000001192093,
+        61.5,
+        56.09999996423721,
+        65.19999998807907,
+        46.60000002384186
+      ]
+    },
+    "bukom": {
+      "initMs": 671,
+      "render": {
+        "frame": 162,
+        "calls": 84,
+        "triangles": 143528,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 191,
+        "textures": 106
+      },
+      "meshes": 76,
+      "geometryBytes": 7607804,
+      "materials": 41,
+      "textures": 15,
+      "softwareFrameMs": [
+        38,
+        71.60000002384186,
+        65.10000002384186,
+        10.5,
+        5.299999952316284
+      ]
+    },
+    "canoes": {
+      "initMs": 836.4000000357628,
+      "render": {
+        "frame": 168,
+        "calls": 74,
+        "triangles": 138206,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 190,
+        "textures": 105
+      },
+      "meshes": 73,
+      "geometryBytes": 7161092,
+      "materials": 39,
+      "textures": 16,
+      "softwareFrameMs": [
+        3.800000011920929,
+        3.099999964237213,
+        5.400000035762787,
+        5.699999988079071,
+        4.100000023841858
+      ]
+    },
+    "labadi": {
+      "initMs": 956.8999999761581,
+      "render": {
+        "frame": 174,
+        "calls": 94,
+        "triangles": 171502,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 212,
+        "textures": 113
+      },
+      "meshes": 93,
+      "geometryBytes": 9387820,
+      "materials": 45,
+      "textures": 22,
+      "softwareFrameMs": [
+        69.69999998807907,
+        149.5999999642372,
+        48.60000002384186,
+        33,
+        3.800000011920929
+      ]
+    },
+    "funeral": {
+      "initMs": 257.19999998807907,
+      "render": {
+        "frame": 181,
+        "calls": 82,
+        "triangles": 142087,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 180,
+        "textures": 116
+      },
+      "meshes": 81,
+      "geometryBytes": 6626942,
+      "materials": 39,
+      "textures": 18,
+      "softwareFrameMs": [
+        38.19999998807907,
+        58.19999998807907,
+        48.10000002384186,
+        51.30000001192093,
+        34.299999952316284
+      ]
+    },
+    "church": {
+      "initMs": 964,
+      "render": {
+        "frame": 187,
+        "calls": 118,
+        "triangles": 145506,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 235,
+        "textures": 115
+      },
+      "meshes": 112,
+      "geometryBytes": 7607418,
+      "materials": 54,
+      "textures": 17,
+      "softwareFrameMs": [
+        90.69999998807907,
+        7.300000011920929,
+        10.699999988079071,
+        5.100000023841858,
+        4.100000023841858
+      ]
+    },
+    "mosque": {
+      "initMs": 584.0999999642372,
+      "render": {
+        "frame": 193,
+        "calls": 97,
+        "triangles": 110878,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 218,
+        "textures": 116
+      },
+      "meshes": 90,
+      "geometryBytes": 6148120,
+      "materials": 46,
+      "textures": 15,
+      "softwareFrameMs": [
+        30,
+        109.30000001192093,
+        39.5,
+        15,
+        4.5
+      ]
+    },
+    "stadium": {
+      "initMs": 683.5,
+      "render": {
+        "frame": 199,
+        "calls": 57,
+        "triangles": 148544,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 176,
+        "textures": 115
+      },
+      "meshes": 55,
+      "geometryBytes": 7319308,
+      "materials": 27,
+      "textures": 15,
+      "softwareFrameMs": [
+        4.100000023841858,
+        3,
+        2.799999952316284,
+        3,
+        2.900000035762787
+      ]
+    },
+    "viewing": {
+      "initMs": 862.6999999880791,
+      "render": {
+        "frame": 205,
+        "calls": 93,
+        "triangles": 137272,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 217,
+        "textures": 120
+      },
+      "meshes": 86,
+      "geometryBytes": 7498550,
+      "materials": 46,
+      "textures": 15,
+      "softwareFrameMs": [
+        27.299999952316284,
+        37.700000047683716,
+        33.30000001192093,
+        35.40000003576279,
+        32.5
+      ]
+    },
+    "radio": {
+      "initMs": 955.9000000357628,
+      "render": {
+        "frame": 211,
+        "calls": 93,
+        "triangles": 141065,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 216,
+        "textures": 121
+      },
+      "meshes": 86,
+      "geometryBytes": 7901202,
+      "materials": 50,
+      "textures": 16,
+      "softwareFrameMs": [
+        27.799999952316284,
+        38.5,
+        27.5,
+        25.099999964237213,
+        33.40000003576279
+      ]
+    },
+    "mall": {
+      "initMs": 679.2999999523163,
+      "render": {
+        "frame": 217,
+        "calls": 105,
+        "triangles": 156405,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 220,
+        "textures": 129
+      },
+      "meshes": 99,
+      "geometryBytes": 8352146,
+      "materials": 50,
+      "textures": 25,
+      "softwareFrameMs": [
+        34.39999997615814,
+        83.90000003576279,
+        37,
+        25.80000001192093,
+        40.5
+      ]
+    },
+    "ug": {
+      "initMs": 1130.9000000357628,
+      "render": {
+        "frame": 223,
+        "calls": 102,
+        "triangles": 146063,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 227,
+        "textures": 126
+      },
+      "meshes": 95,
+      "geometryBytes": 8003288,
+      "materials": 50,
+      "textures": 17,
+      "softwareFrameMs": [
+        3.699999988079071,
+        115.60000002384186,
+        11.699999988079071,
+        22.600000023841858,
+        26.399999976158142
+      ]
+    },
+    "airport": {
+      "initMs": 717.5999999642372,
+      "render": {
+        "frame": 229,
+        "calls": 83,
+        "triangles": 139567,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 199,
+        "textures": 127
+      },
+      "meshes": 76,
+      "geometryBytes": 7143286,
+      "materials": 39,
+      "textures": 16,
+      "softwareFrameMs": [
+        28.5,
+        24.200000047683716,
+        30.099999964237213,
+        21.400000035762787,
+        15.799999952316284
+      ]
+    },
+    "hotel": {
+      "initMs": 689.3999999761581,
+      "render": {
+        "frame": 235,
+        "calls": 122,
+        "triangles": 141259,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 239,
+        "textures": 131
+      },
+      "meshes": 116,
+      "geometryBytes": 7616244,
+      "materials": 65,
+      "textures": 21,
+      "softwareFrameMs": [
+        37.69999998807907,
+        34.19999998807907,
+        38.60000002384186,
+        61,
+        24.799999952316284
+      ]
+    },
+    "ama": {
+      "initMs": 422.30000001192093,
+      "render": {
+        "frame": 241,
+        "calls": 89,
+        "triangles": 166908,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 192,
+        "textures": 128
+      },
+      "meshes": 82,
+      "geometryBytes": 9622788,
+      "materials": 43,
+      "textures": 15,
+      "softwareFrameMs": [
+        29.30000001192093,
+        33.10000002384186,
+        23.399999976158142,
+        31.19999998807907,
+        29.700000047683716
+      ]
+    },
+    "cars": {
+      "initMs": 308.39999997615814,
+      "render": {
+        "frame": 247,
+        "calls": 114,
+        "triangles": 107821,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 229,
+        "textures": 128
+      },
+      "meshes": 108,
+      "geometryBytes": 5412838,
+      "materials": 56,
+      "textures": 15,
+      "softwareFrameMs": [
+        33.5,
+        49,
+        32.19999998807907,
+        19.100000023841858,
+        7.399999976158142
+      ]
+    },
+    "momo": {
+      "initMs": 738.7000000476837,
+      "render": {
+        "frame": 253,
+        "calls": 55,
+        "triangles": 114007,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 182,
+        "textures": 137
+      },
+      "meshes": 53,
+      "geometryBytes": 6317826,
+      "materials": 34,
+      "textures": 19,
+      "softwareFrameMs": [
+        27.69999998807907,
+        23.19999998807907,
+        23.100000023841858,
+        33.60000002384186,
+        8.699999988079071
+      ]
+    },
+    "cinema": {
+      "initMs": 81.79999995231628,
+      "render": {
+        "frame": 259,
+        "calls": 59,
+        "triangles": 43250,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 180,
+        "textures": 130
+      },
+      "meshes": 53,
+      "geometryBytes": 2889984,
+      "materials": 27,
+      "textures": 10,
+      "softwareFrameMs": [
+        2.300000011920929,
+        2.199999988079071,
+        1.699999988079071,
+        1.800000011920929,
+        1.9000000357627869
+      ]
+    },
+    "court": {
+      "initMs": 40.59999996423721,
+      "render": {
+        "frame": 265,
+        "calls": 38,
+        "triangles": 34056,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 160,
+        "textures": 127
+      },
+      "meshes": 32,
+      "geometryBytes": 1725028,
+      "materials": 27,
+      "textures": 8,
+      "softwareFrameMs": [
+        1,
+        0.699999988079071,
+        0.8999999761581421,
+        0.699999988079071,
+        0.9000000357627869
+      ]
+    },
+    "aboki": {
+      "initMs": 306.7000000476837,
+      "render": {
+        "frame": 271,
+        "calls": 29,
+        "triangles": 68240,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 156,
+        "textures": 130
+      },
+      "meshes": 28,
+      "geometryBytes": 3541272,
+      "materials": 18,
+      "textures": 8,
+      "softwareFrameMs": [
+        1.699999988079071,
+        1.5999999642372131,
+        1.5,
+        1.600000023841858,
+        1.399999976158142
+      ]
+    },
+    "fanyogo": {
+      "initMs": 396.19999998807907,
+      "render": {
+        "frame": 277,
+        "calls": 26,
+        "triangles": 35210,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 152,
+        "textures": 128
+      },
+      "meshes": 32,
+      "geometryBytes": 3027568,
+      "materials": 22,
+      "textures": 9,
+      "softwareFrameMs": [
+        11.599999964237213,
+        9,
+        16,
+        13.100000023841858,
+        8.199999988079071
+      ]
+    },
+    "restaurant": {
+      "initMs": 82.19999998807907,
+      "render": {
+        "frame": 283,
+        "calls": 41,
+        "triangles": 46928,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 152,
+        "textures": 129
+      },
+      "meshes": 35,
+      "geometryBytes": 3397084,
+      "materials": 26,
+      "textures": 7,
+      "softwareFrameMs": [
+        10.800000011920929,
+        20.30000001192093,
+        11.799999952316284,
+        14,
+        17.100000023841858
+      ]
+    },
+    "gymlegon": {
+      "initMs": 41.69999998807907,
+      "render": {
+        "frame": 289,
+        "calls": 35,
+        "triangles": 34274,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 146,
+        "textures": 129
+      },
+      "meshes": 29,
+      "geometryBytes": 1756324,
+      "materials": 23,
+      "textures": 6,
+      "softwareFrameMs": [
+        23.399999976158142,
+        18.099999964237213,
+        11,
+        10.5,
+        1.600000023841858
+      ]
+    },
+    "e-nima": {
+      "initMs": 96.30000001192093,
+      "render": {
+        "frame": 295,
+        "calls": 30,
+        "triangles": 42254,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 153,
+        "textures": 133
+      },
+      "meshes": 36,
+      "geometryBytes": 2832532,
+      "materials": 22,
+      "textures": 10,
+      "softwareFrameMs": [
+        0.9000000357627869,
+        0.8999999761581421,
+        0.8999999761581421,
+        51.700000047683716,
+        33.59999996423721
+      ]
+    },
+    "n-nima": {
+      "initMs": 1163,
+      "render": {
+        "frame": 301,
+        "calls": 66,
+        "triangles": 94812,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 204,
+        "textures": 135
+      },
+      "meshes": 99,
+      "geometryBytes": 6453576,
+      "materials": 42,
+      "textures": 19,
+      "softwareFrameMs": [
+        3.600000023841858,
+        3.199999988079071,
+        2.800000011920929,
+        2.899999976158142,
+        3
+      ]
+    },
+    "e-jtown": {
+      "initMs": 179.89999997615814,
+      "render": {
+        "frame": 307,
+        "calls": 32,
+        "triangles": 41766,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 149,
+        "textures": 132
+      },
+      "meshes": 38,
+      "geometryBytes": 2766628,
+      "materials": 24,
+      "textures": 12,
+      "softwareFrameMs": [
+        1.800000011920929,
+        1.5,
+        1.600000023841858,
+        3.199999988079071,
+        1.600000023841858
+      ]
+    },
+    "n-jtown": {
+      "initMs": 108.39999997615814,
+      "render": {
+        "frame": 313,
+        "calls": 64,
+        "triangles": 97364,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 177,
+        "textures": 130
+      },
+      "meshes": 98,
+      "geometryBytes": 6971040,
+      "materials": 42,
+      "textures": 19,
+      "softwareFrameMs": [
+        42.80000001192093,
+        31.799999952316284,
+        30.600000023841858,
+        71.30000001192093,
+        55.90000003576279
+      ]
+    },
+    "e-kaneshie": {
+      "initMs": 153.69999998807907,
+      "render": {
+        "frame": 319,
+        "calls": 30,
+        "triangles": 40190,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 147,
+        "textures": 124
+      },
+      "meshes": 36,
+      "geometryBytes": 2560084,
+      "materials": 22,
+      "textures": 10,
+      "softwareFrameMs": [
+        1.9000000357627869,
+        1.5,
+        1.399999976158142,
+        2,
+        1.699999988079071
+      ]
+    },
+    "n-kaneshie": {
+      "initMs": 68.80000001192093,
+      "render": {
+        "frame": 325,
+        "calls": 66,
+        "triangles": 94812,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 176,
+        "textures": 124
+      },
+      "meshes": 97,
+      "geometryBytes": 6269640,
+      "materials": 41,
+      "textures": 18,
+      "softwareFrameMs": [
+        3.800000011920929,
+        2.899999976158142,
+        3,
+        2.800000011920929,
+        106.39999997615814
+      ]
+    },
+    "e-labadi": {
+      "initMs": 249.4000000357628,
+      "render": {
+        "frame": 331,
+        "calls": 31,
+        "triangles": 43130,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 148,
+        "textures": 124
+      },
+      "meshes": 37,
+      "geometryBytes": 2947420,
+      "materials": 23,
+      "textures": 11,
+      "softwareFrameMs": [
+        1.7000000476837158,
+        1.699999988079071,
+        1.300000011920929,
+        1.7999999523162842,
+        1.5
+      ]
+    },
+    "n-labadi": {
+      "initMs": 116.59999996423721,
+      "render": {
+        "frame": 337,
+        "calls": 67,
+        "triangles": 98424,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 177,
+        "textures": 123
+      },
+      "meshes": 98,
+      "geometryBytes": 7039152,
+      "materials": 42,
+      "textures": 19,
+      "softwareFrameMs": [
+        3.199999988079071,
+        2.800000011920929,
+        2.900000035762787,
+        2.599999964237213,
+        2.5
+      ]
+    },
+    "e-osu": {
+      "initMs": 131.19999998807907,
+      "render": {
+        "frame": 343,
+        "calls": 29,
+        "triangles": 39496,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 148,
+        "textures": 120
+      },
+      "meshes": 37,
+      "geometryBytes": 2651740,
+      "materials": 23,
+      "textures": 11,
+      "softwareFrameMs": [
+        2,
+        1.399999976158142,
+        1.199999988079071,
+        40.30000001192093,
+        40.30000001192093
+      ]
+    },
+    "n-osu": {
+      "initMs": 114.80000001192093,
+      "render": {
+        "frame": 349,
+        "calls": 66,
+        "triangles": 94812,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 176,
+        "textures": 119
+      },
+      "meshes": 97,
+      "geometryBytes": 6269640,
+      "materials": 41,
+      "textures": 18,
+      "softwareFrameMs": [
+        103.30000001192093,
+        20.19999998807907,
+        27.5,
+        18.600000023841858,
+        13.100000023841858
+      ]
+    },
+    "e-airres": {
+      "initMs": 97.19999998807907,
+      "render": {
+        "frame": 356,
+        "calls": 32,
+        "triangles": 41670,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 149,
+        "textures": 120
+      },
+      "meshes": 38,
+      "geometryBytes": 2753956,
+      "materials": 24,
+      "textures": 12,
+      "softwareFrameMs": [
+        1.699999988079071,
+        2,
+        1.300000011920929,
+        1.100000023841858,
+        1.5
+      ]
+    },
+    "n-airres": {
+      "initMs": 66.19999998807907,
+      "render": {
+        "frame": 362,
+        "calls": 65,
+        "triangles": 95748,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 177,
+        "textures": 116
+      },
+      "meshes": 98,
+      "geometryBytes": 6392976,
+      "materials": 42,
+      "textures": 19,
+      "softwareFrameMs": [
+        58.30000001192093,
+        43.09999996423721,
+        79.80000001192093,
+        28.900000035762787,
+        23.69999998807907
+      ]
+    },
+    "e-legon": {
+      "initMs": 127,
+      "render": {
+        "frame": 368,
+        "calls": 32,
+        "triangles": 43734,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 149,
+        "textures": 114
+      },
+      "meshes": 38,
+      "geometryBytes": 3026404,
+      "materials": 24,
+      "textures": 12,
+      "softwareFrameMs": [
+        1.699999988079071,
+        1.600000023841858,
+        1.199999988079071,
+        3.300000011920929,
+        1.699999988079071
+      ]
+    },
+    "n-legon": {
+      "initMs": 81.10000002384186,
+      "render": {
+        "frame": 374,
+        "calls": 66,
+        "triangles": 95956,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 176,
+        "textures": 115
+      },
+      "meshes": 97,
+      "geometryBytes": 6420648,
+      "materials": 41,
+      "textures": 18,
+      "softwareFrameMs": [
+        4.900000035762787,
+        82.59999996423721,
+        27.200000047683716,
+        22.399999976158142,
+        38.69999998807907
+      ]
+    },
+    "e-trasacco": {
+      "initMs": 140.19999998807907,
+      "render": {
+        "frame": 380,
+        "calls": 34,
+        "triangles": 42382,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 151,
+        "textures": 115
+      },
+      "meshes": 40,
+      "geometryBytes": 2846452,
+      "materials": 26,
+      "textures": 14,
+      "softwareFrameMs": [
+        1.7999999523162842,
+        1.4000000357627869,
+        0.800000011920929,
+        0.699999988079071,
+        0.800000011920929
+      ]
+    },
+    "n-trasacco": {
+      "initMs": 85.19999998807907,
+      "render": {
+        "frame": 386,
+        "calls": 66,
+        "triangles": 97196,
+        "points": 0,
+        "lines": 0
+      },
+      "memory": {
+        "geometries": 176,
+        "textures": 114
+      },
+      "meshes": 97,
+      "geometryBytes": 6584328,
+      "materials": 41,
+      "textures": 18,
+      "softwareFrameMs": [
+        4.400000035762787,
+        100.09999996423721,
+        26.400000035762787,
+        33.19999998807907,
+        47.80000001192093
+      ]
+    }
+  },
+  "lifecycle": {
+    "routes": true,
+    "layouts": [
+      {
+        "scene": "home",
+        "width": 375,
+        "height": 812,
+        "zoom": 31.41862105002064,
+        "player": [
+          38.011695906432685,
+          384.6926102776328
+        ],
+        "target": [
+          0,
+          0.3,
+          0
+        ]
+      },
+      {
+        "scene": "home",
+        "width": 390,
+        "height": 844,
+        "zoom": 31.400762796297627,
+        "player": [
+          39.53216374268999,
+          399.84031468873815
+        ],
+        "target": [
+          0,
+          0.3,
+          0
+        ]
+      },
+      {
+        "scene": "home",
+        "width": 430,
+        "height": 932,
+        "zoom": 31.449215422677895,
+        "player": [
+          43.58674463937614,
+          441.5675264516857
+        ],
+        "target": [
+          0,
+          0.3,
+          0
+        ]
+      },
+      {
+        "scene": "home",
+        "width": 390,
+        "height": 530,
+        "zoom": 19.71848848582671,
+        "player": [
+          39.53216374268999,
+          242.84031468873815
+        ],
+        "target": [
+          0,
+          0.3,
+          0
+        ]
+      },
+      {
+        "scene": "home",
+        "width": 844,
+        "height": 390,
+        "zoom": 19.139564466266222,
+        "player": [
+          304.1387990663409,
+          178.20059514577258
+        ],
+        "target": [
+          0,
+          0.3,
+          0
+        ]
+      },
+      {
+        "scene": "n:nima",
+        "width": 375,
+        "height": 812,
+        "zoom": 30.01706161137441,
+        "player": [
+          72.73113013049087,
+          468.2814575919872
+        ],
+        "target": [
+          0,
+          0.8,
+          4
+        ]
+      },
+      {
+        "scene": "n:nima",
+        "width": 390,
+        "height": 844,
+        "zoom": 30,
+        "player": [
+          75.6403753357105,
+          486.77271589566664
+        ],
+        "target": [
+          0,
+          0.8,
+          4
+        ]
+      },
+      {
+        "scene": "n:nima",
+        "width": 430,
+        "height": 932,
+        "zoom": 30.04629119365149,
+        "player": [
+          83.39836254962954,
+          537.4160713721453
+        ],
+        "target": [
+          0,
+          0.8,
+          4
+        ]
+      },
+      {
+        "scene": "n:nima",
+        "width": 390,
+        "height": 530,
+        "zoom": 18.838862559241704,
+        "player": [
+          75.64037533571049,
+          329.7727158956667
+        ],
+        "target": [
+          0,
+          0.8,
+          4
+        ]
+      },
+      {
+        "scene": "n:nima",
+        "width": 844,
+        "height": 390,
+        "zoom": 15.133609952870144,
+        "player": [
+          312.66522309419514,
+          254.3325461767692
+        ],
+        "target": [
+          0,
+          0.8,
+          4
+        ]
+      }
+    ],
+    "cycles": [
+      {
+        "cycle": 0,
+        "times": [
+          612.8000000119209,
+          2586.600000023842,
+          1237.199999988079,
+          478.0999999642372
+        ],
+        "memory": {
+          "geometries": 77,
+          "textures": 57
+        }
+      },
+      {
+        "cycle": 1,
+        "times": [
+          607.3999999761581,
+          631.2000000476837,
+          538.8999999761581,
+          193.69999998807907
+        ],
+        "memory": {
+          "geometries": 77,
+          "textures": 53
+        }
+      },
+      {
+        "cycle": 2,
+        "times": [
+          567,
+          835.6999999880791,
+          259.19999998807907,
+          464.9000000357628
+        ],
+        "memory": {
+          "geometries": 77,
+          "textures": 53
+        }
+      },
+      {
+        "cycle": 3,
+        "times": [
+          585.4000000357628,
+          639.6999999880791,
+          1917.7999999523163,
+          193.70000004768372
+        ],
+        "memory": {
+          "geometries": 77,
+          "textures": 53
+        }
+      },
+      {
+        "cycle": 4,
+        "times": [
+          701.6999999880791,
+          775,
+          2283.7000000476837,
+          490.89999997615814
+        ],
+        "memory": {
+          "geometries": 77,
+          "textures": 53
+        }
+      },
+      {
+        "cycle": 5,
+        "times": [
+          1139,
+          586.9000000357628,
+          258,
+          224.69999998807907
+        ],
+        "memory": {
+          "geometries": 77,
+          "textures": 53
+        }
+      },
+      {
+        "cycle": 6,
+        "times": [
+          970.1000000238419,
+          945.6000000238419,
+          397.0999999642372,
+          222
+        ],
+        "memory": {
+          "geometries": 77,
+          "textures": 53
+        }
+      },
+      {
+        "cycle": 7,
+        "times": [
+          699.8999999761581,
+          471.9000000357628,
+          611,
+          201.39999997615814
+        ],
+        "memory": {
+          "geometries": 77,
+          "textures": 53
+        }
+      },
+      {
+        "cycle": 8,
+        "times": [
+          983.8999999761581,
+          865.3000000119209,
+          447.5,
+          234.30000001192093
+        ],
+        "memory": {
+          "geometries": 77,
+          "textures": 53
+        }
+      },
+      {
+        "cycle": 9,
+        "times": [
+          656.0999999642372,
+          691.9000000357628,
+          273.30000001192093,
+          197.29999995231628
+        ],
+        "memory": {
+          "geometries": 77,
+          "textures": 53
+        }
+      }
+    ],
+    "owners": [
+      {
+        "geometries": 99,
+        "textures": 61
+      },
+      {
+        "geometries": 99,
+        "textures": 63
+      },
+      {
+        "geometries": 99,
+        "textures": 60
+      },
+      {
+        "geometries": 99,
+        "textures": 60
+      },
+      {
+        "geometries": 99,
+        "textures": 68
+      },
+      {
+        "geometries": 99,
+        "textures": 72
+      },
+      {
+        "geometries": 99,
+        "textures": 78
+      },
+      {
+        "geometries": 99,
+        "textures": 80
+      },
+      {
+        "geometries": 99,
+        "textures": 80
+      },
+      {
+        "geometries": 99,
+        "textures": 80
+      },
+      {
+        "geometries": 99,
+        "textures": 80
+      },
+      {
+        "geometries": 99,
+        "textures": 80
+      },
+      {
+        "geometries": 99,
+        "textures": 80
+      },
+      {
+        "geometries": 99,
+        "textures": 80
+      },
+      {
+        "geometries": 99,
+        "textures": 80
+      },
+      {
+        "geometries": 99,
+        "textures": 80
+      },
+      {
+        "geometries": 99,
+        "textures": 80
+      },
+      {
+        "geometries": 99,
+        "textures": 80
+      },
+      {
+        "geometries": 99,
+        "textures": 80
+      },
+      {
+        "geometries": 99,
+        "textures": 80
+      },
+      {
+        "geometries": 99,
+        "textures": 80
+      },
+      {
+        "geometries": 99,
+        "textures": 80
+      },
+      {
+        "geometries": 99,
+        "textures": 80
+      },
+      {
+        "geometries": 99,
+        "textures": 80
+      }
+    ],
+    "reducedMotion": {
+      "frozen": true,
+      "walk": true,
+      "media": true
+    },
+    "errors": []
+  },
+  "originalPropCensus": {
+    "ablution": 1,
+    "ac": 5,
+    "acoustic_panel": 2,
+    "airport_seats": 5,
+    "armchair": 5,
+    "atm": 1,
+    "awning": 1,
+    "bale": 2,
+    "ballot_box": 1,
+    "banquet_table": 2,
+    "bar_counter": 2,
+    "barrel": 3,
+    "barrier_tape": 2,
+    "bed": 5,
+    "bench_table": 6,
+    "big_screen": 12,
+    "bin": 3,
+    "board_sign": 7,
+    "bookshelf": 8,
+    "bottle_shelf": 2,
+    "bottle_table": 1,
+    "boxing_ring": 1,
+    "bucket": 4,
+    "buffet_table": 1,
+    "bunting": 6,
+    "calendar": 6,
+    "cannon": 3,
+    "canoe": 3,
+    "canopy": 3,
+    "car_display": 4,
+    "castle_wall": 2,
+    "cell_bars": 1,
+    "chair_row": 5,
+    "chest": 2,
+    "chest_freezer": 2,
+    "chop_bar_pot": 1,
+    "chop_table": 9,
+    "cinema_chair": 12,
+    "cinema_seats": 1,
+    "classroom_desk": 6,
+    "clothes_rack": 5,
+    "coal_pot": 10,
+    "coffee_table": 9,
+    "coffin": 1,
+    "consult_desk": 3,
+    "cooler": 8,
+    "counter": 6,
+    "crate_stack": 10,
+    "curtain": 3,
+    "dado": 83,
+    "dance_floor": 1,
+    "departure_board": 1,
+    "dining_table": 4,
+    "disco_ball": 1,
+    "display_case": 1,
+    "dj_booth": 2,
+    "doormat": 8,
+    "drum": 4,
+    "dumbbells": 2,
+    "excavator": 1,
+    "fish_smoker": 1,
+    "fish_tray": 2,
+    "fishing_net": 3,
+    "flag_pole": 10,
+    "floodlight": 2,
+    "floor_lamp": 9,
+    "floor_sign": 7,
+    "flower_bed": 4,
+    "food_stall": 3,
+    "fountain": 2,
+    "goalpost": 1,
+    "half_wall": 5,
+    "hawker_stand": 2,
+    "hedge": 3,
+    "hospital_bed": 5,
+    "ice_cart": 2,
+    "icecream_bicycle": 9,
+    "jerrycans": 5,
+    "kenkey_basket": 2,
+    "kerb": 4,
+    "keyboard_instrument": 1,
+    "khebab_grill": 9,
+    "kitchen_counter": 6,
+    "kite": 2,
+    "lamp_post": 40,
+    "laptop_desk": 3,
+    "lectern": 2,
+    "library_shelf": 1,
+    "lighthouse": 1,
+    "low_wall": 6,
+    "mannequin": 4,
+    "market_table": 3,
+    "mattress": 3,
+    "medicine_shelf": 2,
+    "mic_stand": 2,
+    "mihrab": 1,
+    "minbar": 1,
+    "mirror": 6,
+    "momo_kiosk": 2,
+    "notice_board": 3,
+    "offering_box": 1,
+    "palm_tree": 17,
+    "path": 2,
+    "pew": 8,
+    "phone_stall": 3,
+    "phone_table": 1,
+    "picture": 14,
+    "pitch_lines": 1,
+    "plant": 42,
+    "plastic_chair": 8,
+    "plastic_table": 5,
+    "police_desk": 1,
+    "pool": 2,
+    "portrait_stand": 1,
+    "poster": 10,
+    "pots": 2,
+    "prayer_mats": 3,
+    "pullup_bar": 1,
+    "pulpit": 1,
+    "punching_bag": 2,
+    "pure_water": 3,
+    "radio_desk": 1,
+    "reading_table": 1,
+    "reception_desk": 4,
+    "road": 2,
+    "rope": 3,
+    "rubble": 3,
+    "rug": 7,
+    "runway_window": 1,
+    "sacks": 2,
+    "sea": 2,
+    "shared_door": 11,
+    "shop_shelf": 2,
+    "shower": 5,
+    "sign_post": 3,
+    "sink_counter": 3,
+    "sofa": 11,
+    "speaker": 8,
+    "stadium_seats": 2,
+    "stage": 1,
+    "standing_fan": 8,
+    "star_arch": 1,
+    "statue": 1,
+    "steps": 1,
+    "stool": 1,
+    "street_building": 24,
+    "street_gate": 24,
+    "street_road": 16,
+    "suitcase": 2,
+    "sunbed": 4,
+    "teller_desk": 1,
+    "ticket_booth": 3,
+    "toilet": 5,
+    "toilet_booth": 3,
+    "track": 1,
+    "traffic_cone": 3,
+    "treadmill": 1,
+    "tree": 49,
+    "trotro": 2,
+    "umbrella": 14,
+    "vip_sofa": 1,
+    "voting_booth": 2,
+    "waakye_pot": 1,
+    "wall_clock": 7,
+    "wall_shelf": 4,
+    "wardrobe": 5,
+    "wash_basin": 1,
+    "water_dispenser": 6,
+    "weight_bench": 1,
+    "whiteboard": 2,
+    "window_curtain": 9,
+    "wooden_bench": 35
+  },
+  "rideStress": {
+    "results": [
+      {
+        "mode": "trotro",
+        "recycled": 2,
+        "memory": {
+          "geometries": 144,
+          "textures": 48
+        },
+        "override": false
+      },
+      {
+        "mode": "okada",
+        "recycled": 8,
+        "memory": {
+          "geometries": 161,
+          "textures": 58
+        },
+        "override": false
+      },
+      {
+        "mode": "walk",
+        "recycled": 1,
+        "memory": {
+          "geometries": 170,
+          "textures": 61
+        },
+        "override": false
+      }
+    ],
+    "errors": []
+  },
+  "gameplay": {
+    "presence": true,
+    "movement": true,
+    "cityChat": true,
+    "privateMessage": true,
+    "paidTravel": true,
+    "reloadDuringTravel": true,
+    "arrival": "circle",
+    "errors": []
+  }
+}
