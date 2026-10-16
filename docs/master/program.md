@@ -33,7 +33,7 @@ flowchart LR
 | 0 | Complete; [checkpoint](stage0/checkpoint.md) | Current tests/build, inventory, authenticated baseline, protected interfaces |
 | 1 | Complete; [checkpoint](stage1/checkpoint.md) | Authored compact presentation, dual coordinates, every destination usable, geographic mode, screenshots and resource tests |
 | 2 | Complete locally (CI pending); [checkpoint](stage2/checkpoint.md) | Finite units, legacy ownership separation, tours, persistent furnishing/renovation, primary residence, concurrent furnished resale |
-| 3 | Not started | Existing vehicle compatibility, inspection/cosmetics, secure transfer/cancellation and two-player reload proof |
+| 3 | Complete locally (CI pending); [checkpoint](stage3/checkpoint.md) | Existing vehicle compatibility, inspection/cosmetics, secure transfer/cancellation and two-player reload proof |
 | 4 | Not started | Camera preference/toggle, collision, mobile controls, doors and remote movement in actual rooms |
 | 5 | Not started | All 19 career requirements, real courses/assessments, short work, shift uniqueness, bounded auto-work; gated balance proposal |
 | 6 | Not started | Visible nonblocking HUD guidance; real consenting discovery; empty-server, block and reward replay tests |

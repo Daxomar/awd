@@ -1,0 +1,43 @@
+{
+ "checks": [
+  {
+   "ok": true,
+   "check": "seller owns a Vitz"
+  },
+  {
+   "ok": true,
+   "check": "cosmetic paint saved"
+  },
+  {
+   "ok": true,
+   "check": "car listed in escrow with its paint"
+  },
+  {
+   "ok": true,
+   "check": "listed car leaves the seller garage"
+  },
+  {
+   "ok": true,
+   "check": "buyer owns the Vitz with its gold paint"
+  },
+  {
+   "ok": true,
+   "check": "listing closed as sold to the buyer"
+  },
+  {
+   "ok": true,
+   "check": "bought car drives in its gold paint (e3-driving-gold-vitz.jpg)"
+  },
+  {
+   "ok": true,
+   "check": "seller proceeds delivered once (credit claimed)"
+  },
+  {
+   "ok": true,
+   "check": "journal: buyer -40,000 'Used Toyota Vitz', seller +40,000 'Vehicle resale', exactly once each"
+  }
+ ],
+ "price": 40000,
+ "note": "First six checks from tools/vehicle-browser-test.py; the drive step was re-captured after the script missed an already-finished ride (test timing, not a game defect).",
+ "scope": "Loopback disposable server and fixtures (car granted and buyer funded by vehicle-fixtures.js); SwiftShader screenshots, real timers."
+}

@@ -98,11 +98,21 @@
     {
       "id": "stage3",
       "owner": "claude",
-      "state": "ready",
+      "state": "merged",
       "scope": [
         "Vehicle catalogue audit, secure player-to-player vehicle marketplace"
       ],
-      "gate": "two-player resale without duplicated ownership, inventory or currency"
+      "gate": "85 server + 84 client tests, build, 8/8 PostgreSQL vehicle checks, 9/9 two-player journey E",
+      "evidence": "docs/master/stage3/checkpoint.md"
+    },
+    {
+      "id": "stage4",
+      "owner": "claude",
+      "state": "ready",
+      "scope": [
+        "Camera modes, third-person follow, collision, movement, character integration contract"
+      ],
+      "gate": "authenticated above-view and third-person movement in homes and neighbourhoods with multiplayer visibility"
     }
   ]
 }

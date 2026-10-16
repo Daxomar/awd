@@ -7,7 +7,7 @@ const paragraph=t=>h('p',null,t);
 const button=(text,fn,disabled=false)=>h('button.ibtn.wide',{onclick:fn,disabled},text);
 const field=(label,input)=>h('label',{style:{display:'block',margin:'12px 0'}},h('span',null,label),input);
 const input=(label,value,oninput,type='number')=>h('input',{'aria-label':label,type,value,min:0,step:1,style:{width:'100%'},oninput:e=>oninput(e.target.value)});
-const TITLES={business:'Your businesses',market:'Phone marketplace',relationships:'People & shared activities',finance:'Your finances',career:'Career & development'};
+const TITLES={vehicles:'Car market',business:'Your businesses',market:'Phone marketplace',relationships:'People & shared activities',finance:'Your finances',career:'Career & development'};
 
 export function lifeScreen(win,act,section,arg={}){
   let data=null,note='',waiting=false,last=null,timer,account=null,closed=false;
@@ -40,6 +40,7 @@ export function lifeScreen(win,act,section,arg={}){
     if(!data){root.append(paragraph('Loading saved life information…'));return root;}
     if(section==='business')businessUI(root);
     if(section==='market')marketUI(root);
+    if(section==='vehicles')vehicleUI(root);
     if(section==='relationships')relationshipsUI(root);
     if(section==='finance')financeUI(root);
     if(section==='career')careerUI(root);
@@ -78,6 +79,30 @@ export function lifeScreen(win,act,section,arg={}){
         field('Existing location',h('select',{'aria-label':'Business location',onchange:e=>draft.location=e.target.value,style:{width:'100%'}},...model.locations.map(id=>h('option',{value:id,selected:id===draft.location},loc(id)?.name||id)))),
         paragraph(`Startup ${cedi(model.startup)}, including ${cedi(model.reserve)} operating reserve. Stock is purchased separately. Suggested selling price ${cedi(model.price)}. Up to two businesses.`),
         button(`Create ${model.name}`,()=>send('business_create',{type:draft.type,location:draft.location}),busy())));
+    }
+  }
+  function vehicleUI(root){
+    const v=data.vehicles,swatch=hex=>h('span',{style:{display:'inline-block',width:'14px',height:'14px',borderRadius:'50%',marginRight:'6px',verticalAlign:'-2px',background:hex||'#9aa0a6',border:'1px solid #0002'}});
+    const paintName=id=>v.paints.find(x=>x.id===id)?.name||'Factory colour';
+    root.append(paragraph(v.note));
+    if(v.car){
+      const range=v.car.range;draft.carPrice??=String(Math.round(v.car.catalogue*0.6));
+      root.append(card(v.car.name,paragraph(`Catalogue price ${cedi(v.car.catalogue)} · Paint: ${paintName(v.car.style.paint)}`),
+        h('div',{role:'group','aria-label':'Car paint',style:{display:'flex',flexWrap:'wrap',gap:'8px',margin:'10px 0'}},...v.paints.map(x=>h('button.ibtn',{style:{height:'40px',fontSize:'13px'},'aria-pressed':String(v.car.style.paint===x.id),disabled:busy()||v.car.style.paint===x.id,onclick:()=>send('vehicle_paint',{paint:x.id})},swatch(x.hex),x.name))),
+        paragraph('Paint is free and cosmetic. It shows on your car when you drive and transfers if you sell.')));
+      root.append(card('Sell to another player',paragraph(`Ask between ${cedi(range.min)} and ${cedi(range.max)}. Your car waits safely in escrow for 72 hours and you can collect it any time before it sells. Fuel stays with you.`),
+        field('Asking price',input('Car asking price',draft.carPrice,v2=>draft.carPrice=v2)),
+        button('Place car in escrow',()=>send('vehicle_list',{price:Number(draft.carPrice)}),busy())));
+    }else root.append(paragraph('You do not own a car. Buy a used one below or a new one at Correct Cars.'));
+    const open=v.listings.filter(r=>r.status==='listed');
+    root.append(h('h3',{style:{margin:'18px 2px 8px'}},'Cars for sale by players'));
+    if(!open.length)root.append(paragraph('No player cars are listed right now. Listings appear here as soon as players place cars in escrow.'));
+    for(const r of v.listings){
+      const below=r.catalogue?Math.round(100-r.price/r.catalogue*100):null;
+      root.append(card(`${r.name}`,paragraph(h('span',null,swatch(v.paints.find(x=>x.id===r.style.paint)?.hex),`${paintName(r.style.paint)} · @${r.seller}`)),
+        paragraph(`${cedi(r.price)}${below>0?` · ${below}% below new`:''} · ${r.status==='sold'?'Sold':r.expired?'Expired':'Listed until '+new Date(r.expiresAt).toLocaleString()}`),
+        r.mine&&r.status==='listed'?button(r.expired?'Collect your car':'Cancel and collect your car',()=>send('vehicle_cancel',{id:r.id}),busy()||!!v.car):
+        !r.mine&&r.status==='listed'&&!r.expired?button(`Buy · ${cedi(r.price)}`,()=>send('vehicle_buy',{id:r.id}),busy()||!!v.car):null));
     }
   }
   function marketUI(root){

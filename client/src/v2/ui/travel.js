@@ -49,9 +49,9 @@ export function openPlace(id, act, options={}) {
   return sh;
 }
 // ---------- ride screen: 3D chase-cam ride (scene/ride.js) + route card + live chatter
-export function rideScreen(ui, { mode, to, from, start, end, rush, ride, look, car }) {
+export function rideScreen(ui, { mode, to, from, start, end, rush, ride, look, car, paint }) {
   const T = G.cat.transport[mode] || {}; const hh = accraClock().h;
-  ride.start({ mode, look, car, to, rush, hour: hh });
+  ride.start({ mode, look, car, paint, to, rush, hour: hh });
   const bar = h('i'); const eta = h('span.tnum');
   const ov = h('div.ridescreen', null,
     h('div.ride-top', null, h('div.row', { style: { justifyContent: 'space-between', marginBottom: '6px' } }, h('div.row', { style: { gap: '6px' } }, h('span.pill', null, T.ic || 'icon:bus', ' ', (T.name || mode).replace(' (drop)', '')), rush ? h('span.pill.rushp', null, ' Rush hour') : null), eta),

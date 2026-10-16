@@ -143,6 +143,8 @@ function building(S, kind, sd, zc, w, ry, opts) {
 
 // ------------------------------------------------------------------ vehicles
 const CAR_COL = { vitz: '#b5172b', corolla: '#c9ccd1', prado: '#1b1f27', gwagon: '#111418' };
+// Player-chosen cosmetic paint (server/src/life-vehicles.js PAINTS); 'factory' keeps CAR_COL.
+const PAINT_COL = { pearl: '#f1efe8', silver: '#c9ccd1', black: '#16191f', red: '#b5172b', gold: '#d9a521', green: '#1f6b45', blue: '#24508f' };
 function okadaMesh() { const g = new THREE.Group(); const blk = mat('#1b1b1b', { r: 0.6 }), red = mat('#c8102e', { r: 0.4, m: 0.3 }), chrome = mat('#cfd3d8', { r: 0.3, m: 0.8 });
   for (const z of [-0.68, 0.62]) { const wh = new THREE.Mesh(new THREE.TorusGeometry(0.29, 0.075, 8, 20), blk); wh.position.set(0, 0.33, z); wh.rotation.y = Math.PI / 2; g.add(wh); const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.12, 10), chrome); hub.rotation.z = Math.PI / 2; hub.position.set(0, 0.33, z); g.add(hub); }
   const box = (w, h, d, m, x, y, z, rx = 0) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); b.rotation.x = rx; g.add(b); return b; };
@@ -165,7 +167,7 @@ const TRAFFIC = ['trotro', 'trotro', 'taxi', 'taxi', 'car', 'car', 'okada', 'tro
 // ------------------------------------------------------------------ the ride scene
 export class Ride {
   constructor(stage) { this.stage = stage; this.active = false; }
-  start({ mode, look, car, to, rush, hour, onLine }) {
+  start({ mode, look, car, paint, to, rush, hour, onLine }) {
     if (this.active) this.stop();
     atlas();if(!sharedRetained){for(const m of [WIN,ROADM,DIRTM,SIGNM,BOARDM,VC])retainResource(m);sharedRetained=true;}
     this.accessoryResources=new EnvironmentResources();
@@ -191,7 +193,7 @@ export class Ride {
     this.me = new THREE.Group(); sc.add(this.me); this.meX = walk ? 5.2 : mode === 'okada' ? 0.7 : LANE; this.me.position.set(this.meX, 0, 0);
     this.people = [];
     if (walk) { this.av = new Avatar(look); this.me.add(this.av.root); this.av.root.rotation.y = Math.PI; this.av.play('walk', 0); this.people.push({ av: this.av, pose: null }); }
-    else { const v = vehicle(mode === 'bolu' ? 'car' : mode, mode === 'car' ? { color: CAR_COL[car] || '#c9ccd1' } : mode === 'bolu' ? { color: '#2b2f36' } : {}); this.me.add(v); this.veh = v;
+    else { const v = vehicle(mode === 'bolu' ? 'car' : mode, mode === 'car' ? { color: PAINT_COL[paint] || CAR_COL[car] || '#c9ccd1' } : mode === 'bolu' ? { color: '#2b2f36' } : {}); this.me.add(v); this.veh = v;
       if (mode === 'okada') { const rider = new Avatar({ body: 'm', top: '#f2b632', bottom: '#2b3a55', skinTone: 6 }); rider.root.position.set(0, 0.74, -0.12); rider.root.rotation.y = Math.PI; v.add(rider.root);
         const helmet = new THREE.Mesh(new THREE.SphereGeometry(0.15, 12, 8, 0, Math.PI * 2, 0, Math.PI * 0.6), mat('#c8102e', { r: 0.3 })); helmet.position.set(0, 0.86, 0.02); rider.root.add(helmet);
         this.av = new Avatar(look); this.av.root.position.set(0, 0.76, 0.32); this.av.root.rotation.y = Math.PI; v.add(this.av.root); this.people.push({ av: rider, pose: 'sit' }, { av: this.av, pose: 'sit' }); }

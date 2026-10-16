@@ -9,12 +9,13 @@ import {migrateBusinesses,businessesView,businessAction,refreshBusinessAssets} f
 import {migrateCommerce,marketView,commerceAction} from './life-commerce.js';
 import {migrateRelationships,socialView,socialAction,settleShared} from './life-social.js';
 import {propertyService} from './properties.js';
+import {migrateVehicles,vehicleAction,vehicleView} from './life-vehicles.js';
 import {prepareProperty} from './property-context.js';
 export {propertyService};
 
-export async function migrateLife(){await migrateBusinesses(pool);await migrateCommerce(pool);await migrateRelationships(pool);await propertyService.migrate();}
+export async function migrateLife(){await migrateBusinesses(pool);await migrateCommerce(pool);await migrateRelationships(pool);await propertyService.migrate();await migrateVehicles(pool);}
 const SOCIAL_OPS=new Set(['friend_request','friend_answer','friend_remove','date_request','date_answer','propose_request','relationship_end','social_basic','shared_invite','shared_answer']);
-const SECTIONS=new Set(['career','business','finance','market','relationships','properties']);
+const SECTIONS=new Set(['career','business','finance','market','relationships','properties','vehicles']);
 export async function status(p,section,options={}){
   if(!SECTIONS.has(section))throw Error('Choose a life screen.');
   const data=await withMoney(p,async(db,s)=>{
@@ -23,6 +24,7 @@ export async function status(p,section,options={}){
     if(section==='finance')data.finance=await financeView(db,p.acct,s);
     if(section==='market'){data.market=await marketView(db,p.acct);data.phoneNames=Object.fromEntries(Object.entries(Game.PHONES).map(([id,x])=>[id,x[0]]));}
     if(section==='relationships')data.relationships=await socialView(db,p,s);
+    if(section==='vehicles')data.vehicles=await vehicleView(db,p.acct,s);
     if(section==='properties')data.properties=await propertyService.status(db,p.acct,Date.now(),{unit:options.unit});
     return data;
   });
@@ -53,6 +55,7 @@ export async function handle(shard,p,msg){
       let result;
       if(msg.op.startsWith('business_')){result=await businessAction(db,s,p.acct,msg,now);await refreshBusinessAssets(db,s,p.acct);}
       else if(msg.op.startsWith('market_'))result=await commerceAction(db,s,p,msg,now);
+      else if(msg.op.startsWith('vehicle_'))result=await vehicleAction(db,s,p,msg,now);
       else if(SOCIAL_OPS.has(msg.op))result=await socialAction(db,states,shard,p,msg,target,now);
       else if(msg.op.startsWith('property_')){
         propertyShadow={...p,state:s};

@@ -362,7 +362,7 @@ function bindNet() {
   net.on('busy', (m) => {
     G.state.busy = m.busy; refresh();
     if (m.busy.travel) { closeSheets(); const t = m.busy.travel; setView('room'); if (world.room) world.room.group.visible = false; hud.zones.hidden = true; world.tagsEl.hidden = true; hud.top.hidden = false; hud.chips.hidden = true;
-      if (rideEnd) { rideEnd(); rideEnd = null; } rideEnd = rideScreen(ui, { mode: t.mode, to: act._rideTo || m.busy.label.replace(/^.* to /, ''), from: G.placeName, start: m.busy.start, end: m.busy.end, rush: t.rush, ride, look: G.state.look, car: G.state.car || (G.state.rental?.until>accraNow()?G.state.rental.car:null) }); G.placeName = 'On the road'; hud.clock(); return; }
+      if (rideEnd) { rideEnd(); rideEnd = null; } rideEnd = rideScreen(ui, { mode: t.mode, to: act._rideTo || m.busy.label.replace(/^.* to /, ''), from: G.placeName, start: m.busy.start, end: m.busy.end, rush: t.rush, ride, look: G.state.look, car: G.state.car || (G.state.rental?.until>accraNow()?G.state.rental.car:null), paint: G.state.car ? G.state.carStyle?.paint : null }); G.placeName = 'On the road'; hud.clock(); return; }
     if(m.cost)world.floater(`−${cedi(m.cost)}`,true);
     toast(m.busy.label||'Activity started');
     const z = act._pending && act._pending.zone; act._pending = null;
