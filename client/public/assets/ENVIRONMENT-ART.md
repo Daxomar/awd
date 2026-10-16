@@ -1,4 +1,4 @@
-# Phase 4 environment art provenance
+# Environment art provenance — Phases 4 and 5
 
 Date: 15–16 October 2026. Cost: GH₵0.
 
@@ -19,3 +19,11 @@ metadata retains the provenance recorded in `CITY-DATA-LICENSE.md`. Character
 assets, fonts and audio retain their existing notices and were not replaced in
 Phase 4. The new screenshots show original project scenes with disposable QA
 characters and do not include production user data.
+
+Phase 5 (16 October 2026) adds original condensed street graphs, continuous road
+textures, frontage placement and segment signs in `shared/local-streets.js`,
+`scene/connected-streets.js` and `scene/street-stream.js`. These are original
+project work with the same commercial-use status described above. The local
+plans use artistic neighbourhood cues, not traced third-party street layouts.
+Existing Phase 4 building templates are reused. No external assets, recordings,
+map requests, paid service or new runtime dependency were added.

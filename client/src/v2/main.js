@@ -23,6 +23,7 @@ import { h, ic, toast, sheet, closeSheets, celebrate, cedi, vibrate, confirmBox 
 import { buildChat } from './ui/chat.js';
 import { showTutorial } from './ui/tutorial.js';
 import { buildHud } from './ui/hud.js';
+import { confirmRoomArrival } from './ui/hud-state.js';
 import { renderZones, openZone, actsFor } from './ui/venue.js';
 import { openPlace, rideScreen } from './ui/travel.js';
 import { Ride } from './scene/ride.js';
@@ -57,6 +58,7 @@ async function boot() {
   stage?.setTime(accraClock().h);
   const loop = (time) => { requestAnimationFrame(loop); if (document.hidden || time - lastFrame < frameMs - 1) return; lastFrame = time; const dt = Math.min(0.05, clock.getDelta()); tAcc += dt;
     if (backdrop) backdrop(dt); studio.update(dt); if (ride.active) ride.update(dt); else if (world && view === 'room' && !studio.open) world.update(dt); if (map && view === 'map') map.update(dt);
+    hud?.streetHint(view==='room'&&!ride.active&&!studio.open?world?.localHint():null);
     if (hud && tAcc > 0.25) { tAcc = 0; hud.progress(); if (joy) joy.hidden = view !== 'room' || ride.active || studio.open || !world || !world.room || worldBlocked(ui); }
     cityAudio.update(G.state?.place,view==='room'&&!!world?.me?.path.length,!studio.open&&!ride.active);stage.render(); };
   if(stage)requestAnimationFrame(loop);
@@ -157,7 +159,7 @@ const act = (window.__act = {
   route(zone) {
     if(G.state.busy||G.state.shift)return toast('Finish your current activity first.','bad');
     const district=/^[ne]:/.test(G.state.place)?G.state.place.slice(2):G.state.home;
-    const go=()=>{if(zone.route==='map')return act.nav('map');net.send({t:'street',to:zone.route==='estate'?'e:'+district:zone.route==='home'?'home':'n:'+district});};
+    const go=()=>{if(zone.route==='map')return act.nav('map');if(zone.destination)return openPlace(zone.destination,act,{mode:'walk'});net.send({t:'street',to:zone.route==='estate'?'e:'+district:zone.route==='home'?'home':'n:'+district});};
     const u=world.useZone(zone,go);if(u)net.send({t:'rmv',...u,zn:null});else go();
   },
   place(id) { setView('map', id); },
@@ -207,7 +209,11 @@ function drawPins() {
 function bindJoystick() {
   const knob = h('i'); const pad = h('div.joy', { 'aria-label': 'Walk' }, knob); ui.append(pad);
   let pid = null, ox = 0, oy = 0, vx = 0, vy = 0, timer = null, lastSend = 0;
-  const clampXZ = (x, z) => { const sp = world.spec; return [Math.max(-sp.w / 2 + 0.3, Math.min(sp.w / 2 - 0.3, x)), Math.max(-sp.d / 2 + 0.3, Math.min(sp.d / 2 - 0.3, z))]; };
+  const clampXZ = (x, z) => {
+    const sp=world.spec;
+    if(sp.localNetwork){const [i,j]=world.room.nearestFree(x,z);return world.room.free(i,j)?[(i+.5)*.25-sp.w/2,(j+.5)*.25-sp.d/2]:[world.me.x,world.me.z];}
+    return [Math.max(-sp.w/2+.3,Math.min(sp.w/2-.3,x)),Math.max(-sp.d/2+.3,Math.min(sp.d/2-.3,z))];
+  };
   const step = () => { const me = world.me; if(!world.room||!me||worldBlocked(ui))return; const m = Math.min(1, Math.hypot(vx, vy)); if (m < 0.15) return;
     const yaw = stage.view.yaw; const dx = Math.cos(yaw) * vx - Math.sin(yaw) * -vy, dz = -Math.sin(yaw) * vx - Math.cos(yaw) * -vy; const L = Math.hypot(dx, dz) || 1;
     const [x, z] = clampXZ(me.x + (dx / L) * 1.1 * m, me.z + (dz / L) * 1.1 * m); world.walkMe(x, z); me.speed = 1.2 + m * 0.8;
@@ -244,7 +250,12 @@ function tap(x, y) {
     return sheet(h('div.sheet-body', null, h('p.muted', null, usable ? 'Take a seat or rest here. Tap the ground to get up.' : 'Part of this place. Choose an activity below to use nearby facilities.'), usable ? h('button.btn.primary.wide', { onclick: () => { if (G.state.busy) return toast('Finish your current activity first.'); const u = world.useZone({ item: hit.index }); if (u) net.send({ t: 'rmv', ...u, zn: null }); closeSheets(); } }, 'Use ' + (rec.label || 'seat')) : null), { title: rec.label || rec.spec.kind.replace(/_/g, ' '),onclose:()=>world.clearSelection() });
   }
   if (hit.type === 'zone') return openZone(hit.zone, G.state.place, act);
-  if (hit.type === 'floor') { if (G.state.busy && !G.state.busy.travel) return toast('Stop what you’re doing first.', ''); world.walkMe(hit.x, hit.z); net.send({ t: 'rmv', x: hit.x, z: hit.z, it: null, zn: null }); }
+  if (hit.type === 'floor') {
+    if (G.state.busy && !G.state.busy.travel) return toast('Stop what you’re doing first.', '');
+    let {x,z}=hit;
+    if(world.spec.localNetwork){const [i,j]=world.room.nearestFree(x,z);if(!world.room.free(i,j))return;x=(i+.5)*.25-world.spec.w/2;z=(j+.5)*.25-world.spec.d/2;}
+    world.walkMe(x,z);net.send({t:'rmv',x,z,it:null,zn:null});
+  }
 }
 
 function adSheet(b) {
@@ -277,7 +288,7 @@ function bindNet() {
   net.on('room', (m) => {
     if (rideEnd) { rideEnd(); rideEnd = null; } hud.top.hidden = false; hud.chips.hidden = false;
     closeSheets();world.clearSelection();
-    G.room = m.key; G.place = m.place; G.placeName = m.name; G.state.place = m.place;
+    G.room = m.key; G.place = m.place; G.placeName = m.name;confirmRoomArrival(G.state,m);
     world.enter(m, fitLook(G.state.look, myFit()), G.state.name); if (world.me) { world.me.av.baseLook = G.state.look; world.me.av.fit = myFit(); } renderZones(hud.zones, world.spec, m.place, act); if (world.entry) net.send({ t: 'rmv', x: world.entry.x, z: world.entry.z, it: null, zn: null });
     if (m.gem && G.gem) world.showGem(m.gem);
     setView('room'); refresh();
@@ -286,9 +297,10 @@ function bindNet() {
     const l = loc(m.place); if (l && !isOpen(l)) toast(`${l.name} is closed right now. Come back during opening hours.`, 'bad');
   });
   setInterval(()=>{if(G.state?.place?.startsWith('e:'))net.send({t:'estate_list',area:G.state.place.slice(2),page:world.estate?.page||0});},30000);
-  let estatePanel=null;net.on('estate_list',m=>{if(world.place!=='e:'+m.area)return;world.loadEstate(m);if(estatePanel)estatePanel.remove();estatePanel=h('div.estate-panel',null,h('span',null,`${G.cat.homes[m.area].area} · ${m.total} purchased homes`),m.total===0?h('span.muted',null,'Homes appear here when players buy in this area.'):null,...(m.total>12?[h('button.btn.sm',{disabled:m.page===0,onclick:()=>net.send({t:'estate_list',area:m.area,page:m.page-1})},'Previous'),h('span',null,`${m.page+1}/${Math.ceil(m.total/12)}`),h('button.btn.sm',{disabled:(m.page+1)*12>=m.total,onclick:()=>net.send({t:'estate_list',area:m.area,page:m.page+1})},'Next')]:[]));hud.zones.append(estatePanel);});
+  let estatePanel=null;net.on('estate_list',m=>{if(world.place!=='e:'+m.area)return;world.loadEstate(m);renderZones(hud.zones,world.spec,world.place,act);if(estatePanel)estatePanel.remove();estatePanel=h('div.estate-panel',null,h('span',null,`${G.cat.homes[m.area].area} · ${m.total} purchased homes`),m.total===0?h('span.muted',null,'Homes appear here when players buy in this area.'):null,...(m.total>12?[h('button.btn.sm',{disabled:m.page===0,onclick:()=>net.send({t:'estate_list',area:m.area,page:m.page-1})},'Previous'),h('span',null,`${m.page+1}/${Math.ceil(m.total/12)}`),h('button.btn.sm',{disabled:(m.page+1)*12>=m.total,onclick:()=>net.send({t:'estate_list',area:m.area,page:m.page+1})},'Next')]:[]));hud.zones.append(estatePanel);});
   net.on('matches',m=>{if(world?.room&&(world.place==='viewing'||world.place.startsWith('n:'))){const fixture=m.matches.find(f=>f.status==='live')||m.matches[0];for(const screen of world.room.screens)if(screen.kind==='match')screen.setFixture(fixture);}if(m.state){G.state=m.state;refresh();}});
   net.on('rjoin', (m) => world.addOther(m.e)); net.on('rleave', (m) => world.removeOther(m.id)); net.on('rmv', (m) => world.moveOther(m));
+  net.on('rpos',m=>{if(world.place===m.place&&world.me&&Number.isFinite(m.x)&&Number.isFinite(m.z))world.room.placeAt('me',m.x,m.z,world.me.yaw,'stand');});
   net.on('rlook', (m) => world.restyle(m.id, m.lk));
   net.on('rst', (m) => { world.setStatus('p' + m.id, m.st); { const p = world.room && world.room.people.get('p' + m.id); if (p && (p.av.fit || null) !== (m.fit || null)) world.restyle(m.id, null, m.fit || null); } if (!m.st) { const p = world.room && world.room.people.get('p' + m.id); if (p && p.pose !== 'stand') world.room.placeAt('p' + m.id, p.x, p.z, p.yaw, 'stand'); } });
   net.on('ranim', (m) => world.animOther(m.id, m.a));

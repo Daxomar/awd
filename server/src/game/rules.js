@@ -7,6 +7,7 @@ import * as ST from './story.js';
 import * as W from './wardrobe.js';
 import { onboardingDraft, transitionOnboarding } from './onboarding.js';
 import { matchBoard, validateBet, makeBet, settleBets } from './matches.js';
+import { enterLocal, updateStreetReturn } from '../street-world.js';
 export const WARD = W;
 export const DATA = D;
 
@@ -19,9 +20,10 @@ const NEAR = 45; // metres: you must physically be at a place to use it
 const near = (p, x, z, r = NEAR) => (p.x - x) ** 2 + (p.z - z) ** 2 <= r * r;
 // v2 place model: a player is always "in" one place (a location id, 'home', 'visit:<acct>') or on the road (null).
 // Position (p.x/p.z) is kept in sync for distance-based fares.
-export function goPlace(p, place, pos) {
+export function goPlace(p, place, pos, from) {
   const s = p.state; s.place = place;
   const P = pos || (place === 'home' ? HOME_POS[s.home] : LOC[place]); if (P) { p.x = P.x; p.z = P.z; }
+  enterLocal(s,from);
 }
 export const placeName = (s, place) => (place === 'home' ? (s.home ? D.HOMES[s.home].name : 'Home') : LOC[place] ? LOC[place].name : '');
 const at = (p, id) => p.state.place === id;
@@ -349,6 +351,7 @@ export function travel(p, m, now, shard, override) {
   const fare = q.fare;
   if (fare && !pay(s, fare, `${mode.name} fare`)) return toast(`Fare is GH₵${fare}.`, 'bad');
   const secs = q.secs;
+  updateStreetReturn(s,s.place,m.to);
   s.busy = { id: 'travel', ic: mode.ic, label: `${mode.name} to ${dest.name || 'home'}`, start: now, end: now + secs * 1000, travel: { x: dest.x, z: dest.z, mode: m.mode, km, to: m.to, from: s.place, rush: q.rush } }; s.place = null;
   return { t: 'busy', busy: s.busy, cost: fare };
 }
@@ -375,7 +378,7 @@ export function tick(p, now, shard) {
   if(settleBets(s,now,(amount,label)=>earn(s,amount,label)))out.push({t:'st',state:view(s)});
   s.moodlets = s.moodlets.filter((m) => m.until > now);
   if (s.busy && now >= s.busy.end) {
-    if (s.busy.travel) { const t = s.busy.travel; s.busy = null; goPlace(p, t.to, { x: t.x, z: t.z }); const T = D.TRANSPORT[t.mode] || {}; if (T.hyg) s.n.hygiene = clamp(s.n.hygiene + T.hyg * Math.max(1, t.km)); if (T.energy) s.n.energy = clamp(s.n.energy + T.energy * t.km); if (T.fun) s.n.fun = clamp(s.n.fun + T.fun); if (t.mode === 'walk') addSkill(s, 'fitness', 0.15 * t.km); bump(s, 'travel:' + t.mode);
+    if (s.busy.travel) { const t = s.busy.travel; s.busy = null; goPlace(p, t.to, { x: t.x, z: t.z }, t.from); const T = D.TRANSPORT[t.mode] || {}; if (T.hyg) s.n.hygiene = clamp(s.n.hygiene + T.hyg * Math.max(1, t.km)); if (T.energy) s.n.energy = clamp(s.n.energy + T.energy * t.km); if (T.fun) s.n.fun = clamp(s.n.fun + T.fun); if (t.mode === 'walk') addSkill(s, 'fitness', 0.15 * t.km); bump(s, 'travel:' + t.mode);
       if (t.mode === 'okada' && Math.random() < T.risk) { s.n.energy = clamp(s.n.energy - 15); moodlet(s, 'okadacrash', -15, 6, 'Okada scrape'); out.push(toast(' The okada skidded at a junction. Small scratches, big fright. (−15 energy)', 'bad')); }
       else if (t.mode === 'trotro' && s.cash > 60 && Math.random() < 0.03) { const lost = Math.round(s.cash * 0.15); s.cash -= lost; out.push(toast(` Somebody in the trotro dipped into your pocket. −GH₵${lost} cash. Keep your money in MoMo!`, 'bad')); } out.push({ t: 'arrived', place: s.place, name: placeName(s, s.place) }); }
     else if (!s.busy.mg) out.push(finishAction(p, now));
@@ -454,7 +457,7 @@ export function onMsg(p, msg, shard, now) {
       const to=msg.to;
       const district=/^[ne]:/.test(s.place||'')?s.place.slice(2):null;
       if(s.place==='home'&&to==='n:'+s.home || district&&to==='home'&&district===s.home || district&&D.HOMES[district]&&['n:'+district,'e:'+district].includes(to)){
-        goPlace(p,to);return {t:'arrived',place:to,name:placeName(s,to),state:view(s)};
+        const from=s.place;goPlace(p,to,undefined,from);return {t:'arrived',place:to,name:placeName(s,to),state:view(s)};
       }
       return toast('Use your home door to reach your neighbourhood.','bad');
     }

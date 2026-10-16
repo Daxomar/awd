@@ -11,6 +11,7 @@ import {ballot} from './civic.js';
 import * as PhoneGames from './game/phone-games.js';
 import { loadPlayer, savePlayers, pool } from './db.js';
 import { randomUUID } from 'node:crypto';
+import { localRoomInfo, saveLocalMove } from './street-world.js';
 
 const DEV = CFG.dev;
 const GYM = new Set(['workout', 'beachworkout', 'train', 'jog', 'stadiumjog', 'spar']);
@@ -122,12 +123,13 @@ export class Shard {
     if (base.startsWith('home:')) { room = this.rooms.get(base); if (!room) this.rooms.set(base, (room = { key: base, base, members: new Set() })); }
     else for (let i = 0; i < 400 && !room; i++) { const k = base + '#' + i; const r = this.rooms.get(k); if (!r) this.rooms.set(k, (room = { key: k, base, members: new Set() })); else if (r.members.size < ROOM_CAP) room = r; }
     const custody=p.state.flags.jailUntil>Date.now();
-    p.room = room; p.rx = custody?-2.8:null; p.rz = custody?-2.4:null; p.it = null; p.zn = null;
+    const street=localRoomInfo(p.state);
+    p.room = room; p.rx = custody?-2.8:street?.x??null; p.rz = custody?-2.4:street?.z??null; p.it = null; p.zn = null;
     const people = []; for (const o of room.members) people.push(this.info(o));
     room.members.add(p); this.stats.rooms = this.rooms.size;
     let home = null; if (base.startsWith('home:')) { const ownerId = +base.slice(5); const owner = ownerId === p.acct ? p : this.byAcct(ownerId); const st = owner ? owner.state : p.state; home = { id: st.home, items: st.items, owner: owner ? owner.name : p.name, mine: ownerId === p.acct }; }
     const gem = this.gem && this.gem.place === p.state.place ? this.gemInfo() : null;
-    this.send(p, { t: 'room', key: room.key, place: p.state.place, custody, name: Game.placeName(p.state, p.state.place) || (home && `${home.owner}'s place`), people, home, gem });
+    this.send(p, { t: 'room', key: room.key, place: p.state.place, custody, name: Game.placeName(p.state, p.state.place) || (home && `${home.owner}'s place`), people, home, gem,street,streetReturn:p.state.streetReturn||null });
     this.toRoom(room, { t: 'rjoin', e: this.info(p) }, p);
   }
   leaveRoom(p) { const r = p.room; if (!r) return; r.members.delete(p); p.room = null; this.toRoom(r, { t: 'rleave', id: p.id }); if (!r.members.size) { this.rooms.delete(r.key); this.stats.rooms = this.rooms.size; } }
@@ -258,7 +260,10 @@ export class Shard {
   roomMove(p, m) {
     if (!p.room) return; const now = Date.now(); if (now - (p.mvAt || 0) < 120) return; p.mvAt = now;
     const n = (v) => (Number.isFinite(v) ? Math.max(-20, Math.min(20, Math.round(v * 100) / 100)) : null);
-    p.rx = n(m.x); p.rz = n(m.z); p.it = Number.isInteger(m.it) && m.it >= 0 && m.it < 200 ? m.it : null; if (typeof m.zn === 'string') p.zn = m.zn.slice(0, 24); else if (m.zn === null) p.zn = null;
+    const x=n(m.x),z=n(m.z);
+    if(!saveLocalMove(p.state,x,z))return this.send(p,{t:'rpos',place:p.state.place,x:p.rx,z:p.rz});
+    p.rx = x; p.rz = z;if(p.state.place?.startsWith('n:'))p.dirty=true;
+    p.it = Number.isInteger(m.it) && m.it >= 0 && m.it < 200 ? m.it : null; if (typeof m.zn === 'string') p.zn = m.zn.slice(0, 24); else if (m.zn === null) p.zn = null;
     if(p.state.flags.jailUntil>now){p.rx=Math.max(-3.6,Math.min(-2,p.rx??-2.8));p.rz=Math.max(-3,Math.min(-1.8,p.rz??-2.4));p.it=null;p.zn=null;}
     this.toRoom(p.room, { t: 'rmv', id: p.id, x: p.rx, z: p.rz, it: p.it, u: Number.isInteger(m.u) ? m.u : 0, zn: p.zn }, p);
   }

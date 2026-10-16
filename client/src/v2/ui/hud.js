@@ -14,6 +14,9 @@ export function buildHud(ui,act){
  const location=h('span.current-location'),time=h('time'),place=h('button.location-control',{'aria-label':'Current location and city map',onclick:()=>act.map()},ic('map-pin'),h('span.location-copy',null,location,population),time,ic('caret-right'));
  const offline=h('p.connection-note',{hidden:true,role:'status'},ic('wifi-slash'),'Reconnecting. Your saved life is safe.');
  const top=h('header.hud.play-hud',{'aria-label':'Player and location'},h('div.hud-surface',null,h('div.hud-top',null,identity,wallet),place),offline);
+ const streetName=h('span'),entrance=h('button.street-entrance',{hidden:true,onclick:()=>{if(nearbyZone)act.openZone(nearbyZone);}});
+ const streetRow=h('div.street-context',{hidden:true},streetName,entrance);top.querySelector('.hud-surface').append(streetRow);
+ let nearbyZone=null,streetKey='';
  const busy=h('div.busy.activity-hud',{hidden:true}),zones=h('div.zones.interaction-options'),chips=h('div.status-extras');
  const navBtn=(id,icon,label)=>h('button',{'data-nav':id,'aria-label':label,onclick:()=>act.nav(id)},ic(icon),h('span',null,label),h('span.badge',{hidden:true}));
  const nav=h('nav.nav.play-nav',{'aria-label':'Game controls'},navBtn('home','house','Home'),navBtn('map','map-trifold','Map'),navBtn('interact','hand-tap','Interact'),navBtn('chat','chat-circle-dots','Chat'),navBtn('phone','device-mobile','Phone'));
@@ -72,6 +75,10 @@ export function buildHud(ui,act){
   },
   chatLine(name,text){const line=h('div',null,h('b',null,name),text);chatlog.replaceChildren(line);setTimeout(()=>line.remove(),4500);},
   connection(m){G.connected=m.connected;if(!m.connected)G.online=null;offline.replaceChildren(ic(m.connected?'wifi-high':'wifi-slash'),m.terminal?'Session ended. Reload to sign in again.':'Reconnecting. Your saved life is safe.',...(m.terminal?[h('button',{onclick:()=>window.location.reload()},'Reload')]:[]));},
+  streetHint(info){
+   const key=info?info.name+'|'+(info.zone?.id||''):'';if(key===streetKey)return;streetKey=key;streetRow.hidden=!info;nearbyZone=info?.zone||null;
+   if(info){patch(streetName,info.name);streetName.title=info.name;entrance.hidden=!nearbyZone;if(nearbyZone){patch(entrance,nearbyZone.label);entrance.setAttribute('aria-label','Entrance: '+nearbyZone.label);}}
+  },
   openStatus,openNeed,
  };
  return H;

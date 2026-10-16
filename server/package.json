@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/index.js",
     "bots": "node loadtest/bots.js",
-    "test": "node --test loadtest/regression.test.js loadtest/phone-games.test.js loadtest/city.test.js loadtest/security.test.js loadtest/onboarding.test.js loadtest/onboarding-durability.test.js"
+    "test": "node --test loadtest/regression.test.js loadtest/phone-games.test.js loadtest/city.test.js loadtest/streets.test.js loadtest/security.test.js loadtest/onboarding.test.js loadtest/onboarding-durability.test.js"
   },
   "dependencies": {
     "ioredis": "5.4.2",

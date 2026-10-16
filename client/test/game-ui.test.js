@@ -1,7 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {needView,locationView,activityView,walletValue,moodView,zoneActions} from '../src/v2/ui/hud-state.js';
+import {needView,locationView,activityView,walletValue,moodView,zoneActions,confirmRoomArrival} from '../src/v2/ui/hud-state.js';
 import {ActivityRequests} from '../src/v2/ui/activity-requests.js';
+test('authoritative room arrival unlocks interaction before the next player-state update',()=>{
+ const state={place:null,cash:120,busy:{id:'travel',travel:{from:'oxford',to:'n:osu'},end:99999}};
+ confirmRoomArrival(state,{place:'n:osu',streetReturn:null});
+ assert.equal(activityView(state,1000),null);assert.equal(state.place,'n:osu');assert.equal(state.cash,120);
+ assert.equal(locationView(state,{locs:[{id:'n:osu',name:'Osu streets'}]}).name,'Osu streets');
+ const activity={id:'nap',start:1000,end:9000};state.busy=activity;
+ confirmRoomArrival(state,{place:'home'});assert.equal(state.busy,activity);
+});
 test('needs reflect actual values and confirmed recovery; mood and money remain real',()=>{
  assert.equal(needView(15,25).status,'critical');assert.equal(needView(30,40).status,'declining');assert.equal(needView(55,30).status,'recovering');assert.equal(needView(75,75).status,'normal');assert.equal(needView(120).value,100);
  assert.equal(walletValue({cash:200,momo:600}),800);assert.equal(walletValue({cash:175,momo:600}),775);assert.equal(moodView({mood:-22}).value,-22);

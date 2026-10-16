@@ -45,7 +45,7 @@ export function actCard(a, place, onGo) {
 export function openZone(z, place, act) {
   if(z.route){
     closeSheets();const error=h('p.context-error',{role:'alert',hidden:true});
-    const s=sheet(h('div.sheet-body',null,h('p.context-hint',null,'Move through this doorway.'),h('button.btn.primary.wide',{onclick:()=>{
+    const s=sheet(h('div.sheet-body',null,h('p.context-hint',null,z.destination?'Approach this entrance to choose walking or transport. The journey time still applies.':'Move through this doorway.'),h('button.btn.primary.wide',{onclick:()=>{
       if(G.state.busy||G.state.shift||G.connected===false){error.hidden=false;error.textContent=G.connected===false?'Reconnect before moving to another place.':'Finish your current activity first.';return;}
       s.close();act.route(z);
     }},ic('person-simple-walk'),z.label),error),{title:z.label,onclose:()=>act.clearFocus?.()});act.zoneFocus?.(z);return s;

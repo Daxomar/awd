@@ -18,11 +18,11 @@ export function quote(dest, mode) {
   return { km, fare, secs, rush, realMin, tooFar: T.maxKm ? km > T.maxKm : false };
 }
 const MODES = ['walk', 'trotro', 'okada', 'taxi', 'bolu', 'car'];
-export function openPlace(id, act) {
+export function openPlace(id, act, options={}) {
   const s = G.state; const isHome = id === 'home'; const l = isHome ? null : loc(id);
   const dest = isHome ? (s.home ? { ...G.cat.homes[s.home], name: G.cat.homes[s.home].name } : null) : l; if (!dest) return act.toast('You have no home yet. Check the Houses app.', 'bad');
   const here = s.place === id; const open = isHome || isOpen(l); const people = isHome ? 0 : G.places[id] || 0;
-  const hasCar=s.car || (s.rental?.until>accraNow()); let sel = hasCar ? 'car' : 'trotro';
+  const hasCar=s.car || (s.rental?.until>accraNow()); let sel = options.mode==='walk'?'walk':hasCar ? 'car' : 'trotro';
   const ridesEl = h('div.rides'); const goBtn = h('button.btn.primary.wide');
   const draw = () => {
     ridesEl.innerHTML = '';

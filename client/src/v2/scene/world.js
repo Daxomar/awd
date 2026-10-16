@@ -10,10 +10,13 @@ import { Avatar } from './avatars.js';
 import { G, accraNow } from '../store.js';
 import { streetSpec, extraVenue } from './neighbourhood.js';
 import { fitLook } from '../fits.js';
+import { connectedStreetSpec,streetArrivalYaw } from './connected-streets.js';
+import { nearestStreetSegment } from '../../../../shared/local-streets.js';
 
 const h = (cls, txt) => { const e = document.createElement('div'); e.className = cls; if (txt != null) e.textContent = txt; return e; };
 export class World {
   constructor(stage, tagsEl) { this.stage = stage; this.tagsEl = tagsEl; this.room = null; this.others = new Map(); this.bubbles = []; this.ray = new THREE.Raycaster(); this.v = new THREE.Vector3();
+    this.defaultYaw=stage.view.yaw;
     this.onResize=()=>{
       if(!this.room?.group.visible||this.stage.override)return;
       const zoom=this.stage.view.zoom,target=this.stage.view.target.clone(),previousFit=this.fitZoom;
@@ -32,17 +35,26 @@ export class World {
   }
   // build the room for a server 'room' message
   enter(msg, meLook, meName) {
+    const wasLocal=this.spec?.localNetwork;
     this.clear(); this.place = msg.place; this.msg = msg;this.custody=!!msg.custody;
     let spec = null;
-    if (msg.home) spec = homeSpec(msg.home.id || 'nima', msg.home.items || {}); else if(/^[ne]:/.test(msg.place)){const home=G.cat.homes[msg.place.slice(2)];spec=streetSpec(home?.area||'Accra',msg.place.startsWith('e:'));}else spec = extraVenue(msg.place)||VENUES[msg.place];
+    if (msg.home) spec = homeSpec(msg.home.id || 'nima', msg.home.items || {}); else if(msg.place.startsWith('n:'))spec=connectedStreetSpec(msg.place.slice(2),G.cat.locs);else if(msg.place.startsWith('e:')){const home=G.cat.homes[msg.place.slice(2)];spec=streetSpec(home?.area||'Accra',true);}else spec = extraVenue(msg.place)||VENUES[msg.place];
     if (!spec) spec = VENUES.circle;
     spec = structuredClone(spec);
     if(msg.home?.mine){const item=spec.items.length,sp=spec.spawn||{x:0,z:0};spec.items.push({kind:'doormat',x:sp.x,z:sp.z,label:'Home door'});spec.zones.push({id:'exit',label:'Walk outside',icon:'ph-person-simple-walk',item,acts:[],route:'neighbourhood'});}
-    if(msg.place==='n:'+G.state.home){const item=spec.items.length;spec.items.push({kind:'street_building:5,4',x:4,z:-10,label:'YOUR HOME',family:spec.environment?.family,style:spec.environment?.style,color:spec.environment?.wall||'#e5d7bf'});spec.zones.push({id:'home',label:'Go indoors',icon:'ph-house',item,acts:[],route:'home'});}
+    if(msg.place==='n:'+G.state.home){const item=spec.items.findIndex(it=>it.localHome);spec.items[item].label='HOME ENTRANCE';spec.zones.push({id:'home',label:'Go indoors',icon:'ph-house',item,acts:[],route:'home'});}
+    const returning=G.state.streetReturn;
+    if(returning?.venue===msg.place&&/^n:/.test(returning.place)&&G.cat.homes[returning.place.slice(2)]){
+      const item=spec.items.length;spec.items.push({kind:'doormat',...spec.spawn,label:'Street entrance'});
+      spec.zones.push({id:'street-return',label:'Return to '+G.cat.homes[returning.place.slice(2)].area+' streets',icon:'ph-door-open',item,acts:[],route:'venue',destination:returning.place});
+    }
+    if(msg.street&&msg.street.network===msg.place.slice(2)&&Number.isFinite(msg.street.x)&&Number.isFinite(msg.street.z))spec.spawn={x:msg.street.x,z:msg.street.z};
+    if(spec.localNetwork)this.stage.view.yaw=streetArrivalYaw(spec.localNetwork,spec.spawn,this.defaultYaw);
+    else if(wasLocal)this.stage.view.yaw=this.defaultYaw;
     this.elapsed=0;
     if(this.custody)spec.spawn={x:-2.8,z:-2.4};
     const room = (this.room = new Room(this.stage).build(spec));
-    this.fitZoom=fitRoom(this.stage, spec); if(spec.neighbourhood){this.stage.view.zoom=spec.estate?40:30;this.stage.view.target.set(0,.8,4);}this.stage.applyView(); this.baseZoom = this.stage.view.zoom; this.stage.zoomMin = this.baseZoom * 0.45; this.stage.zoomMax = this.baseZoom * 1.35;
+    this.fitZoom=fitRoom(this.stage, spec); if(spec.neighbourhood){this.stage.view.zoom=spec.localNetwork?23:40;this.stage.view.target.set(spec.spawn.x,.8,spec.spawn.z);}this.stage.applyView(); this.baseZoom = this.stage.view.zoom; this.stage.zoomMin = this.baseZoom * 0.45; this.stage.zoomMax = this.baseZoom * 1.35;
     this.stage.bounds = [-spec.w / 2, spec.w / 2, -spec.d / 2, spec.d / 2];
     this.itemZone = new Map(); for (const z of spec.zones || []) if (!this.itemZone.has(z.item)) this.itemZone.set(z.item, z);
     // A television and its sofa, or a cooker and its counter, share one activity.
@@ -57,6 +69,7 @@ export class World {
     const [fi, fj] = room.nearestFree(sp.x * 0.55 + (Math.random() - 0.5) * 2.4, sp.z * 0.55 + (Math.random() - 0.5) * 2.4); const CELL = 0.25;
     this.entry = { x: (fi + 0.5) * CELL - spec.w / 2, z: (fj + 0.5) * CELL - spec.d / 2 }; room.walkTo('me', this.entry.x, this.entry.z);
     if(this.custody){this.entry={x:sp.x,z:sp.z};room.placeAt('me',sp.x,sp.z,0,'stand');}
+    if(msg.street){this.entry={x:sp.x,z:sp.z};room.placeAt('me',sp.x,sp.z,0,'stand');}
     me.yaw = Math.PI;
     for (const e of msg.people || []) this.addOther(e);
     if (msg.gem) this.showGem(msg.gem);
@@ -85,6 +98,15 @@ export class World {
   gesture(p, a) { if (a === 'dance') { p.anim = 'dance'; clearTimeout(p.danceT); p.danceT = setTimeout(() => { p.anim = null; }, 6000); } else p.av.gesture(a === 'wave' ? 'agree' : a); }
   // ---- me ----
   get me() { return this.room && this.room.people.get('me'); }
+  localHint(){
+    const graph=this.room?.streetStream?.graph,p=this.me;if(!graph||!p)return null;
+    let zone=null,distance=2.4;
+    for(const candidate of this.spec.zones.filter(z=>z.route)){
+      const u=this.room.usePoint(this.room.items[candidate.item]),d=Math.hypot(u.x-p.x,u.z-p.z);
+      if(d<distance){distance=d;zone=candidate;}
+    }
+    return {name:nearestStreetSegment(graph,p.x,p.z).label,zone};
+  }
   walkMe(x, z, cb, finalPose) { if (!this.room) return; if(this.custody){x=Math.max(-3.6,Math.min(-2,x));z=Math.max(-3,Math.min(-1.8,z));}const p = this.me; p.anim = null; this.room.walkTo('me', x, z, cb, finalPose); }
   // walk to the zone's item and take its pose; returns {x,z,it,u}
   useZone(z, cb) {
@@ -111,6 +133,7 @@ export class World {
     this.clearSelection();if(!this.room)return;this.selectionPerson=person;
     const obj=person?this.room.people.get(person)?.av.root:this.room.items[item]?.obj;if(!obj)return;
     const box=new THREE.Box3().setFromObject(obj),center=box.getCenter(new THREE.Vector3()),size=box.getSize(new THREE.Vector3());
+    if(box.isEmpty())center.copy(obj.position);
     const radius=person ? .5 :Math.max(.45,Math.max(size.x,size.z)*.6);
     this.selection=new THREE.Mesh(new THREE.RingGeometry(radius,radius+.045,48),new THREE.MeshBasicMaterial({color:'#edc75f',transparent:true,opacity:.95,side:THREE.DoubleSide,depthWrite:false}));
     this.selection.rotation.x=-Math.PI/2;this.selection.position.set(center.x,.03,center.z);this.room.group.add(this.selection);
@@ -143,7 +166,8 @@ export class World {
   floater(text, bad) { const p = this.me; if (!p) return; const f = h('floater' + (bad ? ' bad' : ''), text); const [sx, sy] = this.screenOf(p.x, 2.0, p.z); f.style.left = sx + 'px'; f.style.top = sy + 'px'; this.tagsEl.append(f); setTimeout(() => f.remove(), 1700); }
   loadEstate(m) {
     if(this.place!=='e:'+m.area||!this.room)return;const r=this.room;for(const rec of [...r.items])if(rec.spec.owner)r.removeItem(rec);r.nav=null;
-    m.owners.forEach((owner,i)=>{const {x,z,rot}=r.spec.ownerPlots[i];r.addItem({kind:'street_building:6,4',x,z,rot,label:'@'+owner.name,owner,family:r.spec.environment?.family,style:r.spec.environment?.style,color:['#f0e6d4','#e0d2bf','#d6e1d7'][i%3]});});r.buildNav();this.estate=m;
+    r.spec.zones=r.spec.zones.filter(z=>!z.estateOwner);
+    m.owners.forEach((owner,i)=>{const {x,z,rot}=r.spec.ownerPlots[i];const rec=r.addItem({kind:'street_building:6,4',x,z,rot,label:'@'+owner.name,owner,family:r.spec.environment?.family,style:r.spec.environment?.style,color:['#f0e6d4','#e0d2bf','#d6e1d7'][i%3]});if(owner.mine&&owner.home===G.state.home)r.spec.zones.push({id:'owner-home',label:'Go indoors',icon:'ph-house',item:r.items.indexOf(rec),acts:[],route:'home',estateOwner:true});});r.buildNav();this.itemZone=new Map(r.spec.zones.map(z=>[z.item,z]));this.estate=m;
   }
   update(dt) {
     const selected=this.room?.people.get(this.selectionPerson);if(selected&&this.selection){this.selection.position.x=selected.x;this.selection.position.z=selected.z;}
@@ -151,6 +175,7 @@ export class World {
     for(const id of this.npcs){const p=this.room.people.get(id),n=p.schedule;const on=isAvailable(n.open);p.av.root.visible=on;if(p.tagEl)p.tagEl.hidden=!on;if(!on)continue;if(this.elapsed>p.nextMove){p.nextMove=this.elapsed+5+(id.length%3);if(n.patrol&&!p.path.length){const target=n.patrol[p.patrolIndex++%n.patrol.length];this.room.walkTo(id,...target);}else p.av.gesture(n.gesture||'agree');}}
     for(const r of this.room.items)if(r.spec.open)r.obj.visible=isAvailable(r.spec.open);
     this.room.update(dt);
+    if(this.me)this.room.streetStream?.update(this.me.x,this.me.z);
     if(this.spec.neighbourhood&&this.me&&this.me.path.length){this.stage.view.target.x+=(this.me.x-this.stage.view.target.x)*Math.min(1,dt*3);this.stage.view.target.z+=(this.me.z-this.stage.view.target.z)*Math.min(1,dt*3);this.stage.applyView();}
     if (this.gemObj) { this.gemObj.rotation.y += dt * 2; this.gemObj.position.y = 0.55 + Math.sin(performance.now() / 300) * 0.08; }
     for (const p of this.room.people.values()) {

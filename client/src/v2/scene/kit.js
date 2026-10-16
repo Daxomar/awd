@@ -650,6 +650,7 @@ K.fish_smoker = (o) => { const b = new B(); const cl = mat('#a8653f', { r: 0.95 
   b.add(IC(0.3, 1), mat('#d9d6d0', { op: 0.35, flat: true }), 0.1, 1.35, 0, 0, 0, 0, 1.4, 0.8, 1).userData.noShadow = true; return b.done([1.65, 0.95], [U.work(0, 0.75)]); };
 
 // friendly aliases from the brief
+K.street_surface=()=>({obj:new THREE.Group(),size:[0,0],use:[U.stand(0,0)],walkable:true});
 K.street_road = (o) => { const b=new B(), w=o.arg||34,d=o.arg2||5; b.box(w,.025,d,'#666a69');for(let x=-w/2+1;x<w/2;x+=3)b.box(1.5,.008,.08,'#eadab1',x,.03,0);for(const z of [-d/2,d/2])b.box(w,.07,.2,'#beb5a4',0,0,z);return b.done([w,d],[U.stand(0,0)],{walkable:true}); };
 K.street_building = (o) => {
   const b=new B(),w=o.arg||5,d=o.arg2||4,c=o.color||'#eadac0',style=o.style||'compound';

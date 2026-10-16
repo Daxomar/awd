@@ -9,12 +9,15 @@ import { EnvironmentResources } from './environment-resources.js';
 import { buildEnvironmentArt } from './environment-art.js';
 import { animatedScreen } from './screens.js';
 import { applyPose } from './poses.js';
+import { streetGraph, isStreetPoint } from '../../../../shared/local-streets.js';
+import { StreetStream } from './street-stream.js';
 
 const CELL = 0.25;
 export class Room {
   constructor(stage) { this.stage = stage; this.group = new THREE.Group(); stage.scene.add(this.group); this.resources=new EnvironmentResources();this.lamps=[];this.glows=[];this.motion=globalThis.matchMedia?.('(prefers-reduced-motion: reduce)');this.people = new Map(); this.items = []; this.screens=[]; this.elapsed=0; this.ray = new THREE.Raycaster(); }
   dispose() {
     if(this.disposed)return;this.disposed=true;
+    this.streetStream?.dispose();this.streetStream=null;
     for(const id of [...this.people.keys()])this.removePerson(id);
     for(const rec of this.items)rec.resources.dispose();
     this.items=[];this.screens=[];this.resources.dispose();
@@ -61,6 +64,7 @@ export class Room {
     G.traverse(o=>{for(const m of Array.isArray(o.material)?o.material:o.material?[o.material]:[])if(m.userData.environmentGlow&&!this.glows.includes(m))this.glows.push(m);});
     this.stage.environmentOutdoor=!!spec.outdoor;this.stage.setTime?.(this.stage.hour??13);
     this.buildNav();const authored=spec.spawn||{x:0,z:0};const [si,sj]=this.nearestFree(authored.x,authored.z);this.spawn=this.free(...this.cellOf(authored.x,authored.z))?{...authored}:{x:(si+.5)*CELL-w/2,z:(sj+.5)*CELL-d/2};
+    if(spec.localNetwork)this.streetStream=new StreetStream(this);
     // camera framing
     const st = this.stage; st.view.target.set(0, 0.6, 0); st.view.zoom = Math.max(w, d) * 1.05 + 2.5; st.zoomMin = 4.5; st.zoomMax = Math.max(w, d) * 1.6 + 4;
     st.bounds = [-w / 2, w / 2, -d / 2, d / 2]; st.applyView();
@@ -68,6 +72,11 @@ export class Room {
     return this;
   }
   addItem(it) {
+    if(this.spec.localNetwork&&it.segment&&it.kind==='street_building:5,4'){
+      const obj=new THREE.Group();obj.position.set(it.x,0,it.z);obj.rotation.y=it.rot||0;
+      const rec={obj,spec:it,size:[5,4],use:[{x:0,z:2.9,face:Math.PI,pose:'stand'}],acts:[],label:it.label,walkable:false,streamed:true,loaded:false,screens:[],resources:new EnvironmentResources()};
+      obj.userData.itemRef=rec;this.group.add(obj);this.items.push(rec);return rec;
+    }
     const made = makeItem(it.kind, { ...it });
     const o = made.obj; o.position.set(it.x, it.y || 0, it.z); o.rotation.y = it.rot || 0;
     o.traverse((m) => { if (m.isMesh) { m.castShadow = m.userData.noShadow ? false : true; m.receiveShadow = true; } });
@@ -82,6 +91,12 @@ export class Room {
     this.glows=this.glows.filter(m=>!rec.resources.values.has(m));rec.resources.dispose();
     this.items=this.items.filter(x=>x!==rec);this.buildNav();trimKitCaches();
   }
+  hydrateItem(rec){
+    if(!rec.streamed||rec.loaded)return;
+    const made=makeItem(rec.spec.kind,rec.spec);made.obj.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;o.userData.itemRef=rec;}});
+    rec.obj.add(made.obj);rec.resources.capture(made.obj);rec.loaded=true;
+  }
+  dehydrateItem(rec){if(!rec.streamed||!rec.loaded)return;rec.resources.dispose();rec.obj.clear();rec.loaded=false;}
   // world position + facing of an item's use point
   usePoint(rec, i = 0) {
     const u = rec.use[i] || rec.use[0]; const c = Math.cos(rec.obj.rotation.y), s = Math.sin(rec.obj.rotation.y);
@@ -90,8 +105,12 @@ export class Room {
   // ---------- navigation grid ----------
   buildNav() {
     const { w, d } = this.spec; const nx = Math.ceil(w / CELL), nz = Math.ceil(d / CELL); const g = new Uint8Array(nx * nz);
+    if(this.spec.localNetwork){const graph=streetGraph(this.spec.localNetwork);for(let j=0;j<nz;j++)for(let i=0;i<nx;i++)if(!isStreetPoint(graph,(i+.5)*CELL-w/2,(j+.5)*CELL-d/2))g[j*nx+i]=1;}
     const block = (cx, cz, hw, hd, rot) => { const c = Math.abs(Math.cos(rot)), s = Math.abs(Math.sin(rot)); const ex = hw * c + hd * s, ez = hw * s + hd * c;
-      for (let i = Math.max(0, Math.floor((cx - ex + w / 2) / CELL)); i <= Math.min(nx - 1, Math.floor((cx + ex + w / 2) / CELL)); i++) for (let j = Math.max(0, Math.floor((cz - ez + d / 2) / CELL)); j <= Math.min(nz - 1, Math.floor((cz + ez + d / 2) / CELL)); j++) g[j * nx + i] = 1; };
+      for (let i = Math.max(0, Math.floor((cx - ex + w / 2) / CELL)); i <= Math.min(nx - 1, Math.floor((cx + ex + w / 2) / CELL)); i++) for (let j = Math.max(0, Math.floor((cz - ez + d / 2) / CELL)); j <= Math.min(nz - 1, Math.floor((cz + ez + d / 2) / CELL)); j++) {
+        const dx=(i+.5)*CELL-w/2-cx,dz=(j+.5)*CELL-d/2-cz,cr=Math.cos(rot),sr=Math.sin(rot);
+        if(Math.abs(dx*cr-dz*sr)<=hw+CELL/2&&Math.abs(dx*sr+dz*cr)<=hd+CELL/2)g[j*nx+i]=1;
+      } };
     for (const r of this.items) if (!r.walkable) block(r.obj.position.x, r.obj.position.z, r.size[0] / 2, r.size[1] / 2, r.obj.rotation.y);
     for (let i = 0; i < nx; i++) { g[i] = 1; } for (let j = 0; j < nz; j++) g[j * nx] = 1; // keep off the walls
     this.nav = { g, nx, nz };

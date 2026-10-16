@@ -3,6 +3,7 @@ WORKDIR /build/client
 COPY client/package*.json ./
 RUN npm ci
 COPY client/ ./
+COPY shared/ /build/shared/
 RUN npm run build
 
 FROM node:22-bookworm-slim AS server-deps
@@ -19,6 +20,7 @@ WORKDIR /app/server
 COPY --from=server-deps /build/server/node_modules ./node_modules
 COPY server/package*.json ./
 COPY server/src ./src
+COPY shared/ /app/shared/
 COPY --from=client-build /build/client/dist /app/client/dist
 RUN mkdir -p /app/uploads/ads && chown -R node:node /app/uploads
 USER node

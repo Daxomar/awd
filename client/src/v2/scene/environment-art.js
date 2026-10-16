@@ -205,6 +205,7 @@ export function buildEnvironmentArt(spec) {
   const root=new THREE.Group(),art=spec.environment;
   if(!art)return root;
   root.name='environment-art';
+  if(spec.localNetwork)return root; // Connected streets own their continuous surfaces and bounded scenery.
   if(!spec.outdoor)interiorArchitecture(root,spec,art);
   else if(!spec.neighbourhood)backFacade(root,spec,art);
   if(art.type==='home')homeComposition(root,spec,art);

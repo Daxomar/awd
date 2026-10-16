@@ -46,3 +46,8 @@
 .game-ui .hud-population .connection-dot { width:6px;height:6px;flex:none;border-radius:50%;background:var(--game-green); }
 .game-ui .hud-population[data-connected="false"] .connection-dot { background:#a36035; }
 .game-ui .location-control time { flex:none; }
+.street-context{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:28px;padding:0 10px;border-top:1px solid #d9dfd2;color:#516957;font-size:11px}
+.street-context[hidden]{display:none}
+.street-context>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.street-entrance{min-height:44px;padding:6px 8px;border:0;background:transparent;color:#205b43;font:600 12px var(--body);max-width:65%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.street-entrance[hidden]{display:none}

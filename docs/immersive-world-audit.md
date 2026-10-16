@@ -171,7 +171,10 @@ their own implementation milestones. Phase 3 is now implemented and reviewed in
 [city-map-review.md](city-map-review.md), with the original inventory in
 [city-map-audit.md](city-map-audit.md). Phase 4's environment implementation,
 complete scene inventory, comparison images and validation are documented in
-[environment-review.md](environment-review.md). Phase 5 has not begun.
+[environment-review.md](environment-review.md). Phase 5's connected local streets,
+home/estate links, authority checks, performance samples and gameplay evidence
+are documented in [street-connectivity-review.md](street-connectivity-review.md).
+Phase 6 has not begun.
 
 | Phase | Scope and acceptance |
 | --- | --- |
@@ -179,7 +182,7 @@ complete scene inventory, comparison images and validation are documented in
 | 2: current HUD milestone | Compact playable HUD, expandable needs, contextual actions, phone integration, confirmed feedback, mobile/input and two-player regression checks. |
 | 3: Accra city map | Implemented geographic map with 68 districts, 65,560 deterministic buildings, sourced roads/coast/water, bounded detail, map navigation and compatibility checks. Physical-phone profiling remains a release check. |
 | 4: environmental visuals | Buildings, interiors, lighting and world presentation. |
-| 5: explorable neighborhoods | Connected local streets and everyday places of interest. |
+| 5: explorable neighborhoods | Eight connected local networks, an Osu pilot, existing home/estate/venue links and bounded street detail; see the Phase 5 report for measured coverage and limits. |
 | 6: connected gameplay | Transportation and NPC interaction. |
 | 7: life systems | Businesses, careers, relationships, crime, policing and social systems. |
 | 8: release preparation | Multiplayer, economy, optimization, physical-device profiling and release gates. |

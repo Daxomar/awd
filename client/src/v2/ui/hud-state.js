@@ -1,4 +1,11 @@
 // Presentation derives only from confirmed game state, never inferred rewards.
+export function confirmRoomArrival(state,message){
+ state.place=message.place;
+ // The authoritative room can arrive before the periodic player-state update.
+ // End only the obsolete travel overlay/state, preserving ordinary activities.
+ if(state.busy?.travel)state.busy=null;
+ if(Object.hasOwn(message,'streetReturn'))state.streetReturn=message.streetReturn;
+}
 export const NEEDS = {
  hunger: {label:'Hunger',icon:'bowl-food',tip:'Eat at a food joint or cook at home.'},
  energy: {label:'Energy',icon:'lightning',tip:'Sleep or take a nap to restore energy.'},
