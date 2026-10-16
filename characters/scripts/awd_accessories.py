@@ -12,7 +12,6 @@ import math
 import bpy
 import numpy as np
 from mathutils import Vector
-from mathutils.bvhtree import BVHTree
 
 HATS = {'cap': '#f4f4f2', 'bucket': '#f4f4f2', 'kufi': '#f4f4f2'}
 GLASSES = ('shades', 'specs')
@@ -139,8 +138,21 @@ def _neck_loop(ctx, bvh, n, clearance):
     return pts
 
 
+def _hang(pts):
+    """Hanging cloth spans hollows (under the bust or pecs): lift a top-to-bottom front
+    path onto the upper hull of its side profile (height vs forward depth)."""
+    prof = sorted((float(p[2]), float(-p[1])) for p in pts)
+    hull = []
+    for q in prof:
+        while len(hull) >= 2 and (hull[-1][0] - hull[-2][0]) * (q[1] - hull[-2][1]) - (hull[-1][1] - hull[-2][1]) * (q[0] - hull[-2][0]) >= 0:
+            hull.pop()
+        hull.append(q)
+    hz, hf = np.array([h[0] for h in hull]), np.array([h[1] for h in hull])
+    return [np.array([p[0], -max(-p[1], float(np.interp(p[2], hz, hf))), p[2]]) for p in pts]
+
+
 def build_neck(ctx, G, item):
-    bvh = BVHTree.FromObject(ctx['body'], bpy.context.evaluated_depsgraph_get())
+    bvh = G['rest_bvh'](ctx['body'])
     if item == 'chain':
         mat = G['_material']('AWD_Metal_gold', (0.66, 0.42, 0.04), 0.28)
         mat.node_tree.nodes['Principled BSDF'].inputs['Metallic'].default_value = 1.0
@@ -166,7 +178,10 @@ def build_neck(ctx, G, item):
         neck_z = R['neck_z']
         for side in (1, -1):
             zs = np.linspace(neck_z - 0.06, R['hip_z'] + 0.06, 9)
-            front = G['surface_points'](bvh, np.full(len(zs), side * 0.085), zs, 0.024)
+            # Clear the loosest tops: tunics stand further off the body towards the hip.
+            front = [G['surface_points'](bvh, [side * 0.085], [z], 0.024 + 0.024 * t)[0]
+                     for z, t in zip(zs, np.linspace(0, 1, len(zs)))]
+            front = _hang(front)
             top = np.array([side * 0.085, front[0][1] + 0.05, neck_z - 0.012])
             back = np.array([side * 0.06, front[0][1] + 0.12, neck_z - 0.04])
             path = [back, top] + front

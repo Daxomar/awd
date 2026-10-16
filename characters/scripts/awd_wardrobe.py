@@ -15,7 +15,6 @@ import bmesh
 import bpy
 import numpy as np
 from mathutils import Vector
-from mathutils.bvhtree import BVHTree
 from mathutils.kdtree import KDTree
 
 UPPER = ('chest', 'belly', 'upperarm')
@@ -161,11 +160,12 @@ def section(body_co, z, band=0.012):
     return np.abs(sel[:, 0]).max(), (sel[:, 1].max() - sel[:, 1].min()) / 2, (sel[:, 1].min() + sel[:, 1].max()) / 2
 
 
-def skirt(ctx, W, top_z, hem_z, ease, flare, follow=0.6, rings=9, seg=28, slit=None, a_line=True, mat=0):
-    """Lofted skirt or tunic tail from top_z to hem_z, added into W."""
+def skirt(ctx, W, top_z, hem_z, ease, flare, follow=0.6, rings=9, seg=28, slit=None, a_line=True, mat=0, gap=0.006):
+    """Lofted skirt or tunic tail from top_z to hem_z, added into W. gap is the least
+    distance from the body; tunic tails need enough to clear the trousers under them."""
     knee_z = ctx['joints']['lowerleg01.L____head'][2]
     body_co = np.array([v.co[:] for v in ctx['body'].data.vertices])
-    bvh = BVHTree.FromObject(ctx['body'], bpy.context.evaluated_depsgraph_get())
+    bvh = rest_bvh(ctx['body'])   # awd_clothes
     rows, prev = [], None
     for i in range(rings + 1):
         t = i / rings
@@ -180,8 +180,8 @@ def skirt(ctx, W, top_z, hem_z, ease, flare, follow=0.6, rings=9, seg=28, slit=N
             ang = 2 * math.pi * j / seg
             p = np.array([math.sin(ang) * a, cy - math.cos(ang) * b, z])
             hit = bvh.find_nearest(Vector(p))
-            if hit[0] is not None and np.dot(p - np.array(hit[0][:]), np.array(hit[1][:])) < 0.006:
-                p = np.array(hit[0][:]) + np.array(hit[1][:]) * 0.006
+            if hit[0] is not None and np.dot(p - np.array(hit[0][:]), np.array(hit[1][:])) < gap:
+                p = np.array(hit[0][:]) + np.array(hit[1][:]) * gap
             lw = min(1.0, abs(p[0]) / (a * 0.7)) * t * follow
             leg = ('Left' if p[0] > 0 else 'Right') + ('UpLeg' if z > knee_z else 'Leg')
             ring.append(W.vert(p, {'Hips': 1 - lw, leg: lw} if lw > 0 else {'Hips': 1.0}))
@@ -203,6 +203,17 @@ def surface_points(bvh, xs, zs, offset, front=True):
         hit = bvh.ray_cast(Vector((x, -0.5 if front else 0.5, z)), Vector((0, 1 if front else -1, 0)), 1.0)
         if hit[0] is not None:
             pts.append(np.array(hit[0][:]) + np.array(hit[1][:]) * offset)
+    return pts
+
+
+def outer_points(layers, xs, zs):
+    """Front points on the outermost of several (bvh, offset) layers, e.g. the body and the
+    garment, so details sit on the cloth where it bridges away from the body."""
+    pts = []
+    for x, z in zip(xs, zs):
+        hits = [p for bvh, offset in layers for p in surface_points(bvh, [x], [z], offset)]
+        if hits:
+            pts.append(min(hits, key=lambda p: p[1]))
     return pts
 
 
@@ -228,11 +239,11 @@ def collar_band(ctx, W, collar_z, height=0.022, fold=0.026):
         W.face([a[1], b[1], b[2], a[2]], [(j / 24, 0.1), ((j + 1) / 24, 0.1), ((j + 1) / 24, 0.2), (j / 24, 0.2)])
 
 
-def chest_patch(W, bvh, centre, size, mat, offset=0.016):
+def chest_patch(W, layers, centre, size, mat):
     """A print laid on the garment front, e.g. the flag or a star badge."""
     xs = np.linspace(centre[0] - size[0] / 2, centre[0] + size[0] / 2, 5)
     zs = np.linspace(centre[1] - size[1] / 2, centre[1] + size[1] / 2, 5)
-    verts = [[W.vert(surface_points(bvh, [x], [z], offset)[0]) for x in xs] for z in zs]
+    verts = [[W.vert(outer_points(layers, [x], [z])[0]) for x in xs] for z in zs]
     for i in range(4):
         for j in range(4):
             W.face([verts[i][j], verts[i][j + 1], verts[i + 1][j + 1], verts[i + 1][j]],
@@ -256,11 +267,11 @@ def hood(ctx, W):
                    [(j / cols, i / rows), ((j + 1) / cols, i / rows), ((j + 1) / cols, (i + 1) / rows), (j / cols, (i + 1) / rows)])
 
 
-def tie(ctx, W, bvh, R, mat):
+def tie(ctx, W, layers, R, mat):
     top = ctx['joints']['neck01____head'][2] - 0.035
     zs = np.linspace(top, R['waist_z'] + 0.02, 9)
     widths = np.interp(zs, [zs[-1], zs[-1] + 0.05, top - 0.02, top], [0.0, 0.085, 0.045, 0.035])
-    pts = surface_points(bvh, np.zeros(len(zs)), zs, 0.016)
+    pts = outer_points(layers, np.zeros(len(zs)), zs)
     W.quad_strip([(W.vert(p - np.array([w / 2, 0, 0])), W.vert(p + np.array([w / 2, 0, 0]))) for p, w in zip(pts, widths)], mat)
 
 
@@ -312,24 +323,25 @@ def build_top(ctx, G, item, sleeve, collar, hem, ease_extra, fabric, colour, ext
     envelope = {'window': 2, 'sigma': 1.2} if ctx['sex'] == 'female' else {'window': 5}
     obj = G['shell'](ctx, name or f'AWD_Top_{item}', torso | sleeves, ease, material(G, fabric, colour, item),
                      smooth=14, cuts=cuts, envelope=envelope, trim=trim)
-    bvh = BVHTree.FromObject(ctx['body'], bpy.context.evaluated_depsgraph_get())
+    # Details sit 16 mm off the body or 4 mm off the shirt, whichever is further out.
+    layers = [(G['rest_bvh'](ctx['body']), 0.016), (G['rest_bvh'](obj), 0.004)]
     W = Writer(ctx, obj)
     tails = {'tunic': (R['hip_z'] - 0.17, 0.04, 0.3, 6), 'kaftan': (R['knee_z'] - 0.12, 0.06, 0.5, 10),
              'peplum': (R['waist_z'] - 0.11, 0.05, 0.3, 5), 'jacket': (R['hip_z'] - 0.10, 0.01, 0.3, 5)}
     if hem in tails:
         bottom, tail_flare, follow, rings = tails[hem]
-        skirt(ctx, W, hem_z + 0.03, bottom, 0.012 + ease_extra, tail_flare, follow=follow, rings=rings)
+        skirt(ctx, W, hem_z + 0.03, bottom, 0.012 + ease_extra, tail_flare, follow=follow, rings=rings, gap=0.022)
     if collar == 'collar':
         collar_band(ctx, W, collar_z)
     if 'hood' in extras:
         hood(ctx, W)
     if 'tie' in extras:
-        tie(ctx, W, bvh, R, material_slot(obj, G['_material']('AWD_Print_tie', (0.03, 0.05, 0.12), 0.5)))
+        tie(ctx, W, layers, R, material_slot(obj, G['_material']('AWD_Print_tie', (0.03, 0.05, 0.12), 0.5)))
     chest_z = J['spine01____head'][2]
     if 'flag' in extras:
-        chest_patch(W, bvh, (0.0, chest_z - 0.03), (0.13, 0.085), material_slot(obj, print_material(G, 'flag')))
+        chest_patch(W, layers, (0.0, chest_z - 0.03), (0.13, 0.085), material_slot(obj, print_material(G, 'flag')))
     if 'star' in extras:
-        chest_patch(W, bvh, (0.075, chest_z + 0.02), (0.045, 0.045), material_slot(obj, print_material(G, 'star')))
+        chest_patch(W, layers, (0.075, chest_z + 0.02), (0.045, 0.045), material_slot(obj, print_material(G, 'star')))
     W.finish()
     if 'shirt' in extras:   # suit: shirt and tie visible in the jacket's V, merged into one object
         inner = build_top(ctx, G, item + 'shirt', 'long', 'collar', 'normal', 0.0, 'cotton', '#f4f4f2', ('tie',), (),

@@ -1,6 +1,6 @@
 {
   "top_tee_female.glb": {
-    "bytes": 314008,
+    "bytes": 314284,
     "meshes": 1,
     "triangles": 3640,
     "materials": [
@@ -22,9 +22,9 @@
     "images": 1
   },
   "top_tee_female_lod1.glb": {
-    "bytes": 208100,
+    "bytes": 207120,
     "meshes": 1,
-    "triangles": 1819,
+    "triangles": 1820,
     "materials": [
       "AWD_Fabric_jersey_tee"
     ],
@@ -44,7 +44,7 @@
     "images": 1
   },
   "top_flagtee_female.glb": {
-    "bytes": 323056,
+    "bytes": 323332,
     "meshes": 1,
     "triangles": 3672,
     "materials": [
@@ -67,9 +67,9 @@
     "images": 2
   },
   "top_flagtee_female_lod1.glb": {
-    "bytes": 216172,
+    "bytes": 214248,
     "meshes": 1,
-    "triangles": 1835,
+    "triangles": 1836,
     "materials": [
       "AWD_Fabric_jersey_flagtee",
       "AWD_Print_flag"
@@ -90,7 +90,7 @@
     "images": 2
   },
   "top_crop_female.glb": {
-    "bytes": 280944,
+    "bytes": 281232,
     "meshes": 1,
     "triangles": 3064,
     "materials": [
@@ -112,7 +112,7 @@
     "images": 1
   },
   "top_crop_female_lod1.glb": {
-    "bytes": 190904,
+    "bytes": 189972,
     "meshes": 1,
     "triangles": 1532,
     "materials": [
@@ -134,7 +134,7 @@
     "images": 1
   },
   "top_polo_female.glb": {
-    "bytes": 325228,
+    "bytes": 325308,
     "meshes": 1,
     "triangles": 3736,
     "materials": [
@@ -156,9 +156,9 @@
     "images": 1
   },
   "top_polo_female_lod1.glb": {
-    "bytes": 215916,
+    "bytes": 215240,
     "meshes": 1,
-    "triangles": 1868,
+    "triangles": 1867,
     "materials": [
       "AWD_Fabric_pique_polo"
     ],
@@ -178,7 +178,7 @@
     "images": 1
   },
   "top_hoodie_female.glb": {
-    "bytes": 400352,
+    "bytes": 400480,
     "meshes": 1,
     "triangles": 5216,
     "materials": [
@@ -200,9 +200,9 @@
     "images": 1
   },
   "top_hoodie_female_lod1.glb": {
-    "bytes": 254620,
+    "bytes": 252808,
     "meshes": 1,
-    "triangles": 2607,
+    "triangles": 2608,
     "materials": [
       "AWD_Fabric_fleece_hoodie"
     ],
@@ -222,7 +222,7 @@
     "images": 1
   },
   "top_jersey_female.glb": {
-    "bytes": 321412,
+    "bytes": 321560,
     "meshes": 1,
     "triangles": 3688,
     "materials": [
@@ -245,9 +245,9 @@
     "images": 2
   },
   "top_jersey_female_lod1.glb": {
-    "bytes": 212964,
+    "bytes": 211892,
     "meshes": 1,
-    "triangles": 1844,
+    "triangles": 1843,
     "materials": [
       "AWD_Fabric_mesh_jersey",
       "AWD_Print_star"
@@ -268,7 +268,7 @@
     "images": 2
   },
   "top_jerseyaway_female.glb": {
-    "bytes": 321428,
+    "bytes": 321576,
     "meshes": 1,
     "triangles": 3688,
     "materials": [
@@ -291,9 +291,9 @@
     "images": 2
   },
   "top_jerseyaway_female_lod1.glb": {
-    "bytes": 212980,
+    "bytes": 211912,
     "meshes": 1,
-    "triangles": 1844,
+    "triangles": 1843,
     "materials": [
       "AWD_Fabric_mesh_jerseyaway",
       "AWD_Print_star"
@@ -314,7 +314,7 @@
     "images": 2
   },
   "top_ankara_female.glb": {
-    "bytes": 283784,
+    "bytes": 283880,
     "meshes": 1,
     "triangles": 3736,
     "materials": [
@@ -336,9 +336,9 @@
     "images": 1
   },
   "top_ankara_female_lod1.glb": {
-    "bytes": 174580,
+    "bytes": 173756,
     "meshes": 1,
-    "triangles": 1868,
+    "triangles": 1867,
     "materials": [
       "AWD_Fabric_ankara_ankara"
     ],
@@ -358,7 +358,7 @@
     "images": 1
   },
   "top_kenteshirt_female.glb": {
-    "bytes": 322052,
+    "bytes": 322144,
     "meshes": 1,
     "triangles": 3736,
     "materials": [
@@ -380,9 +380,9 @@
     "images": 1
   },
   "top_kenteshirt_female_lod1.glb": {
-    "bytes": 212848,
+    "bytes": 212024,
     "meshes": 1,
-    "triangles": 1868,
+    "triangles": 1867,
     "materials": [
       "AWD_Fabric_kente_kenteshirt"
     ],
@@ -402,7 +402,7 @@
     "images": 1
   },
   "top_office_female.glb": {
-    "bytes": 393924,
+    "bytes": 394232,
     "meshes": 1,
     "triangles": 5136,
     "materials": [
@@ -425,7 +425,7 @@
     "images": 1
   },
   "top_office_female_lod1.glb": {
-    "bytes": 249696,
+    "bytes": 248044,
     "meshes": 1,
     "triangles": 2567,
     "materials": [
@@ -448,7 +448,7 @@
     "images": 1
   },
   "top_suit_female.glb": {
-    "bytes": 776096,
+    "bytes": 776624,
     "meshes": 1,
     "triangles": 10412,
     "materials": [
@@ -472,7 +472,7 @@
     "images": 2
   },
   "top_suit_female_lod1.glb": {
-    "bytes": 484048,
+    "bytes": 480544,
     "meshes": 1,
     "triangles": 5205,
     "materials": [
@@ -496,7 +496,7 @@
     "images": 2
   },
   "top_kaba_female.glb": {
-    "bytes": 265736,
+    "bytes": 265784,
     "meshes": 1,
     "triangles": 3396,
     "materials": [
@@ -518,7 +518,7 @@
     "images": 1
   },
   "top_kaba_female_lod1.glb": {
-    "bytes": 166340,
+    "bytes": 165372,
     "meshes": 1,
     "triangles": 1697,
     "materials": [
@@ -540,7 +540,7 @@
     "images": 1
   },
   "top_blouse_female.glb": {
-    "bytes": 320624,
+    "bytes": 320692,
     "meshes": 1,
     "triangles": 3736,
     "materials": [
@@ -562,7 +562,7 @@
     "images": 1
   },
   "top_blouse_female_lod1.glb": {
-    "bytes": 211580,
+    "bytes": 210536,
     "meshes": 1,
     "triangles": 1867,
     "materials": [
@@ -584,7 +584,7 @@
     "images": 1
   },
   "bottom_jeans_female.glb": {
-    "bytes": 269516,
+    "bytes": 269436,
     "meshes": 1,
     "triangles": 2800,
     "materials": [
@@ -606,9 +606,9 @@
     "images": 1
   },
   "bottom_jeans_female_lod1.glb": {
-    "bytes": 197252,
+    "bytes": 197144,
     "meshes": 1,
-    "triangles": 1399,
+    "triangles": 1400,
     "materials": [
       "AWD_Fabric_denim_jeans"
     ],
@@ -628,7 +628,7 @@
     "images": 1
   },
   "bottom_shorts_female.glb": {
-    "bytes": 180716,
+    "bytes": 180656,
     "meshes": 1,
     "triangles": 1464,
     "materials": [
@@ -650,7 +650,7 @@
     "images": 1
   },
   "bottom_shorts_female_lod1.glb": {
-    "bytes": 140848,
+    "bytes": 140672,
     "meshes": 1,
     "triangles": 731,
     "materials": [
@@ -672,7 +672,7 @@
     "images": 1
   },
   "bottom_joggers_female.glb": {
-    "bytes": 245672,
+    "bytes": 245612,
     "meshes": 1,
     "triangles": 2720,
     "materials": [
@@ -694,7 +694,7 @@
     "images": 1
   },
   "bottom_joggers_female_lod1.glb": {
-    "bytes": 175088,
+    "bytes": 174820,
     "meshes": 1,
     "triangles": 1359,
     "materials": [
@@ -716,7 +716,7 @@
     "images": 1
   },
   "bottom_chinos_female.glb": {
-    "bytes": 244784,
+    "bytes": 244704,
     "meshes": 1,
     "triangles": 2800,
     "materials": [
@@ -738,7 +738,7 @@
     "images": 1
   },
   "bottom_chinos_female_lod1.glb": {
-    "bytes": 172524,
+    "bytes": 172396,
     "meshes": 1,
     "triangles": 1399,
     "materials": [
@@ -760,7 +760,7 @@
     "images": 1
   },
   "bottom_suitpants_female.glb": {
-    "bytes": 244804,
+    "bytes": 244748,
     "meshes": 1,
     "triangles": 2800,
     "materials": [
@@ -782,7 +782,7 @@
     "images": 1
   },
   "bottom_suitpants_female_lod1.glb": {
-    "bytes": 172692,
+    "bytes": 172416,
     "meshes": 1,
     "triangles": 1399,
     "materials": [
@@ -804,7 +804,7 @@
     "images": 1
   },
   "bottom_ankarapants_female.glb": {
-    "bytes": 204428,
+    "bytes": 204364,
     "meshes": 1,
     "triangles": 2800,
     "materials": [
@@ -826,7 +826,7 @@
     "images": 1
   },
   "bottom_ankarapants_female_lod1.glb": {
-    "bytes": 132344,
+    "bytes": 132152,
     "meshes": 1,
     "triangles": 1400,
     "materials": [
@@ -848,7 +848,7 @@
     "images": 1
   },
   "bottom_slit_female.glb": {
-    "bytes": 84496,
+    "bytes": 84500,
     "meshes": 1,
     "triangles": 500,
     "materials": [
@@ -870,7 +870,7 @@
     "images": 1
   },
   "bottom_slit_female_lod1.glb": {
-    "bytes": 71476,
+    "bytes": 71232,
     "meshes": 1,
     "triangles": 249,
     "materials": [
@@ -892,7 +892,7 @@
     "images": 1
   },
   "bottom_mini_female.glb": {
-    "bytes": 120900,
+    "bytes": 120924,
     "meshes": 1,
     "triangles": 392,
     "materials": [
@@ -914,7 +914,7 @@
     "images": 1
   },
   "bottom_mini_female_lod1.glb": {
-    "bytes": 108924,
+    "bytes": 109228,
     "meshes": 1,
     "triangles": 195,
     "materials": [
@@ -936,7 +936,7 @@
     "images": 1
   },
   "bottom_pencil_female.glb": {
-    "bytes": 120068,
+    "bytes": 120060,
     "meshes": 1,
     "triangles": 392,
     "materials": [
@@ -958,7 +958,7 @@
     "images": 1
   },
   "bottom_pencil_female_lod1.glb": {
-    "bytes": 108832,
+    "bytes": 109000,
     "meshes": 1,
     "triangles": 196,
     "materials": [
@@ -1002,9 +1002,9 @@
     "images": 1
   },
   "bottom_kenteskirt_female_lod1.glb": {
-    "bytes": 110656,
+    "bytes": 110648,
     "meshes": 1,
-    "triangles": 279,
+    "triangles": 280,
     "materials": [
       "AWD_Fabric_kente_kenteskirt"
     ],
@@ -1024,7 +1024,7 @@
     "images": 1
   },
   "full_sundress_female.glb": {
-    "bytes": 291992,
+    "bytes": 292124,
     "meshes": 1,
     "triangles": 3232,
     "materials": [
@@ -1046,9 +1046,9 @@
     "images": 1
   },
   "full_sundress_female_lod1.glb": {
-    "bytes": 198544,
+    "bytes": 197616,
     "meshes": 1,
-    "triangles": 1616,
+    "triangles": 1615,
     "materials": [
       "AWD_Fabric_cotton_sundress"
     ],
@@ -1068,7 +1068,7 @@
     "images": 1
   },
   "full_ankaradress_female.glb": {
-    "bytes": 305020,
+    "bytes": 305144,
     "meshes": 1,
     "triangles": 4088,
     "materials": [
@@ -1090,9 +1090,9 @@
     "images": 1
   },
   "full_ankaradress_female_lod1.glb": {
-    "bytes": 185460,
+    "bytes": 184852,
     "meshes": 1,
-    "triangles": 2043,
+    "triangles": 2044,
     "materials": [
       "AWD_Fabric_ankara_ankaradress"
     ],
@@ -1112,7 +1112,7 @@
     "images": 1
   },
   "full_kentedress_female.glb": {
-    "bytes": 297356,
+    "bytes": 297484,
     "meshes": 1,
     "triangles": 3344,
     "materials": [
@@ -1134,9 +1134,9 @@
     "images": 1
   },
   "full_kentedress_female_lod1.glb": {
-    "bytes": 201104,
+    "bytes": 200108,
     "meshes": 1,
-    "triangles": 1672,
+    "triangles": 1671,
     "materials": [
       "AWD_Fabric_kente_kentedress"
     ],
@@ -1156,7 +1156,7 @@
     "images": 1
   },
   "full_bodycon_female.glb": {
-    "bytes": 292412,
+    "bytes": 292732,
     "meshes": 1,
     "triangles": 3232,
     "materials": [
@@ -1178,7 +1178,7 @@
     "images": 1
   },
   "full_bodycon_female_lod1.glb": {
-    "bytes": 199120,
+    "bytes": 198332,
     "meshes": 1,
     "triangles": 1615,
     "materials": [
@@ -1652,7 +1652,7 @@
     "images": 0
   },
   "neck_chain_female.glb": {
-    "bytes": 55148,
+    "bytes": 54968,
     "meshes": 1,
     "triangles": 486,
     "materials": [
@@ -1674,7 +1674,7 @@
     "images": 0
   },
   "neck_chain_female_lod1.glb": {
-    "bytes": 41144,
+    "bytes": 40852,
     "meshes": 1,
     "triangles": 243,
     "materials": [
@@ -1696,7 +1696,7 @@
     "images": 0
   },
   "neck_beads_female.glb": {
-    "bytes": 194312,
+    "bytes": 194116,
     "meshes": 1,
     "triangles": 1728,
     "materials": [
@@ -1718,9 +1718,9 @@
     "images": 1
   },
   "neck_beads_female_lod1.glb": {
-    "bytes": 173476,
+    "bytes": 171604,
     "meshes": 1,
-    "triangles": 1512,
+    "triangles": 1491,
     "materials": [
       "AWD_Print_beads"
     ],
@@ -1740,7 +1740,7 @@
     "images": 1
   },
   "neck_stole_female.glb": {
-    "bytes": 98528,
+    "bytes": 98568,
     "meshes": 1,
     "triangles": 40,
     "materials": [
@@ -1762,7 +1762,7 @@
     "images": 1
   },
   "neck_stole_female_lod1.glb": {
-    "bytes": 96228,
+    "bytes": 96404,
     "meshes": 1,
     "triangles": 20,
     "materials": [

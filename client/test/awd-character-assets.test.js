@@ -93,6 +93,41 @@ test('every catalogue part shares the game skeleton and follows the body sliders
   assert.ok(checked >= 40, `only ${checked} part files checked`);
 });
 
+// Vertex positions of the GLB's meshes (glTF axes: +Y up, +Z towards the character's front).
+function glbPositions(file, meshFilter = () => true) {
+  const data = readFileSync(file);
+  const length = data.readUInt32LE(12);
+  const doc = JSON.parse(data.subarray(20, 20 + length).toString('utf8'));
+  const bin = data.subarray(20 + length + 8);
+  const out = [];
+  for (const prim of doc.meshes.filter(meshFilter).flatMap((m) => m.primitives)) {
+    const acc = doc.accessors[prim.attributes.POSITION];
+    const view = doc.bufferViews[acc.bufferView];
+    const stride = view.byteStride || 12, start = (view.byteOffset || 0) + (acc.byteOffset || 0);
+    for (let i = 0; i < acc.count; i++) out.push([0, 1, 2].map((k) => bin.readFloatLE(start + i * stride + k * 4)));
+  }
+  return out;
+}
+
+test('tops drape over the chest instead of shrink-wrapping an inflated one', () => {
+  // Regression: garments were fitted against the evaluated body (every slider and expression
+  // key at 1), which left the kaftan 4 cm proud of the pecs with pectoral-shaped bumps.
+  const MAX_GAP = 0.028;
+  for (const sex of ['male', 'female']) {
+    const body = glbPositions(join(ASSETS, `awd_${sex}_base_lod0.glb`), (m) => m.name.startsWith('AWD_Body'));
+    const height = Math.max(...body.map((p) => p[1]));
+    const frontAt = (pts, y) => Math.max(...pts.filter((p) => Math.abs(p[1] - y) < 0.02 && Math.abs(p[0]) < 0.15).map((p) => p[2]));
+    let chestY = height * 0.62;
+    for (let y = chestY; y < height * 0.82; y += 0.01) if (frontAt(body, y) > frontAt(body, chestY)) chestY = y;
+    for (const [id, item] of Object.entries(WEAR)) {
+      const file = join(ASSETS, 'parts', `top_${id}_${sex}.glb`);
+      if (item.slot !== 'top' || !existsSync(file)) continue;
+      const gap = frontAt(glbPositions(file), chestY) - frontAt(body, chestY);
+      assert.ok(gap > 0 && gap < MAX_GAP, `${sex} ${id} stands ${(gap * 100).toFixed(1)} cm off the chest`);
+    }
+  }
+});
+
 for (const sex of ['male', 'female']) {
   for (const lod of [0, 1, 2]) {
     const file = join(ASSETS, `awd_${sex}_base_lod${lod}.glb`);

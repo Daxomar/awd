@@ -135,10 +135,19 @@ def chest_envelope(bm, ctx, step=0.025, ease=0.004, window=5, sigma=2.5):
         v.co.y += (target - v.co.y) * blend
 
 
+def rest_bvh(obj):
+    """BVH of a mesh's rest (basis) shape. Garments are built on the basis, so the
+    evaluated mesh is the wrong reference: once slider and expression keys exist the
+    body carries their values (all at 1 after building) and the rig may be posed,
+    which shrink-wrapped tops onto an inflated chest and gave them pectoral bumps."""
+    me = obj.data
+    return BVHTree.FromPolygons([v.co.copy() for v in me.vertices], [tuple(p.vertices) for p in me.polygons])
+
+
 def clearance(bm, ctx, min_gap=0.004):
     """Smoothing and envelopes can pull cloth inside convex anatomy (bust, belly);
     push any vertex nearer than min_gap back out along the body normal."""
-    bvh = BVHTree.FromObject(ctx['body'], bpy.context.evaluated_depsgraph_get())
+    bvh = rest_bvh(ctx['body'])
     for v in bm.verts:
         loc, normal, _, _ = bvh.find_nearest(v.co)
         if loc is not None and (v.co - loc).dot(normal) < min_gap:
