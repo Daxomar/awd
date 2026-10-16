@@ -300,6 +300,8 @@ export const DUMSOR = { 0: [20, 23], 1: [18, 22], 2: null, 3: [6, 10], 4: [19, 2
 export const POLICIES = { trotro: 'Half-price trotro fares', food: 'Chop bar food 25% cheaper', wages: 'All shift pay +10%', light: 'ECG promises fewer outages', tax: 'Income tax −5 points' };
 
 Object.assign(LOCATIONS, EXTRA_LOCATIONS, neighbourhoodLocations(HOMES));
+LOCATIONS.police.acts.push({id:'community_service',label:'Complete community service (game conduct review)',ic:'icon:hand-heart',min:60,needs:{energy:-4,social:8},tags:['civic'],rest:1440});
+LOCATIONS.hub.acts.find(a=>a.id==='sakawa').label='Fictional black-market deal';
 for(const [id,act] of Object.entries(NEIGHBOURHOOD_ACTIVITIES))LOCATIONS['n:'+id].acts=[...LOCATIONS['n:'+id].acts,{...act,rest:30}];
 // Retire employment-only minigame scoring, retaining action IDs and midpoint pay.
 for(const [place,id,label,skill]of [['circle','mate','Help dispatch trotro trips','hustle'],['chopbar','rush','Coordinate the lunch rush','cooking'],['hub','freelance','Complete a freelance maintenance assignment','coding']]){

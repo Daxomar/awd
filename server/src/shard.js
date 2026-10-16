@@ -14,6 +14,8 @@ import { randomUUID } from 'node:crypto';
 import { localRoomInfo, saveLocalMove } from './street-world.js';
 import * as FirstFriend from './first-friend.js';
 import * as Objectives from './objectives.js';
+import * as Life from './life-service.js';
+import {durableActions,durableTick,gameTransaction} from './life-game.js';
 
 const DEV = CFG.dev;
 const GYM = new Set(['workout', 'beachworkout', 'train', 'jog', 'stadiumjog', 'spar']);
@@ -71,14 +73,24 @@ export class Shard {
     }catch(e){if(redis?.status==='ready')await redis.eval("if redis.call('GET',KEYS[1])==ARGV[1] then return redis.call('DEL',KEYS[1]) end return 0",1,leaseKey,leaseToken);throw e;}
     const fresh = !saved;
     const p = { id: this.nextId++ >>> 0, acct: acct.id, name: acct.u, ws, state, x: 0, z: 0, rx: null, rz: null, it: null, zn: null, room: null,
-      chatAt: 0, chatBurst: 0, dirty: fresh, bot: !!acct.bot, dev: DEV,leaseKey,leaseToken };
+      chatAt: 0, chatBurst: 0, dirty: fresh, bot: !!acct.bot, dev: DEV,leaseKey,leaseToken,connecting:true };
     if (state.place) Game.goPlace(p, state.place);
     this.players.set(p.id, p); this.byAcctMap.set(p.acct, p);
     if(!p.bot&&redis?.status==='ready')p.leaseTimer=setInterval(async()=>{
       try{const ok=await redis.eval("if redis.call('GET',KEYS[1])==ARGV[1] then return redis.call('EXPIRE',KEYS[1],90) end return 0",1,leaseKey,leaseToken);if(!ok&&!p.gone)p.ws.end(4003,'Account lock expired');}
       catch{if(!p.gone)p.ws.end(4003,'Account lock unavailable');}
     },30000);
-    const wb = Game.onJoin(p, Date.now());
+    let wb;
+    try{
+      wb=Game.onJoin(p,Date.now());
+      if(p.state.life?.queue?.length&&!p.bot){await savePlayers([{id:p.acct,state:p.state,worth:Game.netWorth(p.state)}]);p.state.life.queue=[];}
+      if(this.phase8Ready&&p.state.onboarded&&!p.bot)await Life.syncRelationships(p);
+    }catch(e){
+      clearInterval(p.leaseTimer);this.players.delete(p.id);this.byAcctMap.delete(p.acct);
+      if(redis?.status==='ready')await redis.eval("if redis.call('GET',KEYS[1])==ARGV[1] then return redis.call('DEL',KEYS[1]) end return 0",1,leaseKey,leaseToken);
+      throw e;
+    }
+    p.connecting=false;
     this.send(p, { t: 'welcome', id: p.id, shard: CFG.shardId, now: Date.now(), state: Game.view(p.state), fresh, dev: DEV, gems: this.gemsFound });
     if (wb) this.send(p, wb);
     if (state.onboarded) this.enterRoom(p);
@@ -97,7 +109,7 @@ export class Shard {
         if(p.moneyTask)await p.moneyTask.catch(()=>{});
         if(p.saving)await p.saving.catch(()=>{});
         if(pendingOnboarding)await pendingOnboarding.catch(()=>{});
-        await savePlayers([{id:p.acct,state:this.persist(p),worth:Game.netWorth(p.state)}]);
+        if(!p.moneyUncertain)await savePlayers([{id:p.acct,state:this.persist(p),worth:Game.netWorth(p.state)}]);
         if(this.bus?.pub?.status==='ready')await this.bus.pub.eval("if redis.call('GET',KEYS[1])==ARGV[1] then return redis.call('DEL',KEYS[1]) end return 0",1,p.leaseKey,p.leaseToken);
       })();
       this.saves.set(p.acct, save);
@@ -106,9 +118,9 @@ export class Shard {
   }
   persist(p) { p.state.pos = [Math.round(p.x), Math.round(p.z)]; p.state.lastSeen = Date.now(); return p.state; }
   async flush() {
-    const batch = [],people=[]; for (const p of this.players.values()) if (p.dirty && !p.bot && !p.moneyBusy && !p.onboardingSave && !p.saving) { p.dirty = false;people.push(p); batch.push({ id: p.acct, state: structuredClone(this.persist(p)), worth: Game.netWorth(p.state) }); }
+    const batch = [],people=[]; for (const p of this.players.values()) if (p.dirty && !p.bot && !p.connecting && !p.moneyBusy && !p.moneyUncertain && !p.onboardingSave && !p.saving) { p.dirty = false;people.push(p); batch.push({ id: p.acct, state: structuredClone(this.persist(p)), worth: Game.netWorth(p.state) }); }
     const saving=savePlayers(batch);for(const p of people)p.saving=saving;
-    try { await saving; } catch (error) {
+    try { await saving;for(const row of batch){const p=this.byAcct(row.id);if(p?.state.life)p.state.life.queue=p.state.life.queue.filter(e=>e.seq>(row.state.life?.seq||0));} } catch (error) {
       for (const row of batch) { const p = this.byAcct(row.id); if (p) p.dirty = true; }
       throw error;
     }finally{for(const p of people)if(p.saving===saving)p.saving=null;}
@@ -120,6 +132,7 @@ export class Shard {
   fit(o) { const s = o.state, b = s.busy; return s.shift && s.job ? 'work:' + s.job.id : b && b.sleep ? 'sleep' : b && GYM.has(b.id) ? 'gym' : null; }
   info(o) { const b = o.state.busy; return { id: o.id, n: o.name, lk: o.state.look, fit: this.fit(o), x: o.rx, z: o.rz, it: o.it, zn: o.zn, st: b && !b.travel ? b.ic : o.state.shift ? 'icon:briefcase' : '', lbl: b && !b.travel ? b.label || '' : o.state.shift ? 'At work' : '' }; }
   enterRoom(p) {
+    if(this.phase8Ready&&p.state.place?.startsWith('visit:')&&!this.canVisit(p,this.byAcct(+p.state.place.slice(6)))){Game.goPlace(p,'circle');p.dirty=true;this.send(p,{t:'arrived',place:'circle',name:Game.LOC.circle.name});this.send(p,{t:'toast',m:'This private home is no longer available.'});}
     this.leaveRoom(p); const base = this.roomBase(p); p.roomPlace = p.state.place; if (!base) return;
     let room = null;
     if (base.startsWith('home:')) { room = this.rooms.get(base); if (!room) this.rooms.set(base, (room = { key: base, base, members: new Set() })); }
@@ -134,15 +147,20 @@ export class Shard {
     this.send(p, { t: 'room', key: room.key, place: p.state.place, custody, name: Game.placeName(p.state, p.state.place) || (home && `${home.owner}'s place`), people, home, gem,street,streetReturn:p.state.streetReturn||null });
     this.toRoom(room, { t: 'rjoin', e: this.info(p) }, p);
   }
-  leaveRoom(p) { const r = p.room; if (!r) return; r.members.delete(p); p.room = null; this.toRoom(r, { t: 'rleave', id: p.id }); if (!r.members.size) { this.rooms.delete(r.key); this.stats.rooms = this.rooms.size; } }
+  leaveRoom(p) { const r = p.room; if (!r) return;p.roomSerial=(p.roomSerial||0)+1; r.members.delete(p); p.room = null; this.toRoom(r, { t: 'rleave', id: p.id }); if (!r.members.size) { this.rooms.delete(r.key); this.stats.rooms = this.rooms.size; } }
   toRoom(room, msg, except) { if (!room) return; const s = JSON.stringify(msg); for (const o of room.members) if (o !== except) { try { o.ws.send(s, false); this.stats.outBytes += s.length; } catch {} } }
 
   onBinary() { /* v1 open-world movement is retired; rooms use JSON 'rmv' */ }
   onJson(p, msg) {
     this.stats.inMsgs++;
     if (!msg || typeof msg.t !== 'string') return;
-    if(p.gone)return;
+    if(p.gone||p.moneyUncertain)return;
+    if(this.phase8Ready&&['life_status','life_action'].includes(msg.t)){
+      if(p.onboardingSave)return this.send(p,{t:'life_result',key:msg.key,error:'An account action is saving. Retry shortly.'});
+      if(Date.now()-(p.lifeAt||0)<350)return this.send(p,{t:'life_result',key:msg.key,error:'Please wait a moment.'});p.lifeAt=Date.now();return this.async(p,msg);
+    }
     if(msg.t==='onboarding')return this.progressOnboarding(p,msg);
+    if(this.phase8Ready&&!p.bot&&!p.onboardingSave&&(durableActions.has(msg.t)||msg.t==='visit'))return this.async(p,{t:'_durable_game',request:msg});
     if((p.moneyBusy||p.onboardingSave)&&!['ping','rmv'].includes(msg.t)){
       const error='Saving your account. Try again shortly.';
       return this.send(p,msg.t.startsWith('objective_')?{t:'objective_error',error}:msg.t.startsWith('intro_')?{t:'intro_result',error}:msg.t==='topup'?{t:'topup',error}:{t:'toast',k:'bad',m:error});
@@ -151,8 +169,8 @@ export class Shard {
       case 'chat': return this.chat(p, msg);
       case 'rmv': return this.roomMove(p, msg);
       case 'emote': { const a = ['agree', 'shake', 'dance', 'sad', 'wave'].includes(msg.a) ? msg.a : null; if (a && p.room && Date.now() - (p.emoteAt || 0) > 1500) { p.emoteAt = Date.now(); this.toRoom(p.room, { t: 'ranim', id: p.id, a }, p); } return; }
-      case 'social': return this.social(p, msg);
-      case 'askout_reply': return this.askoutReply(p, msg);
+      case 'social': return this.phase8Ready?Life.legacySocial(this,p,msg):this.social(p, msg);
+      case 'askout_reply': return this.phase8Ready?this.send(p,{t:'toast',m:'Answer the saved invitation in Phone → People.'}):this.askoutReply(p, msg);
       case 'oware_practice': return this.oware.practice(p);
       case 'oware_invite': return this.oware.invite(p, msg);
       case 'oware_answer': return this.oware.answer(p, msg);
@@ -211,6 +229,14 @@ export class Shard {
     try {
       let r = null;
       switch (msg.t) {
+        case '_durable_game':
+          if(p.moneyTask)await p.moneyTask.catch(()=>{});
+          if(!p.gone&&!p.moneyUncertain){if(msg.request.t==='visit')await this.visit(p,msg.request,true);else await gameTransaction(this,p,msg.request,Date.now(),true);}break;
+        case 'life_status':case 'life_action':
+          // The bounded account queue waits for an already reserved transaction.
+          // A status refresh must not make the next deliberate phone action fail.
+          if(p.moneyTask)await p.moneyTask.catch(()=>{});
+          if(!p.gone)r=await Life.handle(this,p,msg);break;
         case 'objective_status':r=await Objectives.list(p);break;
         case 'objective_claim':r=await Objectives.claim(p,msg.id);break;
         case 'intro_status':r=await FirstFriend.status(p);break;
@@ -244,6 +270,7 @@ export class Shard {
         case 'momo_hist': r = await Social.history(p); break;
         case 'topup': if(Date.now()-(p.topupAt||0)<5000){r={t:'topup',error:'Please wait before retrying.'};break;}p.topupAt=Date.now();r = { t: 'topup', ...(await Social.topupInit(p.acct, msg.pack, msg.email,msg.orderKey,msg.phone)) }; break;
       }
+      if(r?.state&&msg.t.startsWith('life_'))this.send(p,{t:'st',state:r.state});
       if (r) this.send(p, r);
       if (msg.t === 'dm') this.send(p, { t: 'dm_ack', clientId: typeof msg.clientId === 'string' ? msg.clientId.slice(0,80) : null, ok: r?.t === 'dm_sent', m: r?.m || 'Message was not sent.' });
     } catch (e) { if(msg.t === 'dm') this.send(p,{t:'dm_ack',clientId:typeof msg.clientId === 'string' ? msg.clientId.slice(0,80) : null,ok:false,m:'Message service unavailable. Your draft is kept.'}); console.error('[async ' + msg.t + ']', e.message); this.send(p, { t: 'toast', k: 'bad', m: 'Network wahala. Try again.' }); }
@@ -315,16 +342,19 @@ export class Shard {
     for (const x of [p, o]) this.send(x, { t: 'toast', k: 'gold', m: ` You and ${x === p ? o.name : p.name} are now together!` });
     Gist.post(o, ` Off the market! Me and @${p.name} are officially a thing.`, true).catch(() => {});
   }
-  visit(p, m) {
+  visit(p, m,queued=false) {
     const o = this.byName(m.name); const now = Date.now();
     if (!o || o === p) return this.send(p, { t: 'toast', k: 'bad', m: 'They are not online right now.' });
     if (!o.state.home || o.state.place !== 'home') return this.send(p, { t: 'toast', k: 'bad', m: `${o.name} is not at home.` });
+    if(this.phase8Ready&&!this.canVisit(p,o))return this.send(p,{t:'toast',k:'bad',m:'Home visits require an accepted mutual friendship and unblocked access.'});
     const f = p.state.friends[o.acct]; if (!f || f.pts < 10) return this.send(p, { t: 'toast', k: 'bad', m: `You need to know ${o.name} a bit first (Acquaintance) before you visit.` });
     const hp = Game.HOME_POS[o.state.home];
+    if(this.phase8Ready&&!p.bot){const run=shadow=>Game.travel(shadow,{to:'visit:'+o.acct,mode:D.TRANSPORT[m.mode]?m.mode:'trotro'},now,this,{x:hp.x,z:hp.z,name:`${o.name}'s place`});run.request=m;return gameTransaction(this,p,run,now,queued);}
     const r = Game.travel(p, { to: 'visit:' + o.acct, mode: D.TRANSPORT[m.mode] ? m.mode : 'trotro' }, now, this, { x: hp.x, z: hp.z, name: `${o.name}'s place` });
     if (r) { this.send(p, r); this.after(p, r); }
   }
   // ---------------- daily gem hunt: a gem hides in one place; first to find it wins ----------------
+  canVisit(p,o){return !!(o&&o!==p&&o.state.home&&o.state.place==='home'&&!Social.isBlockedBy(p.state,o.acct)&&!Social.isBlockedBy(o.state,p.acct)&&p.state.friends[o.acct]?.accepted&&o.state.friends[p.acct]?.accepted);}
   gemInfo() { const g = this.gem; return g && { id: g.id, place: g.place, seed: g.seed, prize: g.prize, until: g.until }; }
   gemTick() {
     const now = Date.now();
@@ -396,12 +426,16 @@ export class Shard {
   }
   slowTick() {
     const t0 = performance.now(); const now = Date.now(); const odd = (this.slowN = (this.slowN || 0) + 1) & 1;
+    if(this.phase8Ready&&!this.sharedPending&&!odd){this.sharedPending=true;Life.sharedTick(this).catch(e=>console.error('[shared activity]',e.code||'deferred')).finally(()=>{this.sharedPending=false;});}
     for (const p of this.players.values()) {
-      if(p.moneyBusy||p.onboardingSave)continue;
+      if(p.connecting||p.moneyBusy||p.moneyUncertain||p.onboardingSave)continue;
       try {
+        if(this.phase8Ready&&p.state.place?.startsWith('visit:')&&!this.canVisit(p,this.byAcct(+p.state.place.slice(6)))){Game.goPlace(p,'circle');p.dirty=true;this.enterRoom(p);}
         if(!p.bot&&this.slowN%10===0)Social.claim(p).then(l=>l.forEach(m=>this.send(p,m))).catch(e=>console.error('[claim]',e.code||'transaction failed'));
         if(p.moneyBusy)continue;
-        const r = Game.tick(p, now, this); if (r) { p.dirty = true; this.send(p, r); this.after(p, r); }
+        if(this.phase8Ready&&!p.bot&&durableTick(p.state,now)){gameTransaction(this,p,null,now);continue;}
+        const r = Game.tick(p, now, this);if(p.state.onboarded)p.dirty=true;
+        if (r) { this.send(p, r); this.after(p, r); }
         if (p.state.onboarded && p.state.place !== p.roomPlace) this.enterRoom(p);
         // status changes (started/finished an activity) are shown to the room
         const b = p.state.busy, key = b && !b.travel ? b.id : p.state.shift ? 'shift' : '';

@@ -316,6 +316,7 @@ function openStylist(mode) {
 }
 // ---------------------------------------------------------------- server messages
 function bindNet() {
+  let lifeSync;net.on('life_notice',m=>{phone.notify({app:'relationships',title:m.from?'@'+m.from:'Life update',body:m.message||'An invitation is waiting in People.'});clearTimeout(lifeSync);lifeSync=setTimeout(()=>net.send({t:'life_status',section:'relationships'}),1800);});
   const merge = (st) => { G.state = st; refresh(); };
   net.on('st', (m) => merge(m.state));
   net.on('me', (m) => { const s = G.state; for (const k of ['n', 'cash', 'momo', 'mood', 'busy', 'shift', 'job', 'sick', 'food', 'home', 'rep', 'xp', 'moodlets', 'dumsor', 'jail', 'place']) if (k in m) s[k] = m[k]; refresh(); });
@@ -394,7 +395,7 @@ function bindNet() {
   net.on('intro',m=>{if(G.introPaused!==m.optedOut){G.introPaused=m.optedOut;setTimeout(()=>net.send({t:'objective_status'}),2000);}});
   net.on('objectives',m=>{G.objectives=m.rows;if(m.state)G.state=m.state;hud.objective(m.rows);refresh();});
   let objectiveTimer;
-  for(const event of ['arrived','done','shiftDone','bought','dm_sent','intro_complete'])net.on(event,()=>{clearTimeout(objectiveTimer);objectiveTimer=setTimeout(()=>net.send({t:'objective_status'}),2000);});
+  for(const event of ['arrived','done','shiftDone','bought','dm_sent','intro_complete','life_result','life_notice'])net.on(event,m=>{if(m.error)return;clearTimeout(objectiveTimer);objectiveTimer=setTimeout(()=>net.send({t:'objective_status'}),2000);});
   // Oware
   net.on('oware', (m) => { phone.close(); closeSheets(); owareView(ui, m); });
   net.on('oware_invite', async (m) => { const yes = await confirmBox({ title: ` ${m.from} challenges you to Oware`, text: m.stake ? `Stake ${cedi(m.stake)} each · winner takes ${cedi(Math.round(m.stake * 2 * 0.95))}.` : 'Friendly game, no money.', yes: 'Play', no: 'Not now' }); net.send({ t: 'oware_answer', id: m.id, yes }); });

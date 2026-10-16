@@ -15,15 +15,17 @@ import * as Social from './social.js';
 import * as Payments from './payments.js';
 import * as FirstFriend from './first-friend.js';
 import * as Objectives from './objectives.js';
+import * as Life from './life-service.js';
 import { signup, login, check, authenticate, cookieToken, sessionCookie, revoke, changePassword } from './auth.js';
 import { securityHeaders, inlineScriptHashes, staticPath, allowedOrigin, clientIp, RateLimiter, parseMessage, takeMessage } from './security.js';
 import { Shard } from './shard.js';
 import { Bus } from './bus.js';
 
-for (let i = 1; ; i++) { try { await migrate(); await Ads.migrateAds(); await migrateGist(); await Social.migrateSocial(); await Payments.migratePayments();await FirstFriend.migrateFirstFriend();await Objectives.migrateObjectives(); break; } catch (e) { console.error(`[db] not ready (${e.code || e.message}), retry ${i} in 3s`); await new Promise((r) => setTimeout(r, 3000)); } }
+for (let i = 1; ; i++) { try { await migrate(); await Ads.migrateAds(); await migrateGist(); await Social.migrateSocial(); await Payments.migratePayments();await FirstFriend.migrateFirstFriend();await Life.migrateLife();await Objectives.migrateObjectives(); break; } catch (e) { console.error(`[db] not ready (${e.code || e.message}), retry ${i} in 3s`); await new Promise((r) => setTimeout(r, 3000)); } }
 let shard;
 const bus = new Bus(CFG.shardId, (ch, m) => shard && shard.fromBus(ch, m));
 shard = new Shard(bus);
+shard.phase8Ready=true;
 Payments.registerPayment('ad',Ads.fulfillPayment);
 Payments.registerPayment('topup',Social.fulfillPayment);
 Social.observeMessages(FirstFriend.reply);
@@ -202,7 +204,9 @@ app.ws('/ws', {
     d.sessionTimer=setInterval(async()=>{
       if(d.checking||!d.open)return;d.checking=true;
       try { if(!d.acct.bot) {const a=d.sessionToken?await authenticate(d.sessionToken):(d.acct.exp>Date.now()&&(await pool.query('select id from accounts where id=$1 and not banned',[d.acct.id])).rows[0]);if(!a&&d.open)ws.end(4003,'Session expired');} }
-      catch { if(d.open)ws.end(4003,'Session unavailable'); }
+      // Disconnect on an unavailable verifier, but allow a fresh cookie-authenticated
+      // connection to retry. Only a verified invalid session gets the terminal code.
+      catch { if(d.open)ws.end(1013,'Session service unavailable'); }
       finally {d.checking=false;}
     },30000);
   },

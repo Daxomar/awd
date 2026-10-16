@@ -33,7 +33,7 @@ export function effectChips(a) {
   for (const k of Object.keys(fx)) { const v = fx[k]; if (!v || !NEED_IC[k]) continue; out.push(h('span.tagc.' + (v > 0 ? 'up' : 'down'), null, `${NEED_IC[k]} ${v > 0 ? '+' : ''}${v}`)); }
   for (const k of a.skill || []) out.push(h('span.tagc', null, `↑ ${G.cat.skills[k]}`));
   if (a.food) out.push(h('span.tagc.up', null, `+${a.food} home meals`));
-  if (a.crime) out.push(h('span.tagc.down', null, ` ${a.crime}% risk`));
+  if (a.crime) {const risk=Math.max(5,Math.min(92,a.crime+(G.state.heat||0)/2.5-Math.floor(G.state.skills[a.crimeSkill]||0)*3));out.push(h('span.tagc.down',null,`${Math.round(risk)}% game detection risk`));}
   if (a.cures) out.push(h('span.tagc.up', null, a.cures === 'serious' ? 'Cures all' : 'Cures mild'));
   if (a.rep) out.push(h('span.tagc.up', null, `+${a.rep} rep`));
   return out;

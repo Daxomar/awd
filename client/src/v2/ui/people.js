@@ -27,7 +27,7 @@ export function openPerson(pid,name,act){
    offs.push(net.on('social_done',m=>{if(m.with?.toLowerCase()===name.toLowerCase()&&m.kind===kind)finishSocial?.(true,m);}),net.on('rsocial',m=>{if(kind==='propose'&&m.a===G.myId&&m.b===pid&&m.kind===kind)finishSocial?.(true,m);}),net.on('toast',m=>{
     // Ask-out sends a personal confirmation toast, not social_done or rsocial.
     if(kind==='askout'&&m.m?.trim()===`You asked ${name} out. Waiting…`)finishSocial?.(true,m);
-    else finishSocial?.(false,Error(m.m));
+    else if(m.k==='bad')finishSocial?.(false,Error(m.m));
    }),net.on('connection',m=>{if(!m.connected)finishSocial?.(false,Error('Connection lost. Try again when you reconnect.'));}));
    timer=setTimeout(()=>finishSocial?.(false,Error('The interaction was not confirmed. Try again.')),10000);net.send({t:'social',id:pid,kind});
   });
@@ -38,11 +38,11 @@ export function openPerson(pid,name,act){
   const socs=h('div.socials',null,...SOCIALS.map(([kind,icon,label,min])=>h('button.soc'+(pts<min?'.locked':''),{'aria-disabled':String(pts<min),onclick:async()=>{
    if(pending)return;if(pts<min){fail(`Reach ${min} friendship to ${label.toLowerCase()}.`);return;}
    pending=true;error.hidden=true;notice.textContent='Waiting for confirmation…';socs.querySelectorAll('button').forEach(b=>b.disabled=true);
-   try{await social(kind);if(!disposed){act.socialFx?.(pid,kind);sh.close();}}catch(e){fail(e.message);}finally{pending=false;notice.textContent='';socs.querySelectorAll('button').forEach(b=>b.disabled=false);}
+   try{const result=await social(kind);if(!disposed){if(!result.pending)act.socialFx?.(pid,kind);sh.close();}}catch(e){fail(e.message);}finally{pending=false;notice.textContent='';socs.querySelectorAll('button').forEach(b=>b.disabled=false);}
   }},h('span.se',null,icon),label)));
   const button=(text,icon,fn)=>h('button.world-row',{onclick:()=>{sh.close();fn();}},ic(icon),h('span',null,text),ic('caret-right'));
   body.replaceChildren(card,h('h3.panel-heading',null,'Spend time together'),socs,notice,error,h('h3.panel-heading',null,'Keep in touch'),
-   button('Private message','chat-circle-text',()=>act.message(p.name)),button('Send money','hand-coins',()=>act.sendMoney(p.name)),button('Challenge to Oware','squares-four',()=>act.oware(pid,p.name)),
+   button('Friendship & invitations','users',()=>act.phone('relationships',{name:p.name})),button('Private message','chat-circle-text',()=>act.message(p.name)),button('Send money','hand-coins',()=>act.sendMoney(p.name)),button('Challenge to Oware','squares-four',()=>act.oware(pid,p.name)),
    button('Report player','flag',()=>net.send({t:'report',id:pid,reason:'Reported from player card'})),button(p.blocked?'Unblock':'Block','prohibit',()=>net.send({t:'block',name:p.name,on:!p.blocked})));
  }
  load();return sh;

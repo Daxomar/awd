@@ -1,0 +1,414 @@
+{
+  "date": "2026-10-16",
+  "status": "pending final career attendance and exact-commit container CI",
+  "characterBaseline": "1315e76; clean candidate excludes concurrent uncommitted character files",
+  "automated": {
+    "server": {
+      "tests": 73,
+      "pass": 73,
+      "fail": 0,
+      "skipped": 0
+    },
+    "client": {
+      "tests": 60,
+      "pass": 60,
+      "fail": 0,
+      "skipped": 0
+    },
+    "databaseChecks": 62
+  },
+  "productionBuild": {
+    "passed": true,
+    "mainKB": 542.21,
+    "mainGzipKB": 196.77,
+    "basis": "Clean staged candidate with committed character assets; Vite production build."
+  },
+  "dependencyAudit": {
+    "clientVulnerabilities": 0,
+    "serverProductionVulnerabilities": 0
+  },
+  "integrations": {
+    "payments": {
+      "passed": 9,
+      "checks": [
+        "concurrent initialization/reload creates one persistent order and checkout",
+        "signed callback and account ownership",
+        "wrong amount/currency never credit",
+        "verification and signed webhook retries fulfill once",
+        "second provider charge retained for refund review, no second credit",
+        "missing webhook reconciles independently of browser return",
+        "interrupted initialization persists and cannot start a second charge",
+        "migration rerun does not replay historical fulfillment",
+        "confirmed failure retries the same order with a durable new attempt; late old success flagged without double credit"
+      ]
+    },
+    "advertising": {
+      "passed": 9,
+      "checks": [
+        "SVG/executable artwork rejected",
+        "exclusive ground rental concurrent booking prevented",
+        "campaign and pending artwork ownership",
+        "verified payment requires moderation before activation",
+        "activation once; no duplicate extension",
+        "measured exposure threshold, persisted metrics and deduplication",
+        "expired campaign stops rendering/counting and releases surface",
+        "late charge after reservation expiry cannot activate",
+        "additive migration preserves existing orders"
+      ]
+    },
+    "firstFriend": {
+      "passed": 10,
+      "checks": [
+        "no eligible player offers honest waiting fallback, no fake match",
+        "consent required; declined introduction sends no DM",
+        "declined pair is never re-offered",
+        "pending consent persists through disconnect/reconnect",
+        "safe rematch, acceptance and existing DM delivery once",
+        "short replies and client-invented DM IDs earn nothing",
+        "genuine stored reply completes once; duplicate events cannot pay twice",
+        "recipient daily reward cap blocks manufactured repeated welcomes",
+        "opt-out respected, self matching excluded",
+        "expired request cannot be accepted"
+      ]
+    },
+    "objectives": {
+      "passed": 6,
+      "checks": [
+        "incomplete/forged claim rejected",
+        "server visit records real progress",
+        "duplicate claim awards once",
+        "no cash balance change",
+        "reload persists XP and claim",
+        "migration rerun preserves claim"
+      ]
+    },
+    "life": {
+      "passed": 28,
+      "checks": [
+        "business startup and action replay debit once",
+        "stock, expense, real profit records, offline cap and idempotent settlement",
+        "capital cycling is not counted as income; closure retains stock/cash",
+        "two competing buyers transfer one escrowed phone and one durable seller payment without duplicate financial history",
+        "closed, unauthorized and duplicate marketplace actions cannot duplicate inventory",
+        "nonexistent relationships cannot be removed/ended to create unsolicited notices or rows",
+        "replayed social receipts cannot repeatedly notify another player",
+        "friendship requires mutual persistent consent",
+        "co-located shared activity completes once, with bounded friendship and no cash",
+        "romance acceptance is mutual, exclusive and reversible",
+        "room departure/reconnect cancels shared progress without charging",
+        "blocking and unavailable players cannot receive new consent requests",
+        "durable financial/life events and player state survive reload",
+        "additive migration rerun preserves balances and completed relationships",
+        "failed transactions roll back wallet, stock and financial journal together",
+        "replayed ordinary gameplay purchase reference cannot debit twice",
+        "expired listings cannot sell; collecting escrow is one-time and persistent",
+        "recipient may decline after the initiating player disconnects",
+        "expired or privacy-disabled romantic invitations cannot be accepted",
+        "life actions have no real-payment or cash-out operation",
+        "phone requests wait for an existing account transaction before reading or changing state",
+        "ordinary gameplay waits behind account reads; a client cannot invoke the internal queue envelope",
+        "a committed but unconfirmed transaction requires canonical reload and cannot overwrite the saved debit",
+        "a participant still loading saved state cannot enter a multi-account mutation",
+        "additive relationship import tolerates null, array and nonnumeric legacy friend fields without resetting wallets",
+        "shared meals charge both real menu prices atomically and complete once",
+        "funds spent after accepting a shared meal cancel both charges and rewards at completion",
+        "every fixture wallet reconciles to its initial balance plus permanent financial entries"
+      ],
+      "performance": {
+        "databaseQueries": {
+          "samples": 663,
+          "medianMs": 0.94,
+          "p95Ms": 6.53,
+          "maxMs": 2832.34
+        },
+        "lifeActions": {
+          "samples": 43,
+          "medianMs": 18.36,
+          "p95Ms": 40.8,
+          "maxMs": 372.65
+        },
+        "businessSettlements": {
+          "samples": 2,
+          "medianMs": 22.72,
+          "p95Ms": 22.72,
+          "maxMs": 22.72
+        },
+        "scope": "Loopback PostgreSQL; three disposable participants, including two concurrent buyers. Not a production capacity benchmark."
+      }
+    }
+  },
+  "browser": {
+    "career_resume": {
+      "status": "pending"
+    },
+    "commerce": {
+      "passed": [
+        "Hustler business creation from unchanged starting wallet",
+        "wholesale inventory and price/open configuration",
+        "bounded simulated sales and stored statements",
+        "till withdrawal",
+        "business reload",
+        "real existing Circle phone purchase",
+        "escrow listing",
+        "Dbee purchase plus existing fee",
+        "seller credited once",
+        "both inventories persist after reload"
+      ],
+      "businessSales": 10,
+      "settlementFixture": "Only this disposable business was aged to exercise elapsed-period settlement; no device clock or wallet edit.",
+      "errors": []
+    },
+    "business_reconnect": {
+      "passed": [
+        "real reserve contribution committed once",
+        "lost UI confirmation with retained account-scoped action reference",
+        "actual reload and authenticated reconnect",
+        "same receipt replay returns saved result with no second debit"
+      ],
+      "faultInjection": "Only the life_result UI receipt was withheld; server rules, commit, wallet broadcast and authentication were genuine.",
+      "errors": []
+    },
+    "social": {
+      "passed": [
+        "existing travel to real shared venue",
+        "friend request and consent",
+        "30-second co-located activity",
+        "mutual dating acceptance",
+        "persistent romance after reload",
+        "unilateral breakup",
+        "active shared activity cancels on reconnect with no duplicate reward"
+      ],
+      "errors": []
+    },
+    "housing": {
+      "passed": [
+        "unchanged Dbee GH25000 start",
+        "existing Circle gig pays actual earned income after real transport",
+        "eligible furniture purchase and room update",
+        "real home cooking",
+        "saved expenses and housing obligations",
+        "existing housing options and actual GH960 Jamestown rental with rebuilt room",
+        "long-term objectives",
+        "item persists after reload"
+      ],
+      "errors": []
+    },
+    "crime": {
+      "passed": [
+        "existing fictional crowd crime",
+        "server risk/outcome and financial consequence",
+        "separate legal standing",
+        "saved accounting"
+      ],
+      "outcome": {
+        "at": 1792155034646,
+        "fine": 240,
+        "risk": 0.35,
+        "action": "pickpocket",
+        "caught": true
+      },
+      "errors": []
+    },
+    "dbee": {
+      "passed": [
+        "unchanged Dbee birth outcome; no added money",
+        "career application at existing workplace",
+        "accessory business startup, stock, operations and statement",
+        "existing trotro journey",
+        "mutual friendship and real shared activity",
+        "persistent career and business after reconnect"
+      ],
+      "errors": []
+    },
+    "layouts": {
+      "viewports": [
+        {
+          "width": 375,
+          "height": 812,
+          "horizontalOverflow": false
+        },
+        {
+          "width": 390,
+          "height": 844,
+          "horizontalOverflow": false
+        },
+        {
+          "width": 430,
+          "height": 932,
+          "horizontalOverflow": false
+        },
+        {
+          "width": 390,
+          "height": 530,
+          "horizontalOverflow": false
+        },
+        {
+          "width": 844,
+          "height": 390,
+          "horizontalOverflow": false
+        }
+      ],
+      "repeatedScreens": [
+        {
+          "cycle": 1,
+          "statusRoundTripMs": 106.53,
+          "usedJSHeapBytes": 49987796,
+          "subscriptions": {
+            "life_status": 1,
+            "life_result": 2,
+            "life_notice": 3,
+            "connection": 3
+          },
+          "documents": 2,
+          "nodes": 1199,
+          "jsEventListeners": 133
+        },
+        {
+          "cycle": 2,
+          "statusRoundTripMs": 128.33,
+          "usedJSHeapBytes": 49989520,
+          "subscriptions": {
+            "life_status": 1,
+            "life_result": 2,
+            "life_notice": 3,
+            "connection": 3
+          },
+          "documents": 2,
+          "nodes": 1199,
+          "jsEventListeners": 133
+        },
+        {
+          "cycle": 3,
+          "statusRoundTripMs": 358.26,
+          "usedJSHeapBytes": 50048596,
+          "subscriptions": {
+            "life_status": 1,
+            "life_result": 2,
+            "life_notice": 3,
+            "connection": 3
+          },
+          "documents": 2,
+          "nodes": 1199,
+          "jsEventListeners": 133
+        },
+        {
+          "cycle": 4,
+          "statusRoundTripMs": 339.42,
+          "usedJSHeapBytes": 50044408,
+          "subscriptions": {
+            "life_status": 1,
+            "life_result": 2,
+            "life_notice": 3,
+            "connection": 3
+          },
+          "documents": 2,
+          "nodes": 1199,
+          "jsEventListeners": 132
+        },
+        {
+          "cycle": 5,
+          "statusRoundTripMs": 255.27,
+          "usedJSHeapBytes": 50135820,
+          "subscriptions": {
+            "life_status": 1,
+            "life_result": 2,
+            "life_notice": 3,
+            "connection": 3
+          },
+          "documents": 2,
+          "nodes": 1200,
+          "jsEventListeners": 135
+        },
+        {
+          "cycle": 6,
+          "statusRoundTripMs": 181.88,
+          "usedJSHeapBytes": 50145212,
+          "subscriptions": {
+            "life_status": 1,
+            "life_result": 2,
+            "life_notice": 3,
+            "connection": 3
+          },
+          "documents": 2,
+          "nodes": 1199,
+          "jsEventListeners": 132
+        },
+        {
+          "cycle": 7,
+          "statusRoundTripMs": 492.78,
+          "usedJSHeapBytes": 50124220,
+          "subscriptions": {
+            "life_status": 1,
+            "life_result": 2,
+            "life_notice": 3,
+            "connection": 3
+          },
+          "documents": 2,
+          "nodes": 1199,
+          "jsEventListeners": 136
+        },
+        {
+          "cycle": 8,
+          "statusRoundTripMs": 97.26,
+          "usedJSHeapBytes": 50097376,
+          "subscriptions": {
+            "life_status": 1,
+            "life_result": 2,
+            "life_notice": 3,
+            "connection": 3
+          },
+          "documents": 2,
+          "nodes": 1199,
+          "jsEventListeners": 130
+        },
+        {
+          "cycle": 9,
+          "statusRoundTripMs": 95.07,
+          "usedJSHeapBytes": 50118032,
+          "subscriptions": {
+            "life_status": 1,
+            "life_result": 2,
+            "life_notice": 3,
+            "connection": 3
+          },
+          "documents": 2,
+          "nodes": 1199,
+          "jsEventListeners": 130
+        },
+        {
+          "cycle": 10,
+          "statusRoundTripMs": 886.75,
+          "usedJSHeapBytes": 50145560,
+          "subscriptions": {
+            "life_status": 1,
+            "life_result": 2,
+            "life_notice": 3,
+            "connection": 3
+          },
+          "documents": 2,
+          "nodes": 1199,
+          "jsEventListeners": 133
+        }
+      ],
+      "rendering": "Sampled SwiftShader desktop browser; no phone FPS assertion.",
+      "errors": []
+    }
+  },
+  "uiPerformance": {
+    "cycles": 10,
+    "medianRoundTripMs": 218.57,
+    "p95NearestRankMs": 886.75,
+    "initialJSHeapBytes": 49987796,
+    "finalJSHeapBytes": 50145560,
+    "heapDeltaBytes": 157764,
+    "initialDOMNodes": 1199,
+    "finalDOMNodes": 1199,
+    "minDOMListeners": 130,
+    "maxDOMListeners": 136,
+    "stableLifeSubscriptions": true
+  },
+  "diagnosticScope": "8 GB Windows desktop; local PostgreSQL and Chromium/SwiftShader, low pixel ratio, sampled rendering, later runs pace animation callbacks and disable CSS animation/blur, WebGL shadows and GPU compositing. No physical-phone FPS or production-capacity claim. Early failed runs exposed save/queue/reconnect defects and host CPU contention; they were not counted as passes.",
+  "publicDeployment": false,
+  "realPayments": false,
+  "phase9Started": false
+}

@@ -1,0 +1,266 @@
+{
+  "date": "2026-10-16",
+  "days": 28,
+  "trialsPerScenario": 30,
+  "runs": 300,
+  "cadence": {
+    "employment": {
+      "days": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "visits": 7,
+      "business": false
+    },
+    "business": {
+      "days": [
+        0,
+        2,
+        4
+      ],
+      "visits": 7,
+      "business": true
+    },
+    "social": {
+      "days": [
+        1,
+        4
+      ],
+      "visits": 7,
+      "business": false
+    },
+    "mixed": {
+      "days": [
+        0,
+        1,
+        3,
+        4
+      ],
+      "visits": 7,
+      "business": true
+    },
+    "casual": {
+      "days": [
+        1,
+        4
+      ],
+      "visits": 2,
+      "business": true
+    }
+  },
+  "assumptions": [
+    "Natural birth totals and first eligible home from existing catalogue; starting rent advance not deducted in this scenario model.",
+    "Existing tech entry salary GH150; one real hour per attended shift on valid weekdays; no invented social income, top-ups, First Friend cash, salary bonuses or speculative trading partners.",
+    "No promotions assumed: deliberately conservative. Existing salary/skill promotion rules are unit/integration tested separately.",
+    "One active GH20 meal and GH8 data per visit, plus up to three GH22 offline meals per return; weekly rent and existing tax bands. Other transport is walking; discretionary luxury, loans, real payment and random medical/crime outcomes excluded.",
+    "Managed business uses actual demandPeriod with transparent deterministic trial noise; daily visitors settle daily, casual visitors settle at two visits/week and lose periods beyond the 48-hour cap. Inventory purchases and till movements are tracked; retained stock is not cash.",
+    "Equal-sized start cohorts compare paths; concentration below is not an estimate of the real player population or birth-odds distribution.",
+    "Model is a budget stress test, not a full server/NPC/needs simulation. Missed rent is counted without modeling relocation after eviction. Different home choices, careers, play times and purchases materially change results."
+  ],
+  "summaries": [
+    {
+      "origin": "hustler",
+      "style": "employment",
+      "initial": 800,
+      "home": "nima",
+      "weeklyRent": 110,
+      "meanWallet": 794,
+      "minWallet": 794,
+      "salary": 3000,
+      "outflow": 3006,
+      "sales": 0,
+      "operatingProfit": 0,
+      "businessOpened": 0,
+      "meanBusinessDay": null,
+      "housingAdvanceAffordableTrials": 30,
+      "meanHousingAdvanceDay": 1,
+      "rentMisses": 0,
+      "daysBelowMealCost": 0
+    },
+    {
+      "origin": "hustler",
+      "style": "business",
+      "initial": 800,
+      "home": "nima",
+      "weeklyRent": 110,
+      "meanWallet": 1.87,
+      "minWallet": 0,
+      "salary": 1800,
+      "outflow": 4056.53,
+      "sales": 126.87,
+      "operatingProfit": 423.67,
+      "businessOpened": 30,
+      "meanBusinessDay": 0,
+      "housingAdvanceAffordableTrials": 0,
+      "meanHousingAdvanceDay": null,
+      "rentMisses": 1.83,
+      "daysBelowMealCost": 2.3
+    },
+    {
+      "origin": "hustler",
+      "style": "social",
+      "initial": 800,
+      "home": "nima",
+      "weeklyRent": 110,
+      "meanWallet": 2,
+      "minWallet": 2,
+      "salary": 1200,
+      "outflow": 1998,
+      "sales": 0,
+      "operatingProfit": 0,
+      "businessOpened": 0,
+      "meanBusinessDay": null,
+      "housingAdvanceAffordableTrials": 0,
+      "meanHousingAdvanceDay": null,
+      "rentMisses": 3,
+      "daysBelowMealCost": 6
+    },
+    {
+      "origin": "hustler",
+      "style": "mixed",
+      "initial": 800,
+      "home": "nima",
+      "weeklyRent": 110,
+      "meanWallet": 350.6,
+      "minWallet": 6,
+      "salary": 2400,
+      "outflow": 4931.53,
+      "sales": 180.4,
+      "operatingProfit": 634.4,
+      "businessOpened": 30,
+      "meanBusinessDay": 0,
+      "housingAdvanceAffordableTrials": 0,
+      "meanHousingAdvanceDay": null,
+      "rentMisses": 0.27,
+      "daysBelowMealCost": 0.43
+    },
+    {
+      "origin": "hustler",
+      "style": "casual",
+      "initial": 800,
+      "home": "nima",
+      "weeklyRent": 110,
+      "meanWallet": 561.6,
+      "minWallet": 344,
+      "salary": 1200,
+      "outflow": 2194.67,
+      "sales": 67.33,
+      "operatingProfit": 213.33,
+      "businessOpened": 30,
+      "meanBusinessDay": 1,
+      "housingAdvanceAffordableTrials": 0,
+      "meanHousingAdvanceDay": null,
+      "rentMisses": 0,
+      "daysBelowMealCost": 0
+    },
+    {
+      "origin": "dbee",
+      "style": "employment",
+      "initial": 25000,
+      "home": "osu",
+      "weeklyRent": 1600,
+      "meanWallet": 19034,
+      "minWallet": 19034,
+      "salary": 3000,
+      "outflow": 8966,
+      "sales": 0,
+      "operatingProfit": 0,
+      "businessOpened": 0,
+      "meanBusinessDay": null,
+      "housingAdvanceAffordableTrials": 30,
+      "meanHousingAdvanceDay": 0,
+      "rentMisses": 0,
+      "daysBelowMealCost": 0
+    },
+    {
+      "origin": "dbee",
+      "style": "business",
+      "initial": 25000,
+      "home": "osu",
+      "weeklyRent": 1600,
+      "meanWallet": 17943.47,
+      "minWallet": 17304,
+      "salary": 1800,
+      "outflow": 10940.27,
+      "sales": 180.53,
+      "operatingProfit": 634.93,
+      "businessOpened": 30,
+      "meanBusinessDay": 0,
+      "housingAdvanceAffordableTrials": 30,
+      "meanHousingAdvanceDay": 0,
+      "rentMisses": 0,
+      "daysBelowMealCost": 0
+    },
+    {
+      "origin": "dbee",
+      "style": "social",
+      "initial": 25000,
+      "home": "osu",
+      "weeklyRent": 1600,
+      "meanWallet": 17234,
+      "minWallet": 17234,
+      "salary": 1200,
+      "outflow": 8966,
+      "sales": 0,
+      "operatingProfit": 0,
+      "businessOpened": 0,
+      "meanBusinessDay": null,
+      "housingAdvanceAffordableTrials": 30,
+      "meanHousingAdvanceDay": 0,
+      "rentMisses": 0,
+      "daysBelowMealCost": 0
+    },
+    {
+      "origin": "dbee",
+      "style": "mixed",
+      "initial": 25000,
+      "home": "osu",
+      "weeklyRent": 1600,
+      "meanWallet": 18543.47,
+      "minWallet": 17904,
+      "salary": 2400,
+      "outflow": 10940.27,
+      "sales": 180.53,
+      "operatingProfit": 634.93,
+      "businessOpened": 30,
+      "meanBusinessDay": 0,
+      "housingAdvanceAffordableTrials": 30,
+      "meanHousingAdvanceDay": 0,
+      "rentMisses": 0,
+      "daysBelowMealCost": 0
+    },
+    {
+      "origin": "dbee",
+      "style": "casual",
+      "initial": 25000,
+      "home": "osu",
+      "weeklyRent": 1600,
+      "meanWallet": 18801.6,
+      "minWallet": 18584,
+      "salary": 1200,
+      "outflow": 8154.67,
+      "sales": 67.33,
+      "operatingProfit": 213.33,
+      "businessOpened": 30,
+      "meanBusinessDay": 1,
+      "housingAdvanceAffordableTrials": 30,
+      "meanHousingAdvanceDay": 0,
+      "rentMisses": 0,
+      "daysBelowMealCost": 0
+    }
+  ],
+  "top20PercentLiquidAndStockShare": 40.47,
+  "findings": [
+    "The starts retain a substantial wealth gap. Wealth is not proof of a profitable operation.",
+    "Pure social play with few paid shifts is not financially self-supporting under daily return food costs; existing offline food/rent bands are an approval topic, not silently changed.",
+    "A stock-limited provision stall is supplementary income, not a replacement for early employment.",
+    "Casual cadence benefits from capped offline meals but misses demand beyond 48 hours. Lower-rent home choices matter."
+  ],
+  "approvalRecommendations": [
+    "Review offline-food burden and basic-career wage viability across all existing ranks before production; keep existing values until approved.",
+    "Physical-device and live concurrency/load testing before release."
+  ]
+}

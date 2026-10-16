@@ -15,6 +15,18 @@ export const DEFINITIONS=[
   {id:'first_outfit',title:'Make your look your own',description:'Save an actual change to your outfit or appearance.',xp:15,action:'boutique'},
   {id:'two_areas',title:'Explore two districts',description:'Visit public destinations in two different areas.',xp:25,badge:'City explorer',action:'explore'},
   {id:'return_home',title:'Find your way home',description:'Return home after exploring a public destination.',xp:15,badge:'At home in Accra',action:'home'},
+  {id:'career_five',category:'long',title:'Build a work record',description:'Complete five recorded career shifts.',xp:25,action:'progression'},
+  {id:'career_promotion',category:'long',title:'Earn a promotion',description:'Reach a higher career rank through existing eligibility rules.',xp:25,badge:'Moving forward',action:'progression'},
+  {id:'skill_three',category:'long',title:'Develop a practical skill',description:'Reach level three in an existing skill.',xp:20,action:'progression'},
+  {id:'savings_target',category:'long',title:'Build a savings reserve',description:'After earning income, place at least GH₵1,000 in existing fixed savings.',xp:20,action:'bank'},
+  {id:'business_start',category:'long',title:'Open your own operation',description:'Create a managed business with game money.',xp:20,action:'enterprise'},
+  {id:'business_sale',category:'long',title:'Make a first business sale',description:'Sell stocked goods through settled simulated demand.',xp:20,action:'enterprise'},
+  {id:'business_profit',category:'long',title:'Reach operating profit',description:'Accumulate GH₵100 operating profit in managed businesses.',xp:25,action:'enterprise'},
+  {id:'player_trade',category:'long',title:'Trade with another player',description:'Complete a permitted phone resale purchase or receive its sale proceeds.',xp:20,action:'market'},
+  {id:'mutual_friend',category:'long',title:'Build a mutual friendship',description:'Accept a real player friend request.',xp:15,action:'relationships'},
+  {id:'shared_five',category:'long',title:'Make time for people',description:'Complete five consented shared venue activities.',xp:25,badge:'Good company',action:'relationships'},
+  {id:'home_ownership',category:'long',title:'A home of your own',description:'Buy a home through the existing property system.',xp:25,action:'houses'},
+  {id:'own_vehicle',category:'long',title:'Your own vehicle',description:'Own a vehicle from the existing catalogue.',xp:20,action:'cars'},
 ];
 export function progressOf(s,id,friend=false){
   const visits=Object.keys(s.discovery?.visited||{}),count=s.cnt||{};
@@ -31,6 +43,18 @@ export function progressOf(s,id,friend=false){
     case 'first_outfit':return count.outfit>0;
     case 'two_areas':return new Set(visits.map(id=>Game.LOC[id]).filter(l=>l&&!l.estate).map(l=>l.area)).size>=2;
     case 'return_home':return !!s.discovery?.returned;
+    case 'career_five':return Object.values(s.life?.careers||{}).reduce((n,c)=>n+c.shifts,0)>=5;
+    case 'career_promotion':return s.stats.promos>0;
+    case 'skill_three':return Object.values(s.skills).some(v=>v>=3);
+    case 'savings_target':return s.stats.earned>0&&(s.flags.fixed?.amount||0)>=1000;
+    case 'business_start':return (s.life?.business?.created||0)>0;
+    case 'business_sale':return (s.life?.business?.sales||0)>0;
+    case 'business_profit':return (s.life?.business?.profit||0)>=100;
+    case 'player_trade':return (s.life?.commerce?.bought||0)+(s.life?.commerce?.sold||0)>0;
+    case 'mutual_friend':return Object.values(s.friends).some(f=>f.accepted&&f.pts>=30);
+    case 'shared_five':return (s.life?.shared||0)>=5;
+    case 'home_ownership':return Object.values(s.owned).some(v=>v===true);
+    case 'own_vehicle':return !!s.car;
     default:return false;
   }
 }
@@ -64,7 +88,7 @@ export async function claim(p,id){
     const changed=await db.query('update player_objectives set claimed_at=now() where acct=$1 and objective=$2 and completed_at is not null and claimed_at is null returning objective',[p.acct,id]);
     if(changed.rowCount){
       await db.query('insert into objective_rewards(acct,objective,xp,badge) values($1,$2,$3,$4)',[p.acct,id,d.xp,d.badge||null]);
-      state.xp+=d.xp;if(d.badge)state.flags.discoveryBadges=[...new Set([...(state.flags.discoveryBadges||[]),d.badge])];
+      Game.awardXp(state,d.xp);if(d.badge)state.flags.discoveryBadges=[...new Set([...(state.flags.discoveryBadges||[]),d.badge])];
     }
     d.claimed=true;return {rows,claimed:id};
   });

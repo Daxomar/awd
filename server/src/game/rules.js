@@ -11,6 +11,7 @@ import { enterLocal, updateStreetReturn } from '../street-world.js';
 import { discoverable } from './discovery.js';
 import {WORKPLACES} from '../../../shared/workplaces.js';
 import {taskView,beginTask,tickTask} from './work-tasks.js';
+import * as Life from './life-progression.js';
 export const WARD = W;
 export const DATA = D;
 
@@ -85,11 +86,11 @@ export function newState(acct) {
     rep: 0, xp: 0, stats: { earned: 0, shifts: 0, meals: 0, gigs: 0, promos: 0 }, wk: { inc: 0 }, ledger: [], flags: {}, lastWeekly: 0, lastDaily: 0, lastRent: 0, pos: null,
     place: null, friends: {}, rel: {}, cnt: {}, dc: { day: -1, cnt: {}, visits: [] }, story: { seen: {}, inbox: [], goals: [], at: 0 }, dreamTier: 0, dreamProgress: {}, dreamsDone: [], daily: { day: -1, list: [], streak: 0, lastFull: -1 } };
 }
-export const netWorth = (s) => Math.round((s.cash || 0) + (s.momo || 0) + (s.flags?.fixed?.amount || 0) - (s.loan ? s.loan.owed : 0) + Object.keys(s.biz).reduce((a, k) => a + D.BUSINESSES[k].price * 0.6, 0) + Object.values(s.land).reduce((a, l) => a + l.value, 0) + (s.car ? D.CARS[s.car].price * 0.7 : 0) + Object.keys(s.owned).reduce((a, k) => a + (D.HOMES[k].buy || 0) * 0.85, 0));
+export const netWorth = (s) => Math.round((s.cash || 0) + (s.momo || 0) + (s.flags?.fixed?.amount || 0) + (s.life?.businessAssets||0) - (s.loan ? s.loan.owed : 0) + Object.keys(s.biz).reduce((a, k) => a + D.BUSINESSES[k].price * 0.6, 0) + Object.values(s.land).reduce((a, l) => a + l.value, 0) + (s.car ? D.CARS[s.car].price * 0.7 : 0) + Object.keys(s.owned).reduce((a, k) => a + (D.HOMES[k].buy || 0) * 0.85, 0));
 export const me = (s, now, policy) => ({ t: 'me', heat: Math.round(s.heat || 0), n: Object.fromEntries(Object.entries(s.n).map(([k, v]) => [k, Math.round(v)])), cash: s.cash, momo: s.momo, mood: mood(s), busy: s.busy, shift: s.shift && { start: s.shift.start, worked: Math.round(s.shift.worked * 10) / 10, wins: s.shift.wins,tasks:s.shift.tasks,assignment:taskView(s) }, job: s.job, sick: s.sick, food: s.food, home: s.home, rep: s.rep, xp: s.xp, moodlets: s.moodlets.map((m) => [m.label, m.v]), dumsor: dumsorNow(now, policy), jail: s.flags.jailUntil > now ? s.flags.jailUntil : 0 });
 export function catalog() {
   const strip = (a) => { const fx = {}; const hrs = (a.min || 10) / 60; for (const k in a.needs || {}) fx[k] = Math.round(a.needs[k] * hrs); for (const k in a.inst || {}) if (k !== 'food') fx[k] = (fx[k] || 0) + a.inst[k]; if (a.sleep) fx.energy = a.restore || 100;
-    return { id: a.id, label: a.label, ic: a.ic, min: a.min, cost: a.cost, earn: a.earn ? [a.earn.base, a.earn.per || 0, a.earn.skill || null] : null, mg: a.mg, crime: a.crime ? Math.round(a.crime.catch * 100) : 0, open: a.open, days: a.days, req: a.req, tags: a.tags, opens: a.opens, sleep: a.sleep, rest: a.rest, fx, skill: a.skill ? Object.keys(a.skill) : null, food: a.inst && a.inst.food, rep: a.rep, cures: a.cures }; };
+    return { id: a.id, label: a.label, ic: a.ic, min: a.min, cost: a.cost, earn: a.earn ? [a.earn.base, a.earn.per || 0, a.earn.skill || null] : null, mg: a.mg, crime: a.crime ? Math.round(a.crime.catch * 100) : 0, crimeSkill:a.crime?.skill, open: a.open, days: a.days, req: a.req, tags: a.tags, opens: a.opens, sleep: a.sleep, rest: a.rest, fx, skill: a.skill ? Object.keys(a.skill) : null, food: a.inst && a.inst.food, rep: a.rep, cures: a.cures }; };
   return { locs: Object.values(LOC).map((l) => ({ id: l.id, name: l.name, area: l.area, neighbourhood:l.neighbourhood, estate:l.estate, ic: l.ic, x: Math.round(l.x), z: Math.round(l.z), open: l.open, days: l.days, blurb: l.blurb,discovery:discoverable(l), acts: l.acts.map(strip) })),
     homes: Object.fromEntries(Object.entries(D.HOMES).map(([k, h]) => [k, { ...h, x: Math.round(HOME_POS[k].x), z: Math.round(HOME_POS[k].z) }])), homeActs: Object.values(HOME_ACTS).map(strip),
     careers: Object.fromEntries(Object.entries(D.CAREERS).map(([id,{mg,...c}])=>[id,{...c,workplace:{x:WORKPLACES[id].x,z:WORKPLACES[id].z,label:WORKPLACES[id].label}}])), transport: D.TRANSPORT, rush: D.RUSH, cars: D.CARS, traits: D.TRAITS, dreams: D.DREAMS, origins: D.ORIGINS, skills: D.SKILLS, items: ITEMS, biz: D.BUSINESSES, lands: D.LANDS, repTitles: REP_TITLES, promoSkill: D.PROMO_SKILL, promoShifts: D.PROMO_SHIFTS,
@@ -114,17 +115,18 @@ export function decay(s, now) {
   const { h } = clock(now);
   for (const k in D.NEEDS) if (!(s.busy && s.busy.sleep && k === 'energy')) s.n[k] = clamp(s.n[k] - decayRate(s, k, h) * hrs);
 }
+export function needsEmergency(s,now){const hrs=Math.min(12,Math.max(0,(now-(s.needsAt||now))/3600000));return ['hunger','energy'].some(k=>!(s.busy?.sleep&&k==='energy')&&s.n[k]-decayRate(s,k,clock(now).h)*hrs<=0);}
 const clamp = (v, a = 0, b = 100) => Math.max(a, Math.min(b, v));
 export function mood(s) { const v = Object.values(s.n); let m = (v.reduce((a, b) => a + b, 0) / v.length - 50) * 1.2; for (const ml of s.moodlets) m += ml.v; return clamp(Math.round(m), -100, 100); }
 function moodlet(s, id, v, hours, label) { s.moodlets = s.moodlets.filter((m) => m.id !== id); s.moodlets.push({ id, v, until: Date.now() + hours * 3600000, label }); }
 
 // ---------- money ----------
-function pay(s, amt, why = 'Payment') { amt = Math.round(amt); if (s.cash + s.momo < amt) return false; const c = Math.min(s.cash, amt); s.cash -= c; s.momo -= amt - c; if (amt > 0) { s.ledger.push([Date.now(), -amt, why]); if (s.ledger.length > 60) s.ledger.shift(); } return true; }
-function earn(s, amt, why, toMomo = true) { amt = Math.round(amt); if (amt <= 0) return 0; if (toMomo) s.momo += amt; else s.cash += amt; s.stats.earned += amt; s.wk.inc += amt; s.ledger.push([Date.now(), amt, why]); if (s.ledger.length > 60) s.ledger.shift(); return amt; }
+function pay(s, amt, why = 'Payment') { amt = Math.round(amt); if (!Number.isSafeInteger(amt)||amt<0||s.cash + s.momo < amt) return false; const c = Math.min(s.cash, amt); s.cash -= c; s.momo -= amt - c; if (amt > 0) { s.ledger.push([Date.now(), -amt, why]);Life.moneyEvent(s,-amt,why); if (s.ledger.length > 60) s.ledger.shift(); } return true; }
+function earn(s, amt, why, toMomo = true) { amt = Math.round(amt); if (!Number.isSafeInteger(amt)||amt <= 0) return 0; if (toMomo) s.momo += amt; else s.cash += amt; s.stats.earned += amt; s.wk.inc += amt; s.ledger.push([Date.now(), amt, why]);Life.moneyEvent(s,amt,why); if (s.ledger.length > 60) s.ledger.shift(); return amt; }
 export const earnFor = (s, amt, why) => earn(s, amt, why);
 export const spendFor = (s, amt, why) => pay(s, amt, why);
 // spending that shows up in the MoMo history
-function spend(s, amt, why) { amt = Math.round(amt); if (amt <= 0) return 0; const c = Math.min(s.cash, amt); s.cash -= c; s.momo = Math.max(0, s.momo - (amt - c)); s.ledger.push([Date.now(), -amt, why]); if (s.ledger.length > 60) s.ledger.shift(); return amt; }
+function spend(s, amt, why) { amt = Math.min(s.cash+s.momo,Math.round(amt)); if (!Number.isFinite(amt)||amt <= 0) return 0; pay(s,amt,why);return amt; }
 // Street hustles don't scale forever: the same gig pays less each time in an Accra day (loads run out, customers saturate),
 // total gig income above a skill-based daily ceiling is heavily discounted, and many players working the same gig
 // in the same hour share the demand.
@@ -142,7 +144,9 @@ function hustleMult(s, id, now, skill) {
   return m;
 }
 function addSkill(s, k, amt) { if (!k || !(k in s.skills)) return 0; let m = 1; for (const t of s.traits) { const sk = D.TRAITS[t].skill; if (sk && sk[k]) m *= sk[k]; } const before = Math.floor(s.skills[k]); m *= SKILL_RATE / (1 + s.skills[k] * 0.32); s.skills[k] = Math.min(10, s.skills[k] + amt * m); return Math.floor(s.skills[k]) > before ? Math.floor(s.skills[k]) : 0; }
+export const gainSkill=(s,k,amt)=>addSkill(s,k,amt);
 function addXp(s, n) { s.xp += n; while (s.xp >= 100 + s.rep * 60) { s.xp -= 100 + s.rep * 60; s.rep++; } }
+export const awardXp=(s,n)=>addXp(s,n);
 export const REP_TITLES = [[0, 'New to Accra'], [3, 'Correct Person'], [5, 'Area Boy/Girl'], [8, 'Street Sharp'], [12, 'Hustler'], [16, 'Big Boy/Girl'], [20, 'Area Champion'], [25, 'Chairman'], [30, 'Big Man of Accra'], [40, 'Accra Legend']];
 
 // ---------- onboarding (origin decided server-side, once per account) ----------
@@ -219,8 +223,8 @@ function finishAction(p, now) {
   for (const k in a.skill || {}) { const up = addSkill(s, k, a.skill[k] * hrs); if (up) out.levelUp = [k, up]; }
   if (a.earn) { const e = a.earn; let amt = e.base + (e.per || 0) * lvl(s, e.skill); if (e.var) amt *= 1 - e.var / 2 + Math.random() * e.var; if (has(s, 'hustler') && a.tags.includes('hustle')) amt *= 1.15; if (a.tags.includes('gig') || a.tags.includes('hustle')) { amt *= hustleMult(s, a.id, now, e.skill); s.gd.earned += amt; if (amt < (e.base || 20) * 0.5) out.tired = true; } out.earned = earn(s, amt, a.label); s.stats.gigs++; }
   if (a.rest) s.gigRest[a.id] = now + a.rest * 60000;
-  if (a.crime) { const c = a.crime; s.heat = s.heat || 0; const pCatch = Math.min(0.92, c.catch + s.heat / 250 - lvl(s, c.skill) * 0.03); s.heat = Math.min(200, s.heat + 30);
-    if (Math.random() > pCatch) { if (c.loot) out.earned = earn(s, (c.loot[0] + Math.random() * (c.loot[1] - c.loot[0])) * (a.sakawa && s.flags.juju ? 1.8 : 1) * (a.sakawa ? Math.max(0.3, 1 - (s.cnt['act:sakawa'] || 0) * 0.02) : 1), a.sakawa ? 'Yahoo "client"' : 'Street hustle', false);
+  if (a.crime) { const c = a.crime; s.heat = s.heat || 0; const pCatch = Math.max(.05,Math.min(0.92, c.catch + s.heat / 250 - lvl(s, c.skill) * 0.03)); out.crimeRisk=pCatch;s.heat = Math.min(200, s.heat + 30);
+    if (Math.random() > pCatch) { if (c.loot) out.earned = earn(s, (c.loot[0] + Math.random() * (c.loot[1] - c.loot[0])) * (a.sakawa && s.flags.juju ? 1.8 : 1) * (a.sakawa ? Math.max(0.3, 1 - (s.cnt['act:sakawa'] || 0) * 0.02) : 1), a.sakawa ? 'Fictional deal proceeds' : 'Fictional street proceeds', false);
       if (a.sakawa && s.flags.juju && Math.random() < 0.15) { const lost = Math.round((s.cash + s.momo) * 0.2); spend(s, lost, 'Strange misfortune'); out.juju = lost; } if (c.reward) for (const k in c.reward) s.n[k] = clamp(s.n[k] + c.reward[k]); out.crime = 'ok'; }
     else { out.crime = 'caught'; const mins = Math.round(Math.min(30, 8 + s.heat / 10)); s.flags.jailUntil = now + mins * 60000; s.flags.bailReview=now+120000; s.busy=null; s.shift=null; out.jail = mins; const fine = Math.min(s.cash + s.momo, 150 + Math.round(s.heat * 3)); spend(s, fine, 'Game offence fine'); out.fine = fine; s.rep = Math.max(0, s.rep - 2); goPlace(p, 'police'); out.place = 'police'; } }
   if (a.tags && a.tags.includes('eat')) s.stats.meals++;
@@ -231,7 +235,10 @@ function finishAction(p, now) {
     const need = [5, 7, 9][round] || 99; const score = lvl(s, 'coding') * 0.55 + lvl(s, 'charisma') * 0.45 + (s.rep / 20) + Math.random() * 2.5 - 1.2;
     if (R && score >= need) { const amt = Math.round(R[1] * (0.7 + Math.random() * 0.6) / 1000) * 1000; out.earned = earn(s, amt, `${R[0]} funding`); s.flags.round = round + 1; s.flags.funded = true; s.flags.mvp = 35; out.round = R[0]; addXp(s, 200); }
     else { out.pitch = 'no'; s.flags.mvp = Math.max(70, s.flags.mvp - 10); } }
-  if (b.sleep) { s.n.energy = clamp(s.n.energy + (a.restore || 100) * D.HOMES[s.home || 'nima'].comfort * (s.items.bed ? 1.25 : 1)); }
+  if (b.sleep) { s.n.energy = clamp(s.n.energy + (a.restore || 100) * D.HOMES[s.home || 'nima'].comfort * (s.items.bed ? 1.25 : 1)*(s.items.ac?1.1:1)); }
+  if(b.id==='cook'&&b.storedGroceries&&s.items.fridge)s.n.hunger=clamp(s.n.hunger+Math.max(0,out.gains.hunger||0)*.1);
+  if(a.crime)Life.legalOutcome(s,{action:a.id,risk:out.crimeRisk,caught:out.crime==='caught',fine:out.fine||0},now);
+  if(b.id==='community_service'){const legal=Life.life(s).legal;legal.reviewUntil=Math.max(now,(legal.reviewUntil||now)-6*3600000);s.heat=Math.max(0,(s.heat||0)-8);Life.event(s,'community_service',{},now);}
   bump(s, 'act:' + b.id); bump(s, 'loc:' + b.loc); for (const t of a.tags || []) bump(s, 'tag:' + t);
   addXp(s, 3 + Math.round(hrs * 4));
   return out;
@@ -251,9 +258,11 @@ export const HOME_ACTS = {
 function homeAction(p, id, now) {
   const s = p.state, a = HOME_ACTS[id]; if (!a || !s.home) return toast('No home.', 'bad');
   if (!at(p, 'home')) return toast('Go home first.', 'bad');
+  const error=canDo(s,p,null,a,now);if(error)return toast(error,'bad');
   if (a.power && dumsorNow(now) && D.HOMES[s.home].power !== 'estate' && !s.items.solar && !(s.items.gen && s.fuel > 0)) return toast('Dumsor! No light. Generator or solar needed.', 'bad');
-  if (id === 'cook' && s.food > 0) s.food--; else if (id === 'cook' && !pay(s, 18)) return toast('Ingredients cost GH₵18.', 'bad');
-  return startAction(p, null, a, now);
+  const stored=id==='cook'&&s.food>0;
+  if (stored) s.food--; else if (id === 'cook' && !pay(s, 18,'Cooking ingredients')) return toast('Ingredients cost GH₵18.', 'bad');
+  const r=startAction(p,null,a,now);if(r.t==='busy')s.busy.storedGroceries=stored;return r;
 }
 
 // ---------- careers: 1-real-hour shifts, any time 06:00–22:00 on the career's days (nights for nightlife) ----------
@@ -275,7 +284,7 @@ function tickShift(p, now, policy) {
   const s = p.state, sh = s.shift, j = s.job, c = D.CAREERS[j.id], loc = LOC[c.at];
   const dt = (now - sh.last) / 60000; sh.last = now;
   if (at(p, loc.id)) sh.worked += dt; // you only get paid for time actually at work
-  const task=tickTask(p,c,now);if(task?.completed)addSkill(s,task.skill,.12);
+  const task=tickTask(p,c,now);if(task?.completed){addSkill(s,task.skill,.12);Life.workCompleted(s,{id:task.completed,correct:task.quality},now);}
   const m = mood(s); let perfH = (0.6 + m / 80) * 7 + 0.6 * lvl(s, c.skill); for (const t of s.traits) if (D.TRAITS[t].work) perfH *= 1 + D.TRAITS[t].work;
   j.perf = clamp(j.perf + perfH * dt / 60, 0, 100);
   for (const [k, v] of [['energy', -5], ['fun', -5], ['hygiene', -3]]) s.n[k] = clamp(s.n[k] + v * dt / 60);
@@ -293,16 +302,22 @@ function endShift(p, now, policy) {
   if (j.perf >= 100) {
     if (j.grade < 3) { j.grade++; j.perf = 60; out.grade = j.grade + 1; }
     else if (j.rank < 4 && j.shifts >= D.PROMO_SHIFTS[j.rank] && lvl(s, c.skill) >= D.PROMO_SKILL[j.rank]) { j.rank++; j.grade = 0; j.perf = 45; j.shifts = 0; s.stats.promos++; moodlet(s, 'promoted', 30, 24, 'Promoted!'); out.promoted = c.ranks[j.rank][0]; out.newPay = shiftPay(s, now, policy); s.rep += 5; }
-    else { j.perf = 99; out.needs = `${c.name}: need ${D.PROMO_SHIFTS[j.rank]} shifts at this rank and ${D.SKILLS[c.skill]} ${D.PROMO_SKILL[j.rank]}`; }
+    else if(j.rank<4) { j.perf = 99; out.needs = `${c.name}: need ${D.PROMO_SHIFTS[j.rank]} shifts at this rank and ${D.SKILLS[c.skill]} ${D.PROMO_SKILL[j.rank]}`; }
   }
+  Life.shiftCompleted(s,sh.worked,got,out.promoted,now);
   return out;
 }
 function apply(p, id, now) {
   const s = p.state, c = D.CAREERS[id]; if (!c) return toast('Unknown job.', 'bad'); const loc = LOC[c.at];
   if (!at(p, loc.id)) return toast(`Apply in person at ${loc.name}.`, 'bad');
+  if(s.busy||s.shift)return toast('Finish your current activity or shift before changing careers.','bad');
+  if(s.job?.id===id)return toast('You already hold this job. Your experience is retained.');
+  const restriction=Life.employmentRestriction(s,id,now);if(restriction)return toast(restriction,'bad');
   for (const k in c.req || {}) if (lvl(s, k) < c.req[k]) return toast(`Needs ${D.SKILLS[k]} ${c.req[k]}.`, 'bad');
-  s.job = { id, rank: 0, grade: 0, perf: 60, shifts: 0, since: now, lastDay: -1 };
-  return { t: 'hired', job: s.job, title: c.ranks[0][0], pay: c.ranks[0][1] };
+  Life.rememberCareer(s);const prior=Life.careerRecord(s,id)?.saved;
+  s.job = prior?{...prior,id}:{ id, rank: 0, grade: 0, perf: 60, shifts: 0, since: now, lastDay: -1 };
+  Life.event(s,'career_hired',{career:id,returning:!!prior},now);
+  return { t: 'hired', job: s.job, title: c.ranks[s.job.rank][0], pay: c.ranks[s.job.rank][1] };
 }
 
 // ---------- property, purchases, travel, money ----------
@@ -310,13 +325,13 @@ export const ITEMS = { gas: ['Gas cooker', 900], fridge: ['Fridge', 4200], tv: [
 function buy(p, m, now) {
   if(p.state.flags.jailUntil>now&&m.kind==='home')return toast('You can move after release from custody.','bad');
   const s = p.state;
-  if (m.kind === 'item') { const it = ITEMS[m.id]; if (!it) return null; if (s.items[m.id] && m.id !== 'ring') return toast('Already owned.'); if (!pay(s, it[1], it[0])) return toast(`Need GH₵${it[1]}.`, 'bad'); s.items[m.id] = true; if (m.id === 'gen') s.fuel = 5; return { t: 'bought', what: it[0] }; }
+  if (m.kind === 'item') { const it = ITEMS[m.id]; if (!it) return null; if (s.items[m.id]) return toast('Already owned.'); if (!pay(s, it[1], it[0])) return toast(`Need GH₵${it[1]}.`, 'bad'); s.items[m.id] = true; if (m.id === 'gen') s.fuel = 5; return { t: 'bought', what: it[0] }; }
   if (m.kind === 'biz') { const b = D.BUSINESSES[m.id]; if (!b || s.biz[m.id]) return null; if (!pay(s, b.price, b.name)) return toast(`Need GH₵${b.price}.`, 'bad'); s.biz[m.id] = { at: now, seen: now }; return { t: 'bought', what: b.name }; }
   if (m.kind === 'land') { const l = D.LANDS[m.id]; if (!l || s.land[m.id]) return null; if (!pay(s, l.price, l.name)) return toast(`Need GH₵${l.price}.`, 'bad'); s.land[m.id] = { value: l.price, paid: l.price, reg: false }; return { t: 'bought', what: l.name }; }
-  if (m.kind === 'car') { const c = D.CARS[m.id]; if (!c) return null; const trade = s.car ? D.CARS[s.car].price * 0.6 : 0; if (!pay(s, Math.max(0, c.price - trade))) return toast('Not enough money.', 'bad'); s.car = m.id; s.rep += c.rep; return { t: 'bought', what: c.name }; }
-  if (m.kind === 'home') { if (!Object.hasOwn(D.HOMES, m.id)) return toast('Choose a valid home.', 'bad'); const h = D.HOMES[m.id]; if(s.owned[m.id]===true){s.home=m.id;goPlace(p,'home');return {t:'moved',home:m.id,place:'home',state:view(s)};} const cost = m.buy ? h.buy : h.rent * h.advance; if (!cost || !pay(s, cost)) return toast(`Landlord wants GH₵${cost} (${m.buy ? 'price' : h.advance + ' weeks advance'}).`, 'bad'); s.home = m.id; if (m.buy) s.owned[m.id] = true; else s.rentPaidUntil = nextSaturday9(now) + (h.advance - 1) * 7 * 86400000; s.arrears = 0; delete s.flags.daddyPays; goPlace(p, 'home'); return { t: 'moved', home: m.id, place: 'home', state:view(s) }; }
+  if (m.kind === 'car') { const c = D.CARS[m.id]; if (!c) return null; const trade = s.car ? D.CARS[s.car].price * 0.6 : 0; if(s.car===m.id)return toast('You already own this vehicle.'); if (!pay(s, Math.max(0, c.price - trade),'Vehicle: '+c.name)) return toast('Not enough money.', 'bad'); s.car = m.id; s.rep += c.rep; return { t: 'bought', what: c.name }; }
+  if (m.kind === 'home') { if (!Object.hasOwn(D.HOMES, m.id)) return toast('Choose a valid home.', 'bad'); const h = D.HOMES[m.id]; if(s.owned[m.id]===true){s.home=m.id;goPlace(p,'home');return {t:'moved',home:m.id,place:'home',state:view(s)};} if(s.home===m.id&&!m.buy)return toast('You already rent this home.'); const cost = m.buy ? h.buy : h.rent * h.advance; if (!cost || !pay(s, cost,(m.buy?'Home purchase: ':'Rent advance: ')+h.name)) return toast(`Landlord wants GH₵${cost} (${m.buy ? 'price' : h.advance + ' weeks advance'}).`, 'bad'); s.home = m.id; if (m.buy) s.owned[m.id] = true; else s.rentPaidUntil = nextSaturday9(now) + (h.advance - 1) * 7 * 86400000; s.arrears = 0; delete s.flags.daddyPays; goPlace(p, 'home'); return { t: 'moved', home: m.id, place: 'home', state:view(s) }; }
   if (m.kind === 'wear') { const it = W.WEAR[m.id]; if (!it || !it.price) return null; if (s.wardrobe[m.id]) return toast('You already own that.'); const g = (s.look && s.look.body) || 'm'; if (it.g !== 'u' && it.g !== g) return toast('That one is not for your body type.', 'bad'); if (!pay(s, it.price, it.name)) return toast(`You need GH₵${it.price.toLocaleString()}.`, 'bad'); s.wardrobe[m.id] = true; bump(s, 'boughtWear'); return { t: 'bought', what: it.name, wear: m.id, state: view(s) }; }
-  if (m.kind === 'fuel') { if (!pay(s, 85)) return toast('Fuel is GH₵85 for 5 L.', 'bad'); s.fuel += 5; return { t: 'bought', what: '5 L fuel' }; }
+  if (m.kind === 'fuel') { if (!pay(s, 85,'Fuel, 5 litres')) return toast('Fuel is GH₵85 for 5 L.', 'bad'); s.fuel += 5; return { t: 'bought', what: '5 L fuel' }; }
   return null;
 }
 // ---------- Circle phone market (Tiptoe Lane): buy "UK used", test it, fix it at the fitter, flip it ----------
@@ -330,7 +345,7 @@ function phoneOp(p, m, now) {
   if (s.place !== 'circle') return toast('The phone market is at Circle. Go there first.', 'bad'); if (s.busy && !s.busy.travel) return toast('Finish what you are doing first.', 'bad');
   if (m.op === 'buy') { const it = b[m.m]; if (!it) return null; if (s.phones.length >= 4) return toast('Your bag is full. Sell some phones first (max 4).', 'bad');
     const cost = it.buy + (m.test ? 20 : 0); if (!pay(s, cost, `Bought ${it.name}`)) return toast(`You need GH₵${cost}.`, 'bad');
-    const fake = !m.test && Math.random() < 0.12; const ph = { id: Math.random().toString(36).slice(2, 8), m: m.m, cond: Math.round(45 + Math.random() * 45), paid: cost, fake, at: now };
+    const fake = !m.test && Math.random() < 0.12; const ph = { id: Math.random().toString(36).slice(2, 8), m: m.m, cond: Math.round(45 + Math.random() * 45), paid: cost, fake,tested:!!m.test, at: now };
     s.phones.push(ph); addSkill(s, 'hustle', 0.05); bump(s, 'phonebuy');
     return out({ msg: m.test ? `The tester checked it: ${ph.cond}% condition. Clean.` : `You bought it sealed in a box. No testing. Hmm.`, k: '' }); }
   const i = s.phones.findIndex((x) => x.id === m.id); if (i < 0) return toast('That phone is gone.', 'bad'); const ph = s.phones[i];
@@ -338,6 +353,10 @@ function phoneOp(p, m, now) {
     if (ph.fixed) return toast('Already fixed. Sell it.', ''); const cost = Math.round(PHONES[ph.m][1] * 0.08); if (!pay(s, cost, 'Phone repair parts')) return toast(`Parts cost GH₵${cost}.`, 'bad');
     ph.cond = Math.min(98, ph.cond + 18 + lvl(s, 'coding') * 2); ph.fixed = true; ph.paid += cost; addSkill(s, 'coding', 0.08); return out({ msg: `New screen + battery. Now ${ph.cond}% condition.`, k: 'good' }); }
   if (m.op === 'sell') { if (ph.fake) { s.phones.splice(i, 1); moodlet(s, 'soap', -12, 6, 'Bought a soap bar in a phone box'); return out({ msg: 'The buyer opens the box: it’s a bar of soap. Nobody will buy that. You lost it all.', k: 'bad' }); }
+    const l=Life.life(s),day=clock(now).day;if(l.phoneSales?.day!==day)l.phoneSales={day,count:0,next:0};
+    if(l.phoneSales.count>=8)return toast('Circle buyers have filled their phone demand for today (eight sales).','bad');
+    if(now<l.phoneSales.next)return toast('The next Circle buyer is available in a minute.','bad');
+    l.phoneSales.count++;l.phoneSales.next=now+60000;
     const amt = phoneVal(s, b, ph); s.phones.splice(i, 1); earn(s, amt, `Sold ${b[ph.m].name}`, false); const profit = amt - ph.paid; addSkill(s, 'hustle', 0.22); addXp(s, 6); bump(s, 'phoneflip'); s.stats.flips = (s.stats.flips || 0) + 1; s.stats.flipProfit = (s.stats.flipProfit || 0) + profit;
     if (profit > 0) moodlet(s, 'flip', 8, 4, 'Flipped a phone for profit');
     return out({ msg: profit >= 0 ? `Sold for GH₵${amt}. Profit GH₵${profit}. Circle business! ` : `Sold for GH₵${amt}. You lost GH₵${-profit}. Market is market.`, k: profit >= 0 ? 'good' : 'bad', profit }); }
@@ -371,12 +390,12 @@ function bank(p, m) {
     if(s.flags.fixed)return toast('Withdraw your existing savings first.','bad');if(!pay(s,amount,'Fixed savings'))return toast('Not enough money.','bad');s.flags.fixed={amount,until:Date.now()+28*86400000};return {t:'st',state:view(s)};
   }
   if(m.op==='withdrawFixed'){
-    const fixed=s.flags.fixed;if(!fixed)return toast('No fixed savings to withdraw.','bad');delete s.flags.fixed;s.momo+=fixed.amount;const interest=Date.now()>=fixed.until?Math.round(fixed.amount*.12*28/365):0;earn(s,interest,'Savings interest');s.ledger.push([Date.now(),fixed.amount,'Savings principal returned']);return {t:'st',state:view(s)};
+    const fixed=s.flags.fixed;if(!fixed)return toast('No fixed savings to withdraw.','bad');delete s.flags.fixed;s.momo+=fixed.amount;Life.moneyEvent(s,fixed.amount,'Savings principal returned');const interest=Date.now()>=fixed.until?Math.round(fixed.amount*.12*28/365):0;earn(s,interest,'Savings interest');s.ledger.push([Date.now(),fixed.amount,'Savings principal returned']);return {t:'st',state:view(s)};
   }
   if (m.op === 'cashin') { if (!agent) return toast('Find a MoMo agent.', 'bad'); if (s.cash > 0) bump(s, 'cashin'); s.momo += s.cash; s.cash = 0; return { t: 'st', state: view(s) }; }
   if (m.op === 'cashout') { if (!agent) return toast('Find a MoMo agent.', 'bad'); const a = Math.min(s.momo, Math.max(0, +m.amount || 0)); const fee = Math.ceil(a * 0.01); s.momo -= a; s.cash += a - fee; return { t: 'st', state: view(s) }; }
   if (m.op === 'loan') { if (s.loan) return toast('Clear your current loan first.', 'bad'); if (!s.job) return toast('The bank needs a payslip.', 'bad'); const cap = Math.max(1000, netWorth(s) * 0.5); const a = Math.min(cap, Math.max(100, +m.amount || 0)); s.loan = { owed: Math.round(a * 1.18), weekly: Math.round(a * 1.18 / 8), lender: 'Gold Coast Bank', next: Date.now() + 7 * 86400000 }; s.momo += a; return { t: 'st', state: view(s) }; }
-  if (m.op === 'repay') { if (!s.loan) return null; if (!pay(s, s.loan.owed)) return toast('Not enough to clear the loan.', 'bad'); s.loan = null; return { t: 'st', state: view(s) }; }
+  if (m.op === 'repay') { if (!s.loan) return null; if (!pay(s, s.loan.owed,'Loan cleared')) return toast('Not enough to clear the loan.', 'bad'); s.loan = null; return { t: 'st', state: view(s) }; }
   return null;
 }
 
@@ -397,7 +416,7 @@ export function tick(p, now, shard) {
   // failure states
   if (s.n.bladder <= 0) { s.n.bladder = 100; s.n.hygiene = 0; moodlet(s, 'embarrassed', -25, 4, 'Public disgrace'); out.push(toast('Eiii! You couldn’t hold it. Public disgrace. ', 'bad')); }
   if (s.n.energy <= 0 && !(s.busy && s.busy.sleep)) { s.n.energy = 25; if (s.cash > 20 && Math.random() < 0.5) { const lost = Math.round(s.cash * 0.5); s.cash -= lost; out.push(toast(`You passed out on the street. Someone took GH₵${lost}.`, 'bad')); } else out.push(toast('You passed out on the street. Sleep at home!', 'bad')); }
-  if (s.n.hunger <= 0) { const bill = Math.min(250, s.cash + s.momo); pay(s, bill); s.n.hunger = 45; goPlace(p, 'ridge'); out.push({ t: 'arrived', place: 'ridge', name: LOC.ridge.name, forced: true }); out.push(toast(`You fainted from hunger. Ridge Hospital bill GH₵${bill}.`, 'bad')); }
+  if (s.n.hunger <= 0) { const bill = Math.min(250, s.cash + s.momo); pay(s, bill,'Hospital recovery'); s.n.hunger = 45; goPlace(p, 'ridge'); out.push({ t: 'arrived', place: 'ridge', name: LOC.ridge.name, forced: true }); out.push(toast(`You fainted from hunger. Ridge Hospital bill GH₵${bill}.`, 'bad')); }
   // hourly sickness check
   const hr = Math.floor(now / 3600000);
   if (s.lastHour !== hr) { s.lastHour = hr; s.heat = Math.max(0, (s.heat || 0) - 8); const low = Object.values(s.n).filter((v) => v < 20).length; s.neglect = Math.max(0, s.neglect + (low >= 3 ? low - 1 : low === 2 ? 0.5 : -1.5)); if (!s.sick && s.neglect >= 10 && Math.random() < Math.min(0.25, (s.neglect - 8) * 0.03)) { s.sick = { level: 'mild', since: now, kind: s.n.hygiene < 20 ? 'Typhoid' : s.n.hunger < 20 ? 'Food poisoning' : 'Malaria' }; out.push(toast(`You feel feverish… ${s.sick.kind}. See a doctor (Ridge or Korle Bu).`, 'bad')); } if (s.sick && s.sick.level === 'mild' && now - s.sick.since > 24 * 3600000) s.sick.level = 'serious'; }
@@ -415,9 +434,9 @@ export function tick(p, now, shard) {
     else { s.arrears++; if (s.arrears >= 2) { s.home = null; s.arrears = 0; if (s.place === 'home') goPlace(p, 'circle'); out.push(toast('EVICTED. Two weeks unpaid. Your things are at the gate.', 'bad')); } else out.push(toast(`Rent GH₵${h.rent} unpaid. One more week and you’re out.`, 'bad')); }
   }
   const wk = Math.floor((now / 86400000 + 3) / 7);
-  if (s.lastWeekly !== wk) { if (s.lastWeekly) { let inc = s.wk.inc, tax = 0; for (const [w, r] of D.TAX_BANDS) { const part = Math.min(inc, w); tax += part * Math.max(0, r - (shard.policy === 'tax' && r ? 0.05 : 0)); inc -= part; if (inc <= 0) break; } tax = Math.round(tax); if (tax) { pay(s, Math.min(tax, s.cash + s.momo)); out.push(toast(`GRA weekly tax: GH₵${tax}.`)); } for (const k in s.land) { const l = s.land[k]; l.value = Math.round(l.value * (1 + D.LANDS[k].g * (0.6 + Math.random() * 0.8))); if (!l.reg && Math.random() < D.LANDS[k].risk) { l.value = Math.round(l.value * 0.75); out.push(toast(`Landguards hit your ${D.LANDS[k].name}! Value −25%. Register it.`, 'bad')); } } } s.lastWeekly = wk; s.wk = { inc: 0 }; }
+  if (s.lastWeekly !== wk) { if (s.lastWeekly) { let inc = s.wk.inc, tax = 0; for (const [w, r] of D.TAX_BANDS) { const part = Math.min(inc, w); tax += part * Math.max(0, r - (shard.policy === 'tax' && r ? 0.05 : 0)); inc -= part; if (inc <= 0) break; } tax = Math.round(tax); if (tax) { pay(s, Math.min(tax, s.cash + s.momo),'Weekly income tax'); out.push(toast(`GRA weekly tax: GH₵${tax}.`)); } for (const k in s.land) { const l = s.land[k]; l.value = Math.round(l.value * (1 + D.LANDS[k].g * (0.6 + Math.random() * 0.8))); if (!l.reg && Math.random() < D.LANDS[k].risk) { l.value = Math.round(l.value * 0.75); out.push(toast(`Landguards hit your ${D.LANDS[k].name}! Value −25%. Register it.`, 'bad')); } } } s.lastWeekly = wk; s.wk = { inc: 0 }; }
   aspirationTick(p, now, out);
-  if (s.loan && now >= s.loan.next) { const due = Math.min(s.loan.weekly, s.loan.owed); if (pay(s, due)) { s.loan.owed -= due; s.loan.next += 7 * 86400000; if (s.loan.owed <= 0) s.loan = null; out.push(toast(`Loan repayment GH₵${due}.`)); } else { s.loan.owed = Math.round(s.loan.owed * 1.1); s.loan.next += 86400000; out.push(toast('Loan repayment failed: 10% penalty added.', 'bad')); } }
+  if (s.loan && now >= s.loan.next) { const due = Math.min(s.loan.weekly, s.loan.owed); if (pay(s, due,'Loan repayment')) { s.loan.owed -= due; s.loan.next += 7 * 86400000; if (s.loan.owed <= 0) s.loan = null; out.push(toast(`Loan repayment GH₵${due}.`)); } else { s.loan.owed = Math.round(s.loan.owed * 1.1); s.loan.next += 86400000; out.push(toast('Loan repayment failed: 10% penalty added.', 'bad')); } }
   if (!out.length) return null;
   return out.length === 1 ? out[0] : { t: 'multi', list: out };
 }
@@ -426,11 +445,18 @@ export function tick(p, now, shard) {
 // Needs drift toward a floor instead of crashing, and the meals you ate cost money. No surprise hospital bills on login.
 export function onJoin(p, now) {
   const s = p.state; if (!s.onboarded) return null;
+  if(s.shift&&s.job){
+    // Resume only recorded attendance. Offline time cannot complete assignments,
+    // advance performance, or turn a brief visit into a fully paid shift.
+    const attended=clamp(Number.isFinite(s.shift.worked)?s.shift.worked:0,0,60);
+    s.shift.worked=attended;s.shift.last=now;s.shift.start=now-attended*60000;s.shift.activeTask=null;
+    Life.event(s,'career_resumed',{career:s.job.id,attendedMinutes:attended},now);
+  }else s.shift=null;
   const hrs = Math.max(0, (now - (s.needsAt || now)) / 3600000); s.needsAt = now; if (hrs < 0.25) return null;
   const meals = Math.min(3, Math.floor(hrs / 7)); let ate = 0; for (let i = 0; i < meals; i++) if (pay(s, 22, 'Meals while away')) ate++;
   const floor = { hunger: ate ? 45 : 20, energy: 60, fun: 30, social: 25, hygiene: 35, bladder: 50 };
   for (const k in s.n) { const target = Math.max(floor[k] || 30, Math.min(s.n[k], 70)); s.n[k] = k === 'energy' ? Math.max(s.n[k], Math.min(100, s.n[k] + hrs * 9)) : target; }
-  s.busy = s.busy && s.busy.travel ? s.busy : null; s.shift = null; // shifts don't run while you're away
+  s.busy = s.busy && s.busy.travel ? s.busy : null;
   return hrs > 2 ? { t: 'toast', m: `Welcome back. You were away ${hrs > 48 ? Math.round(hrs / 24) + ' days' : Math.round(hrs) + ' hours'}${ate ? `, spent GH₵${ate * 22} on food` : ''}.`, k: '' } : null;
 }
 export function interrupt(p, now) { const b = p.state.busy; if (b && !b.travel && !b.mg && !b.sleep) p.state.busy = null; }
@@ -439,6 +465,8 @@ export function onMsg(p, msg, shard, now) {
   // IDs are catalogue keys, never prototype properties. Amounts stay finite.
   for(const key of ['id','loc','to','m','dream','kind','op','mode'])if(['__proto__','constructor','prototype','toString','valueOf','hasOwnProperty','__defineGetter__','__defineSetter__','__lookupGetter__','__lookupSetter__','isPrototypeOf','propertyIsEnumerable','toLocaleString'].includes(msg[key]))return toast('Invalid request.','bad');
   if(msg.amount!==undefined&&(!Number.isFinite(msg.amount)||!Number.isSafeInteger(msg.amount)||msg.amount<0))return toast('Enter a valid whole amount.','bad');
+  if(msg.t==='work'&&msg.op==='quit')Life.rememberCareer(s);
+  if(msg.t==='act'&&LOC[msg.loc]?.acts.find(a=>a.id===msg.id)?.crime&&(msg.target!==undefined||msg.victim!==undefined))return toast('Fictional crime cannot target another player.','bad');
   switch (msg.t) {
     case 'jail': {
       if(!(s.flags.jailUntil>now))return toast('You are not in custody.');
@@ -514,6 +542,11 @@ function aspirationTick(p, now, out) {
   const tiers = s.dream && ST.DREAM_TIERS[s.dream];
   if (tiers && s.dreamTier < tiers.length) { let ok = false; try { ok = tiers[s.dreamTier][1](s, c); } catch {}
     if (ok) { const [cash, rep] = ST.TIER_REWARD[s.dreamTier]; earn(s, cash, 'Dream milestone'); s.rep += rep; s.dreamTier++; out.push({ t: 'dream', tier: s.dreamTier, label: tiers[s.dreamTier - 1][0], cash, rep, done: s.dreamTier >= tiers.length }); if (s.dreamTier >= tiers.length) s.dreamsDone.push(s.dream); } }
+}
+export function aspirationDue(s,now){
+  const tiers=s.dream&&ST.DREAM_TIERS[s.dream];
+  if(!tiers||s.dreamTier>=tiers.length||now-(s.story.at||0)<12000)return false;
+  try{return !!tiers[s.dreamTier][1](s,ctx({state:s},now));}catch{return false;}
 }
 
 

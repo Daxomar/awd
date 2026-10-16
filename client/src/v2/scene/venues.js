@@ -212,7 +212,7 @@ export const VENUES = {
     sign: { text: 'Osu Police Station', bg: '#1f3b73', fg: '#ffffff' },
     items: [I('police_desk', 1.4, -2.2, 0, { key: 'desk' }), I('cell_bars:2.4', -2.8, -1.45, 0, { key: 'cell' }), I('wooden_bench', 2.2, 0.9, 0, { color: '#1f3b73' }), I('plastic_chair', 2.85, -0.9, PI, { color: '#1d4ed8' }),
       I('notice_board', -4, 1.2, HP), I('chest', 3.4, -3.1, 0, { color: '#6b7280' }), I('plant', 3.55, -2.2), I('wall_clock', 3.55, -3.5),I('doormat', -3.55, 2.45, HP), I('flag_pole:1.9', -0.3, -3.1)],
-    zones: [Z('desk', 'Charge office', 'ph-siren', 'desk', ['report'])],
+    zones: [Z('desk', 'Charge office', 'ph-siren', 'desk', ['report','community_service'])],
     spawn: { x: -3.3, z: 2.45 },
     npcs: [N('Inspector Addo', 1.4, -2.9, 0, LOOK.police(), 'work'), N('Corporal Ama', 3.1, -1.4, -0.6, LOOK.policeF(), 'lean'), N('Suspect', -3.35, -2.35, 0, LOOK.boy('#e76f51', '#22313f'), 'sit', { y: 0.48 })],
     lights: warm([[-1, -1], [1.5, 0.5]], '#fff6e6', 5) }),

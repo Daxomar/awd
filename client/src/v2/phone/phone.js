@@ -48,8 +48,9 @@ export class Phone {
       h('div.widget', { onclick: () => this.openApp('goals') }, h('div.wt', null, 'Today'), h('div.ws', null, ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getUTCDay()] + ' ' + d.getUTCDate()), h('div.wbig', null, clockStr(t)), h('div.ws', null, 'Accra time · GMT')));
     const grid = this.apps.filter((a) => !a.dock && !a.hidden);
     const appBtn = (a) => { const b = this.badgeOf(a); return h('button.app', { 'aria-label':a.name,title:a.name,onclick: (e) => this.openApp(a.id, null, e.currentTarget) }, h('div.ico', { style: { background: a.bg } }, a.emoji ? h('span', { style: { fontSize: '30px' } }, a.emoji) : icf(a.icon)), h('div.an', null, a.name), b ? h('div.ab', null, b > 99 ? '99+' : b) : null, a.isNew ? h('div.new', null, 'NEW') : null); };
-    const pages = h('div.pages', null, h('div.page', null, widgets, h('div.apps', null, ...grid.slice(0, 12).map(appBtn))), grid.length > 12 ? h('div.page', null, h('div.apps', { style: { marginTop: '10px' } }, ...grid.slice(12).map(appBtn))) : null);
-    const dots = h('div.dots', null, h('i.on'), grid.length > 12 ? h('i') : null);
+    const chunks=Array.from({length:Math.ceil(grid.length/12)},(_,i)=>grid.slice(i*12,i*12+12));
+    const pages=h('div.pages',null,...chunks.map((apps,i)=>h('div.page',null,i===0?widgets:null,h('div.apps',{style:i?{marginTop:'10px'}:{}},...apps.map(appBtn)))));
+    const dots=h('div.dots',null,...chunks.map((_,i)=>h(i?'i':'i.on')));
     pages.addEventListener('scroll', () => { const i = Math.round(pages.scrollLeft / pages.clientWidth); dots.querySelectorAll('i').forEach((d2, k) => d2.classList.toggle('on', k === i)); });
     this.home.innerHTML = ''; this.home.append(pages, dots, h('div.dock', null, ...this.apps.filter((a) => a.dock).map(appBtn)));
   }

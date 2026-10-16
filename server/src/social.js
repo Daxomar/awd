@@ -9,6 +9,7 @@ import { moderate, BLOCK_MSG } from './filter.js';
 import * as D from './game/data.js';
 import * as Game from './game/rules.js';
 import * as Payments from './payments.js';
+import {life,event,moneyEvent} from './game/life-progression.js';
 let dmObserver=null;
 export function observeMessages(fn){dmObserver=fn;}
 
@@ -74,10 +75,12 @@ export async function claim(p) {
       for(const c of rows){
         const amt=+c.amount;state.momo+=amt;
         const why=c.kind==='topup'?'Wallet top-up':c.kind==='intro'?'First friend in Accra':c.kind==='refund'?'Transfer reversed':`From @${c.from_name}`;
-        state.ledger.push([Date.now(),amt,why+(c.note?` · ${c.note}`:'')]);if(state.ledger.length>60)state.ledger.shift();
+        const label=why+(c.note?` · ${c.note}`:'');state.ledger.push([Date.now(),amt,label]);moneyEvent(state,amt,label);if(state.ledger.length>60)state.ledger.shift();
         if(c.kind==='transfer'){state.stats.received=(state.stats.received||0)+amt;Game.bump(state,'recv');}
+        if(c.kind==='market'){life(state).commerce.sold++;event(state,'market_sale',{credit:+c.id,amount:amt});}
         out.push({t:'money_in',id:+c.id,amount:amt,from:c.from_name,note:c.note,kind:c.kind,momo:state.momo});
       }
+      if(rows.some(c=>c.kind==='market'))out.push({t:'st',state:Game.view(state)});
       return out;
     })||[];
   }finally{p.claiming=false;}
@@ -102,7 +105,7 @@ export async function send(shard,p,msg){
         await db.query("update dms set status='paid' where id=$1",[req.id]);
       }
       s.momo-=chk.a+chk.fee;s.xfer.out+=chk.a;s.xfer.n++;
-      s.ledger.push([now,-(chk.a+chk.fee),`To @${to.username}`+(note.text?` · ${note.text}`:'')]);if(s.ledger.length>60)s.ledger.shift();
+      const label=`To @${to.username}`+(note.text?` · ${note.text}`:'');s.ledger.push([now,-(chk.a+chk.fee),label]);moneyEvent(s,-(chk.a+chk.fee),label,now);if(s.ledger.length>60)s.ledger.shift();
       const id=+(await db.query("insert into credits(to_id,from_id,from_name,amount,fee,note,kind) values($1,$2,$3,$4,$5,$6,'transfer') returning id",[to.id,p.acct,p.name,chk.a,chk.fee,note.text||null])).rows[0].id;
       await db.query("insert into ledger(from_id,to_id,amount,kind) values($1,$2,$3,'p2p')",[p.acct,to.id,chk.a]);
       await db.query("insert into dms(from_id,to_id,text,kind,amount) values($1,$2,$3,'paid',$4)",[p.acct,to.id,note.text||'Sent you money',chk.a]);
@@ -193,6 +196,7 @@ export async function profile(shard, p, name) {
   if (!s) { const r = await pool.query('select state from players where id=$1', [a.id]); s = r.rows[0] && r.rows[0].state; }
   if (!s || !s.onboarded) return { t: 'profile', p: { name: a.username, fresh: true, online: !!live } };
   const c = card(s, live); c.name = a.username; const f = p.state.friends && p.state.friends[a.id];
+  if(shard.phase8Ready)c.partner=(await pool.query('select a.username from life_partners r join accounts a on a.id=r.other where r.acct=$1',[a.id])).rows[0]?.username||null;
   return { t: 'profile', p: { ...c, friend: f ? f.pts : 0, blocked: blocked(p.state, a.id), me: a.id === p.acct } };
 }
 let forbesCache = { at: 0, rows: [] };

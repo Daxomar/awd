@@ -28,7 +28,7 @@ export class Net {
   reconnect() { if (this.connected || this.stopped) return; this.connect(this.token, true).catch(() => {}); }
   // game UI is ready: deliver everything that arrived during login/onboarding
   release() { this.holding = false; const q = this.held; this.held = []; for (const m of q) this.emit(m.t, m); }
-  send(o) { if (this.connected && this.ws?.readyState === WebSocket.OPEN) { this.ws.send(JSON.stringify(o)); return true; } this.emit('toast', { m: 'Connection lost. Reconnecting…', k: 'bad' }); return false; }
+  send(o) { if(['act','work','apply','buy','bank','phone','travel','visit','donate','jail','rentcar','bet','mgResult','bizcheck'].includes(o.t))o.clientAction ||= crypto.randomUUID(); if (this.connected && this.ws?.readyState === WebSocket.OPEN) { this.ws.send(JSON.stringify(o)); return true; } this.emit('toast', { m: 'Connection lost. Reconnecting…', k: 'bad' }); return false; }
   now() { return Date.now() + this.offset; }
   close() { this.stopped = true; clearTimeout(this.retryTimer); clearInterval(this.heartbeat); try { this.ws.close(); } catch {} }
 }

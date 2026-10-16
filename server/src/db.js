@@ -1,7 +1,10 @@
 // Postgres persistence. Player state is server-owned JSONB; money moves only through server code.
 import pg from 'pg';
 import { CFG } from './config.js';
-export const pool = new pg.Pool({ connectionString: CFG.pgUrl, max: +(process.env.PG_POOL || 10), connectionTimeoutMillis: 5000, statement_timeout: 10000 });
+import {migrateJournal,saveJournal} from './life-journal.js';
+const requestedConnectTimeout=Number(process.env.PG_CONNECT_TIMEOUT_MS||5000);
+const connectionTimeoutMillis=Number.isFinite(requestedConnectTimeout)?Math.max(500,Math.min(30000,requestedConnectTimeout)):5000;
+export const pool = new pg.Pool({ connectionString: CFG.pgUrl, max: +(process.env.PG_POOL || 10), connectionTimeoutMillis, statement_timeout: 10000 });
 
 export async function migrate() {
   await pool.query(`
@@ -37,15 +40,21 @@ export async function migrate() {
   create index if not exists sessions_account on sessions(account);
   create index if not exists sessions_expiry on sessions(expires_at);
   `);
+  await migrateJournal(pool);
 }
 export async function loadPlayer(id) { const r = await pool.query('select state from players where id=$1', [id]); return r.rows[0] ? r.rows[0].state : null; }
 export async function savePlayers(batch) {
   if (!batch.length) return;
+  batch=batch.map(b=>({...b,state:structuredClone(b.state)}));
+  const journal=batch.some(b=>b.state.life?.queue?.length),db=journal?await pool.connect():pool;try{
+  if(journal){await db.query('begin');for(const b of batch)await saveJournal(db,b.id,b.state);}
   // one round-trip for the whole flush
   const ids = [], states = [], worths = [];
   for (const b of batch) { ids.push(b.id); states.push(JSON.stringify(b.state)); worths.push(Math.round(b.worth || 0)); }
-  await pool.query(`insert into players (id, state, worth, updated_at)
+  await db.query(`insert into players (id, state, worth, updated_at)
     select * , now() from unnest($1::int[], $2::jsonb[], $3::bigint[])
     on conflict (id) do update set state = excluded.state, worth = excluded.worth, updated_at = now()`, [ids, states, worths]);
+  if(journal)await db.query('commit');
+  }catch(e){if(journal)await db.query('rollback');throw e;}finally{if(journal)db.release();}
 }
 export async function topWorth(n = 50) { const r = await pool.query('select a.username, p.worth, p.state->>\'title\' as title from players p join accounts a on a.id=p.id order by p.worth desc limit $1', [n]); return r.rows; }

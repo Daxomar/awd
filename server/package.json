@@ -7,7 +7,7 @@
     "start": "node src/index.js",
     "reconcile:payments": "node reconcile-payments.js",
     "bots": "node loadtest/bots.js",
-    "test": "node --test loadtest/regression.test.js loadtest/phone-games.test.js loadtest/city.test.js loadtest/streets.test.js loadtest/security.test.js loadtest/onboarding.test.js loadtest/onboarding-durability.test.js loadtest/payments.test.js loadtest/discovery.test.js loadtest/work-tasks.test.js loadtest/first-friend.test.js loadtest/objectives.test.js"
+    "test": "node --test loadtest/regression.test.js loadtest/phone-games.test.js loadtest/city.test.js loadtest/streets.test.js loadtest/security.test.js loadtest/onboarding.test.js loadtest/onboarding-durability.test.js loadtest/payments.test.js loadtest/discovery.test.js loadtest/work-tasks.test.js loadtest/first-friend.test.js loadtest/objectives.test.js loadtest/life.test.js"
   },
   "dependencies": {
     "ioredis": "5.4.2",

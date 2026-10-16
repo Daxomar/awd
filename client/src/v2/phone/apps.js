@@ -11,6 +11,7 @@ import { advertising } from './advertising.js';
 import { explore } from './explore.js';
 import { firstFriend } from './first-friend.js';
 import { milestones } from './objectives.js';
+import {lifeScreen} from './life.js';
 
 const grad = (a, b) => `linear-gradient(160deg, ${a}, ${b})`;
 const cell = (o) => h('button.cell' + (o.ic ? '' : '.noic'), { onclick: o.onclick }, o.ic instanceof Node ? o.ic : o.ic ? h('div.ci', { style: { background: o.icbg || '#8e8e93' } }, typeof o.ic === 'string' && o.ic.length <= 3 && !/^[a-z]/.test(o.ic) ? o.ic : icf(o.ic)) : null, h('div.cm', null, h('div.c1', null, o.t), o.s ? h('div.c2', null, o.s) : null), o.r != null ? h('div.cr', null, o.r) : null, o.onclick && o.chev !== false ? ic('caret-right', 'chev') : null);
@@ -177,8 +178,9 @@ export function makeApps(act) {
             h('div', { style: { margin: '10px 0 4px', fontSize: '13px', color: '#6d6d72' } }, `Performance ${Math.round(j.perf)}%`), h('div.fbar', null, h('i', { style: { width: j.perf + '%', background: '#34c759' } })),
             j.rank < 4 ? h('div', { style: { fontSize: '13px', color: '#6d6d72', marginTop: '8px' } }, `Next: ${c.ranks[j.rank + 1][0]} (${cedi(c.ranks[j.rank + 1][1])}) · needs ${G.cat.promoShifts[j.rank]} shifts (${j.shifts} done) and ${G.cat.skills[c.skill]} ${G.cat.promoSkill[j.rank]} (you: ${lvl(c.skill)})`) : null,
             h('div', { style: { fontSize: '13px', color: '#6d6d72', marginTop: '4px' } }, `Work days: ${c.days.map((d) => 'SMTWTFS'[d]).join(' ')} · ${c.night ? '20:00–04:00' : '06:00–22:00'}`),
-            h('div.row', { style: { gap: '8px', marginTop: '12px' } }, s.shift ? h('button.ibtn.grow', { disabled: true }, 'On shift now') : today ? h('button.ibtn.grow.gray', { disabled: true }, 'Done for today') : atWork ? h('button.ibtn.green.grow', { onclick: () => { net.send({ t: 'work', op: 'start' }); act.closePhone(); } }, 'Start shift') : h('button.ibtn.grow', { onclick: () => { act.closePhone(); act.place(c.at); } }, 'Go to work'), h('button.ibtn.red', { onclick: () => { iosConfirm('Quit your job?', 'You lose your rank and progress at this job.', 'Quit', true).then((ok) => ok && net.send({ t: 'work', op: 'quit' })); } }, 'Quit'))));
+            h('div.row', { style: { gap: '8px', marginTop: '12px' } }, s.shift ? h('button.ibtn.grow', { disabled: true }, 'On shift now') : today ? h('button.ibtn.grow.gray', { disabled: true }, 'Done for today') : atWork ? h('button.ibtn.green.grow', { onclick: () => { net.send({ t: 'work', op: 'start' }); act.closePhone(); } }, 'Start shift') : h('button.ibtn.grow', { onclick: () => { act.closePhone(); act.place(c.at); } }, 'Go to work'), h('button.ibtn.red', { onclick: () => { iosConfirm('Quit your job?', 'Your career history is retained if you return.', 'Quit', true).then((ok) => ok && net.send({ t: 'work', op: 'quit' })); } }, 'Quit'))));
         }
+        out.append(h('button.ibtn.wide',{onclick:()=>act.phone('progression')},'Career progress & skills'));
         out.append(h('div.group-h', null, s.job ? 'Other careers' : 'Careers in Accra'));
         if(s.shift){const task=s.shift.assignment;out.prepend(h('div.group',{style:{padding:'16px'}},h('strong',null,task?.title||'Workplace attendance'),h('p',null,`${Math.floor(s.shift.worked||0)}/60 minutes attended · ${s.shift.tasks||0}/3 assignments · satisfaction ${s.job.satisfaction??60}%`),h('p',null,task?.situation||'Your next assignment opens after more time on shift. Salary still depends on attendance.'),task?h('button.ibtn.wide',{onclick:()=>act.workAssignment()},task.stage==='working'?'View current work station':'Go to assignment station'):null));}
         out.append(h('div.group', null, ...Object.entries(C).filter(([id]) => !s.job || s.job.id !== id).map(([id, c]) => { const reqs = Object.entries(c.req || {}); const ok = reqs.every(([k, v]) => lvl(k) >= v);
@@ -224,10 +226,10 @@ export function makeApps(act) {
       s.car ? h('button.ibtn.wide', { onclick: () => net.send({ t: 'buy', kind: 'fuel' }) }, 'Buy fuel · 5 L for GH₵85') : null); }); } };
   const shop = { id: 'shop', name: 'Shop', icon: 'shopping-bag-open', bg: grad('#bf5af2', '#8e2bc9'),
     open(win) { win.page('Shop', () => { const s = G.state; const IC = { gas: 'icon:fire', fridge: 'icon:circle', tv: 'icon:television', laptop: 'icon:laptop', dslr: 'icon:camera', speaker: 'icon:circle', guitar: 'icon:guitar', dumbbells: 'icon:barbell', bed: 'icon:bed', ac: 'icon:circle', gen: 'icon:circle', solar: 'icon:sun', ring: 'icon:diamond' };
-      const WHY = { gas: 'Cook at home (cheap meals)', fridge: 'Food keeps longer', tv: 'Watch TV at home', laptop: 'Code side projects, freelance, startup', dslr: 'Photo gigs on Oxford St', speaker: 'DJ funerals for money', guitar: 'Practise music at home', dumbbells: 'Work out at home', bed: '+25% sleep energy', ac: 'Sleep better', gen: 'Light during dumsor', solar: 'Never worry about dumsor', ring: 'Propose to your partner' };
+      const WHY = { gas: 'Cook at home (cheap meals)', fridge: 'Stored groceries restore 10% more hunger when cooked', tv: 'Watch TV at home', laptop: 'Code side projects, freelance, startup', dslr: 'Photo gigs on Oxford St', speaker: 'DJ funerals for money', guitar: 'Practise music at home', dumbbells: 'Work out at home', bed: '+25% sleep energy', ac: '10% more sleep energy restoration', gen: 'Light during dumsor', solar: 'Never worry about dumsor', ring: 'Propose to your partner' };
       return h('div', null, h('div', { style: { color: '#6d6d72', fontSize: '14px', margin: '0 2px 10px' } }, 'Delivered to your home. New furniture shows up in your room.'),
         h('div.group', null, ...Object.entries(G.cat.items).map(([id, [name, price]]) => { const own = s.items[id];
-          return cell({ ic: IC[id] || 'icon:circle', icbg: '#f2f2f7', t: name, s: WHY[id] || '', r: own && id !== 'ring' ? '✓ Owned' : h('span.ibtn' + (money() >= price ? '' : '.gray'), { style: { height: '32px', fontSize: '14px' } }, cedi(price, true)), chev: false, onclick: own && id !== 'ring' ? null : () => { if (money() < price) return act.toast(`You need ${cedi(price)}`, 'bad'); net.send({ t: 'buy', kind: 'item', id }); } }); })));
+          return cell({ ic: IC[id] || 'icon:circle', icbg: '#f2f2f7', t: name, s: WHY[id] || '', r: own ? '✓ Owned' : h('span.ibtn' + (money() >= price ? '' : '.gray'), { style: { height: '32px', fontSize: '14px' } }, cedi(price, true)), chev: false, onclick: own ? null : () => { if (money() < price) return act.toast(`You need ${cedi(price)}`, 'bad'); net.send({ t: 'buy', kind: 'item', id }); } }); })));
     }); } };
   const invest = { id: 'invest', name: 'Invest', icon: 'chart-line-up', bg: grad('#34c759', '#248a3d'),
     open(win) { win.page('Invest', () => { const s = G.state; const B = G.cat.biz, L = G.cat.lands; const own = Object.keys(s.biz || {});
@@ -310,5 +312,10 @@ export function makeApps(act) {
   const discovery={id:'explore',name:'Explore',icon:'compass',bg:grad('#397d64','#164635'),open(win){explore(win,act);}};
   const meet={id:'meet',name:'Meet',icon:'hand-waving',bg:grad('#367b91','#244f6c'),open(win){firstFriend(win,act);}};
   const objectives={id:'milestones',name:'Milestones',icon:'flag',bg:grad('#b08b3e','#685326'),open(win){milestones(win,act);}};
-  return [messages, momo, gist, jobs, discovery, meet, objectives, goals, games, boutique, houses, cars, shop, invest, bank, forbes, contacts, life, health, police, civic, map, ads, help, settings].map((a) => ({ ...a, dock: ['messages', 'momo', 'gist', 'jobs'].includes(a.id) }));
+  const enterprise={id:'enterprise',name:'Business',icon:'storefront',bg:grad('#386b5b','#173c32'),open(win){lifeScreen(win,act,'business');}};
+  const market={id:'market',name:'Trade',icon:'arrows-left-right',bg:grad('#487f88','#254650'),open(win){lifeScreen(win,act,'market');}};
+  const relationships={id:'relationships',name:'People',icon:'users',bg:grad('#ac5d73','#632b43'),open(win,arg){lifeScreen(win,act,'relationships',arg);}};
+  const finances={id:'finance',name:'Finances',icon:'receipt',bg:grad('#9a834d','#5a4828'),open(win){lifeScreen(win,act,'finance');}};
+  const progression={id:'progression',name:'Development',hidden:true,icon:'trend-up',open(win){lifeScreen(win,act,'career');}};
+  return [messages, momo, gist, jobs, discovery, meet, objectives, enterprise, market, relationships, finances, progression, goals, games, boutique, houses, cars, shop, invest, bank, forbes, contacts, life, health, police, civic, map, ads, help, settings].map((a) => ({ ...a, dock: ['messages', 'momo', 'gist', 'jobs'].includes(a.id) }));
 }
