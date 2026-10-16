@@ -36,6 +36,7 @@ exec(open(AWD_ROOT + r'\characters\scripts\build_prototype.py').read())
 stage_body('male')      # body, face, expressions, game rig, skin (~15 s); or 'female'
 stage_dress('fade')     # hair ('twa' for the female), tee, jeans, sneakers, clips, slider morphs (~1 min)
 stage_save_export()     # .blend, LOD0-2 GLBs, parts, report (~35 s)
+stage_library()         # every hair id for this body (+ beards for male), LOD0/LOD1 parts (~1 min)
 ```
 
 Then copy the exports to the client and refresh the manifest:
@@ -64,7 +65,9 @@ python characters/tools/capture_lab.py male_prototype
 
 Lab parameters: `body=m|f`, `lod=0|1|2`, slider values such as `build=0..1`, `n=<instances>`, `clip=idle|walk|wave`,
 `tone=1..8`, `expr=happy|sad|angry|surprised|concerned|laughing|talking|blinking`,
-`cam=front|three_quarter|side|back|game|face`, `t=<freeze seconds>`, `hud=1`.
+`cam=front|three_quarter|side|back|game|face|grid|gridback`, `t=<freeze seconds>`, `hud=1`,
+`hair=<id>`, `beard=<id>`, `hairs=<id,…>` or `beards=<id,…>` (one character per
+style, parts attached at runtime). Capture hair sets with `--set=hair`.
 `window.__LAB` exposes `measure()`, `churnTest()`, `setTone()`,
 `setExpression()` and `play()` for automated checks.
 

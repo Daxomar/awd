@@ -997,8 +997,23 @@
         ],
         "price": 0,
         "colours": null,
-        "status": "planned",
-        "assets": {}
+        "status": "done",
+        "assets": {
+          "m": {
+            "asset": "client/public/assets/characters/prototype/parts/hair_lowcut_male.glb",
+            "bytes": 195528,
+            "triangles": 456,
+            "lod1": "client/public/assets/characters/prototype/parts/hair_lowcut_male_lod1.glb",
+            "lod1Triangles": 227
+          },
+          "f": {
+            "asset": "client/public/assets/characters/prototype/parts/hair_lowcut_female.glb",
+            "bytes": 194672,
+            "triangles": 448,
+            "lod1": "client/public/assets/characters/prototype/parts/hair_lowcut_female_lod1.glb",
+            "lod1Triangles": 223
+          }
+        }
       },
       "fade": {
         "name": "Skin fade",
@@ -1008,12 +1023,21 @@
         ],
         "price": 0,
         "colours": null,
-        "status": "partial",
+        "status": "done",
         "assets": {
           "m": {
             "asset": "client/public/assets/characters/prototype/parts/hair_fade_male.glb",
-            "bytes": 218408,
-            "triangles": 456
+            "bytes": 218404,
+            "triangles": 456,
+            "lod1": "client/public/assets/characters/prototype/parts/hair_fade_male_lod1.glb",
+            "lod1Triangles": 228
+          },
+          "f": {
+            "asset": "client/public/assets/characters/prototype/parts/hair_fade_female.glb",
+            "bytes": 217552,
+            "triangles": 448,
+            "lod1": "client/public/assets/characters/prototype/parts/hair_fade_female_lod1.glb",
+            "lod1Triangles": 224
           }
         }
       },
@@ -1024,8 +1048,16 @@
         ],
         "price": 0,
         "colours": null,
-        "status": "planned",
-        "assets": {}
+        "status": "done",
+        "assets": {
+          "m": {
+            "asset": "client/public/assets/characters/prototype/parts/hair_waves_male.glb",
+            "bytes": 225296,
+            "triangles": 456,
+            "lod1": "client/public/assets/characters/prototype/parts/hair_waves_male_lod1.glb",
+            "lod1Triangles": 228
+          }
+        }
       },
       "afro": {
         "name": "Afro",
@@ -1035,8 +1067,23 @@
         ],
         "price": 0,
         "colours": null,
-        "status": "planned",
-        "assets": {}
+        "status": "done",
+        "assets": {
+          "m": {
+            "asset": "client/public/assets/characters/prototype/parts/hair_afro_male.glb",
+            "bytes": 252440,
+            "triangles": 1498,
+            "lod1": "client/public/assets/characters/prototype/parts/hair_afro_male_lod1.glb",
+            "lod1Triangles": 749
+          },
+          "f": {
+            "asset": "client/public/assets/characters/prototype/parts/hair_afro_female.glb",
+            "bytes": 250276,
+            "triangles": 1470,
+            "lod1": "client/public/assets/characters/prototype/parts/hair_afro_female_lod1.glb",
+            "lod1Triangles": 734
+          }
+        }
       },
       "twists": {
         "name": "Twists",
@@ -1046,8 +1093,23 @@
         ],
         "price": 0,
         "colours": null,
-        "status": "planned",
-        "assets": {}
+        "status": "done",
+        "assets": {
+          "m": {
+            "asset": "client/public/assets/characters/prototype/parts/hair_twists_male.glb",
+            "bytes": 386856,
+            "triangles": 3831,
+            "lod1": "client/public/assets/characters/prototype/parts/hair_twists_male_lod1.glb",
+            "lod1Triangles": 1915
+          },
+          "f": {
+            "asset": "client/public/assets/characters/prototype/parts/hair_twists_female.glb",
+            "bytes": 383552,
+            "triangles": 3823,
+            "lod1": "client/public/assets/characters/prototype/parts/hair_twists_female_lod1.glb",
+            "lod1Triangles": 1911
+          }
+        }
       },
       "locs": {
         "name": "Dreadlocks",
@@ -1057,8 +1119,23 @@
         ],
         "price": 0,
         "colours": null,
-        "status": "planned",
-        "assets": {}
+        "status": "done",
+        "assets": {
+          "m": {
+            "asset": "client/public/assets/characters/prototype/parts/hair_locs_male.glb",
+            "bytes": 476988,
+            "triangles": 4356,
+            "lod1": "client/public/assets/characters/prototype/parts/hair_locs_male_lod1.glb",
+            "lod1Triangles": 2178
+          },
+          "f": {
+            "asset": "client/public/assets/characters/prototype/parts/hair_locs_female.glb",
+            "bytes": 475304,
+            "triangles": 4348,
+            "lod1": "client/public/assets/characters/prototype/parts/hair_locs_female_lod1.glb",
+            "lod1Triangles": 2173
+          }
+        }
       },
       "cornrows": {
         "name": "Cornrows",
@@ -1068,8 +1145,23 @@
         ],
         "price": 0,
         "colours": null,
-        "status": "planned",
-        "assets": {}
+        "status": "done",
+        "assets": {
+          "m": {
+            "asset": "client/public/assets/characters/prototype/parts/hair_cornrows_male.glb",
+            "bytes": 165656,
+            "triangles": 456,
+            "lod1": "client/public/assets/characters/prototype/parts/hair_cornrows_male_lod1.glb",
+            "lod1Triangles": 228
+          },
+          "f": {
+            "asset": "client/public/assets/characters/prototype/parts/hair_cornrows_female.glb",
+            "bytes": 164748,
+            "triangles": 448,
+            "lod1": "client/public/assets/characters/prototype/parts/hair_cornrows_female_lod1.glb",
+            "lod1Triangles": 224
+          }
+        }
       },
       "bald": {
         "name": "Clean shave",
@@ -1079,7 +1171,7 @@
         ],
         "price": 0,
         "colours": null,
-        "status": "planned",
+        "status": "done",
         "assets": {}
       },
       "puff": {
@@ -1089,8 +1181,16 @@
         ],
         "price": 0,
         "colours": null,
-        "status": "planned",
-        "assets": {}
+        "status": "done",
+        "assets": {
+          "f": {
+            "asset": "client/public/assets/characters/prototype/parts/hair_puff_female.glb",
+            "bytes": 243732,
+            "triangles": 1390,
+            "lod1": "client/public/assets/characters/prototype/parts/hair_puff_female_lod1.glb",
+            "lod1Triangles": 694
+          }
+        }
       },
       "bun": {
         "name": "Bun",
@@ -1099,8 +1199,16 @@
         ],
         "price": 0,
         "colours": null,
-        "status": "planned",
-        "assets": {}
+        "status": "done",
+        "assets": {
+          "f": {
+            "asset": "client/public/assets/characters/prototype/parts/hair_bun_female.glb",
+            "bytes": 234192,
+            "triangles": 1194,
+            "lod1": "client/public/assets/characters/prototype/parts/hair_bun_female_lod1.glb",
+            "lod1Triangles": 596
+          }
+        }
       },
       "twa": {
         "name": "Short natural",
@@ -1113,8 +1221,10 @@
         "assets": {
           "f": {
             "asset": "client/public/assets/characters/prototype/parts/hair_twa_female.glb",
-            "bytes": 194576,
-            "triangles": 448
+            "bytes": 194572,
+            "triangles": 448,
+            "lod1": "client/public/assets/characters/prototype/parts/hair_twa_female_lod1.glb",
+            "lod1Triangles": 223
           }
         }
       },
@@ -1125,8 +1235,16 @@
         ],
         "price": 600,
         "colours": null,
-        "status": "planned",
-        "assets": {}
+        "status": "done",
+        "assets": {
+          "f": {
+            "asset": "client/public/assets/characters/prototype/parts/hair_braids_female.glb",
+            "bytes": 509920,
+            "triangles": 4768,
+            "lod1": "client/public/assets/characters/prototype/parts/hair_braids_female_lod1.glb",
+            "lod1Triangles": 2384
+          }
+        }
       },
       "bob": {
         "name": "Bob wig",
@@ -1135,8 +1253,16 @@
         ],
         "price": 900,
         "colours": null,
-        "status": "planned",
-        "assets": {}
+        "status": "done",
+        "assets": {
+          "f": {
+            "asset": "client/public/assets/characters/prototype/parts/hair_bob_female.glb",
+            "bytes": 120768,
+            "triangles": 1068,
+            "lod1": "client/public/assets/characters/prototype/parts/hair_bob_female_lod1.glb",
+            "lod1Triangles": 533
+          }
+        }
       },
       "bonestraight": {
         "name": "Bone straight wig",
@@ -1145,8 +1271,16 @@
         ],
         "price": 2500,
         "colours": null,
-        "status": "planned",
-        "assets": {}
+        "status": "done",
+        "assets": {
+          "f": {
+            "asset": "client/public/assets/characters/prototype/parts/hair_bonestraight_female.glb",
+            "bytes": 136972,
+            "triangles": 1306,
+            "lod1": "client/public/assets/characters/prototype/parts/hair_bonestraight_female_lod1.glb",
+            "lod1Triangles": 653
+          }
+        }
       },
       "duku": {
         "name": "Duku headwrap",
@@ -1155,8 +1289,16 @@
         ],
         "price": 150,
         "colours": null,
-        "status": "planned",
-        "assets": {}
+        "status": "done",
+        "assets": {
+          "f": {
+            "asset": "client/public/assets/characters/prototype/parts/hair_duku_female.glb",
+            "bytes": 158616,
+            "triangles": 1850,
+            "lod1": "client/public/assets/characters/prototype/parts/hair_duku_female_lod1.glb",
+            "lod1Triangles": 925
+          }
+        }
       }
     },
     "beard": {
@@ -1167,7 +1309,7 @@
         ],
         "price": 0,
         "colours": null,
-        "status": "planned",
+        "status": "done",
         "assets": {}
       },
       "stubble": {
@@ -1177,8 +1319,16 @@
         ],
         "price": 0,
         "colours": null,
-        "status": "planned",
-        "assets": {}
+        "status": "done",
+        "assets": {
+          "m": {
+            "asset": "client/public/assets/characters/prototype/parts/beard_stubble_male.glb",
+            "bytes": 245572,
+            "triangles": 1948,
+            "lod1": "client/public/assets/characters/prototype/parts/beard_stubble_male_lod1.glb",
+            "lod1Triangles": 1168
+          }
+        }
       },
       "goatee": {
         "name": "Goatee",
@@ -1187,8 +1337,16 @@
         ],
         "price": 0,
         "colours": null,
-        "status": "planned",
-        "assets": {}
+        "status": "done",
+        "assets": {
+          "m": {
+            "asset": "client/public/assets/characters/prototype/parts/beard_goatee_male.glb",
+            "bytes": 322756,
+            "triangles": 1520,
+            "lod1": "client/public/assets/characters/prototype/parts/beard_goatee_male_lod1.glb",
+            "lod1Triangles": 911
+          }
+        }
       },
       "fullbeard": {
         "name": "Full beard",
@@ -1197,8 +1355,16 @@
         ],
         "price": 0,
         "colours": null,
-        "status": "planned",
-        "assets": {}
+        "status": "done",
+        "assets": {
+          "m": {
+            "asset": "client/public/assets/characters/prototype/parts/beard_fullbeard_male.glb",
+            "bytes": 356520,
+            "triangles": 1948,
+            "lod1": "client/public/assets/characters/prototype/parts/beard_fullbeard_male_lod1.glb",
+            "lod1Triangles": 1167
+          }
+        }
       }
     },
     "hat": {
@@ -1210,7 +1376,7 @@
         ],
         "price": 0,
         "colours": null,
-        "status": "planned",
+        "status": "done",
         "assets": {}
       },
       "cap": {
@@ -1281,7 +1447,7 @@
         ],
         "price": 0,
         "colours": null,
-        "status": "planned",
+        "status": "done",
         "assets": {}
       },
       "shades": {
@@ -1316,7 +1482,7 @@
         ],
         "price": 0,
         "colours": null,
-        "status": "planned",
+        "status": "done",
         "assets": {}
       },
       "chain": {

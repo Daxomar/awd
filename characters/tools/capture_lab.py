@@ -32,6 +32,16 @@ SHOTS = [
     ('sliders_full', 'lod=1&cam=front&t=0.4&build=1&waist=1&hips=1&bust=1&shoulders=1', (540, 860)),
     ('tones_lod2', 'lod=2&n=8&cam=game&t=0.6', (860, 640)),
 ]
+HAIR_SHOTS = {
+    'f': [('hair_a', 'lod=0&cam=grid&t=0.4&hairs=lowcut,fade,afro,twists,locs,cornrows,puff', (1600, 600)),
+          ('hair_b', 'lod=0&cam=grid&t=0.4&hairs=bun,twa,braids,bob,bonestraight,duku,bald', (1600, 600)),
+          ('hair_a_back', 'lod=0&cam=gridback&t=0.4&hairs=lowcut,fade,afro,twists,locs,cornrows,puff', (1600, 600)),
+          ('hair_b_back', 'lod=0&cam=gridback&t=0.4&hairs=bun,twa,braids,bob,bonestraight,duku,bald', (1600, 600))],
+    'm': [('hair', 'lod=0&cam=grid&t=0.4&hairs=lowcut,fade,waves,afro,twists,locs,cornrows', (1600, 600)),
+          ('hair_back', 'lod=0&cam=gridback&t=0.4&hairs=lowcut,fade,waves,afro,twists,locs,cornrows', (1600, 600)),
+          ('beards', 'lod=0&cam=grid&t=0.4&hair=lowcut&beards=nobeard,stubble,goatee,fullbeard', (1200, 600)),
+          ('beards_laugh', 'lod=0&cam=grid&t=0.4&hair=lowcut&expr=laughing&beards=nobeard,stubble,goatee,fullbeard', (1200, 600))],
+}
 
 
 async def capture(browser, name, query, size, prefix):
@@ -56,7 +66,9 @@ async def main(prefix):
     async with async_playwright() as p:
         browser = await p.chromium.launch(args=['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'])
         try:
-            for name, query, size in SHOTS:
+            body = next((a.split('=')[1] for a in sys.argv if a.startswith('--body=')), 'm')
+            shots = HAIR_SHOTS[body] if '--set=hair' in sys.argv else SHOTS
+            for name, query, size in shots:
                 if '--resume' in sys.argv and (OUT / f'{prefix}_{name}.png').exists():
                     continue
                 for attempt in range(3):   # software WebGL occasionally drops a frame or context

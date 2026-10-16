@@ -55,8 +55,15 @@ lips and cheeks, lighter palms, soles and nails. Roughness 0.52, specular 0.45.
 
 * Short styles (lowcut, fade, waves, twa, cornrows) are shells lifted off the
   scalp with a snapped, clean hairline; fades use alpha masking.
-* Volume styles (afro, puff, bun, twists, locs, braids, bob, bonestraight, duku)
-  are separate meshes skinned to `Head` (Stage D).
+* Volume and strand styles add geometry to a scalp cap in one mesh and one
+  material: domes for afro, puff, bun and duku; tapered tubes grown from roots
+  with gravity and head/body collision for twists, locs and braids; lofted
+  sheets for bob and bonestraight. Below the neck, weights blend from `Head`
+  to `Spine2` so long hair rides the back.
+* Cornrows cut partings with alpha masking so scalp shows between rows; the
+  duku uses an original Ankara-style print tinted by `hatCol`.
+* Beards are cut from the face surface and keep its expression and slider
+  morphs; stubble is a soft blended shadow, goatee and full beard are shells.
 * One near-white procedural texture per style family; colour comes from the
   saved `hairCol`. No strand simulation; long braids or locs may get 1–2 helper
   bones.

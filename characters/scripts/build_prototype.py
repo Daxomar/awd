@@ -17,7 +17,7 @@ ROOT = Path(globals().get('AWD_ROOT'))
 SCRIPTS = ROOT / 'characters' / 'scripts'
 MODULES = ['awd_human.py', 'awd_textures.py', 'awd_face.py', 'awd_expressions.py', 'awd_rig.py',
            'awd_skin.py', 'awd_hair.py', 'awd_clothes.py', 'awd_shoes.py', 'awd_anim.py', 'awd_export.py', 'awd_morphs.py',
-           'awd_preview.py']
+           'awd_preview.py', 'awd_hair_volume.py', 'awd_beard.py']
 G = {'AWD_ROOT': str(ROOT), '__name__': 'awd_pipeline'}
 for _module in MODULES:
     exec(compile((SCRIPTS / _module).read_text(), _module, 'exec'), G)
@@ -125,3 +125,61 @@ def stage_save_export():
     (out / f'awd_{sex}_prototype_report.json').write_text(json.dumps(reports, indent=2))
     bpy.ops.wm.save_mainfile()
     return {'seconds': round(time.time() - t, 1), 'blend': str(src), 'reports': reports}
+
+
+# Saved hair ids per body (server/src/game/wardrobe.js: g 'u' items go to both).
+HAIR_IDS = {'male': ['lowcut', 'fade', 'waves', 'afro', 'twists', 'locs', 'cornrows'],
+            'female': ['lowcut', 'fade', 'afro', 'twists', 'locs', 'cornrows', 'puff', 'bun', 'twa', 'braids', 'bob',
+                       'bonestraight', 'duku']}
+BEARD_IDS = ['stubble', 'goatee', 'fullbeard']   # male only; nobeard and bald need no asset
+
+
+def _export_part(obj, sex, reports, out):
+    for lod in (0, 1):
+        copies = G['prepare_copies']([], [obj], lod=lod, suffix=f'_l{lod}', morph=STATE['morph'])
+        name = f"{obj['awd_slot']}_{obj['awd_id']}_{sex}" + ('' if lod == 0 else '_lod1') + '.glb'
+        path = out / name
+        G['export_glb'](path, copies, STATE['ctx']['rig'], animations=False)
+        reports[name] = G['glb_report'](path)
+        for c in copies:
+            bpy.data.objects.remove(c, do_unlink=True)
+        for mesh in [m for m in bpy.data.meshes if m.users == 0]:
+            bpy.data.meshes.remove(mesh)
+
+
+def stage_library(styles=None, beards=None):
+    """Build, morph and export every hair (and, for the male body, beard) part."""
+    t = time.time()
+    ctx, sex = STATE['ctx'], STATE['sex']
+    if 'morph' not in STATE:
+        STATE['morph'] = G['body_deltas'](ctx, sex)
+    deltas, body_co = STATE['morph']
+    out = ROOT / 'characters' / 'export' / 'parts'
+    reports, built = {}, []
+    styles = HAIR_IDS[sex] if styles is None else styles
+    beards = (BEARD_IDS if sex == 'male' else []) if beards is None else beards
+    for style in styles:
+        old = bpy.data.objects.get(f'AWD_Hair_{style}')
+        if old:
+            bpy.data.objects.remove(old, do_unlink=True)
+        obj = G['build_short_hair'](ctx, G, style) if style in G['SHORT'] else G['build_volume_hair'](ctx, G, style)
+        part_deltas, co = G['transfer'](deltas, body_co, obj)
+        G['add_keys'](obj, part_deltas, co)
+        built.append(obj)
+    for style in beards:
+        old = bpy.data.objects.get(f'AWD_Beard_{style}')
+        if old:
+            bpy.data.objects.remove(old, do_unlink=True)
+        built.append(G['build_beard'](ctx, G, style))   # keeps the body's expression and slider keys
+    collection('AWD_Library', built)
+    for obj in built:
+        _export_part(obj, sex, reports, out)
+        obj.hide_viewport = obj.hide_render = True
+    bpy.ops.wm.save_as_mainfile(filepath=str(ROOT / 'characters' / 'source' / f'awd_{sex}_library.blend'))
+    bpy.ops.file.make_paths_relative()
+    bpy.ops.wm.save_mainfile()
+    report = ROOT / 'characters' / 'export' / f'awd_{sex}_library_report.json'
+    merged = {**(json.loads(report.read_text()) if report.exists() else {}), **reports}   # partial rebuilds keep the rest
+    report.write_text(json.dumps(merged, indent=2))
+    return {'seconds': round(time.time() - t, 1),
+            'parts': {k: {'tris': v['triangles'], 'kb': v['bytes'] // 1024} for k, v in reports.items()}}

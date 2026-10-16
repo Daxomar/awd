@@ -1,0 +1,574 @@
+{
+  "hair_lowcut_female.glb": {
+    "bytes": 194672,
+    "meshes": 1,
+    "triangles": 448,
+    "materials": [
+      "AWD_Hair_lowcut"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_lowcut_female_lod1.glb": {
+    "bytes": 183932,
+    "meshes": 1,
+    "triangles": 223,
+    "materials": [
+      "AWD_Hair_lowcut"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_fade_female.glb": {
+    "bytes": 217552,
+    "meshes": 1,
+    "triangles": 448,
+    "materials": [
+      "AWD_Hair_fade"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_fade_female_lod1.glb": {
+    "bytes": 206808,
+    "meshes": 1,
+    "triangles": 224,
+    "materials": [
+      "AWD_Hair_fade"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_afro_female.glb": {
+    "bytes": 250276,
+    "meshes": 1,
+    "triangles": 1470,
+    "materials": [
+      "AWD_Hair_afro"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_afro_female_lod1.glb": {
+    "bytes": 213548,
+    "meshes": 1,
+    "triangles": 734,
+    "materials": [
+      "AWD_Hair_afro"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_twists_female.glb": {
+    "bytes": 383552,
+    "meshes": 1,
+    "triangles": 3823,
+    "materials": [
+      "AWD_Hair_twists"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_twists_female_lod1.glb": {
+    "bytes": 282332,
+    "meshes": 1,
+    "triangles": 1911,
+    "materials": [
+      "AWD_Hair_twists"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_locs_female.glb": {
+    "bytes": 475304,
+    "meshes": 1,
+    "triangles": 4348,
+    "materials": [
+      "AWD_Hair_locs"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_locs_female_lod1.glb": {
+    "bytes": 345492,
+    "meshes": 1,
+    "triangles": 2173,
+    "materials": [
+      "AWD_Hair_locs"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_cornrows_female.glb": {
+    "bytes": 164748,
+    "meshes": 1,
+    "triangles": 448,
+    "materials": [
+      "AWD_Hair_cornrows"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_cornrows_female_lod1.glb": {
+    "bytes": 154168,
+    "meshes": 1,
+    "triangles": 224,
+    "materials": [
+      "AWD_Hair_cornrows"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_puff_female.glb": {
+    "bytes": 243732,
+    "meshes": 1,
+    "triangles": 1390,
+    "materials": [
+      "AWD_Hair_puff"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_puff_female_lod1.glb": {
+    "bytes": 208992,
+    "meshes": 1,
+    "triangles": 694,
+    "materials": [
+      "AWD_Hair_puff"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_bun_female.glb": {
+    "bytes": 234192,
+    "meshes": 1,
+    "triangles": 1194,
+    "materials": [
+      "AWD_Hair_bun"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_bun_female_lod1.glb": {
+    "bytes": 204400,
+    "meshes": 1,
+    "triangles": 596,
+    "materials": [
+      "AWD_Hair_bun"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_twa_female.glb": {
+    "bytes": 194572,
+    "meshes": 1,
+    "triangles": 448,
+    "materials": [
+      "AWD_Hair_twa"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_twa_female_lod1.glb": {
+    "bytes": 184264,
+    "meshes": 1,
+    "triangles": 223,
+    "materials": [
+      "AWD_Hair_twa"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_braids_female.glb": {
+    "bytes": 509920,
+    "meshes": 1,
+    "triangles": 4768,
+    "materials": [
+      "AWD_Hair_braids"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_braids_female_lod1.glb": {
+    "bytes": 354584,
+    "meshes": 1,
+    "triangles": 2384,
+    "materials": [
+      "AWD_Hair_braids"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_bob_female.glb": {
+    "bytes": 120768,
+    "meshes": 1,
+    "triangles": 1068,
+    "materials": [
+      "AWD_Hair_bob"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_bob_female_lod1.glb": {
+    "bytes": 91308,
+    "meshes": 1,
+    "triangles": 533,
+    "materials": [
+      "AWD_Hair_bob"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_bonestraight_female.glb": {
+    "bytes": 136972,
+    "meshes": 1,
+    "triangles": 1306,
+    "materials": [
+      "AWD_Hair_bonestraight"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_bonestraight_female_lod1.glb": {
+    "bytes": 100304,
+    "meshes": 1,
+    "triangles": 653,
+    "materials": [
+      "AWD_Hair_bonestraight"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_duku_female.glb": {
+    "bytes": 158616,
+    "meshes": 1,
+    "triangles": 1850,
+    "materials": [
+      "AWD_Headwrap_duku"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_duku_female_lod1.glb": {
+    "bytes": 106976,
+    "meshes": 1,
+    "triangles": 925,
+    "materials": [
+      "AWD_Headwrap_duku"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  }
+}

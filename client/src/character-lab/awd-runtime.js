@@ -62,7 +62,7 @@ export class AwdCharacter {
     this.root.traverse((o) => { if (o.isSkinnedMesh) { o.frustumCulled = false; o.castShadow = true; this.meshes.push(o); } });
     // Every part was exported with the same glTF skin, but loaders give each mesh its own
     // Skeleton. Share one so bone matrices (and the bone texture) are computed once per character.
-    const shared = this.meshes[0]?.skeleton;
+    const shared = (this.skeleton = this.meshes[0]?.skeleton);
     for (const mesh of this.meshes.slice(1)) {
       const same = mesh.skeleton.bones.length === shared.bones.length && mesh.skeleton.bones.every((b, i) => b === shared.bones[i]);
       if (same) { mesh.skeleton.dispose(); mesh.bind(shared, mesh.bindMatrix); }
@@ -89,7 +89,8 @@ export class AwdCharacter {
     for (const mesh of this.meshes) {
       const base = this.baseMaterials.get(mesh), name = base.name || '';
       if (name === 'AWD_Skin') mesh.material = this.template.variant(base, 'tone' + tone, (m) => m.color.set(SKIN[tone]).multiplyScalar(SKIN_HEADROOM));
-      else if (name.startsWith('AWD_Hair_') || name === 'AWD_Brows') {
+      else if (name.startsWith('AWD_Headwrap_')) mesh.material = tint(base, 'wrap' + (look.hatCol || '#7b2d8e'), look.hatCol || '#7b2d8e');
+      else if (name.startsWith('AWD_Hair_') || name.startsWith('AWD_Beard_') || name === 'AWD_Brows') {
         const colour = look.hairCol || '#141010';
         mesh.material = this.template.variant(base, 'hair' + colour, (m) => m.color.set(colour).multiplyScalar(HAIR_ALBEDO));
       } else if (name.startsWith('AWD_Fabric_tee') && look.topCol) mesh.material = tint(base, look.topCol, look.topCol);
@@ -102,6 +103,42 @@ export class AwdCharacter {
     this.root.scale.setScalar(0.94 + Math.max(0, Math.min(1, Number(look.height ?? 0.5))) * 0.12);
     this.look = { ...look, skin: tone };
     this.applyMorphs(0);
+  }
+
+  // Attach a modular part (hair, beard, garment) exported with the same skeleton.
+  // `part` is an AwdTemplate for the part GLB; meshes already in that slot are replaced.
+  attachPart(slot, part) {
+    this.detachSlot(slot);
+    const clone = SkeletonUtils.clone(part.gltf.scene), shared = this.skeleton;
+    const byName = new Map(shared.bones.map((b) => [b.name, b]));
+    const added = [];
+    clone.traverse((o) => { if (o.isSkinnedMesh) added.push(o); });
+    for (const mesh of added) {
+      const names = mesh.skeleton.bones.map((b) => b.name);
+      const sameOrder = names.length === shared.bones.length && names.every((n, i) => n === shared.bones[i].name);
+      const skeleton = sameOrder ? shared : new THREE.Skeleton(names.map((n) => byName.get(n)), mesh.skeleton.boneInverses);
+      const host = this.root.getObjectByName(mesh.parent?.name) || this.meshes[0].parent;
+      mesh.skeleton.dispose();
+      host.add(mesh);
+      mesh.bind(skeleton, mesh.bindMatrix);
+      Object.assign(mesh, { frustumCulled: false, castShadow: true });
+      mesh.userData.awdSlot = slot;
+      this.meshes.push(mesh);
+      this.baseMaterials.set(mesh, mesh.material);
+    }
+    this.setLook(this.look);
+  }
+
+  detachSlot(slot) {
+    const prefix = { hair: 'AWD_Hair', beard: 'AWD_Beard', top: 'AWD_Top', bottom: 'AWD_Bottom', shoes: 'AWD_Shoes' }[slot];
+    for (const mesh of this.meshes) {
+      if (mesh.userData.awdSlot !== slot && !(prefix && mesh.name.startsWith(prefix))) continue;
+      mesh.removeFromParent();
+      this.baseMaterials.delete(mesh);
+      if (mesh.skeleton !== this.skeleton) mesh.skeleton.dispose();
+    }
+    // Geometry and materials stay with their templates; only the links are dropped.
+    this.meshes = this.meshes.filter((m) => this.baseMaterials.has(m));
   }
 
   setExpression(name, weight = 1) {
@@ -122,8 +159,12 @@ export class AwdCharacter {
   play(name, fade = 0.25) {
     const action = this.actions[name] || this.actions.idle;
     if (!action || this.current === action) return;
-    action.reset().setEffectiveWeight(1).fadeIn(fade).play();
-    if (this.current) this.current.fadeOut(fade);
+    action.reset().setEffectiveWeight(1).play();
+    // A zero-length fadeIn leaves the weight at 0 until a later update, so cut instead.
+    if (fade > 0) {
+      action.fadeIn(fade);
+      if (this.current) this.current.fadeOut(fade);
+    } else if (this.current) this.current.stop();
     this.current = action;
   }
 

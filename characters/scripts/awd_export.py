@@ -12,8 +12,9 @@ from pathlib import Path
 import bmesh
 import bpy
 
-ALPHA_MASK = {'AWD_Brows': 0.45, 'AWD_Lashes': 0.35}
-LOD_RATIO = {'AWD_Body': 0.42, 'AWD_Top': 0.45, 'AWD_Bottom': 0.45, 'AWD_Hair': 0.6, 'AWD_Shoes': 0.6}
+ALPHA_MASK = {'AWD_Brows': 0.45, 'AWD_Lashes': 0.35, 'AWD_Hair_cornrows': 0.5}
+ALPHA_BLEND = {'AWD_Beard_stubble'}   # a soft shadow on the skin, not cut-out hair
+LOD_RATIO = {'AWD_Body': 0.42, 'AWD_Top': 0.45, 'AWD_Bottom': 0.45, 'AWD_Hair': 0.5, 'AWD_Shoes': 0.6, 'AWD_Beard': 0.6}
 
 
 def copy_object(obj, name):
@@ -114,11 +115,13 @@ def fix_materials(path):
         cutoff = ALPHA_MASK.get(name)
         if name.startswith('AWD_Hair_') and name.endswith('fade'):
             cutoff = 0.5
-        if cutoff is not None:
+        if name in ALPHA_BLEND:
+            mat['alphaMode'] = 'BLEND'
+        elif cutoff is not None:
             mat['alphaMode'] = 'MASK'
             mat['alphaCutoff'] = cutoff
             mat['doubleSided'] = True
-        elif mat.get('alphaMode') == 'BLEND':
+        elif mat.get('alphaMode') == 'BLEND' and name not in ALPHA_BLEND:
             mat.pop('alphaMode')
         if name.startswith('AWD_Fabric'):
             mat['doubleSided'] = True

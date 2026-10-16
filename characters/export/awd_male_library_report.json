@@ -1,0 +1,469 @@
+{
+  "hair_lowcut_male.glb": {
+    "bytes": 195528,
+    "meshes": 1,
+    "triangles": 456,
+    "materials": [
+      "AWD_Hair_lowcut"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_lowcut_male_lod1.glb": {
+    "bytes": 184400,
+    "meshes": 1,
+    "triangles": 227,
+    "materials": [
+      "AWD_Hair_lowcut"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_fade_male.glb": {
+    "bytes": 218404,
+    "meshes": 1,
+    "triangles": 456,
+    "materials": [
+      "AWD_Hair_fade"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_fade_male_lod1.glb": {
+    "bytes": 207244,
+    "meshes": 1,
+    "triangles": 228,
+    "materials": [
+      "AWD_Hair_fade"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_waves_male.glb": {
+    "bytes": 225296,
+    "meshes": 1,
+    "triangles": 456,
+    "materials": [
+      "AWD_Hair_waves"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_waves_male_lod1.glb": {
+    "bytes": 214152,
+    "meshes": 1,
+    "triangles": 228,
+    "materials": [
+      "AWD_Hair_waves"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_afro_male.glb": {
+    "bytes": 252440,
+    "meshes": 1,
+    "triangles": 1498,
+    "materials": [
+      "AWD_Hair_afro"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_afro_male_lod1.glb": {
+    "bytes": 214676,
+    "meshes": 1,
+    "triangles": 749,
+    "materials": [
+      "AWD_Hair_afro"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_twists_male.glb": {
+    "bytes": 386856,
+    "meshes": 1,
+    "triangles": 3831,
+    "materials": [
+      "AWD_Hair_twists"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_twists_male_lod1.glb": {
+    "bytes": 283380,
+    "meshes": 1,
+    "triangles": 1915,
+    "materials": [
+      "AWD_Hair_twists"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_locs_male.glb": {
+    "bytes": 476988,
+    "meshes": 1,
+    "triangles": 4356,
+    "materials": [
+      "AWD_Hair_locs"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_locs_male_lod1.glb": {
+    "bytes": 346716,
+    "meshes": 1,
+    "triangles": 2178,
+    "materials": [
+      "AWD_Hair_locs"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_cornrows_male.glb": {
+    "bytes": 165656,
+    "meshes": 1,
+    "triangles": 456,
+    "materials": [
+      "AWD_Hair_cornrows"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hair_cornrows_male_lod1.glb": {
+    "bytes": 154456,
+    "meshes": 1,
+    "triangles": 228,
+    "materials": [
+      "AWD_Hair_cornrows"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "beard_stubble_male.glb": {
+    "bytes": 245572,
+    "meshes": 1,
+    "triangles": 1948,
+    "materials": [
+      "AWD_Beard_stubble"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "blink",
+      "browDown",
+      "browInnerUp",
+      "browUp",
+      "build",
+      "bust",
+      "faceWidth",
+      "frown",
+      "hips",
+      "jawOpen",
+      "lips",
+      "mouthO",
+      "muscle",
+      "nose",
+      "shoulders",
+      "smile",
+      "squint",
+      "waist"
+    ],
+    "images": 1
+  },
+  "beard_stubble_male_lod1.glb": {
+    "bytes": 127852,
+    "meshes": 1,
+    "triangles": 1168,
+    "materials": [
+      "AWD_Beard_stubble"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "beard_goatee_male.glb": {
+    "bytes": 322756,
+    "meshes": 1,
+    "triangles": 1520,
+    "materials": [
+      "AWD_Beard_goatee"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "blink",
+      "browDown",
+      "browInnerUp",
+      "browUp",
+      "build",
+      "bust",
+      "faceWidth",
+      "frown",
+      "hips",
+      "jawOpen",
+      "lips",
+      "mouthO",
+      "muscle",
+      "nose",
+      "shoulders",
+      "smile",
+      "squint",
+      "waist"
+    ],
+    "images": 1
+  },
+  "beard_goatee_male_lod1.glb": {
+    "bytes": 227328,
+    "meshes": 1,
+    "triangles": 911,
+    "materials": [
+      "AWD_Beard_goatee"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "beard_fullbeard_male.glb": {
+    "bytes": 356520,
+    "meshes": 1,
+    "triangles": 1948,
+    "materials": [
+      "AWD_Beard_fullbeard"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "blink",
+      "browDown",
+      "browInnerUp",
+      "browUp",
+      "build",
+      "bust",
+      "faceWidth",
+      "frown",
+      "hips",
+      "jawOpen",
+      "lips",
+      "mouthO",
+      "muscle",
+      "nose",
+      "shoulders",
+      "smile",
+      "squint",
+      "waist"
+    ],
+    "images": 1
+  },
+  "beard_fullbeard_male_lod1.glb": {
+    "bytes": 238712,
+    "meshes": 1,
+    "triangles": 1167,
+    "materials": [
+      "AWD_Beard_fullbeard"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  }
+}

@@ -3,13 +3,17 @@
 //   lod=0|1|2  n=instances  clip=idle|walk|wave  tone=1..8  expr=<expression>
 //   cam=front|three_quarter|side|back|game|face  t=<seconds to freeze at>  hud=1
 //   body=m|f  build|hips|bust|waist|shoulders|muscle|faceWidth|nose|lips|height=<0..1>
+//   hair=<id> beard=<id>  hairs=<id,id,...> or beards=<id,id,...> (one character per style)
 // window.__LAB exposes stats and controls for automated checks.
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { AwdTemplate, AwdCharacter, SKIN, EXPRESSIONS, SLIDERS } from './awd-runtime.js';
 
 const q = new URLSearchParams(location.search);
-const lod = Number(q.get('lod') ?? 0), count = Math.max(1, Math.min(40, Number(q.get('n') ?? 1)));
+const lod = Number(q.get('lod') ?? 0);
+const beardList = q.get('beards')?.split(',').filter(Boolean);
+const styles = q.get('hairs')?.split(',').filter(Boolean) || beardList?.map(() => q.get('hair') || '');
+const count = styles ? styles.length : Math.max(1, Math.min(40, Number(q.get('n') ?? 1)));
 const clip = q.get('clip') || 'idle', expr = q.get('expr') || 'neutral', view = q.get('cam') || 'three_quarter';
 const freeze = q.has('t') ? Number(q.get('t')) : null;
 const sex = q.get('body') === 'f' ? 'female' : 'male';
@@ -46,11 +50,13 @@ const camera = new THREE.PerspectiveCamera(32, 1, 0.05, 100);
 const VIEWS = {
   front: [0, 0.95, 4.2, 0.95], three_quarter: [2.2, 1.0, 3.6, 0.95], side: [4.2, 0.95, 0, 0.95],
   back: [0, 0.95, -4.2, 0.95], game: [3.4, 5.2, 6.2, 0.9], face: [0.25, 1.62, 0.85, 1.6],
+  grid: [0.6, 1.62, 2.6, 1.45], gridback: [-0.6, 1.62, -2.6, 1.45],
 };
 function frame() {
   renderer.setSize(innerWidth, innerHeight);
   camera.aspect = innerWidth / innerHeight;
-  const [x, y, z, ty] = VIEWS[view] || VIEWS.three_quarter, spread = count > 1 ? 1 + Math.sqrt(count) * 0.55 : 1;
+  const [x, y, z, ty] = VIEWS[view] || VIEWS.three_quarter;
+  const spread = count > 1 && !view.startsWith('grid') ? 1 + Math.sqrt(count) * 0.55 : 1;
   camera.position.set(x * spread, y * (view === 'game' ? spread : 1), z * spread);
   camera.lookAt(0, ty, 0);
   camera.updateProjectionMatrix();
@@ -60,6 +66,19 @@ addEventListener('resize', frame);
 const characters = [];
 const clock = new THREE.Clock();
 let template = null;
+const loader = new GLTFLoader();
+const parts = new Map();
+const partUrl = (slot, id) => `/assets/characters/prototype/parts/${slot}_${id}_${sex}${lod > 0 ? '_lod1' : ''}.glb`;
+function loadPart(slot, id) {
+  const url = partUrl(slot, id);
+  if (!parts.has(url)) parts.set(url, loader.loadAsync(url).then((g) => new AwdTemplate(g)));
+  return parts.get(url);
+}
+async function dressParts(c, hair, beard) {
+  if (hair === 'bald') c.detachSlot('hair');
+  else if (hair) c.attachPart('hair', await loadPart('hair', hair));
+  if (beard && beard !== 'nobeard') c.attachPart('beard', await loadPart('beard', beard));
+}
 
 function spawn(n) {
   const cols = Math.ceil(Math.sqrt(n));
@@ -114,10 +133,22 @@ function churnTest(rounds = 5, n = 6) {
   return { before, after, stable: after.geometries <= before.geometries + 1 && after.textures <= before.textures + 1 };
 }
 
-new GLTFLoader().loadAsync(`/assets/characters/prototype/awd_${sex}_prototype_lod${lod}.glb`).then((gltf) => {
+loader.loadAsync(`/assets/characters/prototype/awd_${sex}_prototype_lod${lod}.glb`).then(async (gltf) => {
   template = new AwdTemplate(gltf);
   frame();
   spawn(count);
+  if (styles) {
+    await Promise.all(characters.map((c, i) => {
+      c.root.position.set((i - (styles.length - 1) / 2) * 0.5, 0, 0);
+      c.setLook({ ...c.look, skin: 5, hairCol: '#141010', topCol: '#f4f4f2' });
+      c.mixer.stopAllAction();
+      c.current = null;
+      c.play('idle', 0);
+      c.mixer.setTime(freeze ?? 0.4);
+      c.setExpression(expr);
+      return dressParts(c, styles[i], beardList ? beardList[i] : q.get('beard'));
+    }));
+  } else await Promise.all(characters.map((c) => dressParts(c, q.get('hair'), q.get('beard'))));
   if (freeze !== null) for (const c of characters) { c.mixer.setTime(freeze); c.applyMorphs(0); }
   LAB.stats = measure();
   Object.assign(LAB, {

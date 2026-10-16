@@ -73,19 +73,22 @@ def _hair_image(G, kind, fade):
         weave = 0.5 + 0.5 * np.sin((v * 90 + (u * 18).astype(int) * 0.5) * math.pi)
         albedo = 0.25 + 0.65 * braid * (0.7 + 0.3 * weave)
     alpha = np.ones((h, w))
+    if kind == 'cornrows':   # partings between rows show the scalp
+        alpha = (braid > 0.22).astype(float)
     if fade:
         density = _smoothstep(0.0, 1.0, v)
         alpha = ((rng.random((h, w)) * 0.35 + dots * 0.65) > 1.0 - density).astype(float)
     rgba = np.stack([albedo, albedo, albedo, alpha], axis=-1)
     name = f'awd_hair_{kind}' + ('_fade' if fade else '')
-    return G['save_image'](name, np.clip(rgba, 0, 1), alpha=bool(fade))
+    return G['save_image'](name, np.clip(rgba, 0, 1), alpha=bool(fade) or kind == 'cornrows')
 
 
 def hair_material(G, style, colour=(0.008, 0.006, 0.006)):
     _, _, fade_start, _, kind = SHORT[style]
-    image = _hair_image(G, kind, fade=fade_start is not None)
-    mat = G['_material'](f'AWD_Hair_{style}', colour, 0.6, image,
-                         alpha_clip=0.5 if fade_start is not None else None)
+    name = f'awd_hair_{kind}' + ('_fade' if fade_start is not None else '')
+    image = bpy.data.images.get(name) or _hair_image(G, kind, fade=fade_start is not None)   # generation is slow; reuse
+    masked = fade_start is not None or kind == 'cornrows'
+    mat = G['_material'](f'AWD_Hair_{style}', colour, 0.6, image, alpha_clip=0.5 if masked else None)
     next(n for n in mat.node_tree.nodes if n.type == 'TEX_IMAGE').extension = 'REPEAT'
     return mat
 

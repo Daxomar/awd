@@ -135,3 +135,67 @@ def strand_alpha(name, size=(256, 64), strands=140, seed=3, lean=1.0, thickness=
     rgba = np.ones((h, w, 4))
     rgba[..., 3] = np.clip(blur / 1.6, 0, 1)
     return save_image(name, rgba, alpha=True)
+
+
+def strand_texture(kind, size=(256, 512), seed=41):
+    """Near-white strand surfaces; u runs around the strand, v along its length.
+
+    braid: three-strand chevrons; loc: felted rope; twist: two-strand twist;
+    straight: long fibres (wigs); slick: brushed-back short hair."""
+    w, h = size
+    rng = np.random.default_rng(seed)
+    y, x = np.mgrid[0:h, 0:w].astype(np.float64)
+    u, v = (x + 0.5) / w, (y + 0.5) / h
+    fibre = np.repeat(rng.random((1, w)), h, axis=0)
+    if kind == 'braid':
+        s = (u * 3) % 1.0
+        ridge = 0.5 + 0.5 * np.cos(2 * np.pi * (v * 34 + np.abs(s - 0.5) * 1.6))
+        value = 0.35 + 0.5 * ridge ** 0.7 + 0.12 * fibre
+    elif kind == 'loc':
+        twist = 0.5 + 0.5 * np.sin(2 * np.pi * (v * 14 + u * 1.5))
+        fuzz = rng.random((h, w)) * 0.25
+        value = 0.45 + 0.35 * twist + fuzz
+    elif kind == 'twist':
+        twist = 0.5 + 0.5 * np.sin(2 * np.pi * (v * 22 + u * 2))
+        value = 0.3 + 0.6 * twist ** 0.6 + 0.08 * fibre
+    elif kind == 'slick':
+        value = 0.55 + 0.35 * fibre + 0.08 * np.sin(2 * np.pi * u * 40)
+    else:  # straight
+        value = 0.5 + 0.4 * fibre + 0.1 * np.sin(2 * np.pi * (u * 9 + v * 0.5))
+    value = np.clip(value, 0, 1)
+    return save_image(f'awd_strand_{kind}', np.stack([value, value, value, np.ones_like(value)], axis=-1))
+
+
+def stubble_alpha(size=256, seed=51, density=0.35):
+    """Soft stubble shadow (glTF BLEND): fine dots over a faint even tint."""
+    rng = np.random.default_rng(seed)
+    dots = (rng.random((size, size)) < density).astype(float)
+    rgba = np.ones((size, size, 4))
+    rgba[..., 3] = 0.16 + 0.34 * dots
+    return save_image('awd_stubble_alpha', rgba, alpha=True)
+
+
+def ankara_texture(size=512, seed=61):
+    """Original wax-print style repeat in three values (tinted by the item colour).
+
+    Motifs: concentric rings with leaf petals on a dotted ground, offset rows."""
+    rng = np.random.default_rng(seed)
+    y, x = np.mgrid[0:size, 0:size].astype(np.float64) / size
+    value = np.full((size, size), 0.95)
+    dots = ((np.sin(x * 2 * np.pi * 48) * np.sin(y * 2 * np.pi * 48)) > 0.82)
+    value[dots] = 0.55
+    cells = 4
+    for row in range(cells):
+        for col in range(cells):
+            cx = (col + 0.5 + 0.5 * (row % 2)) / cells
+            cy = (row + 0.5) / cells
+            dx = ((x - cx + 0.5) % 1.0) - 0.5
+            dy = ((y - cy + 0.5) % 1.0) - 0.5
+            r = np.hypot(dx, dy) * cells
+            angle = np.arctan2(dy, dx)
+            petals = r < 0.42 + 0.06 * np.cos(angle * 8 + rng.random())
+            value[petals] = 0.25
+            value[(r < 0.30) & petals] = 0.95
+            value[np.abs(r - 0.2) < 0.035] = 0.12
+            value[r < 0.08] = 0.55
+    return save_image('awd_print_ankara', np.stack([value, value, value, np.ones_like(value)], axis=-1))

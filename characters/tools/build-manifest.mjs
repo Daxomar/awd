@@ -9,11 +9,16 @@ import { WEAR, SKIN, HAIR_COLORS, UNIFORM } from '../../server/src/game/wardrobe
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const EXPORT = join(ROOT, 'characters', 'export');
 const RUNTIME = 'client/public/assets/characters/prototype';
-const PART = /^(hair|top|bottom|full|shoes|hat|glasses|neck|beard)_([a-z]+)_(male|female)\.glb$/;
+const PART = /^(hair|top|bottom|full|shoes|hat|glasses|neck|beard)_([a-z]+)_(male|female)(_lod1)?\.glb$/;
+// Ids that mean "nothing to draw" are complete without geometry.
+const NO_GEOMETRY = new Set(['bald', 'nobeard', 'nohat', 'noglasses', 'nochain']);
 
 function report(sex) {
-  const file = join(EXPORT, `awd_${sex}_prototype_report.json`);
-  return existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : {};
+  const read = (name) => {
+    const file = join(EXPORT, `awd_${sex}_${name}_report.json`);
+    return existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : {};
+  };
+  return { ...read('prototype'), ...read('library') };
 }
 const reports = { male: report('male'), female: report('female') };
 
@@ -44,13 +49,16 @@ function appearanceMap() {
   for (const [sex, r] of Object.entries(reports)) {
     for (const [file, d] of Object.entries(r)) {
       const m = file.match(PART);
-      if (m) (built[m[2]] ??= {})[sex[0]] = { asset: `${RUNTIME}/parts/${file}`, bytes: d.bytes, triangles: d.triangles };
+      if (!m) continue;
+      const entry = ((built[m[2]] ??= {})[sex[0]] ??= {});
+      if (m[4]) Object.assign(entry, { lod1: `${RUNTIME}/parts/${file}`, lod1Triangles: d.triangles });
+      else Object.assign(entry, { asset: `${RUNTIME}/parts/${file}`, bytes: d.bytes, triangles: d.triangles });
     }
   }
   const out = {};
   for (const [id, item] of Object.entries(WEAR)) {
     const bodies = item.g === 'u' ? ['m', 'f'] : [item.g], assets = built[id] || {};
-    const status = bodies.every((b) => assets[b]) ? 'done' : Object.keys(assets).length ? 'partial' : 'planned';
+    const status = NO_GEOMETRY.has(id) || bodies.every((b) => assets[b]?.asset) ? 'done' : Object.keys(assets).length ? 'partial' : 'planned';
     (out[item.slot] ??= {})[id] = { name: item.name, bodies, price: item.price, colours: item.colors || null, status, assets };
   }
   return out;

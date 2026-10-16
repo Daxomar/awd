@@ -60,6 +60,29 @@ test('manifest covers every wardrobe id and points at existing assets', () => {
     assert.ok(manifest.appearance[item.slot]?.[id], `manifest is missing ${item.slot}:${id}`);
   }
   for (const entry of Object.values(manifest.appearance).flatMap((slot) => Object.values(slot))) {
-    for (const asset of Object.values(entry.assets)) assert.ok(existsSync(join(ROOT, asset.asset)), `missing ${asset.asset}`);
+    for (const asset of Object.values(entry.assets)) {
+      for (const path of [asset.asset, asset.lod1].filter(Boolean)) assert.ok(existsSync(join(ROOT, path)), `missing ${path}`);
+    }
   }
+});
+
+test('every hair and beard part shares the game skeleton and follows the body sliders', () => {
+  const manifest = JSON.parse(readFileSync(join(ROOT, 'characters', 'manifest.json'), 'utf8'));
+  const entries = ['hair', 'beard'].flatMap((slot) => Object.entries(manifest.appearance[slot]).map(([id, e]) => [slot, id, e]));
+  let checked = 0;
+  for (const [slot, id, entry] of entries) {
+    for (const [body, asset] of Object.entries(entry.assets)) {
+      for (const [lod, path] of [[0, asset.asset], [1, asset.lod1]]) {
+        if (!path) continue;
+        const doc = glbJson(join(ROOT, path));
+        const label = `${slot}:${id}:${body}:lod${lod}`;
+        assert.equal(doc.skins[0].joints.length, 67, `${label} skeleton`);
+        const morphs = morphNames(doc);
+        for (const slider of Object.keys(SLIDERS)) assert.ok(morphs.has(slider), `${label} missing ${slider}`);
+        if (slot === 'beard' && lod === 0) assert.ok(morphs.has('jawOpen'), `${label} must open with the jaw`);
+        checked++;
+      }
+    }
+  }
+  assert.ok(checked >= 40, `only ${checked} part files checked`);
 });
