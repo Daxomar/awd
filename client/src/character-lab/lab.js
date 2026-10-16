@@ -2,15 +2,18 @@
 // the game's renderer settings (scene/stage.js). Query parameters:
 //   lod=0|1|2  n=instances  clip=idle|walk|wave  tone=1..8  expr=<expression>
 //   cam=front|three_quarter|side|back|game|face  t=<seconds to freeze at>  hud=1
+//   body=m|f  build|hips|bust|waist|shoulders|muscle|faceWidth|nose|lips|height=<0..1>
 // window.__LAB exposes stats and controls for automated checks.
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { AwdTemplate, AwdCharacter, SKIN, EXPRESSIONS } from './awd-runtime.js';
+import { AwdTemplate, AwdCharacter, SKIN, EXPRESSIONS, SLIDERS } from './awd-runtime.js';
 
 const q = new URLSearchParams(location.search);
 const lod = Number(q.get('lod') ?? 0), count = Math.max(1, Math.min(40, Number(q.get('n') ?? 1)));
 const clip = q.get('clip') || 'idle', expr = q.get('expr') || 'neutral', view = q.get('cam') || 'three_quarter';
 const freeze = q.has('t') ? Number(q.get('t')) : null;
+const sex = q.get('body') === 'f' ? 'female' : 'male';
+const sliders = Object.fromEntries(Object.keys(SLIDERS).concat('height').filter((k) => q.has(k)).map((k) => [k, Number(q.get(k))]));
 const LAB = (window.__LAB = { ready: false, errors: [], stats: {} });
 addEventListener('error', (e) => LAB.errors.push(String(e.message)));
 
@@ -66,6 +69,7 @@ function spawn(n) {
       hairCol: ['#141010', '#3a2416', '#6b3e1f', '#8e1b1b'][i % 4],
       topCol: ['#f4f4f2', '#c8102e', '#1f6fb8', '#0e7a4e', '#f2b632'][i % 5],
       bottomCol: ['#2b3a55', '#17150f', '#3d5a80'][i % 3],
+      ...sliders,
     };
     const c = new AwdCharacter(template, look);
     c.root.position.set((i % cols - (cols - 1) / 2) * 0.85, 0, -Math.floor(i / cols) * 0.9);
@@ -110,7 +114,7 @@ function churnTest(rounds = 5, n = 6) {
   return { before, after, stable: after.geometries <= before.geometries + 1 && after.textures <= before.textures + 1 };
 }
 
-new GLTFLoader().loadAsync(`/assets/characters/prototype/awd_male_prototype_lod${lod}.glb`).then((gltf) => {
+new GLTFLoader().loadAsync(`/assets/characters/prototype/awd_${sex}_prototype_lod${lod}.glb`).then((gltf) => {
   template = new AwdTemplate(gltf);
   frame();
   spawn(count);

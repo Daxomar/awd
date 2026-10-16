@@ -45,7 +45,7 @@ def decimate(obj, ratio):
     bpy.ops.object.modifier_apply(modifier='LOD')
 
 
-def prepare_copies(parts, garments, lod=0, suffix=''):
+def prepare_copies(parts, garments, lod=0, suffix='', morph=None):
     """parts: body-side objects; garments: outfit objects with awd_hides. Returns export copies."""
     hidden = set()
     for g in garments:
@@ -67,6 +67,10 @@ def prepare_copies(parts, garments, lod=0, suffix=''):
                 dup.shape_key_clear()
             if ratio < 1.0:
                 decimate(dup, ratio)
+            if morph:   # body sliders survive decimation; expressions are LOD0-only
+                deltas, body_co = morph
+                part_deltas, co = transfer(deltas, body_co, dup)   # from awd_morphs (shared namespace)
+                add_keys(dup, part_deltas, co)
         copies.append(dup)
     return copies
 

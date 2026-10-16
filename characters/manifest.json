@@ -105,33 +105,48 @@
       "lods": {
         "0": {
           "asset": "client/public/assets/characters/prototype/awd_male_prototype_lod0.glb",
-          "bytes": 2505456,
+          "bytes": 2493448,
           "triangles": 27984,
           "meshes": 11
         },
         "1": {
           "asset": "client/public/assets/characters/prototype/awd_male_prototype_lod1.glb",
-          "bytes": 1054760,
-          "triangles": 12501,
+          "bytes": 1267168,
+          "triangles": 12502,
           "meshes": 8
         },
         "2": {
           "asset": "client/public/assets/characters/prototype/awd_male_prototype_lod2.glb",
-          "bytes": 751440,
-          "triangles": 4368,
+          "bytes": 849488,
+          "triangles": 4369,
           "meshes": 8
         }
       }
     },
     "f": {
-      "status": "planned",
+      "status": "prototype",
       "rig": "awd_adult_v1",
       "height": 1.68,
       "source": "characters/source/awd_female_prototype.blend",
       "lods": {
-        "0": null,
-        "1": null,
-        "2": null
+        "0": {
+          "asset": "client/public/assets/characters/prototype/awd_female_prototype_lod0.glb",
+          "bytes": 2474524,
+          "triangles": 28064,
+          "meshes": 11
+        },
+        "1": {
+          "asset": "client/public/assets/characters/prototype/awd_female_prototype_lod1.glb",
+          "bytes": 1241588,
+          "triangles": 12531,
+          "meshes": 8
+        },
+        "2": {
+          "asset": "client/public/assets/characters/prototype/awd_female_prototype_lod2.glb",
+          "bytes": 826640,
+          "triangles": 4381,
+          "meshes": 8
+        }
       }
     }
   },
@@ -185,6 +200,26 @@
     "browInnerUp",
     "squint"
   ],
+  "sliders": {
+    "defaults": {
+      "build": 0.5,
+      "hips": 0.5,
+      "bust": 0.45,
+      "waist": 0.5,
+      "shoulders": 0.5,
+      "muscle": 0.5,
+      "faceWidth": 0.5,
+      "nose": 0.5,
+      "lips": 0.5
+    },
+    "influence": "v >= d ? (v - d) / (1 - d) : (v - d) / d",
+    "height": "root scale 0.94 + v * 0.12",
+    "lods": [
+      0,
+      1,
+      2
+    ]
+  },
   "expressions": {
     "neutral": {},
     "happy": {
@@ -304,12 +339,17 @@
           "#8a9aa8",
           "#ff8fb1"
         ],
-        "status": "partial",
+        "status": "done",
         "assets": {
           "m": {
             "asset": "client/public/assets/characters/prototype/parts/top_tee_male.glb",
-            "bytes": 214472,
+            "bytes": 325384,
             "triangles": 3776
+          },
+          "f": {
+            "asset": "client/public/assets/characters/prototype/parts/top_tee_female.glb",
+            "bytes": 313132,
+            "triangles": 3624
           }
         }
       },
@@ -587,12 +627,17 @@
           "#7a8ea8",
           "#17150f"
         ],
-        "status": "partial",
+        "status": "done",
         "assets": {
           "m": {
             "asset": "client/public/assets/characters/prototype/parts/bottom_jeans_male.glb",
-            "bytes": 207532,
+            "bytes": 266392,
             "triangles": 2748
+          },
+          "f": {
+            "asset": "client/public/assets/characters/prototype/parts/bottom_jeans_female.glb",
+            "bytes": 268824,
+            "triangles": 2800
           }
         }
       },
@@ -869,11 +914,16 @@
           "#6b4f2f",
           "#f2b632"
         ],
-        "status": "partial",
+        "status": "done",
         "assets": {
           "m": {
             "asset": "client/public/assets/characters/prototype/parts/shoes_sneakers_male.glb",
-            "bytes": 94684,
+            "bytes": 119128,
+            "triangles": 2148
+          },
+          "f": {
+            "asset": "client/public/assets/characters/prototype/parts/shoes_sneakers_female.glb",
+            "bytes": 114940,
             "triangles": 2148
           }
         }
@@ -962,7 +1012,7 @@
         "assets": {
           "m": {
             "asset": "client/public/assets/characters/prototype/parts/hair_fade_male.glb",
-            "bytes": 211308,
+            "bytes": 218408,
             "triangles": 456
           }
         }
@@ -1059,8 +1109,14 @@
         ],
         "price": 0,
         "colours": null,
-        "status": "planned",
-        "assets": {}
+        "status": "done",
+        "assets": {
+          "f": {
+            "asset": "client/public/assets/characters/prototype/parts/hair_twa_female.glb",
+            "bytes": 194576,
+            "triangles": 448
+          }
+        }
       },
       "braids": {
         "name": "Knotless braids",

@@ -20,6 +20,13 @@ export const EXPRESSIONS = {
   talking: { jawOpen: 0.3, mouthO: 0.2 }, blinking: { blink: 1 },
 };
 
+// Saved body sliders (wardrobe.js cleanLook) -> morph influence in [-1, 1]; mirrors awd_morphs.py.
+export const SLIDERS = { build: 0.5, hips: 0.5, bust: 0.45, waist: 0.5, shoulders: 0.5, muscle: 0.5, faceWidth: 0.5, nose: 0.5, lips: 0.5 };
+export function sliderInfluence(name, value) {
+  const d = SLIDERS[name], v = Math.max(0, Math.min(1, Number(value ?? d)));
+  return v >= d ? (v - d) / (1 - d) : (v - d) / d;
+}
+
 const LOOPED = new Set(['idle', 'walk', 'run', 'sit_idle', 'talk', 'dance_01', 'phone_use']);
 
 export class AwdTemplate {
@@ -71,6 +78,7 @@ export class AwdCharacter {
     this.current = null;
     this.blink = { next: 1 + Math.random() * 3, t: -1 };
     this.expression = {};
+    this.sliders = {};
     this.setLook(look);
     this.play('idle', 0);
   }
@@ -89,7 +97,11 @@ export class AwdCharacter {
       else if (name.endsWith('_upper') && look.shoesCol) mesh.material = tint(base, look.shoesCol, look.shoesCol);
       else mesh.material = base;
     }
+    this.sliders = Object.fromEntries(Object.keys(SLIDERS).map((k) => [k, sliderInfluence(k, look[k])]));
+    // Height is a root scale, as in the live game (character.js).
+    this.root.scale.setScalar(0.94 + Math.max(0, Math.min(1, Number(look.height ?? 0.5))) * 0.12);
     this.look = { ...look, skin: tone };
+    this.applyMorphs(0);
   }
 
   setExpression(name, weight = 1) {
@@ -101,7 +113,8 @@ export class AwdCharacter {
     for (const mesh of this.meshes) {
       const dict = mesh.morphTargetDictionary; if (!dict) continue;
       for (const [key, index] of Object.entries(dict)) {
-        mesh.morphTargetInfluences[index] = key === 'blink' ? Math.max(blink, this.expression.blink || 0) : this.expression[key] || 0;
+        if (key in SLIDERS) mesh.morphTargetInfluences[index] = this.sliders[key];
+        else mesh.morphTargetInfluences[index] = key === 'blink' ? Math.max(blink, this.expression.blink || 0) : this.expression[key] || 0;
       }
     }
   }

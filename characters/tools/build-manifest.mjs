@@ -73,6 +73,10 @@ const manifest = {
     'AWD_Shoe_*_upper': { tint: 'look.shoesCol' },
   },
   morphs: ['blink', 'jawOpen', 'smile', 'frown', 'mouthO', 'browUp', 'browDown', 'browInnerUp', 'squint'],
+  sliders: {
+    defaults: { build: 0.5, hips: 0.5, bust: 0.45, waist: 0.5, shoulders: 0.5, muscle: 0.5, faceWidth: 0.5, nose: 0.5, lips: 0.5 },
+    influence: 'v >= d ? (v - d) / (1 - d) : (v - d) / d', height: 'root scale 0.94 + v * 0.12', lods: [0, 1, 2],
+  },
   expressions: {
     neutral: {}, happy: { smile: 0.85, squint: 0.35, browUp: 0.15 }, sad: { frown: 0.8, browInnerUp: 0.8, squint: 0.1 },
     angry: { browDown: 1, frown: 0.35, squint: 0.45 }, surprised: { browUp: 1, jawOpen: 0.35, mouthO: 0.35 },

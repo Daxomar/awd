@@ -16,7 +16,7 @@ import bpy
 ROOT = Path(globals().get('AWD_ROOT'))
 SCRIPTS = ROOT / 'characters' / 'scripts'
 MODULES = ['awd_human.py', 'awd_textures.py', 'awd_face.py', 'awd_expressions.py', 'awd_rig.py',
-           'awd_skin.py', 'awd_hair.py', 'awd_clothes.py', 'awd_shoes.py', 'awd_anim.py', 'awd_export.py',
+           'awd_skin.py', 'awd_hair.py', 'awd_clothes.py', 'awd_shoes.py', 'awd_anim.py', 'awd_export.py', 'awd_morphs.py',
            'awd_preview.py']
 G = {'AWD_ROOT': str(ROOT), '__name__': 'awd_pipeline'}
 for _module in MODULES:
@@ -86,7 +86,8 @@ def stage_dress(hair='fade'):
     collection('AWD_Hair', [hair_obj])
     collection('AWD_Wardrobe', garments)
     clips = G['build_library'](ctx['rig'])
-    STATE.update(hair=hair_obj, garments=garments)
+    morph = G['build_body_morphs'](ctx, STATE['parts'] + [hair_obj] + garments, STATE['sex'])
+    STATE.update(hair=hair_obj, garments=garments, morph=morph)
     return {'seconds': round(time.time() - t, 1), 'clips': [c.name for c in clips],
             'garments': [g.name for g in garments]}
 
@@ -104,16 +105,16 @@ def stage_save_export():
     reports = {}
     dressed = [STATE['hair']] + STATE['garments']
     for lod in (0, 1, 2):
-        copies = G['prepare_copies'](STATE['parts'], dressed, lod=lod, suffix=f'_lod{lod}')
+        copies = G['prepare_copies'](STATE['parts'], dressed, lod=lod, suffix=f'_lod{lod}', morph=STATE['morph'])
         path = out / f'awd_{sex}_prototype_lod{lod}.glb'
-        G['export_glb'](path, copies, rig, animations=True, morph_normals=(lod == 0))
+        G['export_glb'](path, copies, rig, animations=True, morph_normals=False)
         reports[path.name] = G['glb_report'](path)
         for obj in copies:
             bpy.data.objects.remove(obj, do_unlink=True)
         for mesh in [m for m in bpy.data.meshes if m.users == 0]:
             bpy.data.meshes.remove(mesh)
     for part in dressed:
-        copies = G['prepare_copies']([], [part], lod=0, suffix='_part')
+        copies = G['prepare_copies']([], [part], lod=0, suffix='_part', morph=STATE['morph'])
         path = out / 'parts' / f"{part['awd_slot']}_{part['awd_id']}_{sex}.glb"
         G['export_glb'](path, copies, rig, animations=False)
         reports[path.name] = G['glb_report'](path)

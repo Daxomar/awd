@@ -98,7 +98,7 @@ def snap_boundary(bm, cuts, iterations=3):
                 v.co = p - f(p) * g / n2
 
 
-def chest_envelope(bm, ctx, step=0.025, ease=0.004):
+def chest_envelope(bm, ctx, step=0.025, ease=0.004, window=5, sigma=2.5):
     """Fabric bridges the chest instead of following pectoral and sternum contours.
 
     Mirrors client/src/v2/scene/garment-fit.js: per height band, find the torso's
@@ -118,9 +118,9 @@ def chest_envelope(bm, ctx, step=0.025, ease=0.004):
             continue   # back half keeps its shape
         sample = v.co.z / step
         acc = np.zeros(3)
-        for k in range(int(sample) - 5, int(sample) + 6):
+        for k in range(int(sample) - window, int(sample) + window + 1):
             if k in bins:
-                w = math.exp(-(((k + 0.5 - sample) / 2.5) ** 2))
+                w = math.exp(-(((k + 0.5 - sample) / sigma) ** 2))
                 acc += (bins[k][0] * w, bins[k][1] * w, w)
         if not acc[2]:
             continue
@@ -131,7 +131,7 @@ def chest_envelope(bm, ctx, step=0.025, ease=0.004):
         v.co.y += (target - v.co.y) * blend
 
 
-def shell(ctx, name, face_mask, ease, material, smooth=8, hem=0.004, uv='torso', cuts=None, envelope=False):
+def shell(ctx, name, face_mask, ease, material, smooth=8, hem=0.004, uv='torso', cuts=None, envelope=None):
     body = ctx['body']
     obj = body.copy()
     obj.data = body.data.copy()
@@ -151,7 +151,7 @@ def shell(ctx, name, face_mask, ease, material, smooth=8, hem=0.004, uv='torso',
     boundary = np.array([v.is_boundary for v in bm.verts], dtype=float)
     taubin(bm, smooth, 1.0 - 0.6 * boundary)
     if envelope:
-        chest_envelope(bm, ctx)
+        chest_envelope(bm, ctx, **envelope)
         taubin(bm, 3, 1.0 - boundary)
     if cuts:
         snap_boundary(bm, cuts, iterations=1)
@@ -207,7 +207,10 @@ def tee(ctx, G, colour=(0.85, 0.86, 0.82), sleeve_len=0.48):
     sleeves = (R['arm'] >= 0.5) & (R['sleeve'] < sleeve_len)
 
     def ease(p):
-        return 0.0075 + 0.004 * (1 - _smoothstep(R['waist_z'], R['neck_z'] - 0.1, p[2])) + 0.002 * (abs(p[0]) > 0.17)
+        loose = 0.004 if ctx['sex'] == 'male' else 0.0015
+        # The hem zone sits over the jeans waistband: keep it clearly outside it.
+        over_waistband = 0.007 * (1 - _smoothstep(R['hip_z'] + 0.02, R['hip_z'] + 0.09, p[2]))
+        return 0.0075 + loose * (1 - _smoothstep(R['waist_z'], R['neck_z'] - 0.1, p[2])) + 0.002 * (abs(p[0]) > 0.17) + over_waistband
 
     J = ctx['joints']
     hem_z = R['hip_z'] - 0.035
@@ -220,9 +223,11 @@ def tee(ctx, G, colour=(0.85, 0.86, 0.82), sleeve_len=0.48):
     for side in ('L', 'R'):
         t = sleeve_param(J, side)
         sign = 1 if side == 'L' else -1
-        cuts.append(cut(lambda p, t=t, sign=sign: (t(p) - sleeve_len) if p[0] * sign > 0.12 else 1.0))
+        upper = R['waist_z'] + 0.12   # sleeve hems only exist on the upper body
+        cuts.append(cut(lambda p, t=t, sign=sign: (t(p) - sleeve_len) if p[0] * sign > 0.12 and p[2] > upper else 1.0))
     obj = shell(ctx, 'AWD_Top_tee', torso | sleeves, ease, fabric_material(G, 'AWD_Fabric_tee', colour, 'jersey'),
-                smooth=14, cuts=cuts, envelope=True)
+                smooth=14, cuts=cuts,
+                envelope={'window': 2, 'sigma': 1.2} if ctx['sex'] == 'female' else {})
     obj['awd_slot'], obj['awd_id'] = 'top', 'tee'
     obj['awd_hides'] = body_cover(torso & (c[:, 2] < collar - 0.012), sleeves & (R['sleeve'] < sleeve_len - 0.06))
     return obj
@@ -235,7 +240,8 @@ def jeans(ctx, G, colour=(0.10, 0.15, 0.27)):
     mask = (R['arm'] < 0.5) & (c[:, 2] < R['hip_z'] + 0.045) & (c[:, 2] > hem_z)
 
     def ease(p):
-        return 0.0085 + 0.010 * (1 - _smoothstep(R['ankle_z'], R['knee_z'], p[2]))
+        waistband = 0.003 * _smoothstep(R['hip_z'] - 0.03, R['hip_z'] + 0.03, p[2])   # snug under tops
+        return 0.0085 + 0.010 * (1 - _smoothstep(R['ankle_z'], R['knee_z'], p[2])) - waistband
 
     waist_z = R['hip_z'] + 0.045
     cuts = [cut(lambda p: p[2] - waist_z), cut(lambda p: p[2] - hem_z)]

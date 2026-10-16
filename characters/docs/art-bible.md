@@ -36,6 +36,14 @@ blinking (`characters/scripts/awd_expressions.py`). Eyelids and jaw are baked
 from authored MakeHuman face bones; mouth and brows come from smooth
 displacement fields measured on each face, so every variant gets the same set.
 
+## Body sliders
+
+The saved sliders are morph targets on every part. Influence is
+`(value − default) / (1 − default)` above the default and `(value − default) / default`
+below it (default 0.5, `bust` 0.45), so the saved default is the unmorphed mesh.
+Garments receive the body's deltas from the nearest body vertices, so they
+follow every shape. `height` stays a root scale (0.94–1.06), as in the live game.
+
 ## Skin
 
 One material (`AWD_Skin`) for all tones. The game sets the base colour factor
@@ -69,11 +77,11 @@ lips and cheeks, lighter palms, soles and nails. Roughness 0.52, specular 0.45.
 
 | Level | Use | Target | Prototype |
 |---|---|---|---|
-| LOD0 | creator, close-ups | ≤ 30k tris, ≤ 13 draws | 27,984 tris, 12 meshes, 2.5 MB |
-| LOD1 | normal gameplay | 8–15k tris, ≤ 10 draws | 12,501 tris, 9 meshes, 1.05 MB |
-| LOD2 | distant multiplayer | ≤ 5k tris | 4,368 tris, 9 meshes, 0.75 MB |
+| LOD0 | creator, close-ups | ≤ 30k tris, ≤ 13 draws | 28k tris, 12 meshes, 2.5 MB |
+| LOD1 | normal gameplay | 8–15k tris, ≤ 10 draws | 12.5k tris, 9 meshes, 1.25 MB |
+| LOD2 | distant multiplayer | ≤ 5k tris | 4.4k tris, 9 meshes, 0.85 MB |
 | Skeleton | all | 67 bones (54 deforming), 4 influences | as target |
-| Morphs | LOD0 only | 9 | 9 (with normals) |
+| Morphs | expressions LOD0; sliders all LODs | 9 + 9 | 18 at LOD0, 9 at LOD1/2 (no morph normals) |
 | Textures | per part | 128–512 px PNG | 256–512 px |
 
 LOD2 still spends nine draw calls; merging it into one atlased mesh is the next

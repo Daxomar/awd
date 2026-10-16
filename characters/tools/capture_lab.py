@@ -1,7 +1,7 @@
 """Capture review renders of the AWD character GLBs from the Three.js character lab.
 
 Requires the Vite dev server (cd client && npm run dev) on 127.0.0.1:5173.
-Usage: python characters/tools/capture_lab.py [prefix]
+Usage: python characters/tools/capture_lab.py [prefix] [--body=f] [--resume]
 Writes PNGs to characters/previews/ and a JSON of runtime stats next to them.
 Headless Chromium renders in software: images validate content, not phone FPS.
 """
@@ -28,14 +28,17 @@ SHOTS = [
     ('walk', 'lod=0&cam=side&clip=walk&t=0.25', (540, 860)),
     ('wave', 'lod=0&cam=front&clip=wave&t=0.95', (540, 860)),
     ('crowd_lod1', 'lod=1&n=12&cam=three_quarter&t=0.6', (860, 640)),
+    ('sliders_slim', 'lod=1&cam=front&t=0.4&build=0&waist=0&hips=0&muscle=0', (540, 860)),
+    ('sliders_full', 'lod=1&cam=front&t=0.4&build=1&waist=1&hips=1&bust=1&shoulders=1', (540, 860)),
     ('tones_lod2', 'lod=2&n=8&cam=game&t=0.6', (860, 640)),
 ]
 
 
 async def capture(browser, name, query, size, prefix):
     page = await browser.new_page(viewport={'width': size[0], 'height': size[1]})
+    body = next((a.split('=')[1] for a in sys.argv if a.startswith('--body=')), 'm')
     try:
-        await page.goto(f'{BASE}?{query}')
+        await page.goto(f'{BASE}?{query}&body={body}')
         await page.wait_for_function('window.__LAB && (window.__LAB.ready || window.__LAB.errors.length)', timeout=120000)
         errors = await page.evaluate('window.__LAB.errors')
         if errors:
@@ -56,7 +59,14 @@ async def main(prefix):
             for name, query, size in SHOTS:
                 if '--resume' in sys.argv and (OUT / f'{prefix}_{name}.png').exists():
                     continue
-                stats[name] = await capture(browser, name, query, size, prefix)
+                for attempt in range(3):   # software WebGL occasionally drops a frame or context
+                    try:
+                        stats[name] = await capture(browser, name, query, size, prefix)
+                        break
+                    except Exception as error:   # noqa: BLE001 - report and retry
+                        print(f'{name}: attempt {attempt + 1} failed: {str(error).splitlines()[0]}', flush=True)
+                        if attempt == 2:
+                            raise
         finally:
             await browser.close()
     (OUT / f'{prefix}_runtime_stats.json').write_text(json.dumps(stats, indent=2))

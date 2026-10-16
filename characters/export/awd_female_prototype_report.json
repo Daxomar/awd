@@ -1,0 +1,202 @@
+{
+  "awd_female_prototype_lod0.glb": {
+    "bytes": 2474524,
+    "meshes": 11,
+    "triangles": 28064,
+    "materials": [
+      "AWD_Skin",
+      "AWD_Fabric_denim",
+      "AWD_Brows",
+      "AWD_Eye",
+      "AWD_Hair_twa",
+      "AWD_Lashes",
+      "AWD_Shoe_sneakers_upper",
+      "AWD_Shoe_sneakers_sole",
+      "AWD_Teeth",
+      "AWD_Tongue",
+      "AWD_Fabric_tee"
+    ],
+    "animations": [
+      "idle",
+      "walk",
+      "wave"
+    ],
+    "joints": 67,
+    "morphs": [
+      "blink",
+      "browDown",
+      "browInnerUp",
+      "browUp",
+      "build",
+      "bust",
+      "faceWidth",
+      "frown",
+      "hips",
+      "jawOpen",
+      "lips",
+      "mouthO",
+      "muscle",
+      "nose",
+      "shoulders",
+      "smile",
+      "squint",
+      "waist"
+    ],
+    "images": 6
+  },
+  "awd_female_prototype_lod1.glb": {
+    "bytes": 1241588,
+    "meshes": 8,
+    "triangles": 12531,
+    "materials": [
+      "AWD_Skin",
+      "AWD_Fabric_denim",
+      "AWD_Brows",
+      "AWD_Eye",
+      "AWD_Hair_twa",
+      "AWD_Shoe_sneakers_upper",
+      "AWD_Shoe_sneakers_sole",
+      "AWD_Fabric_tee"
+    ],
+    "animations": [
+      "idle",
+      "walk",
+      "wave"
+    ],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 5
+  },
+  "awd_female_prototype_lod2.glb": {
+    "bytes": 826640,
+    "meshes": 8,
+    "triangles": 4381,
+    "materials": [
+      "AWD_Skin",
+      "AWD_Fabric_denim",
+      "AWD_Brows",
+      "AWD_Eye",
+      "AWD_Hair_twa",
+      "AWD_Shoe_sneakers_upper",
+      "AWD_Shoe_sneakers_sole",
+      "AWD_Fabric_tee"
+    ],
+    "animations": [
+      "idle",
+      "walk",
+      "wave"
+    ],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 5
+  },
+  "hair_twa_female.glb": {
+    "bytes": 194576,
+    "meshes": 1,
+    "triangles": 448,
+    "materials": [
+      "AWD_Hair_twa"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_tee_female.glb": {
+    "bytes": 313132,
+    "meshes": 1,
+    "triangles": 3624,
+    "materials": [
+      "AWD_Fabric_tee"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_jeans_female.glb": {
+    "bytes": 268824,
+    "meshes": 1,
+    "triangles": 2800,
+    "materials": [
+      "AWD_Fabric_denim"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "shoes_sneakers_female.glb": {
+    "bytes": 114940,
+    "meshes": 1,
+    "triangles": 2148,
+    "materials": [
+      "AWD_Shoe_sneakers_upper",
+      "AWD_Shoe_sneakers_sole"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  }
+}

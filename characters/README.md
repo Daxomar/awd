@@ -33,8 +33,8 @@ In Blender's Python console or through the Blender MCP:
 ```python
 AWD_ROOT = r'C:\path\to\awd3'
 exec(open(AWD_ROOT + r'\characters\scripts\build_prototype.py').read())
-stage_body('male')      # body, face, expressions, game rig, skin (~15 s)
-stage_dress('fade')     # hair, tee, jeans, sneakers, clips (~1 min)
+stage_body('male')      # body, face, expressions, game rig, skin (~15 s); or 'female'
+stage_dress('fade')     # hair ('twa' for the female), tee, jeans, sneakers, clips, slider morphs (~1 min)
 stage_save_export()     # .blend, LOD0-2 GLBs, parts, report (~35 s)
 ```
 
@@ -62,7 +62,7 @@ everything headlessly:
 python characters/tools/capture_lab.py male_prototype
 ```
 
-Lab parameters: `lod=0|1|2`, `n=<instances>`, `clip=idle|walk|wave`,
+Lab parameters: `body=m|f`, `lod=0|1|2`, slider values such as `build=0..1`, `n=<instances>`, `clip=idle|walk|wave`,
 `tone=1..8`, `expr=happy|sad|angry|surprised|concerned|laughing|talking|blinking`,
 `cam=front|three_quarter|side|back|game|face`, `t=<freeze seconds>`, `hud=1`.
 `window.__LAB` exposes `measure()`, `churnTest()`, `setTone()`,
