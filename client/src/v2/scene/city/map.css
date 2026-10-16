@@ -8,6 +8,7 @@
 .city-credit{position:absolute;bottom:calc(var(--safe-b) + 146px);left:14px;max-width:calc(100% - 28px);font-size:9px;padding:4px 7px;border-radius:5px;color:#405e50;background:#fcfaf2e3;text-decoration:none;pointer-events:auto;z-index:4}
 .city-loading{position:absolute;top:48%;left:18px;right:18px;margin:auto;width:fit-content;max-width:calc(100% - 36px);padding:14px 18px;border-radius:13px;background:#fcfaf2;color:#345a44;box-shadow:0 4px 20px #183e2633;pointer-events:auto;z-index:5;font-size:13px}
 .city-loading button{text-decoration:underline;min-height:44px}
+.city-controls .city-mode{font-size:10px}
 .game-ui .mapui .pin{min-width:44px;min-height:44px;transform:translate(-50%,-50%);justify-content:center;padding:3px;z-index:3}
 .game-ui .mapui .pin::after{display:none}.game-ui .mapui .pin .pb{background:#fcfaf2ef;border:1px solid #c1ceaf;box-shadow:0 3px 0 #8da17c66,0 4px 12px #273e2820;border-radius:12px}
 .game-ui .mapui .pin.small .pb{width:35px;height:35px}.game-ui .mapui .pin .pe{background:transparent;color:#315d47;font-size:20px}.game-ui .mapui .pin .pc{position:absolute;right:-2px;top:-2px;background:#476e4c;color:#fff;font:700 10px var(--body);min-width:17px;line-height:16px;padding:0 3px;border:1px solid #fcfaf2;border-radius:7px}

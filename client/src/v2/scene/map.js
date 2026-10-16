@@ -11,63 +11,104 @@ import { landmarkInventory, buildLandmarks } from './city/landmarks.js';
 import { DetailChunks } from './city/chunks.js';
 import { clusterMarkers,pinPosition } from './city/markers.js';
 import { CityAds } from './city/ads.js';
+import {CompactCity} from './city/compact.js';
+import {playableAnchor,CITY_NEIGHBOURHOODS} from '../../../../shared/world-locations.js';
 import './city/map.css';
 
 export class CityMap {
   constructor(stage, ui) {
     this.stage = stage; this.ui = ui; this.group = new THREE.Group(); this.group.visible = false; stage.scene.add(this.group);
     this.pins = new Map(); this.labels = []; this.filter = 'all'; this.built = false; this.disposed = false; this.ads = new CityAds(this.group); this.cars = [];
+    this.mode='compact';this.geoGroup=new THREE.Group();this.geoGroup.visible=false;this.group.add(this.geoGroup);
   }
   get boards() { return this.ads.boards; }
   build(cat) {
     if (this.built) return; this.built = true; this.cat = cat;
     this.slots = new Map([...cat.locs, ...Object.entries(cat.homes).map(([id, home]) => ({ ...home, id: `h:${id}` }))].map(it => [it.id, { ...it, px: it.x * SCALE, pz: it.z * SCALE }]));
-    this.status = h('div.city-loading', { role: 'status' }, 'Preparing Greater Accra…');
+    this.status = h('div.city-loading', { role: 'status',hidden:true }, 'Preparing Greater Accra…');
     this.credit = h('a.city-credit', { href: 'https://www.openstreetmap.org/copyright', target: '_blank', rel: 'noopener noreferrer' }, '© OpenStreetMap contributors · ODbL');
     this.controls = h('div.city-controls', { 'aria-label': 'Map navigation' },
-      h('button', { 'aria-label': 'Greater Accra overview', onclick: () => this.overview() }, 'icon:globe-hemisphere-west', 'City'),
-      h('button', { 'aria-label': 'Return to current location', onclick: () => { if (this.current) this.focus(...this.current, 5); } }, 'icon:crosshair', 'Here'),
+      h('button', { 'aria-label': 'City overview', onclick: () => this.overview() }, 'icon:globe-hemisphere-west', 'City'),
+      h('button', { 'aria-label': 'Return to current location', onclick: () => { if (this.current) this.focus(...this.current,this.normalZoom); } }, 'icon:crosshair', 'Here'),
       h('button', { onclick: () => this.directory() }, 'icon:magnifying-glass', 'Places'),
       h('button', { 'aria-label': 'Explore districts', onclick: () => this.directory(true) }, 'icon:buildings', 'Districts'));
     this.ui.append(this.controls, this.credit, this.status);
-    this.terrainReady = this.load().catch(error => {
-      if (this.disposed) return;
-      this.status.replaceChildren(document.createTextNode('City data could not load. '), h('button', { onclick: () => { this.status.textContent = 'Preparing Greater Accra…'; this.terrainReady = this.load().catch(() => { this.status.textContent = 'City data is unavailable. Please reopen the game to retry.'; }); } }, 'Retry'));
-      console.error('City map:', error);
-    });
+    this.modeButton=h('button.city-mode',{onclick:()=>this.setMode(this.mode==='compact'?'geographic':'compact'),'aria-label':'Geographic map'},'icon:map-trifold','Geographic map');
+    this.controls.append(this.modeButton);
+    this.compact=new CompactCity(cat);this.group.add(this.compact.group);this.readyMs=this.compact.readyMs;this.ready=true;
+    this.applyMode();this.terrainReady=Promise.resolve();
   }
+  async setMode(mode){
+    if(this.disposed||!['compact','geographic'].includes(mode))return;
+    this.mode=mode;this.transition=null;
+    if(mode==='compact'&&this.geoReady)this.releaseCity();
+    this.applyMode();
+    if(mode==='geographic'&&!this.geoReady){
+      this.status.hidden=false;this.status.textContent='Loading geographic map…';
+      if(!this.geoLoading)this.geoLoading=this.load().catch(error=>{
+        if(this.disposed)return;this.status.replaceChildren(document.createTextNode('Geographic map could not load. '),h('button',{onclick:()=>this.setMode('geographic')},'Retry'));console.error('City map:',error);
+      }).finally(()=>{this.geoLoading=null;});
+      this.terrainReady=this.geoLoading;await this.geoLoading;
+    }
+  }
+  applyMode(){
+    if(!this.compact||this.disposed)return;
+    const compact=this.mode==='compact';this.compact.group.visible=compact;this.geoGroup.visible=!compact;
+    this.districts=compact?this.compact.districts:this.geoDistricts||[];
+    this.limits=compact?{bounds:this.compact.bounds,min:2.4,max:210}:this.geoLimits;
+    const records=compact?this.compact.locations.map(l=>({id:l.id,px:l.playable.x,pz:l.playable.z})):this.landmarks?.map(l=>({id:l.id,px:l.x*SCALE,pz:l.z*SCALE}));
+    for(const l of records||[])if(this.slots.has(l.id))Object.assign(this.slots.get(l.id),l);
+    if(!compact&&!this.geoReady)for(const l of this.slots.values()){l.px=l.x*SCALE;l.pz=l.z*SCALE;}
+    this.modeButton.textContent=compact?'Region':'City view';this.modeButton.setAttribute('aria-label',compact?'Geographic map':'Compact city');
+    this.credit.textContent=compact?'Schematic city · travel uses real geographic distances':'© OpenStreetMap contributors · ODbL';
+    this.credit.href=compact?'#':'https://www.openstreetmap.org/copyright';
+    this.status.hidden=compact||!!this.geoReady;
+    for(const l of this.labels)l.el.remove();this.labels=[];
+    for(const d of this.districts){const el=h('div.city-district-label',null,d.name);this.ui.append(el);this.labels.push({el,...d,x:d.x*SCALE,z:d.z*SCALE,type:'district'});}
+    if(!compact){const named=new Map();for(const road of this.terrain?.roadLabels||[])if(!named.has(road.name)||road.priority>named.get(road.name).priority)named.set(road.name,road);
+      for(const road of named.values()){const el=h('div.city-road-label',null,road.name);this.ui.append(el);this.labels.push({el,name:road.name,x:road.p[0]*SCALE,z:road.p[1]*SCALE,priority:road.priority,type:'road'});}}
+    this.positionBoards();
+    if(this.group.visible){this.applyLimits();this.current=this.slotOf(this.currentId)||this.current;this.setPins(this.pinList||[],this.onPick);if(this.current)this.focus(...this.current,this.normalZoom);else this.overview();}
+  }
+  positionBoards(){for(const b of this.ads.boards){const s=b.slot;if(this.mode==='compact'){
+    const point=playableAnchor(this.compact.locations,s.x,s.z),place=this.compact.locations.find(l=>l.playable.x===point[0]&&l.playable.z===point[1]),node=CITY_NEIGHBOURHOODS.find(n=>n.id===place?.neighbourhood);
+    b.root.position.set(point[0]+(Math.sign(point[0]-(node?.x||0))||1)*1.05,.006,point[1]+(Math.sign(point[1]-(node?.z||0))||1)*1.1);b.root.scale.setScalar(3);
+  }else{const [x,z]=display(s.x,s.z),offset=s.offset||[-.18,-.18];b.root.position.set(x+offset[0],.006,z+offset[1]);b.root.scale.setScalar(1);}}}
   async load() {
     if(this.kit)this.releaseCity();
     const start = performance.now();
     const [data, anchors, blueprint] = await Promise.all(['/assets/greater-accra.json', '/assets/district-anchors.json', '/assets/city-blueprint.json'].map(async url => { const r = await fetch(url); if (!r.ok) throw new Error(`City data ${r.status}`); return r.json(); })); this.fetchMs=performance.now()-start;
-    if (this.disposed) return;
-    this.data = data; this.districts = resolveDistricts(data, anchors); this.limits = cameraLimits(data.boundsMeters); this.kit = new CityKit();
-    this.landmarks = landmarkInventory(this.cat, data, this.districts);
-    for (const l of this.landmarks) if (this.slots.has(l.id)) { const s = this.slots.get(l.id); [s.px, s.pz] = display(l.x, l.z); }
-    const terrainStart=performance.now(); this.terrain = buildTerrain(data, this.kit); this.group.add(this.terrain.group); this.terrainMs=performance.now()-terrainStart;
+    if (this.disposed||this.mode!=='geographic') return;
+    this.data = data; this.geoDistricts = resolveDistricts(data, anchors); this.geoLimits = cameraLimits(data.boundsMeters); this.kit = new CityKit();
+    this.landmarks = landmarkInventory(this.cat, data, this.geoDistricts);
+    const terrainStart=performance.now(); this.terrain = buildTerrain(data, this.kit); this.geoGroup.add(this.terrain.group); this.terrainMs=performance.now()-terrainStart;
     await new Promise(resolve => requestAnimationFrame(resolve)); if (this.disposed) return;
+    if(this.mode!=='geographic'){this.releaseCity();this.applyMode();return;}
     const planStart = performance.now(); this.plan = decodeBlueprint(blueprint); this.planMs = performance.now() - planStart;
-    this.foundation = new CityFoundation(this.kit, this.plan.buildings); this.group.add(this.foundation.group); this.landmarkGroup = buildLandmarks(this.kit, this.landmarks); this.group.add(this.landmarkGroup);
-    this.chunks = new DetailChunks(this.kit, this.group, this.plan.chunks); this.backgroundPlots = this.plan.buildings.length;
-    for (const d of this.districts) { const el = h('div.city-district-label', null, d.name); this.ui.append(el); this.labels.push({ el, ...d, x: d.x * SCALE, z: d.z * SCALE, type: 'district' }); }
-    const named = new Map();
-    for (const road of this.terrain.roadLabels) if (!named.has(road.name) || road.priority > named.get(road.name).priority) named.set(road.name, road);
-    for (const road of named.values()) { const el = h('div.city-road-label', null, road.name); this.ui.append(el); this.labels.push({ el, name:road.name, x: road.p[0] * SCALE, z: road.p[1] * SCALE, priority: road.priority, type: 'road' }); }
-    this.status.hidden = true; this.ready = true; this.readyMs = performance.now() - start;
-    if (this.group.visible) { this.applyLimits(); this.current=this.slotOf(this.currentId)||this.current; this.setPins(this.pinList || [], this.onPick); }
+    this.foundation = new CityFoundation(this.kit, this.plan.buildings); this.geoGroup.add(this.foundation.group); this.landmarkGroup = buildLandmarks(this.kit, this.landmarks); this.geoGroup.add(this.landmarkGroup);
+    this.chunks = new DetailChunks(this.kit, this.geoGroup, this.plan.chunks); this.backgroundPlots = this.plan.buildings.length;
+    this.geoReady=true;this.geoReadyMs=performance.now()-start;this.applyMode();
   }
   slotOf(id) { const s = this.slots?.get(id); return s ? [s.px, s.pz] : null; }
-  realToMap(x, z) { return display(x, z); }
-  toMap(x, z) { return display(x, z); }
-  setBillboards(slots) { this.ads.set(slots); }
+  get normalZoom(){return this.mode==='compact'?18:9;}
+  realToMap(x, z) { return this.toMap(x,z); }
+  toMap(x, z) { return this.mode==='compact'?playableAnchor(this.compact.locations,x,z):display(x,z); }
+  setBillboards(slots) { this.ads.set(slots);this.positionBoards(); }
   updateBoards() { this.ads.update(); }
   pickBoard(x, y) { return this.ads.pick(x, y, this.stage); }
+  pickDestination(x,y){
+    if(this.mode!=='compact')return null;
+    const rect=this.stage.renderer.domElement.getBoundingClientRect(),ray=new THREE.Raycaster();
+    ray.setFromCamera(new THREE.Vector2((x-rect.left)/rect.width*2-1,-(y-rect.top)/rect.height*2+1),this.stage.camera);
+    return this.compact.pick(ray.ray);
+  }
   setPins(list, onPick) {
     this.pinList = list; this.onPick = onPick;
     for (const p of this.pins.values()) p.el.remove(); this.pins.clear();
     for (const it of list) {
       const el = h('button.pin.small', { 'aria-label': it.name, title: it.name, class: it.cls || '' }, h('span.pb', null, h('span.pe', null, it.ic), h('span.pl', null, it.name), h('span.pc', { hidden: !it.count }, it.count || '')));
-      const [x,z]=pinPosition(it,id=>this.slotOf(id),display);
+      const item=it.id==='home'?{...it,xz:this.slotOf('h:'+it.homeId)}:it;
+      const [x,z]=pinPosition(item,id=>this.slotOf(id),(x,z)=>this.toMap(x,z));
       const pin = { el, x, z, it, members: [it] };
       el.onclick = e => { e.stopPropagation(); if (pin.members.length > 1) this.placeList(pin.members); else this.select(it); };
       this.ui.append(el); this.pins.set(it.id, pin);
@@ -91,11 +132,11 @@ export class CityMap {
       for (const it of matches) list.append(h('button.city-place-row', { onclick: () => {
         panel.close();
         if (districtMode) this.focusDistrict(it.id,true);
-        else { const q = it.id === 'home' ? it.xz : this.slotOf(it.id); if (q) this.focus(...q, 5); this.select(it); }
-      } }, h('span', null, districtMode ? 'icon:buildings' : it.ic || 'icon:map-pin'), h('span', null, h('strong', null, it.name), h('small', null, districtMode ? `${FAMILIES[it.family].label} · scenery` : it.area || 'Your home')), 'icon:caret-right'));
+        else { const q = it.id === 'home' ? this.slotOf('h:'+it.homeId) : this.slotOf(it.id); if (q) this.focus(...q,this.normalZoom); this.select(it); }
+      } }, h('span', null, districtMode ? 'icon:buildings' : it.ic || 'icon:map-pin'), h('span', null, h('strong', null, it.name), h('small', null, districtMode ? `${FAMILIES[it.family].label}${this.mode==='compact'?' · destinations and streets':' · geographic scenery'}` : it.area || 'Your home')), 'icon:caret-right'));
       if (!matches.length) list.append(h('p', null, 'No matching places.'));
     };
-    input.oninput = paint; paint(); panel = sheet(h('div.sheet-body.city-directory', null, input, districtMode ? h('p', null, 'Explore the city’s scenery. Travel is available through Places and destination icons.') : null, list), { title: districtMode ? 'Greater Accra' : 'Destinations', sub: districtMode ? 'Historic coast, connected city, expanding suburbs.' : 'Every venue, street and estate remains available here.' });
+    input.oninput = paint; paint(); panel = sheet(h('div.sheet-body.city-directory', null, input, districtMode ? h('p', null, 'Choose an area to look around. Select a destination icon or use Places to travel.') : null, list), { title: districtMode ? this.mode==='compact'?'City neighbourhoods':'Greater Accra' : 'Destinations', sub: districtMode ? 'Historic coast, connected city, expanding suburbs.' : 'Every venue, street and estate remains available here.' });
   }
   focus(x, z, zoom = 5, smooth = false) {
     const limits = this.limits || { bounds: [-100, 150, -130, 30], min: 2.4, max: 560 }, [x0, x1, z0, z1] = limits.bounds;
@@ -106,9 +147,9 @@ export class CityMap {
   focusDistrict(id,smooth=false){
     const d=this.districts?.find(d=>d.id===id);if(!d)return;
     const target=id==='tema-industrial'?this.landmarks.find(l=>l.id==='decor:tema-port')||d:d;
-    this.districtTitle=d.name;this.focus(target.x*SCALE,target.z*SCALE,5,smooth);
+    this.districtTitle=d.name;this.focus(target.x*SCALE,target.z*SCALE,this.mode==='compact'?18:5,smooth);
   }
-  overview() { if (!this.data) return; const frame = overviewFrame(this.data.boundsMeters, this.stage.aspect); this.focus(frame.x, frame.z, frame.zoom, true); }
+  overview() { if(this.mode==='compact'){const [x0,x1,z0,z1]=this.compact.bounds;this.focus((x0+x1)/2,(z0+z1)/2,Math.max((x1-x0+8)/(this.stage.aspect||1),z1-z0+12),true);return;}if (!this.data) return; const frame = overviewFrame(this.data.boundsMeters, this.stage.aspect); this.focus(frame.x, frame.z, frame.zoom, true); }
   applyLimits() { const st = this.stage; st.bounds = this.limits?.bounds || [-100, 150, -130, 30]; st.zoomMin = 2.4; st.zoomMax = this.limits?.max||560; st.view.dist = 550; st.camera.far = 1400; st.applyView(); }
   show(on) {
     const st = this.stage;
@@ -126,7 +167,7 @@ export class CityMap {
     }
     st.renderer.shadowMap.enabled = v.zoom < 15;
     this.terrain?.waterMaterial?.color.set('#73aeb4').multiplyScalar(.45+.55*(1-st.night));
-    this.foundation?.update(v.zoom,v.target.x,v.target.z,st.aspect); if(this.terrain)this.terrain.localRoads.visible=v.zoom<65; this.chunks?.update(v.target.x, v.target.z, v.zoom); this.ads.update(st.camera); this.ads.sample(st); this.layout();
+    if(this.mode==='geographic'){this.foundation?.update(v.zoom,v.target.x,v.target.z,st.aspect);if(this.terrain)this.terrain.localRoads.visible=v.zoom<65;this.chunks?.update(v.target.x,v.target.z,v.zoom);}this.ads.update(st.camera); this.ads.sample(st); this.layout();
   }
   layout() {
     const v = this.stage.view, signature = [innerWidth, innerHeight, v.target.x, v.target.z, v.zoom, this.showNames].join(':');
@@ -157,12 +198,12 @@ export class CityMap {
   stats() {
     let bytes = 0, meshes = 0,visibleMeshes=0; const geometries = new Set();this.group.traverseVisible(o=>{if(o.isMesh)visibleMeshes++;});
     this.group.traverse(o => { if (o.isMesh) meshes++; if (o.geometry && !geometries.has(o.geometry)) { geometries.add(o.geometry); for (const a of Object.values(o.geometry.attributes)) bytes += a.array.byteLength; bytes += o.geometry.index?.array.byteLength || 0; } if (o.isInstancedMesh) bytes += o.instanceMatrix.array.byteLength + (o.instanceColor?.array.byteLength || 0); });
-    return { buildings: this.backgroundPlots || 0, chunks: this.chunks?.stats(), meshes,visibleMeshes,coarseRegions:this.foundation?.regionList.length, geometryBytes: bytes, readyMs: this.readyMs, planMs: this.planMs, districts: this.districts?.length, destinations: this.slots.size, adTextures: this.ads.textures.size };
+    return {mode:this.mode,compact:this.compact?.stats(),geographicLoaded:!!this.geoReady,buildings:this.mode==='compact'?this.compact.decorativeBuildings:this.backgroundPlots||0,chunks:this.chunks?.stats(),meshes,visibleMeshes,coarseRegions:this.foundation?.regionList.length,geometryBytes:bytes,readyMs:this.readyMs,geographicReadyMs:this.geoReadyMs,planMs:this.planMs,districts:this.districts?.length,destinations:this.slots.size,adTextures:this.ads.textures.size};
   }
   dispose() {
-    if (this.disposed) return; this.show(false); this.disposed = true; this.ads.dispose();this.releaseCity();this.group.removeFromParent(); this.group.clear(); for (const p of this.pins.values()) p.el.remove(); this.pins.clear(); this.controls?.remove(); this.credit?.remove(); this.status?.remove();
+    if (this.disposed) return; this.show(false); this.disposed = true; this.ads.dispose();this.releaseCity();this.compact?.dispose();this.group.removeFromParent(); this.group.clear(); for (const p of this.pins.values()) p.el.remove(); this.pins.clear(); this.controls?.remove(); this.modeButton?.remove();this.credit?.remove(); this.status?.remove();
   }
   releaseCity(){
-    this.ready=false;this.chunks?.dispose();this.foundation?.dispose();if(this.landmarkGroup)disposeBatch(this.landmarkGroup);if(this.terrain)disposeTerrain(this.terrain.group);this.kit?.dispose();for(const l of this.labels)l.el.remove();this.labels=[];this.foundation=null;this.landmarkGroup=null;this.terrain=null;this.kit=null;this.plan=null;this.data=null;this.landmarks=null;this.districts=null;
+    this.ready=!!this.compact&&!this.disposed;this.chunks?.dispose();this.foundation?.dispose();if(this.landmarkGroup)disposeBatch(this.landmarkGroup);if(this.terrain)disposeTerrain(this.terrain.group);this.kit?.dispose();for(const l of this.labels)l.el.remove();this.labels=[];this.foundation=null;this.landmarkGroup=null;this.terrain=null;this.kit=null;this.plan=null;this.data=null;this.landmarks=null;this.districts=null;this.geoDistricts=null;this.geoLimits=null;this.geoReady=false;
   }
 }

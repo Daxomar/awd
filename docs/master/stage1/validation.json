@@ -1,0 +1,159 @@
+{
+  "status": "local acceptance passed; exact-commit CI pending",
+  "server": {
+    "tests": 73,
+    "pass": 73,
+    "fail": 0,
+    "skipped": 0
+  },
+  "client": {
+    "tests": 79,
+    "pass": 79,
+    "fail": 0,
+    "skipped": 0
+  },
+  "build": {
+    "passed": true,
+    "mainKB": 565.15,
+    "gzipKB": 204.82
+  },
+  "databaseChanges": [],
+  "characterProduction": "Separate concurrent files excluded",
+  "publicDeployment": false,
+  "realPayments": false,
+  "browser": {
+    "coldToMapSeconds": 21.181,
+    "map": {
+      "mode": "compact",
+      "compact": {
+        "destinations": 63,
+        "interactiveBuildings": 55,
+        "decorativeBuildings": 115,
+        "readyMs": 72.70000004768372
+      },
+      "geographicLoaded": false,
+      "buildings": 115,
+      "chunks": null,
+      "meshes": 71,
+      "visibleMeshes": 71,
+      "coarseRegions": null,
+      "geometryBytes": 377400,
+      "readyMs": 72.70000004768372,
+      "geographicReadyMs": null,
+      "planMs": null,
+      "districts": 15,
+      "destinations": 63,
+      "adTextures": 1
+    },
+    "renderer": {
+      "calls": 15,
+      "triangles": 52202,
+      "memory": {
+        "geometries": 102,
+        "textures": 61
+      }
+    },
+    "afterModeCycle": {
+      "mode": "compact",
+      "compact": {
+        "destinations": 63,
+        "interactiveBuildings": 55,
+        "decorativeBuildings": 115,
+        "readyMs": 72.70000004768372
+      },
+      "geographicLoaded": false,
+      "buildings": 115,
+      "chunks": {
+        "active": 0,
+        "cached": 0,
+        "queued": 0,
+        "generated": 1,
+        "evicted": 0,
+        "capacity": 12
+      },
+      "meshes": 71,
+      "visibleMeshes": 71,
+      "coarseRegions": null,
+      "geometryBytes": 377400,
+      "readyMs": 72.70000004768372,
+      "geographicReadyMs": 6990.599999964237,
+      "planMs": 91,
+      "districts": 15,
+      "destinations": 63,
+      "adTextures": 1
+    },
+    "modeCycle": "compact \u2192 geographic \u2192 compact, same authenticated session",
+    "destinationPreviews": [
+      "circle",
+      "muni",
+      "makola",
+      "kantamanto",
+      "chopbar",
+      "kenkey",
+      "oxford",
+      "vibes",
+      "hub",
+      "bank",
+      "ridge",
+      "korlebu",
+      "police",
+      "memorial",
+      "blackstar",
+      "castle",
+      "lighthouse",
+      "bukom",
+      "canoes",
+      "labadi",
+      "funeral",
+      "church",
+      "mosque",
+      "stadium",
+      "viewing",
+      "radio",
+      "mall",
+      "ug",
+      "airport",
+      "hotel",
+      "ama",
+      "cars",
+      "momo",
+      "cinema",
+      "court",
+      "aboki",
+      "fanyogo",
+      "restaurant",
+      "gymlegon",
+      "e:nima",
+      "n:nima",
+      "e:jtown",
+      "n:jtown",
+      "e:kaneshie",
+      "n:kaneshie",
+      "e:labadi",
+      "n:labadi",
+      "e:osu",
+      "n:osu",
+      "e:airres",
+      "n:airres",
+      "e:legon",
+      "n:legon",
+      "e:trasacco",
+      "n:trasacco"
+    ],
+    "buildingTap": "Real canvas tap opens bank destination without relying on the DOM pin",
+    "dispose": {
+      "expectedGeometries": 53,
+      "releasedGeometries": 53,
+      "expectedInstances": 23,
+      "releasedInstances": 23,
+      "children": 0,
+      "roomVisible": true
+    },
+    "errors": [],
+    "scope": "Local desktop SwiftShader, .5 WebGL pixel ratio, paced animation updates and sampled rendering with shadows disabled for capture; real game/network timers. DOM screenshots use device scale 1. No phone FPS or production capacity claim."
+  },
+  "review": "Manual review: dual-coordinate travel isolation, geographic fetch cancellation/retry, resource ownership, home-marker remapping, HUD input boundaries and scoped character integration. No new server authority or financial action.",
+  "ci": {
+    "status": "pending"
+  }
+}

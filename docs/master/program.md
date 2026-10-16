@@ -30,7 +30,7 @@ flowchart LR
 | Stage | Status | Required completion proof |
 | --- | --- | --- |
 | 0 | Complete; [checkpoint](stage0/checkpoint.md) | Current tests/build, inventory, authenticated baseline, protected interfaces |
-| 1 | In development | Authored compact presentation, dual coordinates, every destination usable, geographic mode, screenshots and resource tests |
+| 1 | Local acceptance passed; CI pending; [checkpoint](stage1/checkpoint.md) | Authored compact presentation, dual coordinates, every destination usable, geographic mode, screenshots and resource tests |
 | 2 | Not started | Finite units, legacy ownership separation, tours, persistent furnishing/renovation, primary residence, concurrent furnished resale |
 | 3 | Not started | Existing vehicle compatibility, inspection/cosmetics, secure transfer/cancellation and two-player reload proof |
 | 4 | Not started | Camera preference/toggle, collision, mobile controls, doors and remote movement in actual rooms |

@@ -226,7 +226,7 @@ function setView(v, focusPlace, forGem) {
   const inMap = v === 'map'; map.show(inMap); hud.chips.hidden = inMap; if (world.room) world.room.group.visible = !inMap; world.tagsEl.hidden = inMap; hud.zones.hidden = inMap;
   if (inMap) {
     const hh = accraClock().h; stage.setTime(hh); drawPins();
-    const id = focusPlace || G.state.place; const L = id === 'home' && G.state.home ? G.cat.homes[G.state.home] : loc(id) || loc('circle'); const [x, z] = map.slotOf(id === 'home' ? 'h:' + G.state.home : id) || map.toMap(L.x, L.z); map.currentId = G.state.place === 'home' ? 'h:' + G.state.home : G.state.place; map.current = map.slotOf(map.currentId) || map.toMap(L.x, L.z); map.focus(x, z, focusPlace ? 5 : 9);
+    const id = focusPlace || G.state.place; const L = id === 'home' && G.state.home ? G.cat.homes[G.state.home] : loc(id) || loc('circle'); const [x, z] = map.slotOf(id === 'home' ? 'h:' + G.state.home : id) || map.toMap(L.x, L.z); map.currentId = G.state.place === 'home' ? 'h:' + G.state.home : G.state.place; map.current = map.slotOf(map.currentId) || map.toMap(L.x, L.z); map.focus(x, z, map.mode==='compact'?map.normalZoom:focusPlace?5:9);
     if (focusPlace) setTimeout(() => openPlace(focusPlace, act), forGem ? 50 : 250);
   } else if (world.room) { fitRoom(stage, world.spec);if(world.spec.neighbourhood&&world.me)stage.view.target.set(world.me.x,.8,world.me.z); stage.view.zoom = world.baseZoom; stage.applyView(); const r = Math.max(world.spec.w, world.spec.d) * 0.75 + 2; const sc = stage.key.shadow.camera; sc.left = -r; sc.right = r; sc.top = r; sc.bottom = -r; sc.far = 80; sc.updateProjectionMatrix(); stage.bounds = [-world.spec.w / 2, world.spec.w / 2, -world.spec.d / 2, world.spec.d / 2]; stage.zoomMin = world.baseZoom * 0.45; stage.zoomMax = world.spec.neighbourhood?90:world.baseZoom * 1.35; }
 }
@@ -277,7 +277,7 @@ function bindInput() {
 }
 function tap(x, y) {
   if(studio.open||ride.active||worldBlocked(ui))return;
-  if (view === 'map') { const b = map.pickBoard(x, y); if (b) return adSheet(b); return; }
+  if (view === 'map') { const b = map.pickBoard(x, y); if (b) return adSheet(b); const id=map.pickDestination(x,y);if(id)map.select(loc(id));return; }
   const hit = world.pick(x, y); if (!hit) return;
   if (hit.type === 'gem') { if (G.gem) net.send({ t: 'gem', id: G.gem.id }); return; }
   if (hit.type === 'person') return openPerson(hit.pid, hit.name, act);
