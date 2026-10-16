@@ -10,6 +10,12 @@
     "failed": 0
   },
   "productionBuild": "passed",
+  "linuxContainerVerification": {
+    "implementationCommit": "6f4d85dbf9d121740040707f864c04a84661ce4d",
+    "run": "https://github.com/Daxomar/awd/actions/runs/38870198475",
+    "conclusion": "success",
+    "publicDeployment": false
+  },
   "regularLocalDatabase": {
     "rows": {
       "accounts": 103,

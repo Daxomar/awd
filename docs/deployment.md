@@ -60,6 +60,11 @@ Monitor failed logins, rate-limit responses, session/lease failures, database er
 
 ### Interim engagement milestone configuration
 
+The [16 October Linux verification for 6f4d85d](https://github.com/Daxomar/awd/actions/runs/38870198475)
+passed client/server tests, 34 PostgreSQL transaction scenarios, dependency audits,
+production build, complete Docker startup, authenticated smoke and proxy health.
+It used disposable CI services; no public deployment occurred.
+
 Startup adds payment, advertising reservation/metrics, introduction and milestone
 tables after the existing account, ad and social schema. Legacy references and
 paid status are backfilled without replaying credits. Back up and test on a

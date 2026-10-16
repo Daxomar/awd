@@ -230,6 +230,12 @@ and staging requirements are in [deployment.md](deployment.md).
 - Production Vite build passes; dependency audits report zero vulnerabilities.
   Linux CI builds and smoke-tests Docker; local Docker Desktop is unavailable.
 
+The [Linux verification run for implementation commit 6f4d85d](https://github.com/Daxomar/awd/actions/runs/38870198475)
+passed the exact committed server/client suites, all four PostgreSQL transaction
+scripts, dependency audits, production build, Docker build/startup, authenticated
+cookie/WebSocket smoke test and proxy health check. This ran against disposable
+CI infrastructure and is not a public deployment or physical-device certification.
+
 Commands: `npm test` in both packages; the four `server/loadtest/*-integration.js`
 scripts with explicit loopback `*_security` DB; `npm run build` in client. Test
 mutations refuse production mode. No real payment or public account was used.
