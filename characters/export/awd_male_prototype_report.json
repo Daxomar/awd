@@ -1,8 +1,8 @@
 {
   "awd_male_prototype_lod0.glb": {
-    "bytes": 2687680,
+    "bytes": 2690492,
     "meshes": 11,
-    "triangles": 27984,
+    "triangles": 28000,
     "materials": [
       "AWD_Skin",
       "AWD_Fabric_denim",
@@ -50,9 +50,9 @@
     "images": 6
   },
   "awd_male_prototype_lod1.glb": {
-    "bytes": 1459020,
+    "bytes": 1459632,
     "meshes": 8,
-    "triangles": 12456,
+    "triangles": 12462,
     "materials": [
       "AWD_Skin",
       "AWD_Fabric_denim",
@@ -88,9 +88,9 @@
     "images": 5
   },
   "awd_male_prototype_lod2.glb": {
-    "bytes": 1042796,
+    "bytes": 1042536,
     "meshes": 8,
-    "triangles": 4352,
+    "triangles": 4354,
     "materials": [
       "AWD_Skin",
       "AWD_Fabric_denim",
@@ -126,7 +126,7 @@
     "images": 5
   },
   "hair_fade_male.glb": {
-    "bytes": 218408,
+    "bytes": 218268,
     "meshes": 1,
     "triangles": 456,
     "materials": [
@@ -148,7 +148,7 @@
     "images": 1
   },
   "top_tee_male.glb": {
-    "bytes": 325368,
+    "bytes": 324700,
     "meshes": 1,
     "triangles": 3776,
     "materials": [
@@ -170,7 +170,7 @@
     "images": 1
   },
   "bottom_jeans_male.glb": {
-    "bytes": 266972,
+    "bytes": 266756,
     "meshes": 1,
     "triangles": 2748,
     "materials": [
@@ -192,7 +192,7 @@
     "images": 1
   },
   "shoes_sneakers_male.glb": {
-    "bytes": 119140,
+    "bytes": 118980,
     "meshes": 1,
     "triangles": 2148,
     "materials": [
@@ -215,7 +215,7 @@
     "images": 0
   },
   "awd_male_base_lod0.glb": {
-    "bytes": 2576276,
+    "bytes": 2583416,
     "meshes": 7,
     "triangles": 28588,
     "materials": [
@@ -260,7 +260,7 @@
     "images": 3
   },
   "awd_male_base_lod1.glb": {
-    "bytes": 1131248,
+    "bytes": 1134800,
     "meshes": 4,
     "triangles": 12092,
     "materials": [
@@ -293,7 +293,7 @@
     "images": 2
   },
   "awd_male_base_lod2.glb": {
-    "bytes": 694620,
+    "bytes": 695544,
     "meshes": 4,
     "triangles": 4230,
     "materials": [

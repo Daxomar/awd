@@ -139,11 +139,15 @@ BEARD_IDS = ['stubble', 'goatee', 'fullbeard']   # male only; nobeard and bald n
 
 
 def _export_part(obj, sex, reports, out):
+    # Trousers carry body regions so a long robe worn over them can hide the parts it covers
+    # (a striding leg would otherwise push them out through the robe).
+    layered = obj['awd_slot'] == 'bottom'
     for lod in (0, 1):
-        copies = G['prepare_copies']([], [obj], lod=lod, suffix=f'_l{lod}', morph=STATE['morph'])
+        copies = G['prepare_copies']([], [obj], lod=lod, suffix=f'_l{lod}', morph=STATE['morph'],
+                                     regions=STATE['regions'] if layered else None)
         name = f"{obj['awd_slot']}_{obj['awd_id']}_{sex}" + ('' if lod == 0 else '_lod1') + '.glb'
         path = out / name
-        G['export_glb'](path, copies, STATE['ctx']['rig'], animations=False)
+        G['export_glb'](path, copies, STATE['ctx']['rig'], animations=False, attributes=layered)
         reports[name] = G['glb_report'](path)
         for c in copies:
             bpy.data.objects.remove(c, do_unlink=True)

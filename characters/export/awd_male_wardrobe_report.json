@@ -1,8 +1,8 @@
 {
   "top_tee_male.glb": {
-    "bytes": 325400,
+    "bytes": 347448,
     "meshes": 1,
-    "triangles": 3776,
+    "triangles": 4064,
     "materials": [
       "AWD_Fabric_jersey_tee"
     ],
@@ -22,9 +22,9 @@
     "images": 1
   },
   "top_tee_male_lod1.glb": {
-    "bytes": 210924,
+    "bytes": 223304,
     "meshes": 1,
-    "triangles": 1888,
+    "triangles": 2032,
     "materials": [
       "AWD_Fabric_jersey_tee"
     ],
@@ -44,9 +44,9 @@
     "images": 1
   },
   "top_flagtee_male.glb": {
-    "bytes": 334448,
+    "bytes": 356500,
     "meshes": 1,
-    "triangles": 3808,
+    "triangles": 4096,
     "materials": [
       "AWD_Fabric_jersey_flagtee",
       "AWD_Print_flag"
@@ -67,9 +67,9 @@
     "images": 2
   },
   "top_flagtee_male_lod1.glb": {
-    "bytes": 217916,
+    "bytes": 230284,
     "meshes": 1,
-    "triangles": 1904,
+    "triangles": 2048,
     "materials": [
       "AWD_Fabric_jersey_flagtee",
       "AWD_Print_flag"
@@ -90,9 +90,9 @@
     "images": 2
   },
   "top_singlet_male.glb": {
-    "bytes": 272560,
+    "bytes": 298680,
     "meshes": 1,
-    "triangles": 2884,
+    "triangles": 3196,
     "materials": [
       "AWD_Fabric_jersey_singlet"
     ],
@@ -112,9 +112,9 @@
     "images": 1
   },
   "top_singlet_male_lod1.glb": {
-    "bytes": 186036,
+    "bytes": 201752,
     "meshes": 1,
-    "triangles": 1442,
+    "triangles": 1598,
     "materials": [
       "AWD_Fabric_jersey_singlet"
     ],
@@ -134,7 +134,7 @@
     "images": 1
   },
   "top_polo_male.glb": {
-    "bytes": 337728,
+    "bytes": 336936,
     "meshes": 1,
     "triangles": 3876,
     "materials": [
@@ -156,9 +156,9 @@
     "images": 1
   },
   "top_polo_male_lod1.glb": {
-    "bytes": 220180,
+    "bytes": 218860,
     "meshes": 1,
-    "triangles": 1938,
+    "triangles": 1937,
     "materials": [
       "AWD_Fabric_pique_polo"
     ],
@@ -178,9 +178,9 @@
     "images": 1
   },
   "top_hoodie_male.glb": {
-    "bytes": 410328,
+    "bytes": 489128,
     "meshes": 1,
-    "triangles": 5328,
+    "triangles": 6144,
     "materials": [
       "AWD_Fabric_fleece_hoodie"
     ],
@@ -200,9 +200,9 @@
     "images": 1
   },
   "top_hoodie_male_lod1.glb": {
-    "bytes": 255496,
+    "bytes": 299452,
     "meshes": 1,
-    "triangles": 2664,
+    "triangles": 3071,
     "materials": [
       "AWD_Fabric_fleece_hoodie"
     ],
@@ -222,11 +222,12 @@
     "images": 1
   },
   "top_jersey_male.glb": {
-    "bytes": 335188,
+    "bytes": 361528,
     "meshes": 1,
-    "triangles": 3852,
+    "triangles": 4128,
     "materials": [
       "AWD_Fabric_mesh_jersey",
+      "AWD_Print_tricolour",
       "AWD_Print_star"
     ],
     "animations": [],
@@ -242,14 +243,15 @@
       "shoulders",
       "waist"
     ],
-    "images": 2
+    "images": 3
   },
   "top_jersey_male_lod1.glb": {
-    "bytes": 217036,
+    "bytes": 234504,
     "meshes": 1,
-    "triangles": 1926,
+    "triangles": 2064,
     "materials": [
       "AWD_Fabric_mesh_jersey",
+      "AWD_Print_tricolour",
       "AWD_Print_star"
     ],
     "animations": [],
@@ -265,14 +267,15 @@
       "shoulders",
       "waist"
     ],
-    "images": 2
+    "images": 3
   },
   "top_jerseyaway_male.glb": {
-    "bytes": 335204,
+    "bytes": 361548,
     "meshes": 1,
-    "triangles": 3852,
+    "triangles": 4128,
     "materials": [
       "AWD_Fabric_mesh_jerseyaway",
+      "AWD_Print_tricolour",
       "AWD_Print_star"
     ],
     "animations": [],
@@ -288,14 +291,15 @@
       "shoulders",
       "waist"
     ],
-    "images": 2
+    "images": 3
   },
   "top_jerseyaway_male_lod1.glb": {
-    "bytes": 217052,
+    "bytes": 234520,
     "meshes": 1,
-    "triangles": 1926,
+    "triangles": 2064,
     "materials": [
       "AWD_Fabric_mesh_jerseyaway",
+      "AWD_Print_tricolour",
       "AWD_Print_star"
     ],
     "animations": [],
@@ -311,10 +315,10 @@
       "shoulders",
       "waist"
     ],
-    "images": 2
+    "images": 3
   },
   "top_ankara_male.glb": {
-    "bytes": 296288,
+    "bytes": 295472,
     "meshes": 1,
     "triangles": 3876,
     "materials": [
@@ -336,9 +340,9 @@
     "images": 1
   },
   "top_ankara_male_lod1.glb": {
-    "bytes": 178788,
+    "bytes": 177560,
     "meshes": 1,
-    "triangles": 1938,
+    "triangles": 1937,
     "materials": [
       "AWD_Fabric_ankara_ankara"
     ],
@@ -358,7 +362,7 @@
     "images": 1
   },
   "top_kenteshirt_male.glb": {
-    "bytes": 334556,
+    "bytes": 333740,
     "meshes": 1,
     "triangles": 3876,
     "materials": [
@@ -380,9 +384,9 @@
     "images": 1
   },
   "top_kenteshirt_male_lod1.glb": {
-    "bytes": 217056,
+    "bytes": 215828,
     "meshes": 1,
-    "triangles": 1938,
+    "triangles": 1937,
     "materials": [
       "AWD_Fabric_kente_kenteshirt"
     ],
@@ -402,9 +406,9 @@
     "images": 1
   },
   "top_fugu_male.glb": {
-    "bytes": 383676,
+    "bytes": 405588,
     "meshes": 1,
-    "triangles": 4612,
+    "triangles": 4892,
     "materials": [
       "AWD_Fabric_fugu_fugu"
     ],
@@ -424,9 +428,9 @@
     "images": 1
   },
   "top_fugu_male_lod1.glb": {
-    "bytes": 245424,
+    "bytes": 257120,
     "meshes": 1,
-    "triangles": 2306,
+    "triangles": 2446,
     "materials": [
       "AWD_Fabric_fugu_fugu"
     ],
@@ -446,7 +450,7 @@
     "images": 1
   },
   "top_office_male.glb": {
-    "bytes": 404888,
+    "bytes": 404168,
     "meshes": 1,
     "triangles": 5252,
     "materials": [
@@ -469,9 +473,9 @@
     "images": 1
   },
   "top_office_male_lod1.glb": {
-    "bytes": 250960,
+    "bytes": 249520,
     "meshes": 1,
-    "triangles": 2625,
+    "triangles": 2626,
     "materials": [
       "AWD_Fabric_cotton_office",
       "AWD_Print_tie"
@@ -492,9 +496,9 @@
     "images": 1
   },
   "top_kaftan_male.glb": {
-    "bytes": 428360,
+    "bytes": 450064,
     "meshes": 1,
-    "triangles": 5740,
+    "triangles": 6016,
     "materials": [
       "AWD_Fabric_cotton_kaftan"
     ],
@@ -514,9 +518,9 @@
     "images": 1
   },
   "top_kaftan_male_lod1.glb": {
-    "bytes": 261156,
+    "bytes": 272604,
     "meshes": 1,
-    "triangles": 2870,
+    "triangles": 3008,
     "materials": [
       "AWD_Fabric_cotton_kaftan"
     ],
@@ -536,7 +540,7 @@
     "images": 1
   },
   "top_suit_male.glb": {
-    "bytes": 798068,
+    "bytes": 797520,
     "meshes": 1,
     "triangles": 10652,
     "materials": [
@@ -560,9 +564,9 @@
     "images": 2
   },
   "top_suit_male_lod1.glb": {
-    "bytes": 486640,
+    "bytes": 483864,
     "meshes": 1,
-    "triangles": 5325,
+    "triangles": 5326,
     "materials": [
       "AWD_Fabric_twill_suit",
       "AWD_Fabric_cotton_suitshirt",
@@ -584,7 +588,7 @@
     "images": 2
   },
   "bottom_jeans_male.glb": {
-    "bytes": 267004,
+    "bytes": 272604,
     "meshes": 1,
     "triangles": 2748,
     "materials": [
@@ -606,9 +610,9 @@
     "images": 1
   },
   "bottom_jeans_male_lod1.glb": {
-    "bytes": 194664,
+    "bytes": 199220,
     "meshes": 1,
-    "triangles": 1373,
+    "triangles": 1374,
     "materials": [
       "AWD_Fabric_denim_jeans"
     ],
@@ -628,9 +632,9 @@
     "images": 1
   },
   "bottom_shorts_male.glb": {
-    "bytes": 186968,
+    "bytes": 189844,
     "meshes": 1,
-    "triangles": 1596,
+    "triangles": 1588,
     "materials": [
       "AWD_Fabric_twill_shorts"
     ],
@@ -650,9 +654,9 @@
     "images": 1
   },
   "bottom_shorts_male_lod1.glb": {
-    "bytes": 143328,
+    "bytes": 144756,
     "meshes": 1,
-    "triangles": 798,
+    "triangles": 794,
     "materials": [
       "AWD_Fabric_twill_shorts"
     ],
@@ -672,7 +676,7 @@
     "images": 1
   },
   "bottom_joggers_male.glb": {
-    "bytes": 244272,
+    "bytes": 249700,
     "meshes": 1,
     "triangles": 2692,
     "materials": [
@@ -694,9 +698,9 @@
     "images": 1
   },
   "bottom_joggers_male_lod1.glb": {
-    "bytes": 172892,
+    "bytes": 176936,
     "meshes": 1,
-    "triangles": 1345,
+    "triangles": 1346,
     "materials": [
       "AWD_Fabric_fleece_joggers"
     ],
@@ -716,7 +720,7 @@
     "images": 1
   },
   "bottom_chinos_male.glb": {
-    "bytes": 242276,
+    "bytes": 247900,
     "meshes": 1,
     "triangles": 2748,
     "materials": [
@@ -738,9 +742,9 @@
     "images": 1
   },
   "bottom_chinos_male_lod1.glb": {
-    "bytes": 170032,
+    "bytes": 174316,
     "meshes": 1,
-    "triangles": 1373,
+    "triangles": 1374,
     "materials": [
       "AWD_Fabric_twill_chinos"
     ],
@@ -760,7 +764,7 @@
     "images": 1
   },
   "bottom_suitpants_male.glb": {
-    "bytes": 242312,
+    "bytes": 247892,
     "meshes": 1,
     "triangles": 2748,
     "materials": [
@@ -782,7 +786,7 @@
     "images": 1
   },
   "bottom_suitpants_male_lod1.glb": {
-    "bytes": 170140,
+    "bytes": 174408,
     "meshes": 1,
     "triangles": 1373,
     "materials": [
@@ -804,7 +808,7 @@
     "images": 1
   },
   "bottom_ankarapants_male.glb": {
-    "bytes": 201944,
+    "bytes": 207536,
     "meshes": 1,
     "triangles": 2748,
     "materials": [
@@ -826,7 +830,7 @@
     "images": 1
   },
   "bottom_ankarapants_male_lod1.glb": {
-    "bytes": 129672,
+    "bytes": 133896,
     "meshes": 1,
     "triangles": 1373,
     "materials": [
@@ -848,7 +852,7 @@
     "images": 1
   },
   "shoes_slides_male.glb": {
-    "bytes": 76316,
+    "bytes": 76156,
     "meshes": 1,
     "triangles": 1216,
     "materials": [
@@ -871,7 +875,7 @@
     "images": 0
   },
   "shoes_slides_male_lod1.glb": {
-    "bytes": 54496,
+    "bytes": 54332,
     "meshes": 1,
     "triangles": 608,
     "materials": [
@@ -894,7 +898,7 @@
     "images": 0
   },
   "shoes_sneakers_male.glb": {
-    "bytes": 119140,
+    "bytes": 118980,
     "meshes": 1,
     "triangles": 2148,
     "materials": [
@@ -917,7 +921,7 @@
     "images": 0
   },
   "shoes_sneakers_male_lod1.glb": {
-    "bytes": 75964,
+    "bytes": 75804,
     "meshes": 1,
     "triangles": 1074,
     "materials": [
@@ -940,7 +944,7 @@
     "images": 0
   },
   "shoes_ahenema_male.glb": {
-    "bytes": 80132,
+    "bytes": 79968,
     "meshes": 1,
     "triangles": 1288,
     "materials": [
@@ -962,7 +966,7 @@
     "images": 0
   },
   "shoes_ahenema_male_lod1.glb": {
-    "bytes": 54996,
+    "bytes": 54832,
     "meshes": 1,
     "triangles": 644,
     "materials": [
@@ -984,7 +988,7 @@
     "images": 0
   },
   "shoes_loafers_male.glb": {
-    "bytes": 112480,
+    "bytes": 112320,
     "meshes": 1,
     "triangles": 2120,
     "materials": [
@@ -1007,7 +1011,7 @@
     "images": 0
   },
   "shoes_loafers_male_lod1.glb": {
-    "bytes": 73372,
+    "bytes": 73212,
     "meshes": 1,
     "triangles": 1060,
     "materials": [
@@ -1030,7 +1034,7 @@
     "images": 0
   },
   "shoes_boots_male.glb": {
-    "bytes": 137176,
+    "bytes": 137016,
     "meshes": 1,
     "triangles": 2448,
     "materials": [
@@ -1053,7 +1057,7 @@
     "images": 0
   },
   "shoes_boots_male_lod1.glb": {
-    "bytes": 85556,
+    "bytes": 85396,
     "meshes": 1,
     "triangles": 1224,
     "materials": [
@@ -1076,7 +1080,7 @@
     "images": 0
   },
   "hat_cap_male.glb": {
-    "bytes": 111680,
+    "bytes": 111516,
     "meshes": 1,
     "triangles": 328,
     "materials": [
@@ -1098,7 +1102,7 @@
     "images": 1
   },
   "hat_cap_male_lod1.glb": {
-    "bytes": 102240,
+    "bytes": 102140,
     "meshes": 1,
     "triangles": 164,
     "materials": [
@@ -1120,7 +1124,7 @@
     "images": 1
   },
   "hat_bucket_male.glb": {
-    "bytes": 111180,
+    "bytes": 111020,
     "meshes": 1,
     "triangles": 364,
     "materials": [
@@ -1142,7 +1146,7 @@
     "images": 1
   },
   "hat_bucket_male_lod1.glb": {
-    "bytes": 101288,
+    "bytes": 101128,
     "meshes": 1,
     "triangles": 182,
     "materials": [
@@ -1164,7 +1168,7 @@
     "images": 1
   },
   "hat_kufi_male.glb": {
-    "bytes": 102240,
+    "bytes": 102080,
     "meshes": 1,
     "triangles": 140,
     "materials": [
@@ -1186,7 +1190,7 @@
     "images": 1
   },
   "hat_kufi_male_lod1.glb": {
-    "bytes": 96912,
+    "bytes": 96748,
     "meshes": 1,
     "triangles": 70,
     "materials": [
@@ -1208,7 +1212,7 @@
     "images": 1
   },
   "glasses_shades_male.glb": {
-    "bytes": 57856,
+    "bytes": 57696,
     "meshes": 1,
     "triangles": 438,
     "materials": [
@@ -1231,7 +1235,7 @@
     "images": 0
   },
   "glasses_shades_male_lod1.glb": {
-    "bytes": 46740,
+    "bytes": 46552,
     "meshes": 1,
     "triangles": 219,
     "materials": [
@@ -1254,7 +1258,7 @@
     "images": 0
   },
   "glasses_specs_male.glb": {
-    "bytes": 48708,
+    "bytes": 48544,
     "meshes": 1,
     "triangles": 406,
     "materials": [
@@ -1276,7 +1280,7 @@
     "images": 0
   },
   "glasses_specs_male_lod1.glb": {
-    "bytes": 38380,
+    "bytes": 38304,
     "meshes": 1,
     "triangles": 203,
     "materials": [
@@ -1298,7 +1302,7 @@
     "images": 0
   },
   "neck_chain_male.glb": {
-    "bytes": 56432,
+    "bytes": 55740,
     "meshes": 1,
     "triangles": 486,
     "materials": [
@@ -1320,9 +1324,9 @@
     "images": 0
   },
   "neck_chain_male_lod1.glb": {
-    "bytes": 41612,
+    "bytes": 41192,
     "meshes": 1,
-    "triangles": 242,
+    "triangles": 243,
     "materials": [
       "AWD_Metal_gold"
     ],
@@ -1342,7 +1346,7 @@
     "images": 0
   },
   "neck_beads_male.glb": {
-    "bytes": 203392,
+    "bytes": 200968,
     "meshes": 1,
     "triangles": 1728,
     "materials": [
@@ -1364,7 +1368,7 @@
     "images": 1
   },
   "neck_beads_male_lod1.glb": {
-    "bytes": 181464,
+    "bytes": 179088,
     "meshes": 1,
     "triangles": 1512,
     "materials": [
@@ -1386,7 +1390,7 @@
     "images": 1
   },
   "neck_stole_male.glb": {
-    "bytes": 98704,
+    "bytes": 98516,
     "meshes": 1,
     "triangles": 40,
     "materials": [
@@ -1408,7 +1412,7 @@
     "images": 1
   },
   "neck_stole_male_lod1.glb": {
-    "bytes": 96512,
+    "bytes": 96268,
     "meshes": 1,
     "triangles": 20,
     "materials": [
@@ -1430,9 +1434,9 @@
     "images": 1
   },
   "full_kentecloth_male.glb": {
-    "bytes": 331184,
+    "bytes": 330320,
     "meshes": 1,
-    "triangles": 3838,
+    "triangles": 3830,
     "materials": [
       "AWD_Fabric_kente_kentecloth"
     ],
@@ -1452,9 +1456,9 @@
     "images": 1
   },
   "full_kentecloth_male_lod1.glb": {
-    "bytes": 215456,
+    "bytes": 214984,
     "meshes": 1,
-    "triangles": 1919,
+    "triangles": 1915,
     "materials": [
       "AWD_Fabric_kente_kentecloth"
     ],

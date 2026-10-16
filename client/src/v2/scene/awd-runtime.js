@@ -146,12 +146,14 @@ export class AwdCharacter {
       const skeleton = sameOrder ? shared : new THREE.Skeleton(names.map((n) => byName.get(n)), mesh.skeleton.boneInverses);
       const host = this.root.getObjectByName(mesh.parent?.name) || this.meshes[0].parent;
       const hides = Number(extrasOf(mesh).awd_hides_regions || 0);   // read before re-parenting
+      const covers = Number(extrasOf(mesh).awd_covers_regions || 0);
       mesh.skeleton.dispose();
       host.add(mesh);
       mesh.bind(skeleton, mesh.bindMatrix);
       Object.assign(mesh, { frustumCulled: false, castShadow: true });
       mesh.userData.awdSlot = slot;
       mesh.userData.awdHides = hides;
+      mesh.userData.awdCovers = covers;
       this.meshes.push(mesh);
       this.baseMaterials.set(mesh, mesh.material);
     }
@@ -159,15 +161,19 @@ export class AwdCharacter {
     this.updateCulling();
   }
 
-  // Drop body triangles whose three vertices all lie in regions the worn parts cover
-  // completely (body attribute `_awd_region`, part extras `awd_hides_regions`).
+  // Drop triangles whose three vertices all lie in regions covered completely by what is worn
+  // over them (attribute `_awd_region`): body skin under any garment (`awd_hides_regions`),
+  // and trousers under a long robe (`awd_covers_regions`), which a striding leg would
+  // otherwise push out through the robe.
   updateCulling() {
-    const hidden = this.meshes.reduce((m, mesh) => m | (mesh.userData.awdHides || 0), 0);
+    const union = (key) => this.meshes.reduce((m, mesh) => m | (mesh.userData[key] || 0), 0);
+    const skin = union('awdHides'), layer = union('awdCovers');
     for (const mesh of this.meshes) {
       const original = mesh.userData.awdOriginalGeometry || mesh.geometry;
       const region = original.attributes._awd_region;
       if (!region || !original.index) continue;
       mesh.userData.awdOriginalGeometry = original;
+      const hidden = mesh.userData.awdSlot ? (mesh.userData.awdSlot === 'bottom' ? layer : 0) : skin;
       mesh.geometry = hidden ? this.template.culled(original, hidden) : original;
     }
   }

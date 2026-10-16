@@ -8,7 +8,9 @@ FILES=['LICENSE.md','makehuman/data/3dobjs/base.obj',
  'makehuman/data/targets/macrodetails/african-female-young.target',
  'makehuman/data/targets/macrodetails/african-male-young.target',
  'makehuman/data/targets/macrodetails/universal-female-young-averagemuscle-averageweight.target',
- 'makehuman/data/targets/macrodetails/universal-male-young-averagemuscle-averageweight.target']
+ 'makehuman/data/targets/macrodetails/universal-male-young-averagemuscle-averageweight.target',
+ 'makehuman/data/targets/macrodetails/universal-male-young-maxmuscle-averageweight.target',
+ 'makehuman/data/targets/macrodetails/universal-male-young-averagemuscle-minweight.target']
 for path in FILES:
  dest=DEST/pathlib.Path(path).name
  if dest.exists(): continue

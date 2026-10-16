@@ -7,7 +7,8 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { WEAR } from '../../server/src/game/wardrobe.js';
-import { sliderInfluence, SLIDERS } from '../src/v2/scene/awd-runtime.js';
+import * as THREE from 'three';
+import { sliderInfluence, SLIDERS, AwdTemplate, AwdCharacter } from '../src/v2/scene/awd-runtime.js';
 import { resolveParts } from '../src/v2/scene/awd-avatar.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -200,6 +201,39 @@ test('catalogue revisions match the shipped files (cache busting for immutable G
   for (const entry of Object.values(CATALOGUE.slots).flatMap((s) => Object.values(s)).filter(Boolean)) {
     for (const file of Object.values(entry)) assert.ok(CATALOGUE.rev[file], `${file} has no revision`);
   }
+});
+
+test('a long robe hides the trouser regions it covers; skin culling is unchanged', () => {
+  // Two triangles per mesh: one in the pelvis region, one in the shin region.
+  const BIT = { pelvis: 4, thigh: 9, shin: 11 };
+  const part = (regions, userData) => {
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(new Array(18).fill(0), 3));
+    geometry.setAttribute('_awd_region', new THREE.Float32BufferAttribute(regions.flatMap((r) => [r, r, r]), 1));
+    geometry.setIndex([0, 1, 2, 3, 4, 5]);
+    return { geometry, userData };
+  };
+  const body = part([BIT.pelvis, BIT.shin], {});
+  const trousers = part([BIT.pelvis, BIT.shin], { awdSlot: 'bottom', awdHides: (1 << BIT.pelvis) | (1 << BIT.shin) });
+  const kaftan = { geometry: new THREE.BufferGeometry(), userData: { awdSlot: 'top', awdHides: 0, awdCovers: (1 << BIT.pelvis) | (1 << BIT.thigh) } };
+  const character = { meshes: [body, trousers, kaftan], template: { culled: AwdTemplate.prototype.culled } };
+  AwdCharacter.prototype.updateCulling.call(character);
+  assert.equal(body.geometry.index.count, 0, 'skin under the trousers is hidden');
+  assert.deepEqual([...trousers.geometry.index.array], [3, 4, 5], 'only the trouser leg below the robe is drawn');
+  character.meshes = [body, trousers];   // robe taken off
+  AwdCharacter.prototype.updateCulling.call(character);
+  assert.equal(trousers.geometry.index.count, 6, 'trousers are whole again without the robe');
+});
+
+test('trouser parts carry body regions; long robes declare what they cover', () => {
+  for (const sex of ['male', 'female']) {
+    const jeans = glbJson(join(ASSETS, 'parts', `bottom_jeans_${sex}.glb`));
+    assert.ok(jeans.meshes[0].primitives.every((p) => '_AWD_REGION' in p.attributes || '_awd_region' in p.attributes), `${sex} jeans regions`);
+  }
+  const kaftan = glbJson(join(ASSETS, 'parts', 'top_kaftan_male.glb'));
+  assert.ok(kaftan.nodes.some((n) => n.extras?.awd_covers_regions > 0), 'kaftan covers the trousers under its tail');
+  const tee = glbJson(join(ASSETS, 'parts', 'top_tee_male.glb'));
+  assert.ok(!tee.nodes.some((n) => n.extras?.awd_covers_regions > 0), 'a tee hides no trousers');
 });
 
 test('looping clips the game holds as states are looped at runtime', () => {

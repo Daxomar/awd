@@ -1,6 +1,6 @@
 {
   "hair_lowcut_female.glb": {
-    "bytes": 194672,
+    "bytes": 194696,
     "meshes": 1,
     "triangles": 448,
     "materials": [
@@ -22,7 +22,7 @@
     "images": 1
   },
   "hair_lowcut_female_lod1.glb": {
-    "bytes": 183932,
+    "bytes": 183676,
     "meshes": 1,
     "triangles": 223,
     "materials": [
@@ -44,7 +44,7 @@
     "images": 1
   },
   "hair_fade_female.glb": {
-    "bytes": 217552,
+    "bytes": 217572,
     "meshes": 1,
     "triangles": 448,
     "materials": [
@@ -66,9 +66,9 @@
     "images": 1
   },
   "hair_fade_female_lod1.glb": {
-    "bytes": 206808,
+    "bytes": 206412,
     "meshes": 1,
-    "triangles": 224,
+    "triangles": 223,
     "materials": [
       "AWD_Hair_fade"
     ],
@@ -110,7 +110,7 @@
     "images": 1
   },
   "hair_afro_female_lod1.glb": {
-    "bytes": 213548,
+    "bytes": 212916,
     "meshes": 1,
     "triangles": 734,
     "materials": [
@@ -132,7 +132,7 @@
     "images": 1
   },
   "hair_twists_female.glb": {
-    "bytes": 383624,
+    "bytes": 384240,
     "meshes": 1,
     "triangles": 3823,
     "materials": [
@@ -154,7 +154,7 @@
     "images": 1
   },
   "hair_twists_female_lod1.glb": {
-    "bytes": 282536,
+    "bytes": 282664,
     "meshes": 1,
     "triangles": 1911,
     "materials": [
@@ -176,7 +176,7 @@
     "images": 1
   },
   "hair_locs_female.glb": {
-    "bytes": 475688,
+    "bytes": 475412,
     "meshes": 1,
     "triangles": 4348,
     "materials": [
@@ -198,9 +198,9 @@
     "images": 1
   },
   "hair_locs_female_lod1.glb": {
-    "bytes": 345624,
+    "bytes": 345112,
     "meshes": 1,
-    "triangles": 2174,
+    "triangles": 2173,
     "materials": [
       "AWD_Hair_locs"
     ],
@@ -220,7 +220,7 @@
     "images": 1
   },
   "hair_cornrows_female.glb": {
-    "bytes": 164748,
+    "bytes": 164772,
     "meshes": 1,
     "triangles": 448,
     "materials": [
@@ -242,9 +242,9 @@
     "images": 1
   },
   "hair_cornrows_female_lod1.glb": {
-    "bytes": 154168,
+    "bytes": 153768,
     "meshes": 1,
-    "triangles": 224,
+    "triangles": 223,
     "materials": [
       "AWD_Hair_cornrows"
     ],
@@ -264,7 +264,7 @@
     "images": 1
   },
   "hair_puff_female.glb": {
-    "bytes": 243732,
+    "bytes": 243756,
     "meshes": 1,
     "triangles": 1390,
     "materials": [
@@ -286,7 +286,7 @@
     "images": 1
   },
   "hair_puff_female_lod1.glb": {
-    "bytes": 208992,
+    "bytes": 208648,
     "meshes": 1,
     "triangles": 694,
     "materials": [
@@ -308,7 +308,7 @@
     "images": 1
   },
   "hair_bun_female.glb": {
-    "bytes": 234192,
+    "bytes": 234216,
     "meshes": 1,
     "triangles": 1194,
     "materials": [
@@ -330,7 +330,7 @@
     "images": 1
   },
   "hair_bun_female_lod1.glb": {
-    "bytes": 204400,
+    "bytes": 204036,
     "meshes": 1,
     "triangles": 596,
     "materials": [
@@ -374,7 +374,7 @@
     "images": 1
   },
   "hair_twa_female_lod1.glb": {
-    "bytes": 184264,
+    "bytes": 183680,
     "meshes": 1,
     "triangles": 223,
     "materials": [
@@ -396,7 +396,7 @@
     "images": 1
   },
   "hair_braids_female.glb": {
-    "bytes": 509980,
+    "bytes": 509920,
     "meshes": 1,
     "triangles": 4768,
     "materials": [
@@ -418,7 +418,7 @@
     "images": 1
   },
   "hair_braids_female_lod1.glb": {
-    "bytes": 354588,
+    "bytes": 353600,
     "meshes": 1,
     "triangles": 2384,
     "materials": [
@@ -440,7 +440,7 @@
     "images": 1
   },
   "hair_bob_female.glb": {
-    "bytes": 120720,
+    "bytes": 120748,
     "meshes": 1,
     "triangles": 1068,
     "materials": [
@@ -462,7 +462,7 @@
     "images": 1
   },
   "hair_bob_female_lod1.glb": {
-    "bytes": 91340,
+    "bytes": 91068,
     "meshes": 1,
     "triangles": 534,
     "materials": [
@@ -484,7 +484,7 @@
     "images": 1
   },
   "hair_bonestraight_female.glb": {
-    "bytes": 137464,
+    "bytes": 137492,
     "meshes": 1,
     "triangles": 1316,
     "materials": [
@@ -506,7 +506,7 @@
     "images": 1
   },
   "hair_bonestraight_female_lod1.glb": {
-    "bytes": 100452,
+    "bytes": 100148,
     "meshes": 1,
     "triangles": 657,
     "materials": [
@@ -528,7 +528,7 @@
     "images": 1
   },
   "hair_duku_female.glb": {
-    "bytes": 158616,
+    "bytes": 158644,
     "meshes": 1,
     "triangles": 1850,
     "materials": [
@@ -550,9 +550,9 @@
     "images": 1
   },
   "hair_duku_female_lod1.glb": {
-    "bytes": 106976,
+    "bytes": 106776,
     "meshes": 1,
-    "triangles": 925,
+    "triangles": 924,
     "materials": [
       "AWD_Headwrap_duku"
     ],

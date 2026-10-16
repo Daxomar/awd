@@ -40,8 +40,14 @@ THICKNESS = {
     'female': {'upperarm01': 1.04, 'upperarm02': 1.04, 'upperleg01': 1.04, 'upperleg02': 1.04,
                'lowerleg01': 1.03},
 }
+# Extra MakeHuman macro targets and their weights. The average young male is soft
+# (rounded pec mounds read as a bust in game); part of the muscular macro gives flat,
+# squared pecs, broader shoulders and a V taper, and a little of the lean one trims fat.
+MACROS = {'male': {'universal-male-young-maxmuscle-averageweight.target': 0.85,
+                   'universal-male-young-averagemuscle-minweight.target': 0.2},
+          'female': {}}
 # Torso width (x) and chest projection (metres, forward) by sex.
-TORSO = {'male': {'chest_width': 1.07, 'chest_forward': 0.010, 'waist_width': 0.98, 'hip_width': 0.93},
+TORSO = {'male': {'chest_width': 1.10, 'chest_forward': 0.0, 'waist_width': 0.97, 'hip_width': 0.91},
          'female': {'chest_width': 1.0, 'chest_forward': 0.0, 'waist_width': 0.96, 'hip_width': 1.0}}
 
 _SKEL = {}
@@ -68,12 +74,12 @@ def read_obj():
     return np.array(verts, dtype=np.float64), np.array(uvs, dtype=np.float64), faces
 
 
-def apply_target(verts, name):
+def apply_target(verts, name, weight=1.0):
     for line in (SRC / name).read_text().splitlines():
         s = line.split()
         if not s or s[0].startswith('#'):
             continue
-        verts[int(s[0])] += [float(a) for a in s[1:4]]
+        verts[int(s[0])] += [weight * float(a) for a in s[1:4]]
 
 
 def to_blender(verts):
@@ -216,6 +222,8 @@ def build_body(sex='male', name=None):
     weights = json.loads((SRC / 'default_weights.mhw').read_text())['weights']
     verts, uvs, faces = read_obj()
     apply_target(verts, f'african-{sex}-young.target')
+    for target, weight in MACROS[sex].items():
+        apply_target(verts, target, weight)
     verts = to_blender(verts)
 
     body_faces = [c for g, c in faces if g == 'body']

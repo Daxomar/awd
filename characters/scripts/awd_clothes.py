@@ -70,10 +70,19 @@ def taubin(bm, passes, mask):
         v.co = c
 
 
-def cut(field):
-    """Pair a scalar field with its numerical gradient for snap_boundary."""
+def cut(field, vertical=False):
+    """Pair a scalar field with its numerical gradient for snap_boundary.
+
+    vertical: snap by moving only in z. Necklines and hems must not slide sideways: on a V
+    or scoop neck the field's gradient is mostly horizontal, which threw edge vertices
+    sideways into a jagged, spiky neckline."""
+    axes = np.eye(3)[2:] if vertical else np.eye(3)
+
     def grad(p, h=1e-4):
-        return np.array([(field(p + e * h) - field(p - e * h)) / (2 * h) for e in np.eye(3)])
+        g = np.zeros(3)
+        for e in axes:
+            g += e * (field(p + e * h) - field(p - e * h)) / (2 * h)
+        return g
     return field, grad
 
 
@@ -88,7 +97,12 @@ def snap_boundary(bm, cuts, iterations=3):
 
     cuts: list of (field, gradient) callables; field(p) is 0 on the desired edge."""
     boundary = [v for v in bm.verts if v.is_boundary]
+    loop_nb = {v: [e.other_vert(v) for e in v.link_edges if e.is_boundary] for v in boundary}
     for _ in range(iterations):
+        # Relax each open edge along itself first: body topology makes the raw cut zigzag.
+        relaxed = {v: sum((n.co for n in nb), v.co * 0) / len(nb) for v, nb in loop_nb.items() if len(nb) == 2}
+        for v, target in relaxed.items():
+            v.co = v.co.lerp(target, 0.5)
         for v in boundary:
             p = np.array(v.co[:])
             values = [abs(f(p)) for f, _ in cuts]
@@ -154,36 +168,170 @@ def clearance(bm, ctx, min_gap=0.004):
             v.co = loc + normal * min_gap
 
 
-def bridge_front(bm, ctx, band=0.012):
-    """Cloth spans hollows across the chest (cleavage, between pecs) instead of dipping in.
+def bridge_front(bm, ctx, band=0.012, lo=None, hi=None, back=False):
+    """Cloth spans hollows across the body instead of dipping in: between pecs and breasts
+    at the front, and (back=True) the cleft between the buttocks at the back.
 
-    Per height band, front vertices are lifted to the upper convex hull of the band's
-    front profile, so no horizontal valley survives on tops and dresses."""
+    Per height band, front (or back) vertices are lifted to the upper convex hull of the
+    band's depth profile, so no horizontal valley survives on tops, dresses and trousers."""
     J = ctx['joints']
     centre = J['spine05____head'][1]
-    lo, hi = J['spine05____head'][2], J['neck01____head'][2] - 0.03
+    lo = J['spine05____head'][2] if lo is None else lo
+    hi = J['neck01____head'][2] - 0.03 if hi is None else hi
+    sign = -1.0 if back else 1.0
+
+    def depth(v):   # distance in front of (or behind) the spine
+        return sign * (centre - v.co.y)
     bands = {}
     for v in bm.verts:
-        fwd = centre - v.co.y
-        if lo < v.co.z < hi and fwd > 0.02 and abs(v.co.x) < 0.16:
+        if lo < v.co.z < hi and depth(v) > 0.02 and abs(v.co.x) < 0.16:
             bands.setdefault(int(v.co.z // band), []).append(v)
     for verts in bands.values():
-        pts = sorted((v.co.x, centre - v.co.y) for v in verts)
-        hull = []
-        for p in pts:   # upper hull (monotone chain)
-            while len(hull) >= 2 and (hull[-1][0] - hull[-2][0]) * (p[1] - hull[-2][1]) - (hull[-1][1] - hull[-2][1]) * (p[0] - hull[-2][0]) >= 0:
-                hull.pop()
-            hull.append(p)
-        if len(hull) < 2:
+        hx, hy = _upper_hull([(v.co.x, depth(v)) for v in verts])
+        if len(hx) < 2:
             continue
-        hx, hy = np.array([h[0] for h in hull]), np.array([h[1] for h in hull])
         for v in verts:
             target = float(np.interp(v.co.x, hx, hy))
-            if centre - v.co.y < target:
-                v.co.y = centre - target
+            if depth(v) < target:
+                v.co.y = centre - sign * target
 
 
-def shell(ctx, name, face_mask, ease, material, smooth=8, hem=0.004, uv='torso', cuts=None, envelope=None, trim=None):
+def trouser_cut(bag):
+    """Thigh ease and hem radius (metres) for a bagginess from 0 (straight) to 1 (baggy)."""
+    return 0.006 + 0.012 * bag, 0.058 + 0.017 * bag
+
+
+def leg_frame(ctx):
+    """Crotch height and, per side, the hip-ankle axis (z -> x, y) and upper-thigh radius."""
+    J = ctx['joints']
+    body = np.array([v.co[:] for v in ctx['body'].data.vertices])
+    centre_line = body[(np.abs(body[:, 0]) < 0.004) & (body[:, 2] < J['spine05____head'][2])]
+    crotch_z = float(centre_line[:, 2].min())
+    legs = []
+    for side, sign in (('L', 1), ('R', -1)):
+        hip, ankle = np.array(J[f'upperleg01.{side}____head']), np.array(J[f'foot.{side}____head'])
+
+        def axis_at(z, hip=hip, ankle=ankle):
+            return (hip + (ankle - hip) * (hip[2] - z) / (hip[2] - ankle[2]))[:2]
+        band = body[(body[:, 0] * sign > 0.01) & (body[:, 0] * sign < 0.24)   # legs, not the hanging hands
+                    & (np.abs(body[:, 2] - (crotch_z - 0.03)) < 0.012)]
+        r_thigh = float(np.percentile(np.linalg.norm(band[:, :2] - axis_at(crotch_z - 0.03), axis=1), 75))
+        legs.append((sign, axis_at, r_thigh))
+    return crotch_z, legs
+
+
+def trouser_clearance(ctx, bag):
+    """z -> circles (x, y, radius) of both trouser legs of the baggiest trousers this body
+    wears (empty above the crotch), so tunic tails worn over them never let a leg poke through."""
+    crotch_z, legs = leg_frame(ctx)
+    hem_z = ctx['joints']['foot.L____head'][2] + 0.035
+    thigh_ease, hem_radius = trouser_cut(bag)
+
+    def circles(z):
+        if z > crotch_z:
+            return []
+        t = min(1.0, max(0.0, (crotch_z - 0.03 - z) / (crotch_z - 0.03 - hem_z)))
+        out = []
+        for sign, axis_at, r_thigh in legs:
+            top = r_thigh + thigh_ease
+            a = axis_at(z)
+            out.append((a[0], a[1], max(top + (hem_radius - top) * t, r_thigh)))
+        return out
+    return circles
+
+
+def baggy_legs(bm, ctx, hem_z, thigh_ease=0.024, hem_radius=0.086, cuff=False):
+    """Trouser legs hang as loose tubes from the thigh instead of following knee and calf.
+
+    Per leg, vertices from the upper thigh down move out radially (in the horizontal plane, from the
+    hip-ankle axis) to a radius that tapers linearly from the thigh plus thigh_ease to
+    hem_radius at the hem; nothing moves inwards. Inner-leg vertices stop just short of the
+    midline so the two legs never cross. cuff keeps the last 10 cm snug (joggers)."""
+    crotch_z, legs = leg_frame(ctx)
+    for sign, axis_at, r_thigh in legs:
+        top_z, top_r = crotch_z - 0.03, r_thigh + thigh_ease
+        for v in bm.verts:
+            x, y, z = v.co
+            if x * sign <= 0 or z > crotch_z + 0.03:
+                continue
+            a = axis_at(z)
+            d = np.array([x, y]) - a
+            r = float(np.linalg.norm(d))
+            if r < 1e-6:
+                continue
+            t = min(1.0, max(0.0, (top_z - z) / (top_z - hem_z)))
+            target = max(r, top_r + (hem_radius - top_r) * t)
+            blend = float(_smoothstep(crotch_z - 0.01, crotch_z - 0.13, z))   # hips and seat keep their fit
+            if cuff:
+                blend *= float(_smoothstep(hem_z, hem_z + 0.10, z))
+            p = a + d / r * (r + (target - r) * blend)
+            v.co.x, v.co.y = (max(p[0], 0.006) if sign > 0 else min(p[0], -0.006)), p[1]
+        _hang_leg(bm, axis_at, sign, crotch_z, hem_z)
+
+
+def _upper_hull(prof):
+    hull = []
+    for q in sorted(prof):
+        while len(hull) >= 2 and (hull[-1][0] - hull[-2][0]) * (q[1] - hull[-2][1]) - (hull[-1][1] - hull[-2][1]) * (q[0] - hull[-2][0]) >= 0:
+            hull.pop()
+        hull.append(q)
+    return np.array([h[0] for h in hull]), np.array([h[1] for h in hull])
+
+
+def _hang_leg(bm, axis_at, sign, crotch_z, hem_z, bins=36):
+    """Cloth hanging from the hip spans the hollow under it: per direction around the leg,
+    lift the radius profile (height vs distance from the leg axis) onto its upper hull."""
+    groups = {}
+    for v in bm.verts:
+        x, y, z = v.co
+        if x * sign <= 0 or z > crotch_z + 0.03 or z < hem_z - 0.005:
+            continue
+        d = np.array([x, y]) - axis_at(z)
+        r = float(np.linalg.norm(d))
+        if r > 1e-6:
+            k = int((math.atan2(d[1], d[0]) + math.pi) / (2 * math.pi) * bins) % bins
+            groups.setdefault(k, []).append((v, d / r, r))
+    for members in groups.values():
+        hz, hr = _upper_hull([(m[0].co.z, m[2]) for m in members])
+        for v, u, r in members:
+            target = float(np.interp(v.co.z, hz, hr))
+            if target > r:
+                p = axis_at(v.co.z) + u * target
+                v.co.x, v.co.y = (max(p[0], 0.006) if sign > 0 else min(p[0], -0.006)), p[1]
+
+
+def drape_down(bm, ctx, lo_z, hi_z, slope=0.18, front=True, bins=48):
+    """Tops hang off the seat (and, front=True, the belly) instead of tucking under them.
+
+    Per direction around the torso axis, walking down from hi_z, the cloth may come in
+    towards the body by at most `slope` metres per metre of drop. front=False drapes only
+    the back half (a fitted bust stays fitted)."""
+    cy = ctx['joints']['spine05____head'][1]
+    groups = {}
+    for v in bm.verts:
+        x, y, z = v.co
+        if abs(x) > 0.21 or not lo_z - 0.01 <= z <= hi_z:
+            continue
+        d = np.array([x, y - cy])
+        r = float(np.linalg.norm(d))
+        ang = math.atan2(x, -(y - cy))   # 0 at the front
+        if r < 1e-6:
+            continue
+        # front=False fades in around the sides; a hard switch left a step at the side seams
+        w = 1.0 if front else float(_smoothstep(math.pi / 3, 2 * math.pi / 3, abs(ang)))
+        k = int((ang + math.pi) / (2 * math.pi) * bins) % bins
+        groups.setdefault(k, []).append((v, d / r, r, w))
+    for members in groups.values():
+        reach = -1e9
+        for v, u, r, w in sorted(members, key=lambda m: -m[0].co.z):
+            reach = max(reach, r + slope * v.co.z)
+            target = r + (reach - slope * v.co.z - r) * w
+            if target > r:
+                v.co.x, v.co.y = u[0] * target, cy + u[1] * target
+
+
+def shell(ctx, name, face_mask, ease, material, smooth=8, hem=0.004, uv='torso', cuts=None, envelope=None, trim=None,
+          shape=None):
     body = ctx['body']
     obj = body.copy()
     obj.data = body.data.copy()
@@ -213,11 +361,20 @@ def shell(ctx, name, face_mask, ease, material, smooth=8, hem=0.004, uv='torso',
     clearance(bm, ctx)
     if envelope is not None:
         bridge_front(bm, ctx)
+    if shape:   # silhouette pass (e.g. baggy trouser legs), then relax the transition
+        shape(bm)
+        boundary = np.array([v.is_boundary for v in bm.verts], dtype=float)
+        taubin(bm, 2, 1.0 - boundary)
     if hem:
-        rim = bmesh.ops.extrude_edge_only(bm, edges=[e for e in bm.edges if e.is_boundary])['geom']
+        # Turn the hem back along the surface normal of the edge it starts from: normals taken
+        # after extruding lean sideways at an open edge and ruffled curved hems.
         bm.normal_update()
+        source = {v: v.normal.copy() for v in bm.verts if v.is_boundary}
+        rim = bmesh.ops.extrude_edge_only(bm, edges=[e for e in bm.edges if e.is_boundary])['geom']
         for v in [g for g in rim if isinstance(g, bmesh.types.BMVert)]:
-            v.co -= v.normal * hem
+            origin = next((e.other_vert(v) for e in v.link_edges if e.other_vert(v) in source), None)
+            if origin is not None:
+                v.co = origin.co - source[origin] * hem
         if trim is not None:   # contrasting cuffs and collar on the turned-back hem
             for f in [g for g in rim if isinstance(g, bmesh.types.BMFace)]:
                 f.material_index = 1
@@ -279,7 +436,7 @@ def tee(ctx, G, colour=(0.85, 0.86, 0.82), sleeve_len=0.48):
         front = _smoothstep(R['chest_y'] - 0.01, R['chest_y'] - 0.07, p[1])
         return R['neck_z'] - 0.022 - 0.035 * front * np.exp(-(p[0] / 0.05) ** 2)
 
-    cuts = [cut(lambda p: p[2] - hem_z), cut(lambda p: p[2] - collar_z(p))]
+    cuts = [cut(lambda p: p[2] - hem_z, True), cut(lambda p: p[2] - collar_z(p), True)]
     for side in ('L', 'R'):
         t = sleeve_param(J, side)
         sign = 1 if side == 'L' else -1
@@ -304,9 +461,11 @@ def jeans(ctx, G, colour=(0.10, 0.15, 0.27)):
         return 0.0085 + 0.010 * (1 - _smoothstep(R['ankle_z'], R['knee_z'], p[2])) - waistband
 
     waist_z = R['hip_z'] + 0.045
-    cuts = [cut(lambda p: p[2] - waist_z), cut(lambda p: p[2] - hem_z)]
+    cuts = [cut(lambda p: p[2] - waist_z, True), cut(lambda p: p[2] - hem_z, True)]
+    bag = 1.0 if ctx['sex'] == 'male' else 0.75   # same cut as the wardrobe jeans
     obj = shell(ctx, 'AWD_Bottom_jeans', mask, ease, fabric_material(G, 'AWD_Fabric_denim', colour, 'denim', 0.9),
-                smooth=14, uv='limb', cuts=cuts)
+                smooth=14, uv='limb', cuts=cuts,
+                shape=lambda bm: baggy_legs(bm, ctx, hem_z, *trouser_cut(bag)))
     obj['awd_slot'], obj['awd_id'] = 'bottom', 'jeans'
     obj['awd_hides'] = body_cover(mask & (c[:, 2] > hem_z + 0.03) & (c[:, 2] < R['hip_z'] + 0.03))
     return obj

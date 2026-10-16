@@ -60,7 +60,9 @@ def prepare_copies(parts, garments, lod=0, suffix='', morph=None, regions=None):
         if obj.name.startswith('AWD_Body'):
             delete_faces(dup, hidden)
         elif dup.data.attributes.get('_awd_region'):
-            dup.data.attributes.remove(dup.data.attributes['_awd_region'])   # only the body carries regions
+            dup.data.attributes.remove(dup.data.attributes['_awd_region'])   # body copies carry exact regions
+        if regions is not None and not obj.name.startswith('AWD_Body'):   # a layered garment (trousers)
+            transfer_regions(regions[0], regions[1], dup)
         if lod:
             if obj.name.startswith(('AWD_Lashes', 'AWD_Tongue', 'AWD_Teeth')):
                 bpy.data.objects.remove(dup, do_unlink=True)

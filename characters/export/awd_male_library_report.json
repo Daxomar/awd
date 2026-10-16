@@ -1,6 +1,6 @@
 {
   "hair_lowcut_male.glb": {
-    "bytes": 195528,
+    "bytes": 195380,
     "meshes": 1,
     "triangles": 456,
     "materials": [
@@ -22,9 +22,9 @@
     "images": 1
   },
   "hair_lowcut_male_lod1.glb": {
-    "bytes": 184400,
+    "bytes": 183832,
     "meshes": 1,
-    "triangles": 227,
+    "triangles": 228,
     "materials": [
       "AWD_Hair_lowcut"
     ],
@@ -44,7 +44,7 @@
     "images": 1
   },
   "hair_fade_male.glb": {
-    "bytes": 218404,
+    "bytes": 218264,
     "meshes": 1,
     "triangles": 456,
     "materials": [
@@ -66,7 +66,7 @@
     "images": 1
   },
   "hair_fade_male_lod1.glb": {
-    "bytes": 207244,
+    "bytes": 206632,
     "meshes": 1,
     "triangles": 228,
     "materials": [
@@ -88,7 +88,7 @@
     "images": 1
   },
   "hair_waves_male.glb": {
-    "bytes": 225296,
+    "bytes": 225152,
     "meshes": 1,
     "triangles": 456,
     "materials": [
@@ -110,7 +110,7 @@
     "images": 1
   },
   "hair_waves_male_lod1.glb": {
-    "bytes": 214152,
+    "bytes": 213604,
     "meshes": 1,
     "triangles": 228,
     "materials": [
@@ -132,7 +132,7 @@
     "images": 1
   },
   "hair_afro_male.glb": {
-    "bytes": 252440,
+    "bytes": 252276,
     "meshes": 1,
     "triangles": 1498,
     "materials": [
@@ -154,7 +154,7 @@
     "images": 1
   },
   "hair_afro_male_lod1.glb": {
-    "bytes": 214676,
+    "bytes": 214208,
     "meshes": 1,
     "triangles": 749,
     "materials": [
@@ -176,7 +176,7 @@
     "images": 1
   },
   "hair_twists_male.glb": {
-    "bytes": 386940,
+    "bytes": 386504,
     "meshes": 1,
     "triangles": 3831,
     "materials": [
@@ -198,7 +198,7 @@
     "images": 1
   },
   "hair_twists_male_lod1.glb": {
-    "bytes": 283540,
+    "bytes": 282772,
     "meshes": 1,
     "triangles": 1914,
     "materials": [
@@ -220,7 +220,7 @@
     "images": 1
   },
   "hair_locs_male.glb": {
-    "bytes": 477512,
+    "bytes": 477484,
     "meshes": 1,
     "triangles": 4356,
     "materials": [
@@ -242,9 +242,9 @@
     "images": 1
   },
   "hair_locs_male_lod1.glb": {
-    "bytes": 346684,
+    "bytes": 346000,
     "meshes": 1,
-    "triangles": 2178,
+    "triangles": 2177,
     "materials": [
       "AWD_Hair_locs"
     ],
@@ -264,7 +264,7 @@
     "images": 1
   },
   "hair_cornrows_male.glb": {
-    "bytes": 165656,
+    "bytes": 165512,
     "meshes": 1,
     "triangles": 456,
     "materials": [
@@ -286,9 +286,9 @@
     "images": 1
   },
   "hair_cornrows_male_lod1.glb": {
-    "bytes": 154456,
+    "bytes": 154072,
     "meshes": 1,
-    "triangles": 228,
+    "triangles": 227,
     "materials": [
       "AWD_Hair_cornrows"
     ],
@@ -308,7 +308,7 @@
     "images": 1
   },
   "beard_stubble_male.glb": {
-    "bytes": 245572,
+    "bytes": 245392,
     "meshes": 1,
     "triangles": 1948,
     "materials": [
@@ -339,7 +339,7 @@
     "images": 1
   },
   "beard_stubble_male_lod1.glb": {
-    "bytes": 127852,
+    "bytes": 127684,
     "meshes": 1,
     "triangles": 1168,
     "materials": [
@@ -361,7 +361,7 @@
     "images": 1
   },
   "beard_goatee_male.glb": {
-    "bytes": 322756,
+    "bytes": 322560,
     "meshes": 1,
     "triangles": 1520,
     "materials": [
@@ -392,7 +392,7 @@
     "images": 1
   },
   "beard_goatee_male_lod1.glb": {
-    "bytes": 227328,
+    "bytes": 227172,
     "meshes": 1,
     "triangles": 911,
     "materials": [
@@ -414,7 +414,7 @@
     "images": 1
   },
   "beard_fullbeard_male.glb": {
-    "bytes": 356520,
+    "bytes": 356340,
     "meshes": 1,
     "triangles": 1948,
     "materials": [
@@ -445,7 +445,7 @@
     "images": 1
   },
   "beard_fullbeard_male_lod1.glb": {
-    "bytes": 238712,
+    "bytes": 238552,
     "meshes": 1,
     "triangles": 1167,
     "materials": [
