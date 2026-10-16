@@ -2,6 +2,7 @@ import * as Game from './game/rules.js';
 import {withMoney} from './account-money.js';
 import crypto from 'node:crypto';
 import {validRequest} from './life-journal.js';
+import {isUnitPlace,prepareProperty} from './property-context.js';
 
 export const durableActions=new Set(['act','work','apply','buy','bank','phone','travel','donate','jail','rentcar','bet','mgResult','bizcheck']);
 export function durableTick(s,now){
@@ -26,11 +27,16 @@ export async function gameTransaction(shard,p,msg=null,now=Date.now(),queued=fal
         if(old){if(old.digest!==digest)throw Error('Gameplay action reference was reused for different content.');return {t:'toast',m:'This action was already saved. Your current state is restored.'};}
       }
       const result=typeof msg==='function'?msg(shadow):msg?Game.onMsg(shadow,msg,shard,now):Game.tick(shadow,now,shard);
+      if(isUnitPlace(shadow.state.place)&&shadow.state.place!==previousPlace){
+        await prepareProperty(shadow,db,now);
+        const messages=result?.t==='multi'?result.list:[result];
+        for(const item of messages)if(item?.t==='arrived'){item.place=shadow.state.place;item.name=shadow.propertyContext?.name||Game.placeName(s,s.place);}
+      }
       if(digest)await db.query('insert into life_requests(acct,key,op,digest,result) values($1,$2,$3,$4,$5)',[p.acct,request.clientAction,'game:'+request.t,digest,'{}']);
       return result;
     });
     if(p.gone||!shadow)return;
-    p.x=shadow.x;p.z=shadow.z;
+    p.x=shadow.x;p.z=shadow.z;p.propertyContext=shadow.propertyContext;
     if(r){if(msg?.t==='act'&&r.t==='busy')p.zn=typeof msg.zn==='string'?msg.zn.slice(0,24):null;shard.send(p,r);shard.after(p,r);}
     if(msg?.t==='buy'&&msg.kind==='item'&&r?.t==='bought'&&p.room?.base==='home:'+p.acct){for(const resident of [...p.room.members])shard.enterRoom(resident);}
     if(msg?.t==='buy'&&msg.kind==='home'&&r?.t==='moved'&&previousPlace==='home'&&previousHome!==p.state.home)shard.enterRoom(p);

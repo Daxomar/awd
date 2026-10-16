@@ -1,0 +1,32 @@
+[
+ {
+  "viewport": "375x812",
+  "overflowX": false,
+  "minButtonH": 44,
+  "screenW": 299
+ },
+ {
+  "viewport": "390x844",
+  "overflowX": false,
+  "minButtonH": 44,
+  "screenW": 313
+ },
+ {
+  "viewport": "430x932",
+  "overflowX": false,
+  "minButtonH": 44,
+  "screenW": 350
+ },
+ {
+  "viewport": "390x530",
+  "overflowX": false,
+  "minButtonH": 44,
+  "screenW": 313
+ },
+ {
+  "viewport": "844x390",
+  "overflowX": false,
+  "minButtonH": 44,
+  "screenW": 266
+ }
+]

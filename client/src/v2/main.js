@@ -192,8 +192,17 @@ const act = (window.__act = {
       }},choice)),status),{title:task.title,sub:z.label});
   },
   workAssignment(){phone.close();const z=world.spec?.zones.find(z=>z.work===G.state.job?.id);if(z)act.workStation(z);},
+  // A one-off life action from the world (property door or in-unit activity); errors become toasts.
+  lifeAction(op, fields) {
+    const key = crypto.randomUUID();
+    const off = net.on('life_result', (m) => { if (m.key !== key) return; off(); clearTimeout(timer); if (m.error) toast(m.error, 'bad'); });
+    const timer = setTimeout(off, 20000);
+    if (!net.send({ t: 'life_action', op, key, ...fields })) { off(); clearTimeout(timer); toast('Not connected. Try again shortly.', 'bad'); }
+  },
+  propertyTravel() { phone.close(); },
   route(zone) {
     if(G.state.busy||G.state.shift)return toast('Finish your current activity first.','bad');
+    if(zone.route==='property-exit'){const go=()=>act.lifeAction('property_exit',{unit:zone.propertyUnit,mode:'walk'});const u=world.useZone(zone,go);if(u)net.send({t:'rmv',...u,zn:null});else go();return;}
     const district=/^[ne]:/.test(G.state.place)?G.state.place.slice(2):G.state.home;
     const go=()=>{if(zone.route==='map')return act.nav('map');if(zone.destination)return openPlace(zone.destination,act,{mode:'walk'});net.send({t:'street',to:zone.route==='estate'?'e:'+district:zone.route==='home'?'home':'n:'+district});};
     const u=world.useZone(zone,go);if(u)net.send({t:'rmv',...u,zn:null});else go();
@@ -213,6 +222,7 @@ const act = (window.__act = {
   async start(a, zone) {
     if (a.opens) { if(a.opens==='matches')return openMatches(); if (OPENS[a.opens]) return phone.show(OPENS[a.opens], a.opens === 'momo' ? 'cash' : null); if (STYLE_OPENS[a.opens]) return openStylist(STYLE_OPENS[a.opens]); if (a.opens === 'circlephones') return openPhoneMarket(net, act); return toast('Coming soon to this place.', ''); }
     if(G.state.busy||G.state.shift)throw Error('Finish or stop your current activity first.');
+    if (G.state.place?.startsWith('unit:')) { act._pending = { zone, at: Date.now() }; return act.lifeAction('property_home_act', { unit: G.state.place.slice(5), action: a.id }); }
     const msg = G.state.place === 'home' ? { t: 'act', home: true, id: a.id, zn: zone.id } : { t: 'act', loc: G.state.place, id: a.id, zn: zone.id };
     act._pending={zone,at:Date.now()};try{return await activityRequests.request(msg);}catch(error){act._pending=null;throw error;}
   },
@@ -327,7 +337,7 @@ function bindNet() {
   net.on('room', (m) => {
     if (rideEnd) { rideEnd(); rideEnd = null; } hud.top.hidden = false; hud.chips.hidden = false;
     closeSheets();world.clearSelection();
-    G.room = m.key; G.place = m.place; G.placeName = m.name;confirmRoomArrival(G.state,m);
+    G.room = m.key; G.place = m.place; G.placeName = m.name; G.unitRoom = m.home?.property ? m.home : null; confirmRoomArrival(G.state,m);
     world.enter(m, fitLook(G.state.look, myFit()), G.state.name); if (world.me) { world.me.av.baseLook = G.state.look; world.me.av.fit = myFit(); } renderZones(hud.zones, world.spec, m.place, act); if (world.entry) net.send({ t: 'rmv', x: world.entry.x, z: world.entry.z, it: null, zn: null });
     if (m.gem && G.gem) world.showGem(m.gem);
     setView('room'); refresh();

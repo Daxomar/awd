@@ -178,6 +178,12 @@
       "no horizontal overflow",
       "map-view class cleared on room return",
       "zero page errors"
-    ]
+    ],
+    "ci": {
+      "id": 38947711195,
+      "sha": "a8ff1521adfc4266ea58ed637f8dbb62ac37b3c1",
+      "conclusion": "success",
+      "url": "https://github.com/Daxomar/awd/actions/runs/38947711195"
+    }
   }
 }

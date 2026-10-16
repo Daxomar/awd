@@ -4,7 +4,10 @@ import {zoneActions} from './hud-state.js';
 import { G, loc, actBlock, actColor, NEED_IC, isOpen } from '../store.js';
 
 export function actsFor(place) {
-  if (place === 'home') return G.cat.homeActs; const l = loc(place); return l ? l.acts : [];
+  if (place === 'home') return G.cat.homeActs;
+  // Inside a finite property unit, only an owner's verified room capability offers home activities.
+  if (place?.startsWith('unit:')) return G.unitRoom?.canAct ? G.cat.homeActs : [];
+  const l = loc(place); return l ? l.acts : [];
 }
 // Fill the reusable options container for the current room.
 export function renderZones(el, spec, place, act) {
@@ -12,6 +15,9 @@ export function renderZones(el, spec, place, act) {
   const acts = actsFor(place); const byId = Object.fromEntries(acts.map((a) => [a.id, a]));
   const s = G.state; const car = Object.entries(G.cat.careers).find(([, c]) => c.at === place);
   if (car && !place.startsWith('visit')) { const [cid, c] = car; const mine = s.job && s.job.id === cid; el.append(h('button.zone', { onclick: () => act.jobHere(cid) }, h('span.zi', { style: { background: '#17150f' } }, c.ic), mine ? (s.shift ? 'At work' : 'Start shift') : 'Jobs here')); }
+  // Neighbourhood streets advertise their finite property units and live player listings.
+  if (/^[ne]:/.test(place||'')) el.append(h('button.zone', { onclick: () => act.phone('properties', { area: place.slice(2) }) }, h('span.zi', { style: { background: '#496c50' } }, h('i', { class: 'ph-fill ph-buildings' })), 'Property in this area'));
+  if (place?.startsWith('unit:')) el.append(h('button.zone', { onclick: () => act.phone('properties', { unit: place.slice(5) }) }, h('span.zi', { style: { background: '#496c50' } }, h('i', { class: 'ph-fill ph-buildings' })), G.unitRoom?.mine ? 'Manage property' : 'Property details'));
   if (place === 'home') el.append(h('button.zone', { onclick: () => act.wardrobe('wardrobe') }, h('span.zi', { style: { background: '#bf5af2' } }, h('i', { class: 'ph-fill ph-coat-hanger' })), 'Wardrobe'));
   for (const z of spec.zones || []) {
     if(z.work){if(s.job?.id===z.work&&s.shift)el.append(h('button.zone',{onclick:()=>openZone(z,place,act)},h('span.zi',null,ic('briefcase')),z.label));continue;}

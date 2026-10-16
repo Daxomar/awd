@@ -5,6 +5,7 @@ import { h as node } from '../ui/dom.js';
 import { Room } from './room.js';
 import { VENUES, placeNpc } from './venues.js';
 import { homeSpec } from './homes.js';
+import { propertyRoomSpec } from './property-room.js';
 import { fitRoom } from './frame.js';
 import { Avatar } from './avatars.js';
 import { G, accraNow } from '../store.js';
@@ -39,7 +40,8 @@ export class World {
     const wasLocal=this.spec?.localNetwork;
     this.clear(); this.place = msg.place; this.msg = msg;this.custody=!!msg.custody;
     let spec = null;
-    if (msg.home) spec = homeSpec(msg.home.id || 'nima', msg.home.items || {}); else if(msg.place.startsWith('n:'))spec=connectedStreetSpec(msg.place.slice(2),G.cat.locs);else if(msg.place.startsWith('e:')){const home=G.cat.homes[msg.place.slice(2)];spec=streetSpec(home?.area||'Accra',true);}else spec = extraVenue(msg.place)||VENUES[msg.place];
+    if (msg.home?.property) spec = propertyRoomSpec(homeSpec(msg.home.template, msg.home.items || {}), msg.home);
+    else if (msg.home) spec = homeSpec(msg.home.id || 'nima', msg.home.items || {}); else if(msg.place.startsWith('n:'))spec=connectedStreetSpec(msg.place.slice(2),G.cat.locs);else if(msg.place.startsWith('e:')){const home=G.cat.homes[msg.place.slice(2)];spec=streetSpec(home?.area||'Accra',true);}else spec = extraVenue(msg.place)||VENUES[msg.place];
     if (!spec) spec = VENUES.circle;
     spec = structuredClone(spec);
     for(const [id,c] of Object.entries(G.cat.careers))if(c.at===msg.place){
@@ -47,7 +49,7 @@ export class World {
       spec.items.forEach((it,i)=>{const d=Math.hypot(it.x-w.x,it.z-w.z);if(d<best){best=d;item=i;}});
       spec.zones.push({id:'work-'+id,label:w.label,icon:'ph-briefcase',item,acts:[],work:id});
     }
-    if(msg.home?.mine){const item=spec.items.length,sp=spec.spawn||{x:0,z:0};spec.items.push({kind:'doormat',x:sp.x,z:sp.z,label:'Home door'});spec.zones.push({id:'exit',label:'Walk outside',icon:'ph-person-simple-walk',item,acts:[],route:'neighbourhood'});}
+    if(msg.home?.mine&&!msg.home.property){const item=spec.items.length,sp=spec.spawn||{x:0,z:0};spec.items.push({kind:'doormat',x:sp.x,z:sp.z,label:'Home door'});spec.zones.push({id:'exit',label:'Walk outside',icon:'ph-person-simple-walk',item,acts:[],route:'neighbourhood'});}
     if(msg.place==='n:'+G.state.home){const item=spec.items.findIndex(it=>it.localHome);spec.items[item].label='HOME ENTRANCE';spec.zones.push({id:'home',label:'Go indoors',icon:'ph-house',item,acts:[],route:'home'});}
     const returning=G.state.streetReturn;
     if(returning?.venue===msg.place&&/^n:/.test(returning.place)&&G.cat.homes[returning.place.slice(2)]){

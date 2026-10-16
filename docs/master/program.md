@@ -1,6 +1,7 @@
 # Living Virtual Accra implementation log
 
-Authority: [the owner's full completion brief](brief.md). This extends the existing
+Authority: [the owner's full completion brief](brief.md). Codex executed Stages 0–1 and began
+Stage 2; Claude took over the program on 2026-10-16 (same rules, gates and log format). This extends the existing
 application; GH₵0 additional services/assets. No public deployment or live payments.
 Character production remains a separate Blender workstream.
 
@@ -31,7 +32,7 @@ flowchart LR
 | --- | --- | --- |
 | 0 | Complete; [checkpoint](stage0/checkpoint.md) | Current tests/build, inventory, authenticated baseline, protected interfaces |
 | 1 | Complete; [checkpoint](stage1/checkpoint.md) | Authored compact presentation, dual coordinates, every destination usable, geographic mode, screenshots and resource tests |
-| 2 | Not started | Finite units, legacy ownership separation, tours, persistent furnishing/renovation, primary residence, concurrent furnished resale |
+| 2 | Complete locally (CI pending); [checkpoint](stage2/checkpoint.md) | Finite units, legacy ownership separation, tours, persistent furnishing/renovation, primary residence, concurrent furnished resale |
 | 3 | Not started | Existing vehicle compatibility, inspection/cosmetics, secure transfer/cancellation and two-player reload proof |
 | 4 | Not started | Camera preference/toggle, collision, mobile controls, doors and remote movement in actual rooms |
 | 5 | Not started | All 19 career requirements, real courses/assessments, short work, shift uniqueness, bounded auto-work; gated balance proposal |

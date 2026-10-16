@@ -1,0 +1,24 @@
+.property-screen{padding:12px;color:#263f34;overflow-wrap:anywhere}
+.property-screen p{font-size:13px;line-height:1.5;margin:9px 0}
+.property-screen h2{font-size:18px;line-height:1.3;margin:0 0 9px}
+.property-screen h3{font-size:15px;margin:14px 0 8px}
+.property-screen button,.property-screen select,.property-screen input:not([type=checkbox]){min-height:44px;min-width:44px;max-width:100%;font:inherit}
+.property-screen button{padding:10px 12px;white-space:normal;border:1px solid #c5d4c4;border-radius:10px;background:#edf2e8;color:#284b38;text-align:center}
+.property-screen button:disabled{opacity:.5}
+.property-screen button:focus-visible,.property-screen input:focus-visible,.property-screen select:focus-visible{outline:3px solid #a97521;outline-offset:2px}
+.property-screen .property-button{display:block;width:100%;margin:8px 0;font-size:13px}
+.property-screen .property-primary{background:#285d43;color:#fffdf5;border-color:#285d43}
+.property-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin:10px 0}
+.property-tabs button{font-size:12px;padding:8px 3px}
+.property-tabs [aria-pressed=true]{background:#285d43;color:#fffdf5}
+.property-card{background:#fffdf5;border:1px solid #d9e1d2;border-radius:13px;padding:12px;margin:11px 0}
+.property-card dl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px 12px;font-size:12px}
+.property-card dt{color:#617262}.property-card dd{margin:0;text-align:right}
+.property-screen label{display:block;font-size:13px;line-height:1.5;margin:10px 0}
+.property-screen label>span{display:block;margin-bottom:5px}
+.property-screen select,.property-screen input:not([type=checkbox]){display:block;width:100%;padding:9px;border:1px solid #bacbb7;border-radius:9px;background:#fff}
+.property-screen .property-checkbox{display:flex;align-items:center;gap:9px;min-height:44px}
+.property-checkbox input{width:22px;height:22px;flex:none}.property-checkbox span{margin:0!important}
+.property-note{padding:10px;border-radius:10px;background:#f4ead0;border:1px solid #d7c593}
+.property-preview{padding:12px;background:#e6eee0;border-radius:10px;font-size:12px;line-height:1.6}
+.property-screen ul{padding-left:19px;font-size:12px;line-height:1.6}

@@ -71,7 +71,9 @@ export function migrate(saved, acct) {
   out.wardrobe.jersey = true; out.wardrobe.jerseyaway = true;
   if (!Array.isArray(out.phones)) out.phones = [];
   if (out.look && !W.WEAR[out.look.top]) out.look = W.cleanLook({ body: out.look.body, skin: out.look.skinTone }, {});
-  if (out.place !== 'home' && !LOC[out.place]) out.place = out.home ? 'home' : 'circle';
+  // Unit syntax preserves only a candidate; SQL admission must authorize it.
+  const pendingTrip=out.place===null&&out.busy?.travel&&Number.isFinite(out.busy.end)&&Number.isFinite(out.busy.travel.x)&&Number.isFinite(out.busy.travel.z);
+  if (out.place !== 'home' && !LOC[out.place] && !/^unit:awd-[a-z]+-(?:commercial-)?\d{2}$/.test(out.place||'') && !pendingTrip) out.place = out.home ? 'home' : 'circle';
   if (out.place === 'home' && !out.home) out.place = 'circle';
   if (!out.friends || typeof out.friends !== 'object') out.friends = {};
   if(!out.onboarded)out.onboarding=onboardingDraft(out);
@@ -186,7 +188,7 @@ export function birthOrigin(acct) {
 function nextSaturday9(now) { const d = new Date(now); const add = (6 - d.getUTCDay() + 7) % 7 || 7; d.setUTCDate(d.getUTCDate() + add); d.setUTCHours(9, 0, 0, 0); return d.getTime(); }
 
 // ---------- actions ----------
-function canDo(s, p, loc, a, now) {
+function canDo(s, p, loc, a, now, residence) {
   if (s.busy) return 'You are busy.'; if (s.shift) return 'You are at work.';
   if (!s.onboarded) return 'Finish creating your Accra life first.';
   if (loc && !at(p, loc.id)) return `Go to ${loc.name} first.`;
@@ -194,7 +196,7 @@ function canDo(s, p, loc, a, now) {
   const { h, wd } = clock(now);
   if (a.days && !a.days.includes(wd)) return 'Not today.';
   if (a.open && !inWindow(h, a.open)) return `Only ${a.open[0]}:00–${a.open[1] % 24}:00.`;
-  if (a.req) { if (a.req.flag && !s.flags[a.req.flag]) return 'Not available.'; if (a.req.item && !s.items[a.req.item]) return `Needs ${a.req.item}.`; for (const k in a.req.skill || {}) if (lvl(s, k) < a.req.skill[k]) return `Needs ${D.SKILLS[k]} ${a.req.skill[k]}.`; }
+  if (a.req) { if (a.req.flag && !s.flags[a.req.flag]) return 'Not available.'; if (a.req.item && !(residence?.items||s.items)[a.req.item]) return `Needs ${a.req.item}.`; for (const k in a.req.skill || {}) if (lvl(s, k) < a.req.skill[k]) return `Needs ${D.SKILLS[k]} ${a.req.skill[k]}.`; }
   if (s.flags.jailUntil > now) return `You are in police cells for ${Math.ceil((s.flags.jailUntil - now) / 60000)} more min.`;
   if (a.pitch && (s.flags.mvp || 0) < 100) return `Your MVP is ${Math.round(s.flags.mvp || 0)}% done. Build it at the hub first.`;
   if (a.pitch && s.flags.lastPitch && now - s.flags.lastPitch < 7 * 86400000) return 'Investors take a week to reply. Pitch again next week.';
@@ -204,8 +206,8 @@ function canDo(s, p, loc, a, now) {
   return null;
 }
 function price(s, a, policy) { let c = a.cost || 0; if (policy === 'food' && a.tags && a.tags.includes('eat')) c *= 0.75; return Math.round(c); }
-function startAction(p, loc, a, now, policy) {
-  const s = p.state; const err = canDo(s, p, loc, a, now); if (err) return toast(err, 'bad');
+function startAction(p, loc, a, now, policy, residence) {
+  const s = p.state; const err = canDo(s, p, loc, a, now, residence); if (err) return toast(err, 'bad');
   if (a.opens) return { t: 'open', what: a.opens, loc: loc && loc.id };
   if ((a.earn || a.mg) && a.tags && a.tags.includes('gig')) workDay(s, now).mins += a.min || 60;
   if (a.mg) { s.busy = { id: a.id, ic: a.ic, loc: loc.id, mg: a.mg, start: now, end: now + 180000 }; return { t: 'mg', id: a.mg, act: a.id }; }
@@ -217,7 +219,7 @@ function finishAction(p, now) {
   const s = p.state, b = s.busy; s.busy = null;
   const a = b.loc === 'home' ? HOME_ACTS[b.id] : (LOC[b.loc].acts.find((x) => x.id === b.id) || {});
   const hrs = (a.min || 10) / 60, out = { t: 'done', id: b.id, gains: {} };
-  const homeQ = b.loc === 'home' ? D.HOMES[s.home].comfort : 1;
+  const homeQ = b.loc === 'home' ? b.homeBenefits?.comfort ?? D.HOMES[s.home || 'nima'].comfort : 1;
   for (const k in a.needs || {}) { let d = a.needs[k] * hrs; if (d > 0) d *= homeQ; for (const t of s.traits) { const tf = D.TRAITS[t].tagFun; if (k === 'fun' && tf && a.tags) for (const tag of a.tags) if (tf[tag]) d += tf[tag]; } s.n[k] = clamp(s.n[k] + d); out.gains[k] = Math.round(d); }
   for (const k in a.inst || {}) { if (k === 'food') { s.food = Math.min(18, s.food + a.inst.food); continue; } s.n[k] = clamp(s.n[k] + a.inst[k]); out.gains[k] = (out.gains[k] || 0) + a.inst[k]; }
   for (const k in a.skill || {}) { const up = addSkill(s, k, a.skill[k] * hrs); if (up) out.levelUp = [k, up]; }
@@ -235,8 +237,8 @@ function finishAction(p, now) {
     const need = [5, 7, 9][round] || 99; const score = lvl(s, 'coding') * 0.55 + lvl(s, 'charisma') * 0.45 + (s.rep / 20) + Math.random() * 2.5 - 1.2;
     if (R && score >= need) { const amt = Math.round(R[1] * (0.7 + Math.random() * 0.6) / 1000) * 1000; out.earned = earn(s, amt, `${R[0]} funding`); s.flags.round = round + 1; s.flags.funded = true; s.flags.mvp = 35; out.round = R[0]; addXp(s, 200); }
     else { out.pitch = 'no'; s.flags.mvp = Math.max(70, s.flags.mvp - 10); } }
-  if (b.sleep) { s.n.energy = clamp(s.n.energy + (a.restore || 100) * D.HOMES[s.home || 'nima'].comfort * (s.items.bed ? 1.25 : 1)*(s.items.ac?1.1:1)); }
-  if(b.id==='cook'&&b.storedGroceries&&s.items.fridge)s.n.hunger=clamp(s.n.hunger+Math.max(0,out.gains.hunger||0)*.1);
+  if (b.sleep) { s.n.energy = clamp(s.n.energy + (a.restore || 100) * homeQ * ((b.homeBenefits?.bed??s.items.bed) ? 1.25 : 1)*((b.homeBenefits?.ac??s.items.ac)?1.1:1)); }
+  if(b.id==='cook'&&b.storedGroceries&&(b.homeBenefits?.fridge??s.items.fridge))s.n.hunger=clamp(s.n.hunger+Math.max(0,out.gains.hunger||0)*.1);
   if(a.crime)Life.legalOutcome(s,{action:a.id,risk:out.crimeRisk,caught:out.crime==='caught',fine:out.fine||0},now);
   if(b.id==='community_service'){const legal=Life.life(s).legal;legal.reviewUntil=Math.max(now,(legal.reviewUntil||now)-6*3600000);s.heat=Math.max(0,(s.heat||0)-8);Life.event(s,'community_service',{},now);}
   bump(s, 'act:' + b.id); bump(s, 'loc:' + b.loc); for (const t of a.tags || []) bump(s, 'tag:' + t);
@@ -255,14 +257,18 @@ export const HOME_ACTS = {
   guitar: { id: 'guitar', label: 'Practise highlife guitar', ic: 'icon:guitar', min: 60, needs: { fun: 14 }, skill: { music: 0.7 }, req: { item: 'guitar' }, tags: ['music'] },
   workout: { id: 'workout', label: 'Home workout', ic: 'icon:barbell', min: 45, needs: { energy: -14, hygiene: -16, fun: 6 }, skill: { fitness: 0.6 }, req: { item: 'dumbbells' }, tags: ['workout'] },
 };
-function homeAction(p, id, now) {
-  const s = p.state, a = HOME_ACTS[id]; if (!a || !s.home) return toast('No home.', 'bad');
-  if (!at(p, 'home')) return toast('Go home first.', 'bad');
-  const error=canDo(s,p,null,a,now);if(error)return toast(error,'bad');
-  if (a.power && dumsorNow(now) && D.HOMES[s.home].power !== 'estate' && !s.items.solar && !(s.items.gen && s.fuel > 0)) return toast('Dumsor! No light. Generator or solar needed.', 'bad');
+export function homeAction(p, id, now, residence) {
+  const s = p.state, a = Object.hasOwn(HOME_ACTS,id)&&HOME_ACTS[id]; if (!a || !(residence||s.home)) return toast('No home.', 'bad');
+  if (residence ? !residence.canAct||s.place!=='unit:'+residence.unit : !at(p, 'home')) return toast('Go to your authorized home first.', 'bad');
+  const error=canDo(s,p,null,a,now,residence);if(error)return toast(error,'bad');
+  const items=residence?.items||s.items,template=D.HOMES[residence?.template||s.home];
+  if (a.power && dumsorNow(now) && template.power !== 'estate' && !items.solar && !(items.gen && s.fuel > 0)) return toast('Dumsor! No light. Generator or solar needed.', 'bad');
   const stored=id==='cook'&&s.food>0;
   if (stored) s.food--; else if (id === 'cook' && !pay(s, 18,'Cooking ingredients')) return toast('Ingredients cost GH₵18.', 'bad');
-  const r=startAction(p,null,a,now);if(r.t==='busy')s.busy.storedGroceries=stored;return r;
+  const r=startAction(p,null,a,now,undefined,residence);if(r.t==='busy'){
+    s.busy.storedGroceries=stored;
+    if(residence)s.busy.homeBenefits={unit:residence.unit,revision:residence.revision,template:residence.template,comfort:template.comfort,bed:!!items.bed,ac:!!items.ac,fridge:!!items.fridge};
+  }return r;
 }
 
 // ---------- careers: 1-real-hour shifts, any time 06:00–22:00 on the career's days (nights for nightlife) ----------

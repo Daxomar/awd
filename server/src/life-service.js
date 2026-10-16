@@ -8,11 +8,14 @@ import {financeView,validRequest} from './life-journal.js';
 import {migrateBusinesses,businessesView,businessAction,refreshBusinessAssets} from './life-business.js';
 import {migrateCommerce,marketView,commerceAction} from './life-commerce.js';
 import {migrateRelationships,socialView,socialAction,settleShared} from './life-social.js';
+import {propertyService} from './properties.js';
+import {prepareProperty} from './property-context.js';
+export {propertyService};
 
-export async function migrateLife(){await migrateBusinesses(pool);await migrateCommerce(pool);await migrateRelationships(pool);}
+export async function migrateLife(){await migrateBusinesses(pool);await migrateCommerce(pool);await migrateRelationships(pool);await propertyService.migrate();}
 const SOCIAL_OPS=new Set(['friend_request','friend_answer','friend_remove','date_request','date_answer','propose_request','relationship_end','social_basic','shared_invite','shared_answer']);
-const SECTIONS=new Set(['career','business','finance','market','relationships']);
-export async function status(p,section){
+const SECTIONS=new Set(['career','business','finance','market','relationships','properties']);
+export async function status(p,section,options={}){
   if(!SECTIONS.has(section))throw Error('Choose a life screen.');
   const data=await withMoney(p,async(db,s)=>{
     const data={progression:progressionView(s)};
@@ -20,6 +23,7 @@ export async function status(p,section){
     if(section==='finance')data.finance=await financeView(db,p.acct,s);
     if(section==='market'){data.market=await marketView(db,p.acct);data.phoneNames=Object.fromEntries(Object.entries(Game.PHONES).map(([id,x])=>[id,x[0]]));}
     if(section==='relationships')data.relationships=await socialView(db,p,s);
+    if(section==='properties')data.properties=await propertyService.status(db,p.acct,Date.now(),{unit:options.unit});
     return data;
   });
   return {t:'life_status',section,account:p.acct,...data,state:Game.view(p.state)};
@@ -27,7 +31,7 @@ export async function status(p,section){
 export async function handle(shard,p,msg){
   if(!p.state.onboarded)return {t:'life_result',key:msg.key,error:'Finish setting up your life first.'};
   try{
-    if(msg.t==='life_status')return await status(p,msg.section);
+    if(msg.t==='life_status')return await status(p,msg.section,{unit:msg.unit});
     if(!validRequest(msg.key)||typeof msg.op!=='string')throw Error('Use a valid action reference. Reopen this screen.');
     const now=Date.now();let target=null,o=null;
     if(SOCIAL_OPS.has(msg.op)){
@@ -40,6 +44,7 @@ export async function handle(shard,p,msg){
         target={acct:a.id,name:a.username};o=shard.byAcct(a.id);
       }
     }
+    let propertyShadow;
     const perform=async(db,states)=>{
       const s=states.get(p.acct),digest=crypto.createHash('sha256').update(JSON.stringify(msg)).digest('hex');
       const old=(await db.query('select * from life_requests where acct=$1 and key=$2',[p.acct,msg.key])).rows[0];
@@ -49,12 +54,31 @@ export async function handle(shard,p,msg){
       if(msg.op.startsWith('business_')){result=await businessAction(db,s,p.acct,msg,now);await refreshBusinessAssets(db,s,p.acct);}
       else if(msg.op.startsWith('market_'))result=await commerceAction(db,s,p,msg,now);
       else if(SOCIAL_OPS.has(msg.op))result=await socialAction(db,states,shard,p,msg,target,now);
+      else if(msg.op.startsWith('property_')){
+        propertyShadow={...p,state:s};
+        result=await propertyService.action(db,propertyShadow,msg,now);
+        if(result.travel){
+          const destination=result.travel;
+          const game=Game.travel(propertyShadow,{to:destination.to,mode:msg.mode||destination.mode||'trotro'},now,shard,destination);
+          if(game.t==='toast')throw Error(game.m);
+          result={...result,game};delete result.travel;
+          propertyShadow.propertyContext=null;
+        }
+        if(result.homeAction){
+          const game=Game.homeAction(propertyShadow,result.action,now,result.homeAction);
+          if(game.t==='toast')throw Error(game.m);
+          result={...result,game};delete result.homeAction;delete result.action;
+        }
+      }
       else throw Error('Unknown life action.');
       await db.query('insert into life_requests(acct,key,op,digest,result) values($1,$2,$3,$4,$5)',[p.acct,msg.key,msg.op,digest,JSON.stringify(result)]);return result;
     };
     const unilateral=['relationship_end','friend_remove'].includes(msg.op),lockOther=o&&(!unilateral||!o.connecting&&!o.moneyBusy&&!o.pending&&!o.gistPending);
     const result=SOCIAL_OPS.has(msg.op)?await withPlayers(lockOther?[p,o]:[p],perform,p):await withMoney(p,(db,s)=>perform(db,new Map([[p.acct,s]])));
     if(result&&!result.replayed){
+      if(propertyShadow){p.x=propertyShadow.x;p.z=propertyShadow.z;p.propertyContext=propertyShadow.propertyContext;}
+      if(result.game){shard.send(p,result.game);shard.after(p,result.game);}
+      if(result.propertyChanged)shard.propertyChanged?.(result.propertyChanged);
       if(result.creditTo)shard.deliverCredit(result.creditTo);
       if(result.notify)shard.deliverDm(result.notify,{t:'life_notice',from:p.name,fromAcct:p.acct,message:'An optional relationship or shared activity update is waiting in People.'});
       if(o&&!o.gone)shard.send(o,{t:'st',state:Game.view(o.state)});

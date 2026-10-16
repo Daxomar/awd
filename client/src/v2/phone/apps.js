@@ -12,6 +12,7 @@ import { explore } from './explore.js';
 import { firstFriend } from './first-friend.js';
 import { milestones } from './objectives.js';
 import {lifeScreen} from './life.js';
+import {properties as propertyApp} from './property.js';
 
 const grad = (a, b) => `linear-gradient(160deg, ${a}, ${b})`;
 const cell = (o) => h('button.cell' + (o.ic ? '' : '.noic'), { onclick: o.onclick }, o.ic instanceof Node ? o.ic : o.ic ? h('div.ci', { style: { background: o.icbg || '#8e8e93' } }, typeof o.ic === 'string' && o.ic.length <= 3 && !/^[a-z]/.test(o.ic) ? o.ic : icf(o.ic)) : null, h('div.cm', null, h('div.c1', null, o.t), o.s ? h('div.c2', null, o.s) : null), o.r != null ? h('div.cr', null, o.r) : null, o.onclick && o.chev !== false ? ic('caret-right', 'chev') : null);
@@ -317,5 +318,6 @@ export function makeApps(act) {
   const relationships={id:'relationships',name:'People',icon:'users',bg:grad('#ac5d73','#632b43'),open(win,arg){lifeScreen(win,act,'relationships',arg);}};
   const finances={id:'finance',name:'Finances',icon:'receipt',bg:grad('#9a834d','#5a4828'),open(win){lifeScreen(win,act,'finance');}};
   const progression={id:'progression',name:'Development',hidden:true,icon:'trend-up',open(win){lifeScreen(win,act,'career');}};
-  return [messages, momo, gist, jobs, discovery, meet, objectives, enterprise, market, relationships, finances, progression, goals, games, boutique, houses, cars, shop, invest, bank, forbes, contacts, life, health, police, civic, map, ads, help, settings].map((a) => ({ ...a, dock: ['messages', 'momo', 'gist', 'jobs'].includes(a.id) }));
+  const properties=propertyApp(act);
+  return [messages, momo, gist, jobs, discovery, meet, objectives, enterprise, market, relationships, finances, progression, goals, games, boutique, houses, properties, cars, shop, invest, bank, forbes, contacts, life, health, police, civic, map, ads, help, settings].map((a) => ({ ...a, dock: ['messages', 'momo', 'gist', 'jobs'].includes(a.id) }));
 }

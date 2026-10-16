@@ -16,6 +16,8 @@ import * as FirstFriend from './first-friend.js';
 import * as Objectives from './objectives.js';
 import * as Life from './life-service.js';
 import {durableActions,durableTick,gameTransaction} from './life-game.js';
+import {isUnitPlace,prepareProperty,propertyHome,LEASE_RENEW_MS} from './property-context.js';
+import {propertyService} from './properties.js';
 
 const DEV = CFG.dev;
 const GYM = new Set(['workout', 'beachworkout', 'train', 'jog', 'stadiumjog', 'spar']);
@@ -90,6 +92,9 @@ export class Shard {
       if(redis?.status==='ready')await redis.eval("if redis.call('GET',KEYS[1])==ARGV[1] then return redis.call('DEL',KEYS[1]) end return 0",1,leaseKey,leaseToken);
       throw e;
     }
+    if(this.phase8Ready&&!p.bot&&isUnitPlace(p.state.place)){
+      try{await prepareProperty(p,pool);}catch{Game.goPlace(p,'circle');p.propertyContext=null;}
+    }
     p.connecting=false;
     this.send(p, { t: 'welcome', id: p.id, shard: CFG.shardId, now: Date.now(), state: Game.view(p.state), fresh, dev: DEV, gems: this.gemsFound });
     if (wb) this.send(p, wb);
@@ -128,23 +133,29 @@ export class Shard {
   send(p, obj) { try { const s = JSON.stringify(obj); p.ws.send(s, false); this.stats.outBytes += s.length; } catch {} }
 
   // ---------------- rooms ----------------
-  roomBase(p) { const pl = p.state.place; if (!pl) return null; if (pl === 'home') return 'home:' + p.acct; if (pl.startsWith('visit:')) return 'home:' + pl.slice(6); return pl; }
+  roomBase(p) {
+    const pl = p.state.place; if (!pl) return null; if (pl === 'home') return 'home:' + p.acct; if (pl.startsWith('visit:')) return 'home:' + pl.slice(6);
+    // One room per unit and access revision: a sale or delisting isolates stale tours.
+    if (isUnitPlace(pl)) { const c = p.propertyContext; return c && 'unit:' + c.unit === pl ? `prop:${c.unit}@${c.revision}` : null; }
+    return pl;
+  }
   fit(o) { const s = o.state, b = s.busy; return s.shift && s.job ? 'work:' + s.job.id : b && b.sleep ? 'sleep' : b && GYM.has(b.id) ? 'gym' : null; }
   info(o) { const b = o.state.busy; return { id: o.id, n: o.name, lk: o.state.look, fit: this.fit(o), x: o.rx, z: o.rz, it: o.it, zn: o.zn, st: b && !b.travel ? b.ic : o.state.shift ? 'icon:briefcase' : '', lbl: b && !b.travel ? b.label || '' : o.state.shift ? 'At work' : '' }; }
   enterRoom(p) {
     if(this.phase8Ready&&p.state.place?.startsWith('visit:')&&!this.canVisit(p,this.byAcct(+p.state.place.slice(6)))){Game.goPlace(p,'circle');p.dirty=true;this.send(p,{t:'arrived',place:'circle',name:Game.LOC.circle.name});this.send(p,{t:'toast',m:'This private home is no longer available.'});}
+    if(isUnitPlace(p.state.place)&&!this.roomBase(p)){const exit=p.propertyContext?.exit&&Game.LOC[p.propertyContext.exit]?p.propertyContext.exit:'circle';p.propertyContext=null;Game.goPlace(p,exit);p.dirty=true;this.send(p,{t:'arrived',place:exit,name:Game.LOC[exit].name});this.send(p,{t:'toast',m:'This property is no longer open to you.'});}
     this.leaveRoom(p); const base = this.roomBase(p); p.roomPlace = p.state.place; if (!base) return;
     let room = null;
-    if (base.startsWith('home:')) { room = this.rooms.get(base); if (!room) this.rooms.set(base, (room = { key: base, base, members: new Set() })); }
+    if (base.startsWith('home:') || base.startsWith('prop:')) { room = this.rooms.get(base); if (!room) this.rooms.set(base, (room = { key: base, base, members: new Set() })); }
     else for (let i = 0; i < 400 && !room; i++) { const k = base + '#' + i; const r = this.rooms.get(k); if (!r) this.rooms.set(k, (room = { key: k, base, members: new Set() })); else if (r.members.size < ROOM_CAP) room = r; }
     const custody=p.state.flags.jailUntil>Date.now();
     const street=localRoomInfo(p.state);
     p.room = room; p.rx = custody?-2.8:street?.x??null; p.rz = custody?-2.4:street?.z??null; p.it = null; p.zn = null;
     const people = []; for (const o of room.members) people.push(this.info(o));
     room.members.add(p); this.stats.rooms = this.rooms.size;
-    let home = null; if (base.startsWith('home:')) { const ownerId = +base.slice(5); const owner = ownerId === p.acct ? p : this.byAcct(ownerId); const st = owner ? owner.state : p.state; home = { id: st.home, items: st.items, owner: owner ? owner.name : p.name, mine: ownerId === p.acct }; }
+    let home = base.startsWith('prop:') ? propertyHome(p.propertyContext) : null; if (base.startsWith('home:')) { const ownerId = +base.slice(5); const owner = ownerId === p.acct ? p : this.byAcct(ownerId); const st = owner ? owner.state : p.state; home = { id: st.home, items: st.items, owner: owner ? owner.name : p.name, mine: ownerId === p.acct }; }
     const gem = this.gem && this.gem.place === p.state.place ? this.gemInfo() : null;
-    this.send(p, { t: 'room', key: room.key, place: p.state.place, custody, name: Game.placeName(p.state, p.state.place) || (home && `${home.owner}'s place`), people, home, gem,street,streetReturn:p.state.streetReturn||null });
+    this.send(p, { t: 'room', key: room.key, place: p.state.place, custody, name: home?.property ? home.name : Game.placeName(p.state, p.state.place) || (home && `${home.owner}'s place`), people, home, gem,street,streetReturn:p.state.streetReturn||null });
     this.toRoom(room, { t: 'rjoin', e: this.info(p) }, p);
   }
   leaveRoom(p) { const r = p.room; if (!r) return;p.roomSerial=(p.roomSerial||0)+1; r.members.delete(p); p.room = null; this.toRoom(r, { t: 'rleave', id: p.id }); if (!r.members.size) { this.rooms.delete(r.key); this.stats.rooms = this.rooms.size; } }
@@ -278,6 +289,20 @@ export class Shard {
   }
   isBlocking(name, acct) { const o = this.byName(name); return o ? Social.isBlockedBy(o.state, acct) : false; }
   // cross-shard delivery
+  // A property sale, listing, furnishing or finish changed: recheck everyone inside it now.
+  propertyChanged(change) { for (const o of this.players.values()) if (o.propertyContext?.unit === change?.unit) o.propertyContext.expiresAt = 0; }
+  // Renew a unit room lease from SQL. Fail closed: no fresh grant means walking out.
+  async renewProperty(p) {
+    if (p.propertyRenewing) return; p.propertyRenewing = true;
+    const old = p.propertyContext, now = Date.now();
+    let next = null;
+    try { next = await propertyService.resolveAccess(p.acct, old.unit, now); } catch { next = old.expiresAt > now ? old : null; }
+    finally { p.propertyRenewing = false; }
+    if (p.gone || p.propertyContext !== old || p.state.place !== 'unit:' + old.unit) return;
+    if (p.moneyBusy || p.connecting) return;   // retried on the next tick
+    if (next && next !== old) { p.propertyContext = { ...next, account: p.acct, session: p.leaseToken, expiresAt: now + LEASE_RENEW_MS }; if (next.revision !== old.revision || next.canFurnish !== old.canFurnish) this.enterRoom(p); return; }
+    if (!next) this.enterRoom(p);   // roomBase is gone: enterRoom walks the player out
+  }
   deliverCredit(acct) { const o = this.byAcct(acct); if (o) Social.claim(o).then((l) => l.forEach((m) => this.send(o, m))).catch(() => {}); else this.bus && this.bus.publish('awd:credit', { acct }); }
   deliverDm(acct, m) { const o = this.byAcct(acct); if (o) { if (this.canReceiveDm(o, m)) this.send(o, m); } else this.bus && this.bus.publish('awd:dm', { acct, m }); }
   canReceiveDm(o, m) { const acct = Number.isInteger(m.fromAcct) ? m.fromAcct : this.acctOfName(m.from); return !Social.isBlockedBy(o.state, acct) && (!o.state.flags.dmFriends || o.state.friends?.[acct]?.pts >= 30); }
@@ -431,6 +456,7 @@ export class Shard {
       if(p.connecting||p.moneyBusy||p.moneyUncertain||p.onboardingSave)continue;
       try {
         if(this.phase8Ready&&p.state.place?.startsWith('visit:')&&!this.canVisit(p,this.byAcct(+p.state.place.slice(6)))){Game.goPlace(p,'circle');p.dirty=true;this.enterRoom(p);}
+        if(p.propertyContext&&isUnitPlace(p.state.place)&&p.propertyContext.expiresAt-now<LEASE_RENEW_MS/2)this.renewProperty(p).catch(e=>this.fault(p,'property lease',e));
         if(!p.bot&&this.slowN%10===0)Social.claim(p).then(l=>l.forEach(m=>this.send(p,m))).catch(e=>console.error('[claim]',e.code||'transaction failed'));
         if(p.moneyBusy)continue;
         if(this.phase8Ready&&!p.bot&&durableTick(p.state,now)){gameTransaction(this,p,null,now);continue;}

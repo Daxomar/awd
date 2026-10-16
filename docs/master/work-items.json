@@ -1,7 +1,7 @@
 {
   "workspace": ".",
   "branch": "main",
-  "integrator": "root",
+  "integrator": "claude (took over from codex root on 2026-10-16)",
   "characterOwnership": "Claude: characters/, avatar runtime/model manifests/GLBs and tools/fetch-human.py; never stage or revert concurrent edits",
   "cards": [
     {
@@ -48,12 +48,13 @@
     },
     {
       "id": "stage2-implementation",
-      "owner": "root",
-      "state": "ready",
+      "owner": "claude (handover from codex root)",
+      "state": "merged",
       "scope": [
         "Finite property backend, transaction integration and UI; no character production"
       ],
-      "gate": "Stage1 review passed; then actual two-player buy/furnish/renovate/resale, persistence, races and private access tests"
+      "gate": "85 server + 84 client tests, build, 11/11 PostgreSQL property checks, 16/16 two-player browser journey, five viewports",
+      "evidence": "docs/master/stage2/checkpoint.md"
     },
     {
       "id": "landscape-hud",
@@ -66,6 +67,42 @@
         "docs/master/stage1/hud-*"
       ],
       "gate": "Core CI38945165436, 79 client + 73 server + 62 PostgreSQL checks, independent review, and final 15-state/five-viewport HUD acceptance passed"
+    },
+    {
+      "id": "stage2-backend",
+      "owner": "property_architecture",
+      "state": "merged",
+      "scope": [
+        "new property model/store/service modules and pure tests"
+      ],
+      "gate": "authoritative SQL transfer and safe legacy compatibility"
+    },
+    {
+      "id": "stage2-client",
+      "owner": "hud_layout_fix",
+      "state": "merged",
+      "scope": [
+        "new property phone and room adapter modules"
+      ],
+      "gate": "working persistent flow, safe receipts, five viewports"
+    },
+    {
+      "id": "stage2-database-tests",
+      "owner": "stage1_review",
+      "state": "merged",
+      "scope": [
+        "new isolated property database integration suite"
+      ],
+      "gate": "actual races, replay, asset and money conservation"
+    },
+    {
+      "id": "stage3",
+      "owner": "claude",
+      "state": "ready",
+      "scope": [
+        "Vehicle catalogue audit, secure player-to-player vehicle marketplace"
+      ],
+      "gate": "two-player resale without duplicated ownership, inventory or currency"
     }
   ]
 }

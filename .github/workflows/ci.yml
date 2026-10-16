@@ -45,6 +45,7 @@ jobs:
           node loadtest/first-friend-integration.js
           node loadtest/objectives-integration.js
           node loadtest/life-integration.js
+          NODE_ENV=test BIRTH_SEED=ci-disposable-seed node loadtest/property-db.test.js
       - run: npm ci && npm test && npm audit && npm run build
         working-directory: client
       - name: Initialize disposable Docker secrets

@@ -1,0 +1,71 @@
+{
+ "checks": [
+  {
+   "ok": true,
+   "check": "inspection shows location, class, base, estimate and status"
+  },
+  {
+   "ok": true,
+   "check": "catalogue purchase sets one SQL owner"
+  },
+  {
+   "ok": true,
+   "check": "owner enters the authorized unit room with owner actions"
+  },
+  {
+   "ok": true,
+   "check": "two unique furnishing assets installed"
+  },
+  {
+   "ok": true,
+   "check": "room re-renders with the new furniture and finish without a reload"
+  },
+  {
+   "ok": true,
+   "check": "owner starts a home activity inside the unit"
+  },
+  {
+   "ok": true,
+   "check": "property door walks the owner back to the neighbourhood"
+  },
+  {
+   "ok": true,
+   "check": "furnished listing snapshots both asset IDs"
+  },
+  {
+   "ok": true,
+   "check": "tour shows the room without owner activities or furnishing"
+  },
+  {
+   "ok": true,
+   "check": "resale transfers ownership at the actual transaction price"
+  },
+  {
+   "ok": true,
+   "check": "included furnishings transfer once to the buyer"
+  },
+  {
+   "ok": true,
+   "check": "former owner loses entry after the sale"
+  },
+  {
+   "ok": true,
+   "check": "buyer reloads inside the unit with ownership intact"
+  },
+  {
+   "ok": true,
+   "check": "seller proceeds were delivered exactly once as a durable credit"
+  },
+  {
+   "ok": true,
+   "check": "no page errors "
+  }
+ ],
+ "unit": "awd-nima-02",
+ "testPrice": 6000,
+ "walletDelta": {
+  "202": -6025,
+  "219": -6026
+ },
+ "scope": "Loopback disposable server and fixtures; explicit QA test price; SwiftShader screenshots, real timers. No phone FPS or production claim."
+}
