@@ -176,7 +176,7 @@
     "images": 1
   },
   "hair_twists_male.glb": {
-    "bytes": 386856,
+    "bytes": 386940,
     "meshes": 1,
     "triangles": 3831,
     "materials": [
@@ -198,9 +198,9 @@
     "images": 1
   },
   "hair_twists_male_lod1.glb": {
-    "bytes": 283380,
+    "bytes": 283540,
     "meshes": 1,
-    "triangles": 1915,
+    "triangles": 1914,
     "materials": [
       "AWD_Hair_twists"
     ],
@@ -220,7 +220,7 @@
     "images": 1
   },
   "hair_locs_male.glb": {
-    "bytes": 476988,
+    "bytes": 477512,
     "meshes": 1,
     "triangles": 4356,
     "materials": [
@@ -242,7 +242,7 @@
     "images": 1
   },
   "hair_locs_male_lod1.glb": {
-    "bytes": 346716,
+    "bytes": 346684,
     "meshes": 1,
     "triangles": 2178,
     "materials": [

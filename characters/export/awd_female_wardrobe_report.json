@@ -1,0 +1,1786 @@
+{
+  "top_tee_female.glb": {
+    "bytes": 314008,
+    "meshes": 1,
+    "triangles": 3640,
+    "materials": [
+      "AWD_Fabric_jersey_tee"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_tee_female_lod1.glb": {
+    "bytes": 208100,
+    "meshes": 1,
+    "triangles": 1819,
+    "materials": [
+      "AWD_Fabric_jersey_tee"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_flagtee_female.glb": {
+    "bytes": 323056,
+    "meshes": 1,
+    "triangles": 3672,
+    "materials": [
+      "AWD_Fabric_jersey_flagtee",
+      "AWD_Print_flag"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 2
+  },
+  "top_flagtee_female_lod1.glb": {
+    "bytes": 216172,
+    "meshes": 1,
+    "triangles": 1835,
+    "materials": [
+      "AWD_Fabric_jersey_flagtee",
+      "AWD_Print_flag"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 2
+  },
+  "top_crop_female.glb": {
+    "bytes": 280944,
+    "meshes": 1,
+    "triangles": 3064,
+    "materials": [
+      "AWD_Fabric_jersey_crop"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_crop_female_lod1.glb": {
+    "bytes": 190904,
+    "meshes": 1,
+    "triangles": 1532,
+    "materials": [
+      "AWD_Fabric_jersey_crop"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_polo_female.glb": {
+    "bytes": 325228,
+    "meshes": 1,
+    "triangles": 3736,
+    "materials": [
+      "AWD_Fabric_pique_polo"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_polo_female_lod1.glb": {
+    "bytes": 215916,
+    "meshes": 1,
+    "triangles": 1868,
+    "materials": [
+      "AWD_Fabric_pique_polo"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_hoodie_female.glb": {
+    "bytes": 400352,
+    "meshes": 1,
+    "triangles": 5216,
+    "materials": [
+      "AWD_Fabric_fleece_hoodie"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_hoodie_female_lod1.glb": {
+    "bytes": 254620,
+    "meshes": 1,
+    "triangles": 2607,
+    "materials": [
+      "AWD_Fabric_fleece_hoodie"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_jersey_female.glb": {
+    "bytes": 321412,
+    "meshes": 1,
+    "triangles": 3688,
+    "materials": [
+      "AWD_Fabric_mesh_jersey",
+      "AWD_Print_star"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 2
+  },
+  "top_jersey_female_lod1.glb": {
+    "bytes": 212964,
+    "meshes": 1,
+    "triangles": 1844,
+    "materials": [
+      "AWD_Fabric_mesh_jersey",
+      "AWD_Print_star"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 2
+  },
+  "top_jerseyaway_female.glb": {
+    "bytes": 321428,
+    "meshes": 1,
+    "triangles": 3688,
+    "materials": [
+      "AWD_Fabric_mesh_jerseyaway",
+      "AWD_Print_star"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 2
+  },
+  "top_jerseyaway_female_lod1.glb": {
+    "bytes": 212980,
+    "meshes": 1,
+    "triangles": 1844,
+    "materials": [
+      "AWD_Fabric_mesh_jerseyaway",
+      "AWD_Print_star"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 2
+  },
+  "top_ankara_female.glb": {
+    "bytes": 283784,
+    "meshes": 1,
+    "triangles": 3736,
+    "materials": [
+      "AWD_Fabric_ankara_ankara"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_ankara_female_lod1.glb": {
+    "bytes": 174580,
+    "meshes": 1,
+    "triangles": 1868,
+    "materials": [
+      "AWD_Fabric_ankara_ankara"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_kenteshirt_female.glb": {
+    "bytes": 322052,
+    "meshes": 1,
+    "triangles": 3736,
+    "materials": [
+      "AWD_Fabric_kente_kenteshirt"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_kenteshirt_female_lod1.glb": {
+    "bytes": 212848,
+    "meshes": 1,
+    "triangles": 1868,
+    "materials": [
+      "AWD_Fabric_kente_kenteshirt"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_office_female.glb": {
+    "bytes": 393924,
+    "meshes": 1,
+    "triangles": 5136,
+    "materials": [
+      "AWD_Fabric_cotton_office",
+      "AWD_Print_tie"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_office_female_lod1.glb": {
+    "bytes": 249696,
+    "meshes": 1,
+    "triangles": 2567,
+    "materials": [
+      "AWD_Fabric_cotton_office",
+      "AWD_Print_tie"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_suit_female.glb": {
+    "bytes": 776096,
+    "meshes": 1,
+    "triangles": 10412,
+    "materials": [
+      "AWD_Fabric_twill_suit",
+      "AWD_Fabric_cotton_suitshirt",
+      "AWD_Print_tie"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 2
+  },
+  "top_suit_female_lod1.glb": {
+    "bytes": 484048,
+    "meshes": 1,
+    "triangles": 5205,
+    "materials": [
+      "AWD_Fabric_twill_suit",
+      "AWD_Fabric_cotton_suitshirt",
+      "AWD_Print_tie"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 2
+  },
+  "top_kaba_female.glb": {
+    "bytes": 265736,
+    "meshes": 1,
+    "triangles": 3396,
+    "materials": [
+      "AWD_Fabric_ankara_kaba"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_kaba_female_lod1.glb": {
+    "bytes": 166340,
+    "meshes": 1,
+    "triangles": 1697,
+    "materials": [
+      "AWD_Fabric_ankara_kaba"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_blouse_female.glb": {
+    "bytes": 320624,
+    "meshes": 1,
+    "triangles": 3736,
+    "materials": [
+      "AWD_Fabric_cotton_blouse"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_blouse_female_lod1.glb": {
+    "bytes": 211580,
+    "meshes": 1,
+    "triangles": 1867,
+    "materials": [
+      "AWD_Fabric_cotton_blouse"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_jeans_female.glb": {
+    "bytes": 269516,
+    "meshes": 1,
+    "triangles": 2800,
+    "materials": [
+      "AWD_Fabric_denim_jeans"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_jeans_female_lod1.glb": {
+    "bytes": 197252,
+    "meshes": 1,
+    "triangles": 1399,
+    "materials": [
+      "AWD_Fabric_denim_jeans"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_shorts_female.glb": {
+    "bytes": 180716,
+    "meshes": 1,
+    "triangles": 1464,
+    "materials": [
+      "AWD_Fabric_twill_shorts"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_shorts_female_lod1.glb": {
+    "bytes": 140848,
+    "meshes": 1,
+    "triangles": 731,
+    "materials": [
+      "AWD_Fabric_twill_shorts"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_joggers_female.glb": {
+    "bytes": 245672,
+    "meshes": 1,
+    "triangles": 2720,
+    "materials": [
+      "AWD_Fabric_fleece_joggers"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_joggers_female_lod1.glb": {
+    "bytes": 175088,
+    "meshes": 1,
+    "triangles": 1359,
+    "materials": [
+      "AWD_Fabric_fleece_joggers"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_chinos_female.glb": {
+    "bytes": 244784,
+    "meshes": 1,
+    "triangles": 2800,
+    "materials": [
+      "AWD_Fabric_twill_chinos"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_chinos_female_lod1.glb": {
+    "bytes": 172524,
+    "meshes": 1,
+    "triangles": 1399,
+    "materials": [
+      "AWD_Fabric_twill_chinos"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_suitpants_female.glb": {
+    "bytes": 244804,
+    "meshes": 1,
+    "triangles": 2800,
+    "materials": [
+      "AWD_Fabric_twill_suitpants"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_suitpants_female_lod1.glb": {
+    "bytes": 172692,
+    "meshes": 1,
+    "triangles": 1399,
+    "materials": [
+      "AWD_Fabric_twill_suitpants"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_ankarapants_female.glb": {
+    "bytes": 204428,
+    "meshes": 1,
+    "triangles": 2800,
+    "materials": [
+      "AWD_Fabric_ankara_ankarapants"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_ankarapants_female_lod1.glb": {
+    "bytes": 132344,
+    "meshes": 1,
+    "triangles": 1400,
+    "materials": [
+      "AWD_Fabric_ankara_ankarapants"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_slit_female.glb": {
+    "bytes": 84496,
+    "meshes": 1,
+    "triangles": 500,
+    "materials": [
+      "AWD_Fabric_ankara_slit"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_slit_female_lod1.glb": {
+    "bytes": 71476,
+    "meshes": 1,
+    "triangles": 249,
+    "materials": [
+      "AWD_Fabric_ankara_slit"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_mini_female.glb": {
+    "bytes": 120900,
+    "meshes": 1,
+    "triangles": 392,
+    "materials": [
+      "AWD_Fabric_twill_mini"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_mini_female_lod1.glb": {
+    "bytes": 108924,
+    "meshes": 1,
+    "triangles": 195,
+    "materials": [
+      "AWD_Fabric_twill_mini"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_pencil_female.glb": {
+    "bytes": 120068,
+    "meshes": 1,
+    "triangles": 392,
+    "materials": [
+      "AWD_Fabric_twill_pencil"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_pencil_female_lod1.glb": {
+    "bytes": 108832,
+    "meshes": 1,
+    "triangles": 196,
+    "materials": [
+      "AWD_Fabric_twill_pencil"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_kenteskirt_female.glb": {
+    "bytes": 125068,
+    "meshes": 1,
+    "triangles": 560,
+    "materials": [
+      "AWD_Fabric_kente_kenteskirt"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_kenteskirt_female_lod1.glb": {
+    "bytes": 110656,
+    "meshes": 1,
+    "triangles": 279,
+    "materials": [
+      "AWD_Fabric_kente_kenteskirt"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "full_sundress_female.glb": {
+    "bytes": 291992,
+    "meshes": 1,
+    "triangles": 3232,
+    "materials": [
+      "AWD_Fabric_cotton_sundress"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "full_sundress_female_lod1.glb": {
+    "bytes": 198544,
+    "meshes": 1,
+    "triangles": 1616,
+    "materials": [
+      "AWD_Fabric_cotton_sundress"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "full_ankaradress_female.glb": {
+    "bytes": 305020,
+    "meshes": 1,
+    "triangles": 4088,
+    "materials": [
+      "AWD_Fabric_ankara_ankaradress"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "full_ankaradress_female_lod1.glb": {
+    "bytes": 185460,
+    "meshes": 1,
+    "triangles": 2043,
+    "materials": [
+      "AWD_Fabric_ankara_ankaradress"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "full_kentedress_female.glb": {
+    "bytes": 297356,
+    "meshes": 1,
+    "triangles": 3344,
+    "materials": [
+      "AWD_Fabric_kente_kentedress"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "full_kentedress_female_lod1.glb": {
+    "bytes": 201104,
+    "meshes": 1,
+    "triangles": 1672,
+    "materials": [
+      "AWD_Fabric_kente_kentedress"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "full_bodycon_female.glb": {
+    "bytes": 292412,
+    "meshes": 1,
+    "triangles": 3232,
+    "materials": [
+      "AWD_Fabric_jersey_bodycon"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "full_bodycon_female_lod1.glb": {
+    "bytes": 199120,
+    "meshes": 1,
+    "triangles": 1615,
+    "materials": [
+      "AWD_Fabric_jersey_bodycon"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "shoes_slides_female.glb": {
+    "bytes": 72204,
+    "meshes": 1,
+    "triangles": 1216,
+    "materials": [
+      "AWD_Shoe_slides_upper",
+      "AWD_Shoe_slides_sole"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "shoes_slides_female_lod1.glb": {
+    "bytes": 52588,
+    "meshes": 1,
+    "triangles": 608,
+    "materials": [
+      "AWD_Shoe_slides_upper",
+      "AWD_Shoe_slides_sole"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "shoes_sneakers_female.glb": {
+    "bytes": 114952,
+    "meshes": 1,
+    "triangles": 2148,
+    "materials": [
+      "AWD_Shoe_sneakers_upper",
+      "AWD_Shoe_sneakers_sole"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "shoes_sneakers_female_lod1.glb": {
+    "bytes": 73220,
+    "meshes": 1,
+    "triangles": 1074,
+    "materials": [
+      "AWD_Shoe_sneakers_upper",
+      "AWD_Shoe_sneakers_sole"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "shoes_ahenema_female.glb": {
+    "bytes": 76828,
+    "meshes": 1,
+    "triangles": 1288,
+    "materials": [
+      "AWD_Shoe_ahenema_upper"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "shoes_ahenema_female_lod1.glb": {
+    "bytes": 53176,
+    "meshes": 1,
+    "triangles": 644,
+    "materials": [
+      "AWD_Shoe_ahenema_upper"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "shoes_loafers_female.glb": {
+    "bytes": 106964,
+    "meshes": 1,
+    "triangles": 2120,
+    "materials": [
+      "AWD_Shoe_loafers_upper",
+      "AWD_Shoe_loafers_sole"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "shoes_loafers_female_lod1.glb": {
+    "bytes": 70556,
+    "meshes": 1,
+    "triangles": 1060,
+    "materials": [
+      "AWD_Shoe_loafers_upper",
+      "AWD_Shoe_loafers_sole"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "shoes_heels_female.glb": {
+    "bytes": 102368,
+    "meshes": 1,
+    "triangles": 2048,
+    "materials": [
+      "AWD_Shoe_heels_upper",
+      "AWD_Shoe_heels_sole"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "shoes_heels_female_lod1.glb": {
+    "bytes": 68980,
+    "meshes": 1,
+    "triangles": 1024,
+    "materials": [
+      "AWD_Shoe_heels_upper",
+      "AWD_Shoe_heels_sole"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "shoes_boots_female.glb": {
+    "bytes": 133856,
+    "meshes": 1,
+    "triangles": 2448,
+    "materials": [
+      "AWD_Shoe_boots_upper",
+      "AWD_Shoe_boots_sole"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "shoes_boots_female_lod1.glb": {
+    "bytes": 83380,
+    "meshes": 1,
+    "triangles": 1224,
+    "materials": [
+      "AWD_Shoe_boots_upper",
+      "AWD_Shoe_boots_sole"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "hat_cap_female.glb": {
+    "bytes": 111764,
+    "meshes": 1,
+    "triangles": 328,
+    "materials": [
+      "AWD_Hat_cap"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hat_cap_female_lod1.glb": {
+    "bytes": 102316,
+    "meshes": 1,
+    "triangles": 164,
+    "materials": [
+      "AWD_Hat_cap"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hat_bucket_female.glb": {
+    "bytes": 111236,
+    "meshes": 1,
+    "triangles": 364,
+    "materials": [
+      "AWD_Hat_bucket"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hat_bucket_female_lod1.glb": {
+    "bytes": 101312,
+    "meshes": 1,
+    "triangles": 182,
+    "materials": [
+      "AWD_Hat_bucket"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "glasses_shades_female.glb": {
+    "bytes": 57936,
+    "meshes": 1,
+    "triangles": 438,
+    "materials": [
+      "AWD_Metal_frame",
+      "AWD_Lens_shades"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "glasses_shades_female_lod1.glb": {
+    "bytes": 46812,
+    "meshes": 1,
+    "triangles": 219,
+    "materials": [
+      "AWD_Metal_frame",
+      "AWD_Lens_shades"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "glasses_specs_female.glb": {
+    "bytes": 48812,
+    "meshes": 1,
+    "triangles": 406,
+    "materials": [
+      "AWD_Metal_frame"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "glasses_specs_female_lod1.glb": {
+    "bytes": 38584,
+    "meshes": 1,
+    "triangles": 203,
+    "materials": [
+      "AWD_Metal_frame"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "neck_chain_female.glb": {
+    "bytes": 55148,
+    "meshes": 1,
+    "triangles": 486,
+    "materials": [
+      "AWD_Metal_gold"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "neck_chain_female_lod1.glb": {
+    "bytes": 41144,
+    "meshes": 1,
+    "triangles": 243,
+    "materials": [
+      "AWD_Metal_gold"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "neck_beads_female.glb": {
+    "bytes": 194312,
+    "meshes": 1,
+    "triangles": 1728,
+    "materials": [
+      "AWD_Print_beads"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "neck_beads_female_lod1.glb": {
+    "bytes": 173476,
+    "meshes": 1,
+    "triangles": 1512,
+    "materials": [
+      "AWD_Print_beads"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "neck_stole_female.glb": {
+    "bytes": 98528,
+    "meshes": 1,
+    "triangles": 40,
+    "materials": [
+      "AWD_Fabric_kente_stole"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "neck_stole_female_lod1.glb": {
+    "bytes": 96228,
+    "meshes": 1,
+    "triangles": 20,
+    "materials": [
+      "AWD_Fabric_kente_stole"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  }
+}

@@ -132,7 +132,7 @@
     "images": 1
   },
   "hair_twists_female.glb": {
-    "bytes": 383552,
+    "bytes": 383624,
     "meshes": 1,
     "triangles": 3823,
     "materials": [
@@ -154,7 +154,7 @@
     "images": 1
   },
   "hair_twists_female_lod1.glb": {
-    "bytes": 282332,
+    "bytes": 282536,
     "meshes": 1,
     "triangles": 1911,
     "materials": [
@@ -176,7 +176,7 @@
     "images": 1
   },
   "hair_locs_female.glb": {
-    "bytes": 475304,
+    "bytes": 475688,
     "meshes": 1,
     "triangles": 4348,
     "materials": [
@@ -198,9 +198,9 @@
     "images": 1
   },
   "hair_locs_female_lod1.glb": {
-    "bytes": 345492,
+    "bytes": 345624,
     "meshes": 1,
-    "triangles": 2173,
+    "triangles": 2174,
     "materials": [
       "AWD_Hair_locs"
     ],
@@ -396,7 +396,7 @@
     "images": 1
   },
   "hair_braids_female.glb": {
-    "bytes": 509920,
+    "bytes": 509980,
     "meshes": 1,
     "triangles": 4768,
     "materials": [
@@ -418,7 +418,7 @@
     "images": 1
   },
   "hair_braids_female_lod1.glb": {
-    "bytes": 354584,
+    "bytes": 354588,
     "meshes": 1,
     "triangles": 2384,
     "materials": [
@@ -440,7 +440,7 @@
     "images": 1
   },
   "hair_bob_female.glb": {
-    "bytes": 120768,
+    "bytes": 120720,
     "meshes": 1,
     "triangles": 1068,
     "materials": [
@@ -462,9 +462,9 @@
     "images": 1
   },
   "hair_bob_female_lod1.glb": {
-    "bytes": 91308,
+    "bytes": 91340,
     "meshes": 1,
-    "triangles": 533,
+    "triangles": 534,
     "materials": [
       "AWD_Hair_bob"
     ],
@@ -484,9 +484,9 @@
     "images": 1
   },
   "hair_bonestraight_female.glb": {
-    "bytes": 136972,
+    "bytes": 137464,
     "meshes": 1,
-    "triangles": 1306,
+    "triangles": 1316,
     "materials": [
       "AWD_Hair_bonestraight"
     ],
@@ -506,9 +506,9 @@
     "images": 1
   },
   "hair_bonestraight_female_lod1.glb": {
-    "bytes": 100304,
+    "bytes": 100452,
     "meshes": 1,
-    "triangles": 653,
+    "triangles": 657,
     "materials": [
       "AWD_Hair_bonestraight"
     ],

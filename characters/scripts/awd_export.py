@@ -14,7 +14,8 @@ import bpy
 
 ALPHA_MASK = {'AWD_Brows': 0.45, 'AWD_Lashes': 0.35, 'AWD_Hair_cornrows': 0.5}
 ALPHA_BLEND = {'AWD_Beard_stubble'}   # a soft shadow on the skin, not cut-out hair
-LOD_RATIO = {'AWD_Body': 0.42, 'AWD_Top': 0.45, 'AWD_Bottom': 0.45, 'AWD_Hair': 0.5, 'AWD_Shoes': 0.6, 'AWD_Beard': 0.6}
+LOD_RATIO = {'AWD_Body': 0.42, 'AWD_Top': 0.45, 'AWD_Bottom': 0.45, 'AWD_Hair': 0.5, 'AWD_Shoes': 0.6, 'AWD_Beard': 0.6,
+             'AWD_W_': 0.5}
 
 
 def copy_object(obj, name):
@@ -46,7 +47,7 @@ def decimate(obj, ratio):
     bpy.ops.object.modifier_apply(modifier='LOD')
 
 
-def prepare_copies(parts, garments, lod=0, suffix='', morph=None):
+def prepare_copies(parts, garments, lod=0, suffix='', morph=None, regions=None):
     """parts: body-side objects; garments: outfit objects with awd_hides. Returns export copies."""
     hidden = set()
     for g in garments:
@@ -58,6 +59,8 @@ def prepare_copies(parts, garments, lod=0, suffix='', morph=None):
             dup.modifiers.remove(mod)
         if obj.name.startswith('AWD_Body'):
             delete_faces(dup, hidden)
+        elif dup.data.attributes.get('_awd_region'):
+            dup.data.attributes.remove(dup.data.attributes['_awd_region'])   # only the body carries regions
         if lod:
             if obj.name.startswith(('AWD_Lashes', 'AWD_Tongue', 'AWD_Teeth')):
                 bpy.data.objects.remove(dup, do_unlink=True)
@@ -72,11 +75,13 @@ def prepare_copies(parts, garments, lod=0, suffix='', morph=None):
                 deltas, body_co = morph
                 part_deltas, co = transfer(deltas, body_co, dup)   # from awd_morphs (shared namespace)
                 add_keys(dup, part_deltas, co)
+            if regions is not None and obj.name.startswith('AWD_Body'):
+                transfer_regions(regions[0], regions[1], dup)   # decimation blends ids; restore exact ones
         copies.append(dup)
     return copies
 
 
-def export_glb(path, objects, rig, animations=True, morph_normals=False):
+def export_glb(path, objects, rig, animations=True, morph_normals=False, attributes=False):
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     for o in bpy.context.view_layer.objects:
         o.select_set(False)
@@ -88,7 +93,7 @@ def export_glb(path, objects, rig, animations=True, morph_normals=False):
         export_apply=False, export_skins=True, export_morph=True, export_morph_normal=morph_normals,
         export_animations=animations, export_animation_mode='ACTIONS', export_force_sampling=True,
         export_optimize_animation_size=True, export_def_bones=False, export_extras=True,
-        export_cameras=False, export_lights=False, export_image_format='AUTO')
+        export_cameras=False, export_lights=False, export_image_format='AUTO', export_attributes=attributes)
     fix_materials(path)
     return path
 

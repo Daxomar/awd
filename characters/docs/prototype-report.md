@@ -1,4 +1,4 @@
-# Stage A–D report: contract, art bible, prototypes, hair and beards (2026-10-16)
+# Stage A–F report: contract, art bible, prototypes, hair, beards, wardrobe and game integration (2026-10-16)
 
 ## Created, exported and tested
 
@@ -18,9 +18,12 @@
 | Hair library: all 15 saved ids for each body that may wear them (7 male, 13 female; `bald` has no mesh), LOD0 + LOD1 | done | `parts/hair_<id>_<sex>[_lod1].glb`, `previews/*_hair_*.png` |
 | Beards: `stubble` (soft blended shadow), `goatee`, `fullbeard`; carry expression and slider morphs | done | `parts/beard_<id>_male[_lod1].glb`, `previews/male_hair_beards*.png` |
 | Runtime part attachment by bone name onto the shared body skeleton (`attachPart`, `detachSlot`) | done | lab `hair=`, `hairs=`, `beards=` |
-| Clips: `idle` 4.03 s, `walk` 1.03 s (in place), `wave` 2.03 s | done | lab `clip=…`, `previews/male_prototype_walk.png` |
+| Wardrobe: every remaining catalogue id for each body that may wear it (33 male, 40 female): tops incl. kaba with peplum, fugu and kaftan tails, suit (jacket over shirt and tie), office shirt and tie, Ghana flag tee, original Black Stars-style jerseys with tricolour trim; trousers, shorts, joggers, skirts (slit, mini, pencil, kente wrap); dresses and the kente cloth; slides, ahenema, loafers, heels, boots; cap, bucket, kufi; shades, specs; gold chain, beads, kente stole | done | `parts/<slot>_<id>_<sex>[_lod1].glb`, `previews/*_wear_*.png` |
+| Undressed base bodies (LOD0–2) with a `_awd_region` vertex attribute; every garment declares `awd_hides_regions`; runtime culls covered skin | done | `awd_<sex>_base_lod{0,1,2}.glb`, lab `base=1`, `items=` |
+| Clips: `idle` 4.03 s, `walk` 1.03 s and `run` 0.7 s (in place, loop), `wave` 2.03 s, `agree` 1.8 s, `shake` 2.4 s, `sad` 3 s, `dance` 2 s (loop); every clip keys every bone | done | lab `clip=…`, base and dressed GLBs |
 | LOD0/1/2 GLBs | done | `awd_{male,female}_prototype_lod{0,1,2}.glb` |
 | Three.js validation harness | done | `client/character-lab.html` |
+| Game integration: every `Avatar` (players, NPCs, rides, studio, phone portraits) is an `AwdAvatar` with the old `Character` API; lazy cached parts; classic fallback | done | `client/src/v2/scene/awd-avatar.js`, `avatars.js`, `chartest.html`, `v2test.html` |
 
 ## Measurements (Three.js 0.180, game renderer settings)
 
@@ -45,14 +48,18 @@ real device.
 
 ## Known limitations
 
-* 42 wardrobe ids (tops, bottoms, full outfits, shoes, hats, glasses, neck)
-  and the remaining clips (`run`, `agree`, `shake`, `sad`, `dance`, activity
-  clips) are planned; `manifest.json` tracks every id.
+* Kente, fugu and Ankara are original value patterns tinted by the saved
+  colour, so kente reads in one hue plus black rather than multicolour.
+* Heels are pumps with a slim heel post: the rest pose keeps the foot flat.
+* Hats are sized for short hair; volume styles under a hat clip unless the
+  runtime swaps them for `lowcut` while a hat is worn (recommended).
+* The suit (shirt + jacket) is about 10k triangles at LOD0, 5k at LOD1.
+* Skirts and long robes follow the legs through weights only; no cloth
+  simulation, so very wide strides can show the inner skirt surface.
 * Hair is glossy near-black at close range; strand styles read well, the afro's
   front edge shows a small step, and `waves` differs from `lowcut` mainly in
   texture. Long strand styles hang in the rest pose and are skinned to
   `Head`/`Spine2`; there is no secondary motion.
-* The male tee still shows some chest contour; tops are reworked in Stage E.
 * Morph normals are not exported (they added about 1.1 MB at LOD0); shading
   under strong expressions is slightly approximate.
 * The female tee collar edge still shows small steps in close-ups.
@@ -60,26 +67,31 @@ real device.
   can read as shadow on the chin in close-ups.
 * Expressions are deliberately subtle; `happy` reads mainly in the cheeks.
 * Sneakers are plain uppers (no branding by design; laces planned).
-* LOD2 still uses nine draw calls; one atlased mesh is planned.
-* The live game still uses the procedural avatar (`character.js`); nothing in
-  the game imports these assets yet.
+* LOD2 still uses nine draw calls; one atlased mesh is planned. The game does
+  not switch to LOD2 by distance yet.
+* Male tops still show some chest contour; it is most visible on the light
+  `kaftan` (the chest envelope needs a looser window for tunic tops).
+* Activity clips (`sit_idle`, `type`, `phone_use`) are not authored: sitting,
+  lying and working use the existing procedural `poses.js` on the new rig.
+* At LOD1 (rooms, rides, portraits) faces have no expression or blink morphs;
+  the studio uses LOD0.
 
-## Integration plan (for a controlled merge, coordinated with Codex)
+## Game integration (Stage F)
 
-1. Add an `AwdCharacter`-based avatar behind a client flag in
-   `client/src/v2/scene/avatars.js` (`loadAvatars` keeps the current path as the
-   fallback). `client/src/character-lab/awd-runtime.js` is the starting point.
-2. Load bodies lazily per sex and LOD; load parts per slot id from
-   `manifest.json` (`appearance[slot][id].assets[m|f]`), binding each part's
-   skinned meshes to the body skeleton by bone name.
-3. Hide covered body faces per outfit (the dressed export already removes them;
-   modular runtime needs the per-part face lists).
-4. Keep `look` validation, `normalizeLook`, `fitLook`, uniforms and the server
-   unchanged. Unbuilt ids fall back to the current procedural avatar.
-5. `Character.play/gesture/update` names stay the same; `poses.js` works as is
-   (same bone names). Re-base `Hips` translation for the female rig the same way
-   `fitAnatomyRig` does today.
-6. Use LOD1 in rooms and streets, LOD0 in the fitting room and portraits, LOD2
-   beyond about 15 m or above a crowd threshold.
+| Check | Result |
+|---|---|
+| API parity | `root`, `model`, `mixer`, `skeleton`, `actions`, `look`, `curName`, `native`, `play`, `gesture`, `update(dt, speed)`, `setLook`, `dispose`; `poses.js` works unchanged |
+| Rooms (`v2test.html`) | players, friends, walkers and NPCs dressed from saved looks; `sit`, `sit_floor`, `lie`, `work` and bench poses correct |
+| Crowd (`chartest.html`, 12 looks) | 118 draw calls incl. shadows, no load errors |
+| Walk speed | clip authored for 1.4 m/s, time-scaled from the room speed; `run` above 2.4 m/s |
+| Gestures | `agree`/`shake` play once and return to the base clip; `dance` loops |
+| Portraits | `portrait.js` awaits `avatar.ready`; dressed head shots rendered |
+| Spawn/dispose churn (10 × 3 varied looks) | geometries 33 → 33, textures 51 → 51 once parts are cached |
+| Boot download | 3.76 MB (2.23 MB gzip) vs 5.55 MB (2.88 MB gzip) for the classic avatar |
+| Fallback | `?avatars=classic` or failed asset load uses `character.js`; tested |
+| Unit tests | `client/test/awd-character-assets.test.js`: catalogue coverage, `resolveParts` substitutions, revision hashes |
 
-No saved data, catalogue, prices or server code change in any of these steps.
+No saved data, catalogue, prices or server code changed: the avatar reads the
+same `look` fields through `normalizeLook`/`fitLook`. Phone frame rate has not
+been measured; the numbers above come from desktop Chromium and need a device
+check before release.

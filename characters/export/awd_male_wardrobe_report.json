@@ -1,0 +1,1476 @@
+{
+  "top_tee_male.glb": {
+    "bytes": 325284,
+    "meshes": 1,
+    "triangles": 3776,
+    "materials": [
+      "AWD_Fabric_jersey_tee"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_tee_male_lod1.glb": {
+    "bytes": 212112,
+    "meshes": 1,
+    "triangles": 1888,
+    "materials": [
+      "AWD_Fabric_jersey_tee"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_flagtee_male.glb": {
+    "bytes": 334332,
+    "meshes": 1,
+    "triangles": 3808,
+    "materials": [
+      "AWD_Fabric_jersey_flagtee",
+      "AWD_Print_flag"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 2
+  },
+  "top_flagtee_male_lod1.glb": {
+    "bytes": 220240,
+    "meshes": 1,
+    "triangles": 1904,
+    "materials": [
+      "AWD_Fabric_jersey_flagtee",
+      "AWD_Print_flag"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 2
+  },
+  "top_singlet_male.glb": {
+    "bytes": 272624,
+    "meshes": 1,
+    "triangles": 2884,
+    "materials": [
+      "AWD_Fabric_jersey_singlet"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_singlet_male_lod1.glb": {
+    "bytes": 187116,
+    "meshes": 1,
+    "triangles": 1441,
+    "materials": [
+      "AWD_Fabric_jersey_singlet"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_polo_male.glb": {
+    "bytes": 337668,
+    "meshes": 1,
+    "triangles": 3876,
+    "materials": [
+      "AWD_Fabric_pique_polo"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_polo_male_lod1.glb": {
+    "bytes": 221356,
+    "meshes": 1,
+    "triangles": 1938,
+    "materials": [
+      "AWD_Fabric_pique_polo"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_hoodie_male.glb": {
+    "bytes": 410416,
+    "meshes": 1,
+    "triangles": 5328,
+    "materials": [
+      "AWD_Fabric_fleece_hoodie"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_hoodie_male_lod1.glb": {
+    "bytes": 257828,
+    "meshes": 1,
+    "triangles": 2663,
+    "materials": [
+      "AWD_Fabric_fleece_hoodie"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_jersey_male.glb": {
+    "bytes": 335100,
+    "meshes": 1,
+    "triangles": 3852,
+    "materials": [
+      "AWD_Fabric_mesh_jersey",
+      "AWD_Print_star"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 2
+  },
+  "top_jersey_male_lod1.glb": {
+    "bytes": 218612,
+    "meshes": 1,
+    "triangles": 1926,
+    "materials": [
+      "AWD_Fabric_mesh_jersey",
+      "AWD_Print_star"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 2
+  },
+  "top_jerseyaway_male.glb": {
+    "bytes": 335120,
+    "meshes": 1,
+    "triangles": 3852,
+    "materials": [
+      "AWD_Fabric_mesh_jerseyaway",
+      "AWD_Print_star"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 2
+  },
+  "top_jerseyaway_male_lod1.glb": {
+    "bytes": 218628,
+    "meshes": 1,
+    "triangles": 1926,
+    "materials": [
+      "AWD_Fabric_mesh_jerseyaway",
+      "AWD_Print_star"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 2
+  },
+  "top_ankara_male.glb": {
+    "bytes": 296288,
+    "meshes": 1,
+    "triangles": 3876,
+    "materials": [
+      "AWD_Fabric_ankara_ankara"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_ankara_male_lod1.glb": {
+    "bytes": 180072,
+    "meshes": 1,
+    "triangles": 1937,
+    "materials": [
+      "AWD_Fabric_ankara_ankara"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_kenteshirt_male.glb": {
+    "bytes": 334552,
+    "meshes": 1,
+    "triangles": 3876,
+    "materials": [
+      "AWD_Fabric_kente_kenteshirt"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_kenteshirt_male_lod1.glb": {
+    "bytes": 218336,
+    "meshes": 1,
+    "triangles": 1937,
+    "materials": [
+      "AWD_Fabric_kente_kenteshirt"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_fugu_male.glb": {
+    "bytes": 383724,
+    "meshes": 1,
+    "triangles": 4612,
+    "materials": [
+      "AWD_Fabric_fugu_fugu"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_fugu_male_lod1.glb": {
+    "bytes": 245896,
+    "meshes": 1,
+    "triangles": 2306,
+    "materials": [
+      "AWD_Fabric_fugu_fugu"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_office_male.glb": {
+    "bytes": 404884,
+    "meshes": 1,
+    "triangles": 5252,
+    "materials": [
+      "AWD_Fabric_cotton_office",
+      "AWD_Print_tie"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_office_male_lod1.glb": {
+    "bytes": 254184,
+    "meshes": 1,
+    "triangles": 2626,
+    "materials": [
+      "AWD_Fabric_cotton_office",
+      "AWD_Print_tie"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_kaftan_male.glb": {
+    "bytes": 428444,
+    "meshes": 1,
+    "triangles": 5740,
+    "materials": [
+      "AWD_Fabric_cotton_kaftan"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_kaftan_male_lod1.glb": {
+    "bytes": 262472,
+    "meshes": 1,
+    "triangles": 2870,
+    "materials": [
+      "AWD_Fabric_cotton_kaftan"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "top_suit_male.glb": {
+    "bytes": 798088,
+    "meshes": 1,
+    "triangles": 10652,
+    "materials": [
+      "AWD_Fabric_twill_suit",
+      "AWD_Fabric_cotton_suitshirt",
+      "AWD_Print_tie"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 2
+  },
+  "top_suit_male_lod1.glb": {
+    "bytes": 491072,
+    "meshes": 1,
+    "triangles": 5326,
+    "materials": [
+      "AWD_Fabric_twill_suit",
+      "AWD_Fabric_cotton_suitshirt",
+      "AWD_Print_tie"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 2
+  },
+  "bottom_jeans_male.glb": {
+    "bytes": 267060,
+    "meshes": 1,
+    "triangles": 2748,
+    "materials": [
+      "AWD_Fabric_denim_jeans"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_jeans_male_lod1.glb": {
+    "bytes": 195496,
+    "meshes": 1,
+    "triangles": 1373,
+    "materials": [
+      "AWD_Fabric_denim_jeans"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_shorts_male.glb": {
+    "bytes": 187024,
+    "meshes": 1,
+    "triangles": 1596,
+    "materials": [
+      "AWD_Fabric_twill_shorts"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_shorts_male_lod1.glb": {
+    "bytes": 143380,
+    "meshes": 1,
+    "triangles": 798,
+    "materials": [
+      "AWD_Fabric_twill_shorts"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_joggers_male.glb": {
+    "bytes": 244324,
+    "meshes": 1,
+    "triangles": 2692,
+    "materials": [
+      "AWD_Fabric_fleece_joggers"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_joggers_male_lod1.glb": {
+    "bytes": 173264,
+    "meshes": 1,
+    "triangles": 1345,
+    "materials": [
+      "AWD_Fabric_fleece_joggers"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_chinos_male.glb": {
+    "bytes": 242356,
+    "meshes": 1,
+    "triangles": 2748,
+    "materials": [
+      "AWD_Fabric_twill_chinos"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_chinos_male_lod1.glb": {
+    "bytes": 170696,
+    "meshes": 1,
+    "triangles": 1373,
+    "materials": [
+      "AWD_Fabric_twill_chinos"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_suitpants_male.glb": {
+    "bytes": 242372,
+    "meshes": 1,
+    "triangles": 2748,
+    "materials": [
+      "AWD_Fabric_twill_suitpants"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_suitpants_male_lod1.glb": {
+    "bytes": 170760,
+    "meshes": 1,
+    "triangles": 1374,
+    "materials": [
+      "AWD_Fabric_twill_suitpants"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_ankarapants_male.glb": {
+    "bytes": 202000,
+    "meshes": 1,
+    "triangles": 2748,
+    "materials": [
+      "AWD_Fabric_ankara_ankarapants"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "bottom_ankarapants_male_lod1.glb": {
+    "bytes": 130284,
+    "meshes": 1,
+    "triangles": 1374,
+    "materials": [
+      "AWD_Fabric_ankara_ankarapants"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "shoes_slides_male.glb": {
+    "bytes": 76316,
+    "meshes": 1,
+    "triangles": 1216,
+    "materials": [
+      "AWD_Shoe_slides_upper",
+      "AWD_Shoe_slides_sole"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "shoes_slides_male_lod1.glb": {
+    "bytes": 54496,
+    "meshes": 1,
+    "triangles": 608,
+    "materials": [
+      "AWD_Shoe_slides_upper",
+      "AWD_Shoe_slides_sole"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "shoes_sneakers_male.glb": {
+    "bytes": 119140,
+    "meshes": 1,
+    "triangles": 2148,
+    "materials": [
+      "AWD_Shoe_sneakers_upper",
+      "AWD_Shoe_sneakers_sole"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "shoes_sneakers_male_lod1.glb": {
+    "bytes": 75964,
+    "meshes": 1,
+    "triangles": 1074,
+    "materials": [
+      "AWD_Shoe_sneakers_upper",
+      "AWD_Shoe_sneakers_sole"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "shoes_ahenema_male.glb": {
+    "bytes": 80132,
+    "meshes": 1,
+    "triangles": 1288,
+    "materials": [
+      "AWD_Shoe_ahenema_upper"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "shoes_ahenema_male_lod1.glb": {
+    "bytes": 54996,
+    "meshes": 1,
+    "triangles": 644,
+    "materials": [
+      "AWD_Shoe_ahenema_upper"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "shoes_loafers_male.glb": {
+    "bytes": 112480,
+    "meshes": 1,
+    "triangles": 2120,
+    "materials": [
+      "AWD_Shoe_loafers_upper",
+      "AWD_Shoe_loafers_sole"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "shoes_loafers_male_lod1.glb": {
+    "bytes": 73372,
+    "meshes": 1,
+    "triangles": 1060,
+    "materials": [
+      "AWD_Shoe_loafers_upper",
+      "AWD_Shoe_loafers_sole"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "shoes_boots_male.glb": {
+    "bytes": 137176,
+    "meshes": 1,
+    "triangles": 2448,
+    "materials": [
+      "AWD_Shoe_boots_upper",
+      "AWD_Shoe_boots_sole"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "shoes_boots_male_lod1.glb": {
+    "bytes": 85556,
+    "meshes": 1,
+    "triangles": 1224,
+    "materials": [
+      "AWD_Shoe_boots_upper",
+      "AWD_Shoe_boots_sole"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "hat_cap_male.glb": {
+    "bytes": 111680,
+    "meshes": 1,
+    "triangles": 328,
+    "materials": [
+      "AWD_Hat_cap"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hat_cap_male_lod1.glb": {
+    "bytes": 102240,
+    "meshes": 1,
+    "triangles": 164,
+    "materials": [
+      "AWD_Hat_cap"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hat_bucket_male.glb": {
+    "bytes": 111180,
+    "meshes": 1,
+    "triangles": 364,
+    "materials": [
+      "AWD_Hat_bucket"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hat_bucket_male_lod1.glb": {
+    "bytes": 101288,
+    "meshes": 1,
+    "triangles": 182,
+    "materials": [
+      "AWD_Hat_bucket"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hat_kufi_male.glb": {
+    "bytes": 102240,
+    "meshes": 1,
+    "triangles": 140,
+    "materials": [
+      "AWD_Hat_kufi"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "hat_kufi_male_lod1.glb": {
+    "bytes": 96912,
+    "meshes": 1,
+    "triangles": 70,
+    "materials": [
+      "AWD_Hat_kufi"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "glasses_shades_male.glb": {
+    "bytes": 57856,
+    "meshes": 1,
+    "triangles": 438,
+    "materials": [
+      "AWD_Metal_frame",
+      "AWD_Lens_shades"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "glasses_shades_male_lod1.glb": {
+    "bytes": 46740,
+    "meshes": 1,
+    "triangles": 219,
+    "materials": [
+      "AWD_Metal_frame",
+      "AWD_Lens_shades"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "glasses_specs_male.glb": {
+    "bytes": 48708,
+    "meshes": 1,
+    "triangles": 406,
+    "materials": [
+      "AWD_Metal_frame"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "glasses_specs_male_lod1.glb": {
+    "bytes": 38380,
+    "meshes": 1,
+    "triangles": 203,
+    "materials": [
+      "AWD_Metal_frame"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "neck_chain_male.glb": {
+    "bytes": 56480,
+    "meshes": 1,
+    "triangles": 486,
+    "materials": [
+      "AWD_Metal_gold"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "neck_chain_male_lod1.glb": {
+    "bytes": 41552,
+    "meshes": 1,
+    "triangles": 243,
+    "materials": [
+      "AWD_Metal_gold"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 0
+  },
+  "neck_beads_male.glb": {
+    "bytes": 204288,
+    "meshes": 1,
+    "triangles": 1728,
+    "materials": [
+      "AWD_Print_beads"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "neck_beads_male_lod1.glb": {
+    "bytes": 182216,
+    "meshes": 1,
+    "triangles": 1512,
+    "materials": [
+      "AWD_Print_beads"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "neck_stole_male.glb": {
+    "bytes": 98652,
+    "meshes": 1,
+    "triangles": 40,
+    "materials": [
+      "AWD_Fabric_kente_stole"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "neck_stole_male_lod1.glb": {
+    "bytes": 96552,
+    "meshes": 1,
+    "triangles": 20,
+    "materials": [
+      "AWD_Fabric_kente_stole"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "full_kentecloth_male.glb": {
+    "bytes": 331208,
+    "meshes": 1,
+    "triangles": 3838,
+    "materials": [
+      "AWD_Fabric_kente_kentecloth"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  },
+  "full_kentecloth_male_lod1.glb": {
+    "bytes": 216176,
+    "meshes": 1,
+    "triangles": 1918,
+    "materials": [
+      "AWD_Fabric_kente_kentecloth"
+    ],
+    "animations": [],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 1
+  }
+}

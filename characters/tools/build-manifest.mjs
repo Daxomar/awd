@@ -1,7 +1,8 @@
 // Build characters/manifest.json: the machine-readable map from saved appearance
 // ids (server/src/game/wardrobe.js) to Blender-built assets, with export measurements.
 // Usage: node characters/tools/build-manifest.mjs
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { WEAR, SKIN, HAIR_COLORS, UNIFORM } from '../../server/src/game/wardrobe.js';
@@ -18,7 +19,7 @@ function report(sex) {
     const file = join(EXPORT, `awd_${sex}_${name}_report.json`);
     return existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : {};
   };
-  return { ...read('prototype'), ...read('library') };
+  return { ...read('prototype'), ...read('library'), ...read('wardrobe') };
 }
 const reports = { male: report('male'), female: report('female') };
 
@@ -38,8 +39,13 @@ function bodyEntry(sex) {
     const name = `awd_${sex}_prototype_lod${lod}.glb`, d = r[name];
     return [lod, d ? { asset: `${RUNTIME}/${name}`, bytes: d.bytes, triangles: d.triangles, meshes: d.meshes } : null];
   }));
+  const base = Object.fromEntries([0, 1, 2].map((lod) => {
+    const name = `awd_${sex}_base_lod${lod}.glb`, d = r[name];
+    return [lod, d ? { asset: `${RUNTIME}/${name}`, bytes: d.bytes, triangles: d.triangles } : null];
+  }));
   return {
-    status: r[`awd_${sex}_prototype_lod0.glb`] ? 'prototype' : 'planned', rig: 'awd_adult_v1',
+    status: r[`awd_${sex}_prototype_lod0.glb`] ? 'prototype' : 'planned', rig: 'awd_adult_v1', base,
+    regions: ['head', 'neck', 'chest', 'belly', 'pelvis', 'upperarm', 'elbow', 'forearm', 'hand', 'thigh', 'knee', 'shin', 'ankle', 'foot'],
     height: sex === 'male' ? 1.76 : 1.68, source: `characters/source/awd_${sex}_prototype.blend`, lods,
   };
 }
@@ -65,6 +71,10 @@ function appearanceMap() {
 }
 
 const appearance = appearanceMap();
+// Clips the game names (character.js, world.js gestures); `done` once every base body exports it.
+const CLIPS = { idle: { loop: true }, walk: { loop: true, inPlace: true }, run: { loop: true, inPlace: true }, wave: { loop: false },
+  agree: { loop: false }, shake: { loop: false }, sad: { loop: false }, dance: { loop: true } };
+const exported = (clip) => ['male', 'female'].every((sex) => reports[sex][`awd_${sex}_base_lod1.glb`]?.animations?.includes(clip));
 const manifest = {
   version: 1,
   generated: new Date().toISOString().slice(0, 10),
@@ -91,11 +101,7 @@ const manifest = {
     concerned: { browInnerUp: 0.75, frown: 0.3, browDown: 0.15 }, laughing: { smile: 1, jawOpen: 0.55, squint: 0.7, browUp: 0.2 },
     talking: { jawOpen: 0.3, mouthO: 0.2 }, blinking: { blink: 1 },
   },
-  animations: {
-    idle: { loop: true, status: 'done' }, walk: { loop: true, inPlace: true, status: 'done' }, wave: { loop: false, status: 'done' },
-    run: { loop: true, status: 'planned' }, agree: { loop: false, status: 'planned' }, shake: { loop: false, status: 'planned' },
-    sad: { loop: false, status: 'planned' }, dance: { loop: true, status: 'planned' },
-  },
+  animations: Object.fromEntries(Object.entries(CLIPS).map(([name, info]) => [name, { ...info, status: exported(name) ? 'done' : 'planned' }])),
   uniforms: Object.keys(UNIFORM),
   appearance,
 };
@@ -103,3 +109,22 @@ writeFileSync(join(ROOT, 'characters', 'manifest.json'), JSON.stringify(manifest
 const counts = {};
 for (const slot of Object.values(appearance)) for (const e of Object.values(slot)) counts[e.status] = (counts[e.status] || 0) + 1;
 console.log('manifest written', counts);
+
+// Runtime catalogue for the game (client/src/v2/scene/awd-avatar.js): which part files
+// exist per slot, id and body, relative to the prototype folder. Small enough to fetch at boot.
+// `rev` holds a content hash per GLB: the server caches /assets/*.glb as immutable, so the
+// runtime requests `file?v=<rev>` and a rebuilt asset reaches returning players.
+const revisions = {};
+for (const dir of ['', 'parts/']) {
+  for (const name of readdirSync(join(ROOT, RUNTIME, dir)).filter((n) => n.endsWith('.glb'))) {
+    revisions[dir + name] = createHash('sha1').update(readFileSync(join(ROOT, RUNTIME, dir, name))).digest('hex').slice(0, 10);
+  }
+}
+const catalogue = { version: 1, slots: {}, rev: revisions };
+for (const [slot, items] of Object.entries(appearance)) {
+  for (const [id, entry] of Object.entries(items)) {
+    const files = Object.fromEntries(Object.entries(entry.assets).map(([body, a]) => [body, (a.lod1 || a.asset).replace(`${RUNTIME}/`, '')]));
+    if (NO_GEOMETRY.has(id) || Object.keys(files).length) (catalogue.slots[slot] ??= {})[id] = NO_GEOMETRY.has(id) ? null : files;
+  }
+}
+writeFileSync(join(ROOT, RUNTIME, 'catalogue.json'), JSON.stringify(catalogue) + '\n');

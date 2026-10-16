@@ -17,7 +17,8 @@ ROOT = Path(globals().get('AWD_ROOT'))
 SCRIPTS = ROOT / 'characters' / 'scripts'
 MODULES = ['awd_human.py', 'awd_textures.py', 'awd_face.py', 'awd_expressions.py', 'awd_rig.py',
            'awd_skin.py', 'awd_hair.py', 'awd_clothes.py', 'awd_shoes.py', 'awd_anim.py', 'awd_export.py', 'awd_morphs.py',
-           'awd_preview.py', 'awd_hair_volume.py', 'awd_beard.py']
+           'awd_preview.py', 'awd_hair_volume.py', 'awd_beard.py', 'awd_regions.py', 'awd_wardrobe.py',
+           'awd_accessories.py']
 G = {'AWD_ROOT': str(ROOT), '__name__': 'awd_pipeline'}
 for _module in MODULES:
     exec(compile((SCRIPTS / _module).read_text(), _module, 'exec'), G)
@@ -66,6 +67,9 @@ def stage_body(sex='male'):
     G['bake_skin_colours'](ctx, [ctx['body']])
     ctx['body'].data.materials.clear()
     ctx['body'].data.materials.append(G['skin_material'](5))
+    regions, body_co = G['compute_regions'](ctx)
+    G['write_attribute'](ctx['body'], regions)
+    STATE['regions'] = (regions, body_co)
     ctx['mh_rig'].hide_viewport = ctx['mh_rig'].hide_render = True
     collection('AWD_Source', [ctx['mh_rig']])
     collection('AWD_Character', [rig] + expressive + face['eyes'])
@@ -183,3 +187,77 @@ def stage_library(styles=None, beards=None):
     report.write_text(json.dumps(merged, indent=2))
     return {'seconds': round(time.time() - t, 1),
             'parts': {k: {'tris': v['triangles'], 'kb': v['bytes'] // 1024} for k, v in reports.items()}}
+
+
+WARDROBE_IDS = {
+    'male': ['tee', 'flagtee', 'singlet', 'polo', 'hoodie', 'jersey', 'jerseyaway', 'ankara', 'kenteshirt', 'fugu',
+             'office', 'kaftan', 'suit', 'jeans', 'shorts', 'joggers', 'chinos', 'suitpants', 'ankarapants', 'kentecloth',
+             'slides', 'sneakers', 'ahenema', 'loafers', 'boots', 'cap', 'bucket', 'kufi', 'shades', 'specs',
+             'chain', 'beads', 'stole'],
+    'female': ['tee', 'flagtee', 'crop', 'polo', 'hoodie', 'jersey', 'jerseyaway', 'ankara', 'kenteshirt', 'office',
+               'suit', 'kaba', 'blouse', 'jeans', 'shorts', 'joggers', 'chinos', 'suitpants', 'ankarapants', 'slit',
+               'mini', 'pencil', 'kenteskirt', 'sundress', 'ankaradress', 'kentedress', 'bodycon', 'slides',
+               'sneakers', 'ahenema', 'loafers', 'heels', 'boots', 'cap', 'bucket', 'shades', 'specs', 'chain',
+               'beads', 'stole'],
+}
+
+
+def _build_item(ctx, item):
+    if item in G['STYLES']:
+        return G['build_shoe'](ctx, G, item)
+    if item in G['HATS'] or item in G['GLASSES'] or item in G['NECK']:
+        return G['build_accessory'](ctx, G, item)
+    return G['build_garment'](ctx, G, item)
+
+
+def stage_base_export():
+    """Undressed body per LOD (face parts, rig, clips, body regions) for modular dressing."""
+    t = time.time()
+    sex, out, reports = STATE['sex'], ROOT / 'characters' / 'export', {}
+    for lod in (0, 1, 2):
+        copies = G['prepare_copies'](STATE['parts'], [], lod=lod, suffix=f'_b{lod}', morph=STATE['morph'],
+                                     regions=STATE['regions'])
+        path = out / f'awd_{sex}_base_lod{lod}.glb'
+        G['export_glb'](path, copies, STATE['ctx']['rig'], animations=True, attributes=True)
+        reports[path.name] = G['glb_report'](path)
+        for c in copies:
+            bpy.data.objects.remove(c, do_unlink=True)
+    for mesh in [m for m in bpy.data.meshes if m.users == 0]:
+        bpy.data.meshes.remove(mesh)
+    report = out / f'awd_{sex}_prototype_report.json'
+    report.write_text(json.dumps({**(json.loads(report.read_text()) if report.exists() else {}), **reports}, indent=2))
+    return {'seconds': round(time.time() - t, 1), 'base': {k: v['triangles'] for k, v in reports.items()}}
+
+
+def stage_wardrobe(items=None):
+    """Build, morph and export every wardrobe id this body may wear (LOD0 and LOD1 parts)."""
+    t = time.time()
+    ctx, sex = STATE['ctx'], STATE['sex']
+    deltas, body_co = STATE['morph']
+    out = ROOT / 'characters' / 'export' / 'parts'
+    reports, built, failed = {}, [], {}
+    for item in (WARDROBE_IDS[sex] if items is None else items):
+        for prefix in ('AWD_Top_', 'AWD_Bottom_', 'AWD_Full_', 'AWD_Shoes_', 'AWD_Hat_', 'AWD_Glasses_', 'AWD_Neck_'):
+            old = bpy.data.objects.get(prefix + item)
+            if old and old.name not in [o.name for o in STATE.get('garments', [])]:
+                bpy.data.objects.remove(old, do_unlink=True)
+        try:
+            obj = _build_item(ctx, item)
+        except Exception as error:   # keep going; the report lists what failed and why
+            failed[item] = repr(error)
+            continue
+        part_deltas, co = G['transfer'](deltas, body_co, obj)
+        G['add_keys'](obj, part_deltas, co)
+        obj.name = obj.data.name = f"AWD_W_{obj['awd_slot']}_{item}"
+        built.append(obj)
+    collection('AWD_Wardrobe_Library', built)
+    for obj in built:
+        _export_part(obj, sex, reports, out)
+        obj.hide_viewport = obj.hide_render = True
+    report = ROOT / 'characters' / 'export' / f'awd_{sex}_wardrobe_report.json'
+    report.write_text(json.dumps({**(json.loads(report.read_text()) if report.exists() else {}), **reports}, indent=2))
+    bpy.ops.wm.save_as_mainfile(filepath=str(ROOT / 'characters' / 'source' / f'awd_{sex}_wardrobe.blend'))
+    bpy.ops.file.make_paths_relative()
+    bpy.ops.wm.save_mainfile()
+    return {'seconds': round(time.time() - t, 1), 'built': len(built), 'failed': failed,
+            'parts': {k: v['triangles'] for k, v in reports.items() if not k.endswith('_lod1.glb')}}

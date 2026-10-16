@@ -19,7 +19,7 @@ export class Studio {
     const sc = st.key.shadow.camera; this.savedShadow = [sc.left, sc.right, sc.top, sc.bottom]; sc.left = -3; sc.right = 3; sc.top = 3; sc.bottom = -3; sc.updateProjectionMatrix();
     st.bg.set('#f6efe2');
   }
-  preview(look) { if (this.av) { this.av.setLook(look); return; } this.av = new Avatar(look); this.g.add(this.av.root); this.av.root.rotation.y = this.yaw; }
+  preview(look) { if (this.av) { this.av.setLook(look); return; } this.av = new Avatar(look, { lod: 0 }); this.g.add(this.av.root); this.av.root.rotation.y = this.yaw; }
   turn(dx) { this.yaw += dx * 0.012; if (this.av) this.av.root.rotation.y = this.yaw; }
   hide() {
     if (!this.open) return; const st = this.stage, s = this.saved; this.open = false; this.g.visible = false;

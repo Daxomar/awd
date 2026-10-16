@@ -4,15 +4,21 @@
 //   cam=front|three_quarter|side|back|game|face  t=<seconds to freeze at>  hud=1
 //   body=m|f  build|hips|bust|waist|shoulders|muscle|faceWidth|nose|lips|height=<0..1>
 //   hair=<id> beard=<id>  hairs=<id,id,...> or beards=<id,id,...> (one character per style)
+//   base=1: undressed body dressed from parts (top|bottom|full|shoes|hat|glasses|neck=<id>);
+//   items=slot:id,slot:id,... one character per catalogue item over the default outfit
 // window.__LAB exposes stats and controls for automated checks.
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { AwdTemplate, AwdCharacter, SKIN, EXPRESSIONS, SLIDERS } from './awd-runtime.js';
+import { AwdTemplate, AwdCharacter, SKIN, EXPRESSIONS, SLIDERS } from '../v2/scene/awd-runtime.js';
 
 const q = new URLSearchParams(location.search);
 const lod = Number(q.get('lod') ?? 0);
 const beardList = q.get('beards')?.split(',').filter(Boolean);
-const styles = q.get('hairs')?.split(',').filter(Boolean) || beardList?.map(() => q.get('hair') || '');
+const itemList = q.get('items')?.split(',').filter(Boolean).map((s) => s.split(':'));
+const base = q.has('base') || !!itemList;
+const SLOTS = ['hair', 'beard', 'top', 'bottom', 'full', 'shoes', 'hat', 'glasses', 'neck'];
+const NONE = new Set(['bald', 'nobeard', 'nohat', 'noglasses', 'nochain']);
+const styles = q.get('hairs')?.split(',').filter(Boolean) || beardList?.map(() => q.get('hair') || '') || itemList?.map(() => '');
 const count = styles ? styles.length : Math.max(1, Math.min(40, Number(q.get('n') ?? 1)));
 const clip = q.get('clip') || 'idle', expr = q.get('expr') || 'neutral', view = q.get('cam') || 'three_quarter';
 const freeze = q.has('t') ? Number(q.get('t')) : null;
@@ -50,7 +56,8 @@ const camera = new THREE.PerspectiveCamera(32, 1, 0.05, 100);
 const VIEWS = {
   front: [0, 0.95, 4.2, 0.95], three_quarter: [2.2, 1.0, 3.6, 0.95], side: [4.2, 0.95, 0, 0.95],
   back: [0, 0.95, -4.2, 0.95], game: [3.4, 5.2, 6.2, 0.9], face: [0.25, 1.62, 0.85, 1.6],
-  grid: [0.6, 1.62, 2.6, 1.45], gridback: [-0.6, 1.62, -2.6, 1.45],
+  grid: [0.6, 1.62, 2.6, 1.45], gridback: [-0.6, 1.62, -2.6, 1.45], gridfull: [0.5, 1.1, 4.4, 0.85],
+  gridfeet: [0.4, 0.55, 2.2, 0.15],
 };
 function frame() {
   renderer.setSize(innerWidth, innerHeight);
@@ -74,10 +81,18 @@ function loadPart(slot, id) {
   if (!parts.has(url)) parts.set(url, loader.loadAsync(url).then((g) => new AwdTemplate(g)));
   return parts.get(url);
 }
-async function dressParts(c, hair, beard) {
-  if (hair === 'bald') c.detachSlot('hair');
-  else if (hair) c.attachPart('hair', await loadPart('hair', hair));
-  if (beard && beard !== 'nobeard') c.attachPart('beard', await loadPart('beard', beard));
+async function dressParts(c, hair, beard, extra = {}) {
+  const outfit = { ...(base ? { hair: sex === 'male' ? 'fade' : 'twa', top: 'tee', bottom: 'jeans', shoes: 'sneakers' } : {}),
+    ...Object.fromEntries(SLOTS.filter((k) => q.get(k)).map((k) => [k, q.get(k)])), ...extra };
+  if (hair) outfit.hair = hair;
+  if (beard) outfit.beard = beard;
+  if (outfit.full) { delete outfit.top; delete outfit.bottom; c.detachSlot('top'); c.detachSlot('bottom'); }
+  for (const slot of SLOTS) {
+    const id = outfit[slot];
+    if (!id) continue;
+    if (NONE.has(id)) c.detachSlot(slot);
+    else c.attachPart(slot, await loadPart(slot, id));
+  }
 }
 
 function spawn(n) {
@@ -133,7 +148,7 @@ function churnTest(rounds = 5, n = 6) {
   return { before, after, stable: after.geometries <= before.geometries + 1 && after.textures <= before.textures + 1 };
 }
 
-loader.loadAsync(`/assets/characters/prototype/awd_${sex}_prototype_lod${lod}.glb`).then(async (gltf) => {
+loader.loadAsync(`/assets/characters/prototype/awd_${sex}_${base ? 'base' : 'prototype'}_lod${lod}.glb`).then(async (gltf) => {
   template = new AwdTemplate(gltf);
   frame();
   spawn(count);
@@ -146,7 +161,7 @@ loader.loadAsync(`/assets/characters/prototype/awd_${sex}_prototype_lod${lod}.gl
       c.play('idle', 0);
       c.mixer.setTime(freeze ?? 0.4);
       c.setExpression(expr);
-      return dressParts(c, styles[i], beardList ? beardList[i] : q.get('beard'));
+      return dressParts(c, styles[i], beardList ? beardList[i] : q.get('beard'), itemList ? { [itemList[i][0]]: itemList[i][1] } : {});
     }));
   } else await Promise.all(characters.map((c) => dressParts(c, q.get('hair'), q.get('beard'))));
   if (freeze !== null) for (const c of characters) { c.mixer.setTime(freeze); c.applyMorphs(0); }

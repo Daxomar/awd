@@ -74,11 +74,21 @@ lips and cheeks, lighter palms, soles and nails. Roughness 0.52, specular 0.45.
   cut lines (hem, collar, sleeve), a turned-back hem for thickness, and a chest
   envelope so tops drape rather than cling.
 * World-scale projected UVs (22 cm repeat) keep prints the same size on every
-  garment. Original procedural fabrics (jersey and denim now; kente, ankara and
-  fugu weaves in Stage E) tinted by the saved colour.
+  garment. Original procedural fabrics (jersey, pique, cotton, twill, fleece,
+  mesh, denim, kente, Ankara and fugu weaves) tinted by the saved colour.
 * Body faces a garment covers are removed for that outfit, which prevents
   clipping and saves triangles.
-* Shoes are lofted from foot cross-sections (about 2,150 triangles per pair).
+* Shoes are lofted from foot cross-sections (1.2–2.5k triangles per pair):
+  closed uppers with an ankle opening, sandals as sole plus straps, boots with
+  a shaft, heels as pumps with a heel post.
+* Free-hanging parts (skirts, dresses, kaftan and fugu tails, peplum, jacket
+  skirt) are lofted rings weighted from `Hips` to the nearest leg.
+* A clearance pass keeps every shell vertex at least 4 mm outside the rest
+  body; the chest envelope bridges the bust from the body's real depth.
+* Every garment declares the body regions it covers end to end
+  (`awd_hides_regions`); the runtime drops body triangles inside them.
+* Fixed artwork (flag patch, star badge, tricolour trim, beads, tie) uses
+  `AWD_Print_*` materials that are never tinted.
 
 ## Budgets (provisional, measured on the prototype)
 

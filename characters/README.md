@@ -3,8 +3,8 @@
 Blender-built, game-ready characters for Accra We Dey. Everything is generated
 by reproducible scripts from CC0 anatomy plus original procedural artwork, then
 exported to glTF and validated in Three.js 0.180 with the game's renderer
-settings. The live game is not switched to these assets yet; see
-`docs/prototype-report.md` for status and the integration plan.
+settings. The live game draws every player and NPC with these assets
+(`client/src/v2/scene/awd-avatar.js`); see `docs/prototype-report.md` for status.
 
 ## Layout
 
@@ -23,6 +23,28 @@ Runtime copies live in `client/public/assets/characters/prototype/` (tracked);
 `export/*.glb` are build outputs and are not committed. The
 validation page is `client/character-lab.html` (`client/src/character-lab/`).
 
+## In the game
+
+* `client/src/v2/scene/avatars.js` loads the catalogue, both LOD1 base bodies and
+  the fallback outfit (tee, jeans, slides, `lowcut`/`puff`) at boot, then
+  `new Avatar(look)` returns an `AwdAvatar` with the old `Character` API
+  (`root`, `model`, `mixer`, `play`, `gesture`, `update(dt, speed)`, `setLook`,
+  `dispose`) plus `ready`, which resolves once the outfit is attached.
+* Other parts load on first use and are cached for the session; a restyle keeps
+  the old outfit until the new one has loaded, and the undressed body is never
+  shown. The studio asks for LOD0 (`new Avatar(look, { lod: 0 })`) for blinking
+  and expressions; rooms, rides and portraits use LOD1.
+* Substitutions (`resolveParts`): `full` replaces top and bottom; volume hair
+  under a hat becomes `lowcut`; an id not built for a body falls back to the
+  default outfit for that slot.
+* `client/public/assets/characters/prototype/catalogue.json` (written by
+  `build-manifest.mjs`) lists the part files and a content hash per GLB. The
+  server caches GLBs as immutable, so the runtime requests `file?v=<hash>`;
+  rerun `build-manifest.mjs` after every export.
+* Classic procedural avatars remain the fallback when the assets fail to load,
+  and can be forced with `?avatars=classic` or
+  `localStorage['awd.avatars'] = 'classic'`.
+
 ## Rebuild
 
 Prerequisites: Blender 5.2 and the MakeHuman CC0 sources in
@@ -37,6 +59,14 @@ stage_body('male')      # body, face, expressions, game rig, skin (~15 s); or 'f
 stage_dress('fade')     # hair ('twa' for the female), tee, jeans, sneakers, clips, slider morphs (~1 min)
 stage_save_export()     # .blend, LOD0-2 GLBs, parts, report (~35 s)
 stage_library()         # every hair id for this body (+ beards for male), LOD0/LOD1 parts (~1 min)
+stage_base_export()     # undressed body LOD0-2 with body regions (~1 min)
+stage_wardrobe()        # every wardrobe id for this body, LOD0/LOD1 parts (~12 min)
+```
+
+Headless alternative (no MCP), for example after a Blender restart:
+
+```bash
+blender --background --factory-startup --python characters/tools/run_stages.py -- male body,dress,export,base,library,wardrobe
 ```
 
 Then copy the exports to the client and refresh the manifest:
@@ -63,11 +93,13 @@ everything headlessly:
 python characters/tools/capture_lab.py male_prototype
 ```
 
-Lab parameters: `body=m|f`, `lod=0|1|2`, slider values such as `build=0..1`, `n=<instances>`, `clip=idle|walk|wave`,
+Lab parameters: `body=m|f`, `lod=0|1|2`, slider values such as `build=0..1`, `n=<instances>`, `clip=idle|walk|run|wave|agree|shake|sad|dance`,
 `tone=1..8`, `expr=happy|sad|angry|surprised|concerned|laughing|talking|blinking`,
 `cam=front|three_quarter|side|back|game|face|grid|gridback`, `t=<freeze seconds>`, `hud=1`,
 `hair=<id>`, `beard=<id>`, `hairs=<id,…>` or `beards=<id,…>` (one character per
-style, parts attached at runtime). Capture hair sets with `--set=hair`.
+style, parts attached at runtime), `base=1` (undressed body dressed from parts:
+`top|bottom|full|shoes|hat|glasses|neck=<id>`), `items=slot:id,…` (one character per
+catalogue item), `cam=gridfull|gridfeet`. Capture sets: `--set=hair`, `--set=wear`.
 `window.__LAB` exposes `measure()`, `churnTest()`, `setTone()`,
 `setExpression()` and `play()` for automated checks.
 

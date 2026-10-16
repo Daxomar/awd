@@ -12,7 +12,7 @@ export function portrait(look,name='',className='avatar-c'){
   const task=queue.then(async()=>{await loadAvatars();await new Promise(r=>requestAnimationFrame(r));
    renderer??=new THREE.WebGLRenderer({alpha:false,antialias:true,preserveDrawingBuffer:true});renderer.setSize(96,96);renderer.setPixelRatio(1);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;
    const scene=new THREE.Scene();scene.background=new THREE.Color('#d9e1db');scene.add(new THREE.HemisphereLight('#fff7ef','#707f72',2));const light=new THREE.DirectionalLight('#fff7ef',2);light.position.set(-2,3,4);scene.add(light);
-   const avatar=new Avatar(look);avatar.root.rotation.y=.12;avatar.mixer.stopAllAction();scene.add(avatar.root);avatar.model.updateMatrixWorld(true);
+   const avatar=new Avatar(look);await avatar.ready;avatar.root.rotation.y=.12;avatar.mixer.stopAllAction();scene.add(avatar.root);avatar.model.updateMatrixWorld(true);
    const focus=new THREE.Vector3();avatar.skeleton.bones.find(b=>b.name==='Head').getWorldPosition(focus);focus.y+=.05*avatar.root.scale.y;const camera=new THREE.PerspectiveCamera(26,1,.1,10);camera.position.set(focus.x,focus.y+.01,focus.z+.95);camera.lookAt(focus);renderer.render(scene,camera);const url=renderer.domElement.toDataURL('image/webp',.85);avatar.dispose();cache.set(key,url);if(cache.size>80)cache.delete(cache.keys().next().value);return url;
   });pending.set(key,task);queue=task.catch(()=>{});task.finally(()=>pending.delete(key)).catch(()=>{});
  }

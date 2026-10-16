@@ -136,8 +136,80 @@ def wave(rig):
     return bake_clip(rig, 'wave', keys, 2.0, loop=False)
 
 
+def run(rig, duration=0.7):
+    """In-place run: longer stride, bent pumping arms, forward lean."""
+    def pose(phase):
+        a = 2 * math.pi * phase
+        swing = math.sin(a)
+        lift_l = max(0.0, math.sin(a - 1.0))
+        lift_r = max(0.0, -math.sin(a - 1.0))
+        return {
+            'LeftUpLeg': [(X, -38 * swing - 14 * lift_l)], 'RightUpLeg': [(X, 38 * swing - 14 * lift_r)],
+            'LeftLeg': [(X, 14 + 75 * lift_l + 10 * max(0, -swing))], 'RightLeg': [(X, 14 + 75 * lift_r + 10 * max(0, swing))],
+            'LeftFoot': [(X, -12 * swing + 14 * lift_l - 6)], 'RightFoot': [(X, 12 * swing + 14 * lift_r - 6)],
+            'LeftArm': [(X, 38 * swing), (Y, -10)], 'RightArm': [(X, -38 * swing), (Y, 10)],
+            'LeftForeArm': [(X, -72 - 12 * max(0, -swing))], 'RightForeArm': [(X, -72 - 12 * max(0, swing))],
+            'Hips': [(Z, 7 * swing)], 'Spine': [(X, 6), (Z, -4 * swing)], 'Spine2': [(X, 4), (Z, -6 * swing)],
+            'Neck': [(X, -4)], 'Head': [(X, -3), (Z, 2 * swing)],
+            'hips': (0.004 * math.cos(a), 0, -0.025 - 0.03 * math.cos(2 * a)),
+        }
+    return bake_clip(rig, 'run', [(duration * i / 8, pose(i / 8)) for i in range(8)], duration)
+
+
+def agree(rig):
+    """Nod: three soft nods and back (1.8 s, one shot)."""
+    keys = [(0.0, {})]
+    for i, t in enumerate((0.3, 0.55, 0.8, 1.05, 1.3, 1.55)):
+        down = i % 2 == 0
+        keys.append((t, {'Head': [(X, 13 if down else -3)], 'Neck': [(X, 5 if down else 0)], 'Spine2': [(X, 1.5)]}))
+    keys.append((1.8, {}))
+    return bake_clip(rig, 'agree', keys, 1.8, loop=False)
+
+
+def shake(rig):
+    """Head shake: no-no with a small shoulder shrug (2.4 s, one shot)."""
+    keys = [(0.0, {})]
+    for i, t in enumerate((0.3, 0.6, 0.9, 1.2, 1.5, 1.8)):
+        side = 1 if i % 2 == 0 else -1
+        keys.append((t, {'Head': [(Z, 20 * side)], 'Neck': [(Z, 8 * side)],
+                         'LeftShoulder': [(Y, -4)], 'RightShoulder': [(Y, 4)]}))
+    keys.append((2.4, {}))
+    return bake_clip(rig, 'shake', keys, 2.4, loop=False)
+
+
+def sad(rig):
+    """Dejected slump: head drops, chest folds, shoulders roll forward, then recovers (3 s)."""
+    slump = {'Head': [(X, 20)], 'Neck': [(X, 10)], 'Spine2': [(X, 9)], 'Spine1': [(X, 5)], 'Spine': [(X, 3)],
+             'LeftShoulder': [(Z, -7)], 'RightShoulder': [(Z, 7)], 'LeftArm': [(X, -4)], 'RightArm': [(X, -4)],
+             'hips': (0, 0, -0.01)}
+    sigh = {k: [(axis, deg * 1.12) for axis, deg in v] if isinstance(v, list) else v for k, v in slump.items()}
+    keys = [(0.0, {}), (0.7, slump), (1.6, sigh), (2.4, slump), (3.0, {})]
+    return bake_clip(rig, 'sad', keys, 3.0, loop=False)
+
+
+def dance(rig, duration=2.0):
+    """Looping azonto-style groove: bouncing knees, alternating forearm swings, torso twist."""
+    def pose(phase):
+        a = 2 * math.pi * phase
+        bounce = 0.5 + 0.5 * math.cos(2 * a)         # two bounces per bar
+        sway = math.sin(a)
+        return {
+            'LeftUpLeg': [(X, -10 * bounce), (Y, -3 * sway)], 'RightUpLeg': [(X, -10 * bounce), (Y, -3 * sway)],
+            'LeftLeg': [(X, 22 * bounce)], 'RightLeg': [(X, 22 * bounce)],
+            'LeftFoot': [(X, -10 * bounce)], 'RightFoot': [(X, -10 * bounce)],
+            'LeftArm': [(X, -40 - 18 * sway), (Y, -12)], 'RightArm': [(X, -40 + 18 * sway), (Y, 12)],
+            'LeftForeArm': [(X, -70 + 15 * sway)], 'RightForeArm': [(X, -70 - 15 * sway)],
+            'LeftHand': [(Z, 10 * sway)], 'RightHand': [(Z, 10 * sway)],
+            'Hips': [(Z, 10 * sway), (Y, 4 * sway)], 'Spine': [(Z, -6 * sway), (X, 4 * bounce)],
+            'Spine2': [(Z, -8 * sway)], 'Neck': [(X, -3 + 6 * bounce)], 'Head': [(Z, 6 * sway), (Y, -3 * sway)],
+            'hips': (0.02 * sway, 0, -0.035 * bounce),
+        }
+    return bake_clip(rig, 'dance', [(duration * i / 16, pose(i / 16)) for i in range(16)], duration)
+
+
 def build_library(rig):
+    """Every clip the live game calls (room.js play/anim, world.js gesture, server emotes)."""
     bpy.context.scene.render.fps = FPS
-    clips = [idle(rig), walk(rig), wave(rig)]
+    clips = [idle(rig), walk(rig), run(rig), wave(rig), agree(rig), shake(rig), sad(rig), dance(rig)]
     rig.animation_data.action = bpy.data.actions['idle']
     return clips

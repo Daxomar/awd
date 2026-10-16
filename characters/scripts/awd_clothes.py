@@ -13,6 +13,7 @@ import bmesh
 import bpy
 import numpy as np
 from mathutils import Vector
+from mathutils.bvhtree import BVHTree
 
 TILE = 0.22   # metres of fabric per texture repeat
 FINGER_NAMES = ('Thumb', 'Index', 'Middle', 'Ring', 'Pinky')
@@ -107,12 +108,15 @@ def chest_envelope(bm, ctx, step=0.025, ease=0.004, window=5, sigma=2.5):
     centre = J['spine05____head'][1]
     lo, hi = J['spine05____head'][2] - 0.04, J['neck01____head'][2] - 0.025
     verts = [v for v in bm.verts if lo < v.co.z < hi and abs(v.co.x) < 0.2]
+    # Measure the real body, not the smoothed shell: smoothing flattens the bust, and the
+    # clearance pass would then push only the apex out, leaving a shrink-wrapped valley.
     bins = {}
-    for v in verts:
-        k = int(v.co.z // step)
-        b = bins.setdefault(k, [0.06, 0.04])
-        b[0] = max(b[0], abs(v.co.x))
-        b[1] = max(b[1], centre - v.co.y)
+    for v in ctx['body'].data.vertices:
+        x, y, z = v.co
+        if lo < z < hi and abs(x) < 0.2:
+            b = bins.setdefault(int(z // step), [0.06, 0.04])
+            b[0] = max(b[0], abs(x))
+            b[1] = max(b[1], centre - y)
     for v in verts:
         if centre - v.co.y < 0.015:
             continue   # back half keeps its shape
@@ -131,7 +135,46 @@ def chest_envelope(bm, ctx, step=0.025, ease=0.004, window=5, sigma=2.5):
         v.co.y += (target - v.co.y) * blend
 
 
-def shell(ctx, name, face_mask, ease, material, smooth=8, hem=0.004, uv='torso', cuts=None, envelope=None):
+def clearance(bm, ctx, min_gap=0.004):
+    """Smoothing and envelopes can pull cloth inside convex anatomy (bust, belly);
+    push any vertex nearer than min_gap back out along the body normal."""
+    bvh = BVHTree.FromObject(ctx['body'], bpy.context.evaluated_depsgraph_get())
+    for v in bm.verts:
+        loc, normal, _, _ = bvh.find_nearest(v.co)
+        if loc is not None and (v.co - loc).dot(normal) < min_gap:
+            v.co = loc + normal * min_gap
+
+
+def bridge_front(bm, ctx, band=0.012):
+    """Cloth spans hollows across the chest (cleavage, between pecs) instead of dipping in.
+
+    Per height band, front vertices are lifted to the upper convex hull of the band's
+    front profile, so no horizontal valley survives on tops and dresses."""
+    J = ctx['joints']
+    centre = J['spine05____head'][1]
+    lo, hi = J['spine05____head'][2], J['neck01____head'][2] - 0.03
+    bands = {}
+    for v in bm.verts:
+        fwd = centre - v.co.y
+        if lo < v.co.z < hi and fwd > 0.02 and abs(v.co.x) < 0.16:
+            bands.setdefault(int(v.co.z // band), []).append(v)
+    for verts in bands.values():
+        pts = sorted((v.co.x, centre - v.co.y) for v in verts)
+        hull = []
+        for p in pts:   # upper hull (monotone chain)
+            while len(hull) >= 2 and (hull[-1][0] - hull[-2][0]) * (p[1] - hull[-2][1]) - (hull[-1][1] - hull[-2][1]) * (p[0] - hull[-2][0]) >= 0:
+                hull.pop()
+            hull.append(p)
+        if len(hull) < 2:
+            continue
+        hx, hy = np.array([h[0] for h in hull]), np.array([h[1] for h in hull])
+        for v in verts:
+            target = float(np.interp(v.co.x, hx, hy))
+            if centre - v.co.y < target:
+                v.co.y = centre - target
+
+
+def shell(ctx, name, face_mask, ease, material, smooth=8, hem=0.004, uv='torso', cuts=None, envelope=None, trim=None):
     body = ctx['body']
     obj = body.copy()
     obj.data = body.data.copy()
@@ -158,11 +201,17 @@ def shell(ctx, name, face_mask, ease, material, smooth=8, hem=0.004, uv='torso',
     bm.normal_update()
     for v in bm.verts:
         v.co += v.normal * float(ease(np.array(v.co[:])))
+    clearance(bm, ctx)
+    if envelope is not None:
+        bridge_front(bm, ctx)
     if hem:
         rim = bmesh.ops.extrude_edge_only(bm, edges=[e for e in bm.edges if e.is_boundary])['geom']
         bm.normal_update()
         for v in [g for g in rim if isinstance(g, bmesh.types.BMVert)]:
             v.co -= v.normal * hem
+        if trim is not None:   # contrasting cuffs and collar on the turned-back hem
+            for f in [g for g in rim if isinstance(g, bmesh.types.BMFace)]:
+                f.material_index = 1
     bm.normal_update()
     layer = bm.loops.layers.uv.active or bm.loops.layers.uv.new('UVMap')
     for f in bm.faces:
@@ -176,6 +225,8 @@ def shell(ctx, name, face_mask, ease, material, smooth=8, hem=0.004, uv='torso',
     bm.free()
     obj.data.materials.clear()
     obj.data.materials.append(material)
+    if trim is not None:
+        obj.data.materials.append(trim)
     obj.data.polygons.foreach_set('use_smooth', [True] * len(obj.data.polygons))
     obj.parent = ctx['rig']
     obj.modifiers.new('Armature', 'ARMATURE').object = ctx['rig']
@@ -227,7 +278,7 @@ def tee(ctx, G, colour=(0.85, 0.86, 0.82), sleeve_len=0.48):
         cuts.append(cut(lambda p, t=t, sign=sign: (t(p) - sleeve_len) if p[0] * sign > 0.12 and p[2] > upper else 1.0))
     obj = shell(ctx, 'AWD_Top_tee', torso | sleeves, ease, fabric_material(G, 'AWD_Fabric_tee', colour, 'jersey'),
                 smooth=14, cuts=cuts,
-                envelope={'window': 2, 'sigma': 1.2} if ctx['sex'] == 'female' else {})
+                envelope={'window': 2, 'sigma': 1.2} if ctx['sex'] == 'female' else {'window': 5})
     obj['awd_slot'], obj['awd_id'] = 'top', 'tee'
     obj['awd_hides'] = body_cover(torso & (c[:, 2] < collar - 0.012), sleeves & (R['sleeve'] < sleeve_len - 0.06))
     return obj

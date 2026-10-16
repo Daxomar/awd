@@ -1,15 +1,23 @@
-// Editable GLB human anatomy, fitted wardrobe and a retargeted mocap skeleton.
+// Game avatars. Default: Blender-built characters (awd-avatar.js, characters/). The previous
+// procedural avatar (character.js) stays as the fallback when those assets cannot load, and on
+// request with ?avatars=classic or localStorage 'awd.avatars' = 'classic'.
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { initCharacters, Character, SKIN } from './character.js';
+import { loadAwdAvatars, AwdAvatar } from './awd-avatar.js';
 
 let ready = null;
+let mode = null;   // 'awd' | 'classic' once loadAvatars() settles
 export const SKIN_TONES = SKIN;
-export function loadAvatars() {
-  if (ready) return ready;
+export const avatarMode = () => mode;
+function classicRequested() {
+  try { return new URLSearchParams(location.search).get('avatars') === 'classic' || localStorage.getItem('awd.avatars') === 'classic'; }
+  catch { return false; }
+}
+function loadClassic() {
   const loader = new GLTFLoader();
   const model = name => loader.loadAsync('/assets/models/'+name+'.glb');
-  ready = Promise.all([model('rpm_lo'), fetch('/assets/anim/clips.json').then((r) => r.json()), model('accra-male'), model('accra-female')]).then(([m, clips, male, female]) => {
+  return Promise.all([model('rpm_lo'), fetch('/assets/anim/clips.json').then((r) => r.json()), model('accra-male'), model('accra-female')]).then(([m, clips, male, female]) => {
     const human={native:true,joints:{},morphs:{}};
     for(const [sex,asset] of [['male',male],['female',female]]){
       const root=asset.scene.children[0],meshes=[];asset.scene.traverse(o=>{if(o.isSkinnedMesh)meshes.push(o);});
@@ -23,7 +31,14 @@ export function loadAvatars() {
         human.weightBones=mesh.skeleton.bones.map(b=>b.name);
       }
     }
-    const c = {}; for (const k in clips.m) c[k] = THREE.AnimationClip.parse(clips.m[k]); initCharacters(m, c, human); return true;
+    const c = {}; for (const k in clips.m) c[k] = THREE.AnimationClip.parse(clips.m[k]); initCharacters(m, c, human); mode = 'classic'; return true;
+  });
+}
+export function loadAvatars() {
+  if (ready) return ready;
+  ready = classicRequested() ? loadClassic() : loadAwdAvatars().then(() => { mode = 'awd'; return true; }, (error) => {
+    console.warn('Character assets unavailable; using classic avatars.', error);
+    return loadClassic();
   });
   return ready;
 }
@@ -47,4 +62,8 @@ export function normalizeLook(l = {}) {
   if (!o.topCol) o.topCol = '#f4f4f2'; if (!o.bottomCol) o.bottomCol = '#2b3a55'; if (o.full && !o.fullCol) o.fullCol = '#e76f51';
   return o;
 }
-export class Avatar extends Character { constructor(look = {}) { super(normalizeLook(look)); } setLook(look) { super.setLook(normalizeLook(look)); } }
+class ClassicAvatar extends Character { constructor(look = {}) { super(normalizeLook(look)); } setLook(look) { super.setLook(normalizeLook(look)); } }
+class GameAvatar extends AwdAvatar { constructor(look = {}, options) { super(normalizeLook(look), options); } setLook(look) { super.setLook(normalizeLook(look)); } }
+// `new Avatar(look, { lod })` returns whichever implementation loadAvatars() selected; both share one API.
+// lod 0 is for close-ups (the studio); the classic avatar ignores it.
+export class Avatar { constructor(look = {}, options = {}) { return mode === 'awd' ? new GameAvatar(look, options) : new ClassicAvatar(look); } }

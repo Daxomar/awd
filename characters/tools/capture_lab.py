@@ -42,6 +42,21 @@ HAIR_SHOTS = {
           ('beards', 'lod=0&cam=grid&t=0.4&hair=lowcut&beards=nobeard,stubble,goatee,fullbeard', (1200, 600)),
           ('beards_laugh', 'lod=0&cam=grid&t=0.4&hair=lowcut&expr=laughing&beards=nobeard,stubble,goatee,fullbeard', (1200, 600))],
 }
+WEAR_SHOTS = {
+    'f': [('tops_a', 'cam=grid&items=top:tee,top:flagtee,top:crop,top:polo,top:hoodie,top:jersey,top:jerseyaway'),
+          ('tops_b', 'cam=grid&items=top:ankara,top:kenteshirt,top:office,top:suit,top:kaba,top:blouse,neck:stole'),
+          ('bottoms', 'cam=gridfull&items=bottom:jeans,bottom:shorts,bottom:joggers,bottom:chinos,bottom:suitpants,bottom:ankarapants'),
+          ('skirts', 'cam=gridfull&items=bottom:slit,bottom:mini,bottom:pencil,bottom:kenteskirt,top:kaba,full:bodycon'),
+          ('dresses', 'cam=gridfull&items=full:sundress,full:ankaradress,full:kentedress,full:bodycon'),
+          ('shoes', 'cam=gridfeet&items=shoes:slides,shoes:sneakers,shoes:ahenema,shoes:loafers,shoes:heels,shoes:boots'),
+          ('accessories', 'cam=grid&items=hat:cap,hat:bucket,glasses:shades,glasses:specs,neck:chain,neck:beads,neck:stole')],
+    'm': [('tops_a', 'cam=grid&items=top:tee,top:flagtee,top:singlet,top:polo,top:hoodie,top:jersey,top:jerseyaway'),
+          ('tops_b', 'cam=grid&items=top:ankara,top:kenteshirt,top:fugu,top:office,top:kaftan,top:suit,full:kentecloth'),
+          ('bottoms', 'cam=gridfull&items=bottom:jeans,bottom:shorts,bottom:joggers,bottom:chinos,bottom:suitpants,bottom:ankarapants'),
+          ('robes', 'cam=gridfull&items=top:fugu,top:kaftan,top:suit,full:kentecloth'),
+          ('shoes', 'cam=gridfeet&items=shoes:slides,shoes:sneakers,shoes:ahenema,shoes:loafers,shoes:boots'),
+          ('accessories', 'cam=grid&items=hat:cap,hat:bucket,hat:kufi,glasses:shades,glasses:specs,neck:chain,neck:beads')],
+}
 
 
 async def capture(browser, name, query, size, prefix):
@@ -68,6 +83,8 @@ async def main(prefix):
         try:
             body = next((a.split('=')[1] for a in sys.argv if a.startswith('--body=')), 'm')
             shots = HAIR_SHOTS[body] if '--set=hair' in sys.argv else SHOTS
+            if '--set=wear' in sys.argv:
+                shots = [(name, f'lod=0&t=0.4&{query}', (1600, 600)) for name, query in WEAR_SHOTS[body]]
             for name, query, size in shots:
                 if '--resume' in sys.argv and (OUT / f'{prefix}_{name}.png').exists():
                     continue

@@ -62,19 +62,93 @@ def iris_texture(size=256, seed=7):
 
 
 def fabric_texture(kind, size=256, seed=31):
-    """Tileable near-white weave; the material colour factor supplies the garment colour."""
+    """Tileable near-white fabric; the material colour factor supplies the garment colour.
+
+    denim, jersey, pique (polo knit), cotton (shirting), twill (chinos, suits),
+    fleece (joggers, hoodies), mesh (football shirts), kente (woven strip blocks)
+    and fugu (hand-loomed stripes). Kente and fugu are original value patterns,
+    so one texture serves every catalogue colour."""
     rng = np.random.default_rng(seed)
     y, x = np.mgrid[0:size, 0:size].astype(np.float64)
+    noise = rng.random((size, size))
     if kind == 'denim':   # 2/1 twill: diagonal ridges, slubby warp, faded highlights
         twill = 0.5 + 0.5 * np.sin((x + y) * 2 * np.pi / 6)
         slub = np.repeat(rng.random((1, size)), size, axis=0) * 0.25
-        value = 0.70 + 0.18 * twill + slub * 0.6 + rng.random((size, size)) * 0.06
+        value = 0.70 + 0.18 * twill + slub * 0.6 + noise * 0.06
+    elif kind == 'pique':
+        value = 0.84 + 0.12 * ((np.sin(x * 2 * np.pi / 5) * np.sin(y * 2 * np.pi / 5)) > 0.2) + noise * 0.04
+    elif kind == 'cotton':
+        value = 0.90 + 0.05 * np.sin(x * 2 * np.pi / 3) * np.sin(y * 2 * np.pi / 3) + noise * 0.03
+    elif kind == 'twill':
+        value = 0.82 + 0.10 * (0.5 + 0.5 * np.sin((x + y) * 2 * np.pi / 5)) + noise * 0.04
+    elif kind == 'fleece':
+        value = 0.86 + noise * 0.10
+    elif kind == 'mesh':
+        holes = (np.sin(x * 2 * np.pi / 6) * np.sin(y * 2 * np.pi / 6)) > 0.75
+        value = np.where(holes, 0.62, 0.95) + noise * 0.03
+    elif kind == 'kente':
+        value = _kente(size, rng)
+    elif kind == 'fugu':
+        stripe = (x // 4) % 5
+        value = np.choose(stripe.astype(int), [0.95, 0.55, 0.95, 0.80, 0.18]) + noise * 0.05
+        value = value * (0.92 + 0.08 * np.sin(y * 2 * np.pi / 3))
     else:                 # jersey knit: fine vertical columns of loops
         loops = 0.5 + 0.5 * np.sin(x * 2 * np.pi / 4) * np.sin(y * 2 * np.pi / 6)
-        value = 0.86 + 0.10 * loops + rng.random((size, size)) * 0.04
+        value = 0.86 + 0.10 * loops + noise * 0.04
     value = np.clip(value, 0, 1)
     rgba = np.stack([value, value, value * (0.98 if kind == 'denim' else 1), np.ones_like(value)], axis=-1)
     return save_image(f'awd_fabric_{kind}', rgba)
+
+
+def _kente(size, rng):
+    """Woven strips (8 per repeat) of alternating motif blocks: bars, checks and zigzags."""
+    y, x = np.mgrid[0:size, 0:size].astype(np.float64)
+    strip_w, block_h = size // 8, size // 4
+    value = np.full((size, size), 0.95)
+    for col in range(8):
+        for row in range(4):
+            sx, sy = slice(col * strip_w, (col + 1) * strip_w), slice(row * block_h, (row + 1) * block_h)
+            lx, ly = x[sy, sx] - col * strip_w, y[sy, sx] - row * block_h
+            motif = (col + row) % 3
+            if motif == 0:      # horizontal bars
+                block = np.where((ly // 4) % 3 == 0, 0.12, np.where((ly // 4) % 3 == 1, 0.95, 0.6))
+            elif motif == 1:    # small checks
+                block = np.where(((lx // 4) + (ly // 4)) % 2 == 0, 0.12, 0.95)
+            else:               # zigzag on plain ground
+                zig = np.abs(((ly / 6) % 2) - 1) * strip_w * 0.8
+                block = np.where(np.abs(lx - zig - strip_w * 0.1) < 2.5, 0.12, 0.95)
+            value[sy, sx] = block
+        value[:, col * strip_w:col * strip_w + 1] = 0.35      # strip seams
+    return value + rng.random((size, size)) * 0.04
+
+
+def print_texture(kind, size=256):
+    """Fixed-colour artwork that is not tinted at runtime (flag patch, star, trims, beads)."""
+    y, x = np.mgrid[0:size, 0:size].astype(np.float64) / size
+    rgb = np.ones((size, size, 3))
+    red, gold, green, black = (np.array(c) for c in ((0.81, 0.07, 0.15), (0.99, 0.82, 0.09), (0.0, 0.42, 0.25), (0.02, 0.02, 0.02)))
+
+    def star(cx, cy, r):
+        dx, dy = x - cx, y - cy
+        ang = np.arctan2(dx, dy)
+        rad = np.hypot(dx, dy)
+        k = np.cos(np.pi / 5) / np.cos((ang % (2 * np.pi / 5)) - np.pi / 5)
+        return rad < r * (0.45 + 0.55 * (k - np.cos(np.pi / 5)) / (1 - np.cos(np.pi / 5)))
+    if kind == 'flag':        # national flag of Ghana: red, gold, green bands and a black star
+        rgb[y > 2 / 3] = red
+        rgb[(y <= 2 / 3) & (y > 1 / 3)] = gold
+        rgb[y <= 1 / 3] = green
+        rgb[star(0.5, 0.5, 0.15)] = black
+    elif kind == 'star':      # black star badge on white
+        rgb[star(0.5, 0.5, 0.42)] = black
+    elif kind == 'tricolour':  # red, gold, green trim running along u
+        rgb[:] = np.where((x < 1 / 3)[..., None], red, np.where((x < 2 / 3)[..., None], gold, green))
+    elif kind == 'beads':     # waist-bead colours repeating along u
+        palette = [red, gold, green, np.array((0.95, 0.95, 0.92)), np.array((0.1, 0.35, 0.75)), black]
+        idx = (x * 12).astype(int) % len(palette)
+        rgb = np.array(palette)[idx]
+    rgba = np.concatenate([rgb, np.ones((size, size, 1))], axis=-1)
+    return save_image(f'awd_print_{kind}', rgba)
 
 
 def brow_alpha(name='awd_brow_alpha', size=(256, 64), seed=5):

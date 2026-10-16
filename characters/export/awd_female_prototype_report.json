@@ -1,6 +1,6 @@
 {
   "awd_female_prototype_lod0.glb": {
-    "bytes": 2474524,
+    "bytes": 2669012,
     "meshes": 11,
     "triangles": 28064,
     "materials": [
@@ -17,7 +17,12 @@
       "AWD_Fabric_tee"
     ],
     "animations": [
+      "agree",
+      "dance",
       "idle",
+      "run",
+      "sad",
+      "shake",
       "walk",
       "wave"
     ],
@@ -45,9 +50,9 @@
     "images": 6
   },
   "awd_female_prototype_lod1.glb": {
-    "bytes": 1241588,
+    "bytes": 1434572,
     "meshes": 8,
-    "triangles": 12531,
+    "triangles": 12485,
     "materials": [
       "AWD_Skin",
       "AWD_Fabric_denim",
@@ -59,7 +64,12 @@
       "AWD_Fabric_tee"
     ],
     "animations": [
+      "agree",
+      "dance",
       "idle",
+      "run",
+      "sad",
+      "shake",
       "walk",
       "wave"
     ],
@@ -78,9 +88,9 @@
     "images": 5
   },
   "awd_female_prototype_lod2.glb": {
-    "bytes": 826640,
+    "bytes": 1019580,
     "meshes": 8,
-    "triangles": 4381,
+    "triangles": 4366,
     "materials": [
       "AWD_Skin",
       "AWD_Fabric_denim",
@@ -92,7 +102,12 @@
       "AWD_Fabric_tee"
     ],
     "animations": [
+      "agree",
+      "dance",
       "idle",
+      "run",
+      "sad",
+      "shake",
       "walk",
       "wave"
     ],
@@ -133,7 +148,7 @@
     "images": 1
   },
   "top_tee_female.glb": {
-    "bytes": 313132,
+    "bytes": 313240,
     "meshes": 1,
     "triangles": 3624,
     "materials": [
@@ -155,7 +170,7 @@
     "images": 1
   },
   "bottom_jeans_female.glb": {
-    "bytes": 268824,
+    "bytes": 269408,
     "meshes": 1,
     "triangles": 2800,
     "materials": [
@@ -177,7 +192,7 @@
     "images": 1
   },
   "shoes_sneakers_female.glb": {
-    "bytes": 114940,
+    "bytes": 114952,
     "meshes": 1,
     "triangles": 2148,
     "materials": [
@@ -198,5 +213,116 @@
       "waist"
     ],
     "images": 0
+  },
+  "awd_female_base_lod0.glb": {
+    "bytes": 2569132,
+    "meshes": 7,
+    "triangles": 28588,
+    "materials": [
+      "AWD_Skin",
+      "AWD_Brows",
+      "AWD_Eye",
+      "AWD_Lashes",
+      "AWD_Teeth",
+      "AWD_Tongue"
+    ],
+    "animations": [
+      "agree",
+      "dance",
+      "idle",
+      "run",
+      "sad",
+      "shake",
+      "walk",
+      "wave"
+    ],
+    "joints": 67,
+    "morphs": [
+      "blink",
+      "browDown",
+      "browInnerUp",
+      "browUp",
+      "build",
+      "bust",
+      "faceWidth",
+      "frown",
+      "hips",
+      "jawOpen",
+      "lips",
+      "mouthO",
+      "muscle",
+      "nose",
+      "shoulders",
+      "smile",
+      "squint",
+      "waist"
+    ],
+    "images": 3
+  },
+  "awd_female_base_lod1.glb": {
+    "bytes": 1129348,
+    "meshes": 4,
+    "triangles": 12092,
+    "materials": [
+      "AWD_Skin",
+      "AWD_Brows",
+      "AWD_Eye"
+    ],
+    "animations": [
+      "agree",
+      "dance",
+      "idle",
+      "run",
+      "sad",
+      "shake",
+      "walk",
+      "wave"
+    ],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 2
+  },
+  "awd_female_base_lod2.glb": {
+    "bytes": 694688,
+    "meshes": 4,
+    "triangles": 4230,
+    "materials": [
+      "AWD_Skin",
+      "AWD_Brows",
+      "AWD_Eye"
+    ],
+    "animations": [
+      "agree",
+      "dance",
+      "idle",
+      "run",
+      "sad",
+      "shake",
+      "walk",
+      "wave"
+    ],
+    "joints": 67,
+    "morphs": [
+      "build",
+      "bust",
+      "faceWidth",
+      "hips",
+      "lips",
+      "muscle",
+      "nose",
+      "shoulders",
+      "waist"
+    ],
+    "images": 2
   }
 }
