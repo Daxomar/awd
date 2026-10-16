@@ -1,0 +1,2473 @@
+{
+  "home:nima": {
+    "spawn": {
+      "x": 0,
+      "z": -1.8
+    },
+    "zones": [
+      {
+        "id": "bed",
+        "item": 0,
+        "acts": [
+          "sleep",
+          "nap"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "bath",
+        "item": 3,
+        "acts": [
+          "bath",
+          "toilet"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "cook",
+        "item": 13,
+        "acts": [
+          "cook"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "home:jtown": {
+    "spawn": {
+      "x": 0,
+      "z": -1.8
+    },
+    "zones": [
+      {
+        "id": "bed",
+        "item": 0,
+        "acts": [
+          "sleep",
+          "nap"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "bath",
+        "item": 3,
+        "acts": [
+          "bath",
+          "toilet"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "cook",
+        "item": 13,
+        "acts": [
+          "cook"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "home:kaneshie": {
+    "spawn": {
+      "x": 3,
+      "z": -2
+    },
+    "zones": [
+      {
+        "id": "bed",
+        "item": 0,
+        "acts": [
+          "sleep",
+          "nap"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "bath",
+        "item": 3,
+        "acts": [
+          "bath",
+          "toilet"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "cook",
+        "item": 13,
+        "acts": [
+          "cook"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "home:labadi": {
+    "spawn": {
+      "x": -2.9,
+      "z": 1.8
+    },
+    "zones": [
+      {
+        "id": "bed",
+        "item": 4,
+        "acts": [
+          "sleep",
+          "nap"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "bath",
+        "item": 0,
+        "acts": [
+          "bath"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "wc",
+        "item": 1,
+        "acts": [
+          "toilet"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "cook",
+        "item": 12,
+        "acts": [
+          "cook"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "home:osu": {
+    "spawn": {
+      "x": -3.4,
+      "z": 2.66
+    },
+    "zones": [
+      {
+        "id": "bed",
+        "item": 4,
+        "acts": [
+          "sleep",
+          "nap"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "bath",
+        "item": 1,
+        "acts": [
+          "bath"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "wc",
+        "item": 2,
+        "acts": [
+          "toilet"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "cook",
+        "item": 15,
+        "acts": [
+          "cook"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "home:airres": {
+    "spawn": {
+      "x": -3.9,
+      "z": 3.2
+    },
+    "zones": [
+      {
+        "id": "bed",
+        "item": 4,
+        "acts": [
+          "sleep",
+          "nap"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "bath",
+        "item": 1,
+        "acts": [
+          "bath"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "wc",
+        "item": 2,
+        "acts": [
+          "toilet"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "cook",
+        "item": 16,
+        "acts": [
+          "cook"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "home:legon": {
+    "spawn": {
+      "x": -4.4,
+      "z": 3.78
+    },
+    "zones": [
+      {
+        "id": "bed",
+        "item": 5,
+        "acts": [
+          "sleep",
+          "nap"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "bath",
+        "item": 1,
+        "acts": [
+          "bath"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "wc",
+        "item": 2,
+        "acts": [
+          "toilet"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "cook",
+        "item": 19,
+        "acts": [
+          "cook"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "home:trasacco": {
+    "spawn": {
+      "x": -5.4,
+      "z": 3.8
+    },
+    "zones": [
+      {
+        "id": "bed",
+        "item": 5,
+        "acts": [
+          "sleep",
+          "nap"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "bath",
+        "item": 1,
+        "acts": [
+          "bath"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "wc",
+        "item": 2,
+        "acts": [
+          "toilet"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "cook",
+        "item": 18,
+        "acts": [
+          "cook"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "circle": {
+    "spawn": {
+      "x": 4.6,
+      "z": 0.6
+    },
+    "zones": [
+      {
+        "id": "preacher",
+        "item": 7,
+        "acts": [
+          "preacher"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "water",
+        "item": 8,
+        "acts": [
+          "sellwater"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "ice",
+        "item": 10,
+        "acts": [
+          "purewater"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "phones",
+        "item": 21,
+        "acts": [
+          "phonemarket"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "fitter",
+        "item": 23,
+        "acts": [
+          "fitter",
+          "unlock"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "acc",
+        "item": 26,
+        "acts": [
+          "accessories"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "tro",
+        "item": 3,
+        "acts": [
+          "mate"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "crowd",
+        "item": 11,
+        "acts": [
+          "pickpocket"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "wc",
+        "item": 12,
+        "acts": [
+          "toilet"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "muni": {
+    "spawn": {
+      "x": -3.3,
+      "z": 2.08
+    },
+    "zones": [
+      {
+        "id": "eat",
+        "item": 6,
+        "acts": [
+          "waakye",
+          "waakyeSmall"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "gist",
+        "item": 5,
+        "acts": [
+          "gistMuni"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "makola": {
+    "spawn": {
+      "x": 2.6,
+      "z": 3.2
+    },
+    "zones": [
+      {
+        "id": "food",
+        "item": 3,
+        "acts": [
+          "foodstuff"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "queens",
+        "item": 5,
+        "acts": [
+          "haggle"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "loads",
+        "item": 9,
+        "acts": [
+          "kayayo",
+          "resell"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "wc",
+        "item": 10,
+        "acts": [
+          "toilet"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "kantamanto": {
+    "spawn": {
+      "x": 2.8,
+      "z": 2.8
+    },
+    "zones": [
+      {
+        "id": "rack",
+        "item": 1,
+        "acts": [
+          "thrift"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "bale",
+        "item": 8,
+        "acts": [
+          "bale"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "chopbar": {
+    "spawn": {
+      "x": -4.3,
+      "z": 2.8
+    },
+    "zones": [
+      {
+        "id": "eat",
+        "item": 7,
+        "acts": [
+          "fufu",
+          "banku",
+          "redred"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "wash",
+        "item": 5,
+        "acts": [
+          "washplates"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "rush",
+        "item": 1,
+        "acts": [
+          "rush"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "wc",
+        "item": 6,
+        "acts": [
+          "toilet"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "kenkey": {
+    "spawn": {
+      "x": -2.9,
+      "z": 1.8
+    },
+    "zones": [
+      {
+        "id": "eat",
+        "item": 4,
+        "acts": [
+          "kenkey"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "take",
+        "item": 0,
+        "acts": [
+          "kenkeyTake"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "oxford": {
+    "spawn": {
+      "x": 4,
+      "z": 3.3
+    },
+    "zones": [
+      {
+        "id": "eat",
+        "item": 6,
+        "acts": [
+          "kelewele"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "stroll",
+        "item": 9,
+        "acts": [
+          "stroll"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "photo",
+        "item": 8,
+        "acts": [
+          "photoOsu"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "hawk",
+        "item": 7,
+        "acts": [
+          "hawk"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "vibes": {
+    "spawn": {
+      "x": -4.3,
+      "z": 2.8
+    },
+    "zones": [
+      {
+        "id": "floor",
+        "item": 3,
+        "acts": [
+          "party",
+          "battle"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "bar",
+        "item": 5,
+        "acts": [
+          "drinks",
+          "shutdown"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "vip",
+        "item": 7,
+        "acts": [
+          "vip",
+          "sneakvip"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "wc",
+        "item": 10,
+        "acts": [
+          "toilet"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "hub": {
+    "spawn": {
+      "x": -4.3,
+      "z": -0.2
+    },
+    "zones": [
+      {
+        "id": "desk",
+        "item": 4,
+        "acts": [
+          "cowork",
+          "freelance",
+          "buildmvp",
+          "sakawa"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "boot",
+        "item": 1,
+        "acts": [
+          "bootcamp"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "pitch",
+        "item": 12,
+        "acts": [
+          "pitch"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "wc",
+        "item": 8,
+        "acts": [
+          "toilet"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "bank": {
+    "spawn": {
+      "x": -3.8,
+      "z": 2.1
+    },
+    "zones": [
+      {
+        "id": "loans",
+        "item": 2,
+        "acts": [
+          "loans"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "teller",
+        "item": 0,
+        "acts": [
+          "fixed"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "wc",
+        "item": 8,
+        "acts": [
+          "toilet"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "ridge": {
+    "spawn": {
+      "x": -4.3,
+      "z": -2.4
+    },
+    "zones": [
+      {
+        "id": "doc",
+        "item": 3,
+        "acts": [
+          "checkup"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "ward",
+        "item": 0,
+        "acts": [
+          "treatment"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "wc",
+        "item": 9,
+        "acts": [
+          "toilet"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "korlebu": {
+    "spawn": {
+      "x": -4.8,
+      "z": 0
+    },
+    "zones": [
+      {
+        "id": "opd",
+        "item": 5,
+        "acts": [
+          "checkup2"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "ward",
+        "item": 0,
+        "acts": [
+          "nhis"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "canteen",
+        "item": 10,
+        "acts": [
+          "hospfood"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "police": {
+    "spawn": {
+      "x": -3.3,
+      "z": 2.45
+    },
+    "zones": [
+      {
+        "id": "desk",
+        "item": 0,
+        "acts": [
+          "report"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "memorial": {
+    "spawn": {
+      "x": 3.5,
+      "z": 3.7
+    },
+    "zones": [
+      {
+        "id": "tour",
+        "item": 9,
+        "acts": [
+          "tour"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "fountain",
+        "item": 5,
+        "acts": [
+          "shoot"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "blackstar": {
+    "spawn": {
+      "x": 1.8,
+      "z": 3.8
+    },
+    "zones": [
+      {
+        "id": "track",
+        "item": 5,
+        "acts": [
+          "jog"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "kite",
+        "item": 6,
+        "acts": [
+          "kite"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "castle": {
+    "spawn": {
+      "x": 3,
+      "z": 3.6
+    },
+    "zones": [
+      {
+        "id": "tour",
+        "item": 7,
+        "acts": [
+          "castletour"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "guide",
+        "item": 3,
+        "acts": [
+          "guide"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "lighthouse": {
+    "spawn": {
+      "x": 3.4,
+      "z": 3.2
+    },
+    "zones": [
+      {
+        "id": "lh",
+        "item": 2,
+        "acts": [
+          "climb"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "bukom": {
+    "spawn": {
+      "x": -4.3,
+      "z": 2.8
+    },
+    "zones": [
+      {
+        "id": "bag",
+        "item": 1,
+        "acts": [
+          "train"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "ring",
+        "item": 0,
+        "acts": [
+          "spar"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "seats",
+        "item": 3,
+        "acts": [
+          "fightnight"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "canoes": {
+    "spawn": {
+      "x": 4,
+      "z": 3.6
+    },
+    "zones": [
+      {
+        "id": "net",
+        "item": 3,
+        "acts": [
+          "net"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "fish",
+        "item": 4,
+        "acts": [
+          "fish"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "labadi": {
+    "spawn": {
+      "x": 1.4,
+      "z": 4.4
+    },
+    "zones": [
+      {
+        "id": "ruins",
+        "item": 1,
+        "acts": [
+          "ruins"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "move",
+        "item": 12,
+        "acts": [
+          "helpvendor"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "fund",
+        "item": 14,
+        "acts": [
+          "donatefund"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "sea",
+        "item": 0,
+        "acts": [
+          "swim"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "chop",
+        "item": 8,
+        "acts": [
+          "palmwine",
+          "tilapia"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "gym",
+        "item": 16,
+        "acts": [
+          "beachworkout"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "jam",
+        "item": 17,
+        "acts": [
+          "drumjam"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "wc",
+        "item": 19,
+        "acts": [
+          "toilet"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "funeral": {
+    "spawn": {
+      "x": 2.6,
+      "z": 3.8
+    },
+    "zones": [
+      {
+        "id": "chairs",
+        "item": 1,
+        "acts": [
+          "attend"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "coffin",
+        "item": 5,
+        "acts": [
+          "mourn"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "dj",
+        "item": 7,
+        "acts": [
+          "djfuneral"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "church": {
+    "spawn": {
+      "x": -4.8,
+      "z": 3.8
+    },
+    "zones": [
+      {
+        "id": "pews",
+        "item": 6,
+        "acts": [
+          "service",
+          "prayer"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "choir",
+        "item": 2,
+        "acts": [
+          "choir"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "seed",
+        "item": 14,
+        "acts": [
+          "seed"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "mosque": {
+    "spawn": {
+      "x": -4.3,
+      "z": -3.2
+    },
+    "zones": [
+      {
+        "id": "pray",
+        "item": 2,
+        "acts": [
+          "pray"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "jumah",
+        "item": 3,
+        "acts": [
+          "jumah"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "stadium": {
+    "spawn": {
+      "x": 3,
+      "z": 3
+    },
+    "zones": [
+      {
+        "id": "stands",
+        "item": 0,
+        "acts": [
+          "match"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "stairs",
+        "item": 1,
+        "acts": [
+          "stadiumjog"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "viewing": {
+    "spawn": {
+      "x": -3.5,
+      "z": -2.6
+    },
+    "zones": [
+      {
+        "id": "watch",
+        "item": 2,
+        "acts": [
+          "watch"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "bet",
+        "item": 4,
+        "acts": [
+          "bet"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "radio": {
+    "spawn": {
+      "x": -3.8,
+      "z": 2.45
+    },
+    "zones": [
+      {
+        "id": "phone",
+        "item": 5,
+        "acts": [
+          "callin"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "desk",
+        "item": 2,
+        "acts": [
+          "tourfm"
+        ],
+        "route": null,
+        "use": 2
+      }
+    ]
+  },
+  "mall": {
+    "spawn": {
+      "x": -2.6,
+      "z": -3.6
+    },
+    "zones": [
+      {
+        "id": "home",
+        "item": 0,
+        "acts": [
+          "homestore",
+          "fashion",
+          "window"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "gadgets",
+        "item": 4,
+        "acts": [
+          "gadgets"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "cinema",
+        "item": 12,
+        "acts": [
+          "cinema"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "food",
+        "item": 15,
+        "acts": [
+          "foodcourt"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "wc",
+        "item": 10,
+        "acts": [
+          "toilet"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "ug": {
+    "spawn": {
+      "x": -4.8,
+      "z": 2.7
+    },
+    "zones": [
+      {
+        "id": "lecture",
+        "item": 2,
+        "acts": [
+          "lecture",
+          "tutor"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "balme",
+        "item": 7,
+        "acts": [
+          "balme"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "night",
+        "item": 11,
+        "acts": [
+          "nightmarket"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "airport": {
+    "spawn": {
+      "x": -5.2,
+      "z": 3.15
+    },
+    "zones": [
+      {
+        "id": "seats",
+        "item": 1,
+        "acts": [
+          "planes"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "checkin",
+        "item": 3,
+        "acts": [
+          "kumasi"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "wc",
+        "item": 7,
+        "acts": [
+          "toilet"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "hotel": {
+    "spawn": {
+      "x": -3,
+      "z": -4.2
+    },
+    "zones": [
+      {
+        "id": "sun",
+        "item": 1,
+        "acts": [
+          "pool"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "brunch",
+        "item": 11,
+        "acts": [
+          "brunch"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "desk",
+        "item": 8,
+        "acts": [
+          "room"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "mic",
+        "item": 12,
+        "acts": [
+          "emcee"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "wc",
+        "item": 14,
+        "acts": [
+          "toilet"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "ama": {
+    "spawn": {
+      "x": -4.3,
+      "z": 2.8
+    },
+    "zones": [
+      {
+        "id": "vote",
+        "item": 5,
+        "acts": [
+          "vote"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "hall",
+        "item": 2,
+        "acts": [
+          "townhall"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "cars": {
+    "spawn": {
+      "x": -5.3,
+      "z": 3.4
+    },
+    "zones": [
+      {
+        "id": "show",
+        "item": 0,
+        "acts": [
+          "showroom"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "rent",
+        "item": 3,
+        "acts": [
+          "rent"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "momo": {
+    "spawn": {
+      "x": 2.4,
+      "z": 2.4
+    },
+    "zones": [
+      {
+        "id": "kiosk",
+        "item": 0,
+        "acts": [
+          "momo"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "cinema": {
+    "spawn": {
+      "x": 0,
+      "z": 3
+    },
+    "zones": [
+      {
+        "id": "cinemascreen",
+        "item": 0,
+        "acts": [
+          "film"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "popcorncount",
+        "item": 13,
+        "acts": [
+          "popcorn"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "court": {
+    "spawn": {
+      "x": 0,
+      "z": 3
+    },
+    "zones": [
+      {
+        "id": "legalinforma",
+        "item": 0,
+        "acts": [
+          "legal"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "publicgaller",
+        "item": 1,
+        "acts": [
+          "gallery"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "aboki": {
+    "spawn": {
+      "x": 0,
+      "z": 3
+    },
+    "zones": [
+      {
+        "id": "abokikhebab",
+        "item": 0,
+        "acts": [
+          "khebab",
+          "chickenkhebab"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "fanyogo": {
+    "spawn": {
+      "x": 0,
+      "z": 3
+    },
+    "zones": [
+      {
+        "id": "fanyogoandfa",
+        "item": 0,
+        "acts": [
+          "fanyogo",
+          "fanice"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "restaurant": {
+    "spawn": {
+      "x": 0,
+      "z": 3
+    },
+    "zones": [
+      {
+        "id": "restaurantta",
+        "item": 0,
+        "acts": [
+          "jollof",
+          "tilapia"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "gymlegon": {
+    "spawn": {
+      "x": 0,
+      "z": 3
+    },
+    "zones": [
+      {
+        "id": "weights",
+        "item": 0,
+        "acts": [
+          "train"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "n:nima": {
+    "spawn": {
+      "x": 0,
+      "z": 10
+    },
+    "zones": [
+      {
+        "id": "walk",
+        "item": 1,
+        "acts": [
+          "stroll",
+          "streetgames"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "khebab",
+        "item": 2,
+        "acts": [
+          "khebab",
+          "chickenkhebab"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "ice",
+        "item": 3,
+        "acts": [
+          "fanyogo",
+          "fanice"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "watch",
+        "item": 5,
+        "acts": [
+          "streetwatch",
+          "streetbet"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "exit",
+        "item": 6,
+        "acts": [],
+        "route": "map",
+        "use": null
+      },
+      {
+        "id": "estate",
+        "item": 18,
+        "acts": [],
+        "route": "estate",
+        "use": null
+      },
+      {
+        "id": "provisions",
+        "item": 15,
+        "acts": [
+          "provisionsnack"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "barber",
+        "item": 16,
+        "acts": [
+          "barber"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "food",
+        "item": 17,
+        "acts": [
+          "streetmeal"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "n:jtown": {
+    "spawn": {
+      "x": 0,
+      "z": 10
+    },
+    "zones": [
+      {
+        "id": "walk",
+        "item": 1,
+        "acts": [
+          "stroll",
+          "streetgames"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "khebab",
+        "item": 2,
+        "acts": [
+          "khebab",
+          "chickenkhebab"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "ice",
+        "item": 3,
+        "acts": [
+          "fanyogo",
+          "fanice"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "watch",
+        "item": 5,
+        "acts": [
+          "streetwatch",
+          "streetbet"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "exit",
+        "item": 6,
+        "acts": [],
+        "route": "map",
+        "use": null
+      },
+      {
+        "id": "estate",
+        "item": 18,
+        "acts": [],
+        "route": "estate",
+        "use": null
+      },
+      {
+        "id": "provisions",
+        "item": 15,
+        "acts": [
+          "provisionsnack"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "barber",
+        "item": 16,
+        "acts": [
+          "barber"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "food",
+        "item": 17,
+        "acts": [
+          "streetmeal"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "n:kaneshie": {
+    "spawn": {
+      "x": 0,
+      "z": 10
+    },
+    "zones": [
+      {
+        "id": "walk",
+        "item": 1,
+        "acts": [
+          "stroll",
+          "streetgames"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "khebab",
+        "item": 2,
+        "acts": [
+          "khebab",
+          "chickenkhebab"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "ice",
+        "item": 3,
+        "acts": [
+          "fanyogo",
+          "fanice"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "watch",
+        "item": 5,
+        "acts": [
+          "streetwatch",
+          "streetbet"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "exit",
+        "item": 6,
+        "acts": [],
+        "route": "map",
+        "use": null
+      },
+      {
+        "id": "estate",
+        "item": 18,
+        "acts": [],
+        "route": "estate",
+        "use": null
+      },
+      {
+        "id": "provisions",
+        "item": 15,
+        "acts": [
+          "provisionsnack"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "barber",
+        "item": 16,
+        "acts": [
+          "barber"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "food",
+        "item": 17,
+        "acts": [
+          "streetmeal"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "n:labadi": {
+    "spawn": {
+      "x": 0,
+      "z": 10
+    },
+    "zones": [
+      {
+        "id": "walk",
+        "item": 1,
+        "acts": [
+          "stroll",
+          "streetgames"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "khebab",
+        "item": 2,
+        "acts": [
+          "khebab",
+          "chickenkhebab"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "ice",
+        "item": 3,
+        "acts": [
+          "fanyogo",
+          "fanice"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "watch",
+        "item": 5,
+        "acts": [
+          "streetwatch",
+          "streetbet"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "exit",
+        "item": 6,
+        "acts": [],
+        "route": "map",
+        "use": null
+      },
+      {
+        "id": "estate",
+        "item": 18,
+        "acts": [],
+        "route": "estate",
+        "use": null
+      },
+      {
+        "id": "provisions",
+        "item": 15,
+        "acts": [
+          "provisionsnack"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "barber",
+        "item": 16,
+        "acts": [
+          "barber"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "food",
+        "item": 17,
+        "acts": [
+          "streetmeal"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "n:osu": {
+    "spawn": {
+      "x": 0,
+      "z": 10
+    },
+    "zones": [
+      {
+        "id": "walk",
+        "item": 1,
+        "acts": [
+          "stroll",
+          "streetgames"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "khebab",
+        "item": 2,
+        "acts": [
+          "khebab",
+          "chickenkhebab"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "ice",
+        "item": 3,
+        "acts": [
+          "fanyogo",
+          "fanice"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "watch",
+        "item": 5,
+        "acts": [
+          "streetwatch",
+          "streetbet"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "exit",
+        "item": 6,
+        "acts": [],
+        "route": "map",
+        "use": null
+      },
+      {
+        "id": "estate",
+        "item": 18,
+        "acts": [],
+        "route": "estate",
+        "use": null
+      },
+      {
+        "id": "provisions",
+        "item": 15,
+        "acts": [
+          "provisionsnack"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "barber",
+        "item": 16,
+        "acts": [
+          "barber"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "food",
+        "item": 17,
+        "acts": [
+          "streetmeal"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "n:airres": {
+    "spawn": {
+      "x": 0,
+      "z": 10
+    },
+    "zones": [
+      {
+        "id": "walk",
+        "item": 1,
+        "acts": [
+          "stroll",
+          "streetgames"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "khebab",
+        "item": 2,
+        "acts": [
+          "khebab",
+          "chickenkhebab"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "ice",
+        "item": 3,
+        "acts": [
+          "fanyogo",
+          "fanice"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "watch",
+        "item": 5,
+        "acts": [
+          "streetwatch",
+          "streetbet"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "exit",
+        "item": 6,
+        "acts": [],
+        "route": "map",
+        "use": null
+      },
+      {
+        "id": "estate",
+        "item": 18,
+        "acts": [],
+        "route": "estate",
+        "use": null
+      },
+      {
+        "id": "provisions",
+        "item": 15,
+        "acts": [
+          "provisionsnack"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "barber",
+        "item": 16,
+        "acts": [
+          "barber"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "food",
+        "item": 17,
+        "acts": [
+          "streetmeal"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "n:legon": {
+    "spawn": {
+      "x": 0,
+      "z": 10
+    },
+    "zones": [
+      {
+        "id": "walk",
+        "item": 1,
+        "acts": [
+          "stroll",
+          "streetgames"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "khebab",
+        "item": 2,
+        "acts": [
+          "khebab",
+          "chickenkhebab"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "ice",
+        "item": 3,
+        "acts": [
+          "fanyogo",
+          "fanice"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "watch",
+        "item": 5,
+        "acts": [
+          "streetwatch",
+          "streetbet"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "exit",
+        "item": 6,
+        "acts": [],
+        "route": "map",
+        "use": null
+      },
+      {
+        "id": "estate",
+        "item": 18,
+        "acts": [],
+        "route": "estate",
+        "use": null
+      },
+      {
+        "id": "provisions",
+        "item": 15,
+        "acts": [
+          "provisionsnack"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "barber",
+        "item": 16,
+        "acts": [
+          "barber"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "food",
+        "item": 17,
+        "acts": [
+          "streetmeal"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "n:trasacco": {
+    "spawn": {
+      "x": 0,
+      "z": 10
+    },
+    "zones": [
+      {
+        "id": "walk",
+        "item": 1,
+        "acts": [
+          "stroll",
+          "streetgames"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "khebab",
+        "item": 2,
+        "acts": [
+          "khebab",
+          "chickenkhebab"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "ice",
+        "item": 3,
+        "acts": [
+          "fanyogo",
+          "fanice"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "watch",
+        "item": 5,
+        "acts": [
+          "streetwatch",
+          "streetbet"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "exit",
+        "item": 6,
+        "acts": [],
+        "route": "map",
+        "use": null
+      },
+      {
+        "id": "estate",
+        "item": 18,
+        "acts": [],
+        "route": "estate",
+        "use": null
+      },
+      {
+        "id": "provisions",
+        "item": 15,
+        "acts": [
+          "provisionsnack"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "barber",
+        "item": 16,
+        "acts": [
+          "barber"
+        ],
+        "route": null,
+        "use": null
+      },
+      {
+        "id": "food",
+        "item": 17,
+        "acts": [
+          "streetmeal"
+        ],
+        "route": null,
+        "use": null
+      }
+    ]
+  },
+  "e:nima": {
+    "spawn": {
+      "x": 0,
+      "z": 7
+    },
+    "zones": [
+      {
+        "id": "exit",
+        "item": 1,
+        "acts": [],
+        "route": "neighbourhood",
+        "use": null
+      }
+    ]
+  },
+  "e:jtown": {
+    "spawn": {
+      "x": 0,
+      "z": 7
+    },
+    "zones": [
+      {
+        "id": "exit",
+        "item": 1,
+        "acts": [],
+        "route": "neighbourhood",
+        "use": null
+      }
+    ]
+  },
+  "e:kaneshie": {
+    "spawn": {
+      "x": 0,
+      "z": 7
+    },
+    "zones": [
+      {
+        "id": "exit",
+        "item": 1,
+        "acts": [],
+        "route": "neighbourhood",
+        "use": null
+      }
+    ]
+  },
+  "e:labadi": {
+    "spawn": {
+      "x": 0,
+      "z": 7
+    },
+    "zones": [
+      {
+        "id": "exit",
+        "item": 1,
+        "acts": [],
+        "route": "neighbourhood",
+        "use": null
+      }
+    ]
+  },
+  "e:osu": {
+    "spawn": {
+      "x": 0,
+      "z": 7
+    },
+    "zones": [
+      {
+        "id": "exit",
+        "item": 1,
+        "acts": [],
+        "route": "neighbourhood",
+        "use": null
+      }
+    ]
+  },
+  "e:airres": {
+    "spawn": {
+      "x": 0,
+      "z": 7
+    },
+    "zones": [
+      {
+        "id": "exit",
+        "item": 1,
+        "acts": [],
+        "route": "neighbourhood",
+        "use": null
+      }
+    ]
+  },
+  "e:legon": {
+    "spawn": {
+      "x": 0,
+      "z": 7
+    },
+    "zones": [
+      {
+        "id": "exit",
+        "item": 1,
+        "acts": [],
+        "route": "neighbourhood",
+        "use": null
+      }
+    ]
+  },
+  "e:trasacco": {
+    "spawn": {
+      "x": 0,
+      "z": 7
+    },
+    "zones": [
+      {
+        "id": "exit",
+        "item": 1,
+        "acts": [],
+        "route": "neighbourhood",
+        "use": null
+      }
+    ]
+  }
+}

@@ -4,18 +4,23 @@
 //   sign:{text, bg, fg}, items:[{kind, x, z, rot, acts?, zone?, color?}], lights?:[{x,z,color,intensity}] }
 // Room local coords: x in [-w/2, w/2], z in [-d/2, d/2]; back wall at z=-d/2, left wall at x=-w/2.
 import * as THREE from 'three';
-import { makeItem, floorMaterial } from './kit.js';
+import { makeItem, floorMaterial, trimKitCaches } from './kit.js';
+import { EnvironmentResources } from './environment-resources.js';
+import { buildEnvironmentArt } from './environment-art.js';
 import { animatedScreen } from './screens.js';
 import { applyPose } from './poses.js';
 
 const CELL = 0.25;
 export class Room {
-  constructor(stage) { this.stage = stage; this.group = new THREE.Group(); stage.scene.add(this.group); this.people = new Map(); this.items = []; this.screens=[]; this.elapsed=0; this.ray = new THREE.Raycaster(); }
+  constructor(stage) { this.stage = stage; this.group = new THREE.Group(); stage.scene.add(this.group); this.resources=new EnvironmentResources();this.lamps=[];this.glows=[];this.motion=globalThis.matchMedia?.('(prefers-reduced-motion: reduce)');this.people = new Map(); this.items = []; this.screens=[]; this.elapsed=0; this.ray = new THREE.Raycaster(); }
   dispose() {
+    if(this.disposed)return;this.disposed=true;
     for(const id of [...this.people.keys()])this.removePerson(id);
-    for(const s of this.screens){s.dispose();s.material.dispose();}this.screens=[];
-    this.stage.scene.remove(this.group); for (const l of this.stage.lamps) this.stage.scene.remove(l); this.stage.lamps = [];
-    this.group.traverse((o) => { if (o.geometry) o.geometry.dispose(); });
+    for(const rec of this.items)rec.resources.dispose();
+    this.items=[];this.screens=[];this.resources.dispose();
+    this.stage.scene.remove(this.group);this.group.clear();
+    for(const l of this.lamps){this.stage.scene.remove(l);this.stage.lamps=this.stage.lamps.filter(v=>v!==l);}
+    this.lamps=[];this.glows=[];this.water=[];this.art=null;this.floor=null;this.nav=null;trimKitCaches();
   }
   build(spec) {
     this.spec = spec; const { w, d } = spec, H = spec.wallH || 2.7, G = this.group;
@@ -33,7 +38,7 @@ export class Room {
         const g = new THREE.Group(); let x0 = -len / 2; const T = 0.14;
         const seg = (a, b, y0, y1) => { if (b - a < 0.01 || y1 - y0 < 0.01) return; const m = new THREE.Mesh(new THREE.BoxGeometry(b - a, y1 - y0, T), wm); m.position.set((a + b) / 2, (y0 + y1) / 2, 0); m.castShadow = true; m.receiveShadow = true; g.add(m); };
         for (const h of holes) { const hx = -len / 2 + h.c * len, a = hx - h.w / 2, b = hx + h.w / 2; seg(x0, a, 0, H); seg(a, b, 0, h.y0); seg(a, b, h.y1, H); x0 = b;
-          if (h.win) { const gl = new THREE.Mesh(new THREE.PlaneGeometry(h.w, h.y1 - h.y0), new THREE.MeshStandardMaterial({ color: '#bfe3f2', emissive: '#ffd9a0', emissiveIntensity: 0, transparent: true, opacity: 0.45, roughness: 0.1 })); gl.position.set(hx, (h.y0 + h.y1) / 2, 0); gl.userData.window = true; g.add(gl);
+          if (h.win) { const gl = new THREE.Mesh(new THREE.PlaneGeometry(h.w, h.y1 - h.y0), new THREE.MeshStandardMaterial({ color: '#bfe3f2', emissive: '#ffd9a0', emissiveIntensity: 0, transparent: true, opacity: 0.45, roughness: 0.1 })); gl.position.set(hx, (h.y0 + h.y1) / 2, 0); gl.userData.window = true;gl.material.userData.environmentGlow=true; g.add(gl);
             const sill = new THREE.Mesh(new THREE.BoxGeometry(h.w + 0.1, 0.05, 0.22), skirt); sill.position.set(hx, h.y0, 0.05); g.add(sill);
             for (let k = 1; k < 4; k++) { const bar = new THREE.Mesh(new THREE.BoxGeometry(0.025, h.y1 - h.y0, 0.025), new THREE.MeshStandardMaterial({ color: '#2b2f33', metalness: 0.6, roughness: 0.4 })); bar.position.set(hx - h.w / 2 + (k * h.w) / 4, (h.y0 + h.y1) / 2, 0.02); g.add(bar); } } }
         seg(x0, len / 2, 0, H);
@@ -47,11 +52,15 @@ export class Room {
       const c2 = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.06, d + 0.28), cap); c2.position.set(-w / 2 - 0.07, H, 0); G.add(c2);
       if (spec.sign) G.add(signBoard(spec.sign, w, d, H));
     }
+    this.art=buildEnvironmentArt(spec);G.add(this.art);this.water=[];this.art.traverse(o=>{if(o.userData.water)this.water.push(o);});
+    this.resources.capture(G);
     // furniture
     for (const it of spec.items || []) this.addItem(it);
-    for (const L of spec.lights || []) { const p = new THREE.PointLight(L.color || '#ffd59a', L.intensity || 6, L.dist || 7, 1.6); p.position.set(L.x, L.y || 2.3, L.z); p.userData.base = L.intensity || 6; this.stage.scene.add(p); this.stage.lamps.push(p); }
-    if (!spec.lights) { const p = new THREE.PointLight('#ffd59a', 7, Math.max(w, d) * 1.2, 1.4); p.position.set(0, 2.4, 0); p.userData.base = 7; this.stage.scene.add(p); this.stage.lamps.push(p); }
-    this.buildNav();
+    for (const L of (spec.lights || []).slice(0,2)) { const p = new THREE.PointLight(L.color || '#ffd59a', L.intensity || 6, L.dist || 7, 1.6); p.position.set(L.x, L.y || 2.3, L.z); p.userData.base = L.intensity || 6; this.stage.scene.add(p); this.stage.lamps.push(p);this.lamps.push(p); }
+    if (!spec.lights) { const p = new THREE.PointLight('#ffd59a', 7, Math.max(w, d) * 1.2, 1.4); p.position.set(0, 2.4, 0); p.userData.base = 7; this.stage.scene.add(p); this.stage.lamps.push(p);this.lamps.push(p); }
+    G.traverse(o=>{for(const m of Array.isArray(o.material)?o.material:o.material?[o.material]:[])if(m.userData.environmentGlow&&!this.glows.includes(m))this.glows.push(m);});
+    this.stage.environmentOutdoor=!!spec.outdoor;this.stage.setTime?.(this.stage.hour??13);
+    this.buildNav();const authored=spec.spawn||{x:0,z:0};const [si,sj]=this.nearestFree(authored.x,authored.z);this.spawn=this.free(...this.cellOf(authored.x,authored.z))?{...authored}:{x:(si+.5)*CELL-w/2,z:(sj+.5)*CELL-d/2};
     // camera framing
     const st = this.stage; st.view.target.set(0, 0.6, 0); st.view.zoom = Math.max(w, d) * 1.05 + 2.5; st.zoomMin = 4.5; st.zoomMax = Math.max(w, d) * 1.6 + 4;
     st.bounds = [-w / 2, w / 2, -d / 2, d / 2]; st.applyView();
@@ -62,12 +71,17 @@ export class Room {
     const made = makeItem(it.kind, { ...it });
     const o = made.obj; o.position.set(it.x, it.y || 0, it.z); o.rotation.y = it.rot || 0;
     o.traverse((m) => { if (m.isMesh) { m.castShadow = m.userData.noShadow ? false : true; m.receiveShadow = true; } });
-    o.traverse(m=>{if(m.userData.liveScreen){const scr=animatedScreen(m.userData.liveScreen);m.material=m.material.clone();m.material.map=m.material.emissiveMap=scr.texture;m.material.color.set('#fff');scr.kind=m.userData.liveScreen;scr.material=m.material;this.screens.push(scr);}});
-    const rec = { spec: it, obj: o, size: made.size || [1, 1], use: made.use || [{ x: 0, z: 0.8, pose: 'stand' }], acts: it.acts || made.acts || [], walkable: made.walkable, label: it.label || made.label };
+    o.traverse(m=>{if(m.material?.emissive?.getHex()&&!m.userData.liveScreen&&['lamp_post','floor_lamp'].includes(it.kind)){m.material=m.material.clone();m.material.userData.environmentGlow=true;}});
+    const itemScreens=[];o.traverse(m=>{if(m.userData.liveScreen){const scr=animatedScreen(m.userData.liveScreen);m.material=m.material.clone();m.material.map=m.material.emissiveMap=scr.texture;m.material.color.set('#fff');scr.kind=m.userData.liveScreen;scr.material=m.material;this.screens.push(scr);itemScreens.push(scr);}});
+    const rec = { resources:new EnvironmentResources().capture(o),screens:itemScreens, spec: it, obj: o, size: made.size || [1, 1], use: made.use || [{ x: 0, z: 0.8, pose: 'stand' }], acts: it.acts || made.acts || [], walkable: it.walkable ?? made.walkable, label: it.label || made.label };
     o.traverse((m) => { if (m.isMesh) m.userData.itemRef = rec; });
     this.group.add(o); this.items.push(rec); if (this.nav) this.buildNav(); return rec;
   }
-  removeItem(rec) { this.group.remove(rec.obj); this.items = this.items.filter((x) => x !== rec); this.buildNav(); }
+  removeItem(rec) {
+    this.group.remove(rec.obj);this.screens=this.screens.filter(s=>!rec.screens?.includes(s));
+    this.glows=this.glows.filter(m=>!rec.resources.values.has(m));rec.resources.dispose();
+    this.items=this.items.filter(x=>x!==rec);this.buildNav();trimKitCaches();
+  }
   // world position + facing of an item's use point
   usePoint(rec, i = 0) {
     const u = rec.use[i] || rec.use[0]; const c = Math.cos(rec.obj.rotation.y), s = Math.sin(rec.obj.rotation.y);
@@ -97,7 +111,7 @@ export class Room {
       for (let di = -1; di <= 1; di++) for (let dj = -1; dj <= 1; dj++) { if (!di && !dj) continue; const ni = ci + di, nj = cj + dj; if (!this.free(ni, nj)) continue; if (di && dj && (!this.free(ci + di, cj) || !this.free(ci, cj + dj))) continue;
         const k = nj * nx + ni, ng = gS[cur] + (di && dj ? 1.414 : 1); if (ng < gS[k]) { gS[k] = ng; came[k] = cur; if (!inOpen[k]) { open.push(k); inOpen[k] = 1; } } }
     }
-    if (came[goal] < 0 && goal !== start) return [[x1, z1]];
+    if (came[goal] < 0 && goal !== start) return [];
     const cells = []; for (let k = goal; k !== -1 && k !== start; k = came[k]) cells.push(k); cells.reverse();
     const pts = cells.map((k) => [(k % nx + 0.5) * CELL - this.spec.w / 2, (Math.floor(k / nx) + 0.5) * CELL - this.spec.d / 2]);
     // string-pull: drop points visible from the previous kept point
@@ -112,13 +126,13 @@ export class Room {
     const p = { id, av: avatar, x, z, yaw: Math.PI * 0.25, path: [], speed: 1.45, pose: 'stand', info, poseAt: null };
     avatar.root.position.set(x, 0, z); avatar.root.userData.personId = id; this.group.add(avatar.root); this.people.set(id, p); return p;
   }
-  removePerson(id) { const p = this.people.get(id); if (!p) return; this.group.remove(p.av.root); p.av.dispose && p.av.dispose(); this.people.delete(id); }
+  removePerson(id) { const p = this.people.get(id); if (!p) return;clearTimeout(p.danceT); this.group.remove(p.av.root); p.av.dispose && p.av.dispose(); this.people.delete(id); }
   walkTo(id, x, z, onArrive, finalPose) {
     const p = this.people.get(id); if (!p) return; p.pose = 'stand'; p.poseAt = null; p.path = this.path(p.x, p.z, x, z); p.onArrive = onArrive || null; p.finalPose = finalPose || null;
   }
   placeAt(id, x, z, yaw, pose, y = 0) { const p = this.people.get(id); if (!p) return; p.path = []; p.x = x; p.z = z; p.yaw = yaw; p.pose = pose || 'stand'; p.poseY = y; }
   update(dt) {
-    this.elapsed+=dt;for(const s of this.screens)s.update(this.elapsed);for(const r of this.items){for(const spin of r.obj.userData.spin||[])spin.obj.rotation[spin.axis]+=dt*spin.speed;const smoke=r.obj.userData.smoke;if(smoke){smoke.position.y=1.3+(this.elapsed*.25)% .65;smoke.scale.setScalar(.85+Math.sin(this.elapsed)*.12);}}
+    this.elapsed+=dt;const motion=!this.motion?.matches;for(const m of this.glows)m.emissiveIntensity=.12+(this.stage.night||0)*.65;if(motion){for(const water of this.water||[])water.position.y=-.05+Math.sin(this.elapsed*.65)*.006;for(const s of this.screens)s.update(this.elapsed);for(const r of this.items){for(const spin of r.obj.userData.spin||[])spin.obj.rotation[spin.axis]+=dt*spin.speed;const smoke=r.obj.userData.smoke;if(smoke){smoke.position.y=1.3+(this.elapsed*.25)% .65;smoke.scale.setScalar(.85+Math.sin(this.elapsed)*.12);}}}
     for (const p of this.people.values()) {
       let moving = false;
       if (p.path.length) {
@@ -143,7 +157,7 @@ export class Room {
       if (!visible) continue;
       let o = h.object; while (o && !o.userData.itemRef && !o.userData.personId && o !== this.group) o = o.parent;
       if (o && o.userData.personId != null) return { type: 'person', id: o.userData.personId, point: h.point };
-      if (o?.userData.itemRef && o.visible) return { type: 'item', item: o.userData.itemRef, point: h.point };
+      if (o?.userData.itemRef && o.visible && !o.userData.decorative && !o.userData.itemRef.spec.decorative) return { type: 'item', item: o.userData.itemRef, point: h.point };
       if (h.object.userData.floor) { const lp = this.group.worldToLocal(h.point.clone()); return { type: 'floor', x: lp.x, z: lp.z }; }
     }
     return null;

@@ -14,10 +14,11 @@ export function bake(group, { keepSkinned = true } = {}) {
     const plain = mt.isMeshStandardMaterial && !mt.map && !mt.transparent && mt.emissive.getHex() === 0 && mt.side !== THREE.DoubleSide && !mt.flatShading && !mt.userData.own;
     const key = plain ? 'vc' : mt.uuid; if (!buckets.has(key)) buckets.set(key, { mat: plain ? VC : mt, list: [] });
     let g = m.geometry.index ? m.geometry.toNonIndexed() : m.geometry.clone(); g.applyMatrix4(rel.multiplyMatrices(inv, m.matrixWorld));
+    const authoredColors=mt.vertexColors?g.attributes.color:null;
     for (const a of Object.keys(g.attributes)) if (!['position', 'normal', 'uv'].includes(a)) g.deleteAttribute(a);
     if (!g.attributes.normal) g.computeVertexNormals();
     if (!g.attributes.uv) g.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(g.attributes.position.count * 2), 2));
-    if (plain) { const n = g.attributes.position.count, c = new Float32Array(n * 3), col = mt.color; for (let i = 0; i < n; i++) { c[i * 3] = col.r; c[i * 3 + 1] = col.g; c[i * 3 + 2] = col.b; } g.setAttribute('color', new THREE.BufferAttribute(c, 3)); }
+    if (plain) { const n = g.attributes.position.count, c = new Float32Array(n * 3), col = mt.color; for (let i = 0; i < n; i++) { c[i * 3] = col.r*(authoredColors?.getX(i)??1); c[i * 3 + 1] = col.g*(authoredColors?.getY(i)??1); c[i * 3 + 2] = col.b*(authoredColors?.getZ(i)??1); } g.setAttribute('color', new THREE.BufferAttribute(c, 3)); }
     g.morphAttributes = {}; buckets.get(key).list.push(g);
   }
   for (const c of group.children.slice()) group.remove(c);

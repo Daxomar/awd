@@ -1,3 +1,4 @@
+import { dressVenue } from './environment-profiles.js';
 // Venue layouts for every LOCATIONS id (server/src/game/data.js). Each entry is a Room spec (see room.js) plus:
 //   zones: [{ id, label, icon, item, acts:[actId], pose?, anim?, use? }]  item = index into items; use = preferred
 //          use-point index on that item (default 0); pose overrides the use-point pose; anim = clip to play there
@@ -441,3 +442,5 @@ export const VENUES = {
     npcs: [N('Agent Blessing', -0.8, -2.0, 0, LOOK.girl('#ffcc00', '#1d4ed8'), 'work'), S('Customer', [3, 1], LOOK.uncle('#e76f51', '#22313f'))],
     lights: warm([[-0.8, -1.5], [2, 0.5]]) }),
 };
+
+for (const [id,spec] of Object.entries(VENUES)) dressVenue(spec,id);

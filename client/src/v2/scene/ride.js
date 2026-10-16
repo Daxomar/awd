@@ -3,9 +3,10 @@
 // Drawn with its own scene + perspective camera through Stage.override, so the city/room scenes are untouched.
 import * as THREE from 'three';
 import { bake, VC } from './bake.js';
-import { makeItem, mat, T, floorMaterial } from './kit.js';
+import { makeItem, mat, T, floorMaterial, trimKitCaches } from './kit.js';
 import { Avatar } from './avatars.js';
 import { applyPose } from './poses.js';
+import { EnvironmentResources, retainResource } from './environment-resources.js';
 
 const SEG = 40, NSEG = 6, ROAD = 3.6, GUT = 0.6, XB = 7.8; // segment length, road half-width, gutter, building line
 const LANE = 1.8; // centre of your lane (Ghana drives on the right); oncoming lane is -LANE
@@ -15,6 +16,7 @@ const rr = (a, b) => a + rnd() * (b - a);
 // ------------------------------------------------------------------ shared materials
 const WIN = new THREE.MeshStandardMaterial({ color: '#3a4d5c', roughness: 0.25, metalness: 0.3, emissive: '#ffd27a', emissiveIntensity: 0 });
 let ROADM, DIRTM, SIGNM, BOARDM;
+let sharedRetained=false;
 const SHOPS = [
   ['GOD FIRST ENTERPRISE', 'Provisions · Cold drinks', '#c8102e'], ['AUNTIE AFIA CHOP BAR', 'Fufu · Banku · Omo tuo', '#0e7a4e'], ['BLESSED HANDS SALON', 'Braids · Wigs · Pedicure', '#7b2d8e'],
   ['PSALM 23 PHONES', 'Repairs · Screens · Unlocking', '#1f4fa8'], ['NYAME NE HENE SPARE PARTS', 'Toyota · Nissan · Kia', '#17150f'], ['SIKA MPƆ ELECTRICALS', 'Fans · Bulbs · Sockets', '#e76f51'],
@@ -165,7 +167,9 @@ export class Ride {
   constructor(stage) { this.stage = stage; this.active = false; }
   start({ mode, look, car, to, rush, hour, onLine }) {
     if (this.active) this.stop();
-    atlas(); this.mode = mode; this.rush = !!rush; this.onLine = onLine || (() => {}); this.t = 0; this.yawOff = 0; this.drag0 = 0;
+    atlas();if(!sharedRetained){for(const m of [WIN,ROADM,DIRTM,SIGNM,BOARDM,VC])retainResource(m);sharedRetained=true;}
+    this.accessoryResources=new EnvironmentResources();
+    this.mode = mode; this.rush = !!rush; this.onLine = onLine || (() => {}); this.t = 0; this.yawOff = 0; this.drag0 = 0;
     const sc = this.scene = new THREE.Scene(); const cam = this.camera = new THREE.PerspectiveCamera(58, innerWidth / innerHeight, 0.1, 600);
     // sky + light by hour
     const h = hour; const night = h < 5.8 || h > 18.8, dusk = !night && (h < 7.2 || h > 17.4); this.night = night;
@@ -205,9 +209,16 @@ export class Ride {
       if (p.hawker) { const tray = new THREE.Group(); tray.add(new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.26, 0.08, 16), mat('#c9ccd1', { r: 0.3, m: 0.6 }))); for (let k = 0; k < 6; k++) { const b = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.12, 0.1), mat(['#f4f4f2', '#e63946', '#fcd116', '#2a9d8f'][k % 4])); b.position.set(Math.cos(k) * 0.18, 0.09, Math.sin(k) * 0.18); tray.add(b); } tray.position.y = 1.86; av.root.add(tray); }
       av.play(p.hawker && this.rush ? 'idle' : 'walk', 0); p.walking = !(p.hawker && this.rush); this.peds.push(p); this.people.push({ av, pose: null }); }
     this.line = 0; this.stopT = 0;
+    for(const q of this.people){
+      q.av.root.userData.environmentAvatar=true;
+      // Hawker trays are environment props attached to the rig; Character owns
+      // only its model and must not be asked to dispose these cached materials.
+      for(const child of q.av.root.children)if(child!==q.av.model)this.accessoryResources.capture(child);
+    }
+    this.resources=new EnvironmentResources().capture(sc,o=>o.userData.environmentAvatar||this.segs.includes(o));
     this.active = true; this.stage.override = { scene: sc, camera: cam }; this.place(0);
   }
-  addSeg() { const i = this.nextSeg++; const gantry = i % 3 === 1 ? `${this.to.toUpperCase()}  ↑` : null; const g = buildSegment(this.segSeed + i, { gantry, rush: this.rush }); g.position.z = -i * SEG + SEG; this.scene.add(g); this.segs.push(g); }
+  addSeg() { const i = this.nextSeg++; const gantry = i % 3 === 1 ? `${this.to.toUpperCase()}  ↑` : null; const g = buildSegment(this.segSeed + i, { gantry, rush: this.rush }); g.position.z = -i * SEG + SEG; g.userData.resources=new EnvironmentResources().capture(g);this.scene.add(g); this.segs.push(g); }
   addCar(dir, z) { const kind = TRAFFIC[Math.floor(Math.random() * TRAFFIC.length)]; const v = vehicle(kind); v.rotation.y = dir > 0 ? 0 : Math.PI; this.scene.add(v);
     const c = { v, dir, kind, z, x: dir > 0 ? (kind === 'okada' ? 3.0 : LANE) : -LANE + (kind === 'okada' ? -0.7 : 0), sp: dir > 0 ? rr2(6, 11) : rr2(9, 15), ph: Math.random() * 6 };
     if (kind === 'okada') { const r = new Avatar({ body: 'm', top: ['#f2b632', '#1f6fb8', '#151515'][Math.floor(Math.random() * 3)], bottom: '#2b3a55', skinTone: 6 }); r.root.position.set(0, 0.74, -0.12); r.root.rotation.y = Math.PI; v.add(r.root); this.people.push({ av: r, pose: 'sit' }); c.rider = r; }
@@ -237,7 +248,7 @@ export class Ride {
     if (this.veh) { this.veh.position.y = Math.abs(Math.sin(this.t * 9)) * 0.015 * Math.min(1, this.speed / 5); this.veh.rotation.x = Math.sin(this.t * 2.3) * 0.004; }
     if (this.av && walk) this.av.update(dt, this.speed);
     // recycle segments behind the camera
-    for (const g of this.segs) if (g.position.z - SEG > me.z + 12) { this.scene.remove(g); g.traverse((m) => { if (m.isMesh) m.geometry.dispose(); }); this.segs.splice(this.segs.indexOf(g), 1); this.addSeg(); break; }
+    for (const g of this.segs) if (g.position.z - SEG > me.z + 12) { this.scene.remove(g); g.userData.resources.dispose();trimKitCaches(); this.segs.splice(this.segs.indexOf(g), 1); this.addSeg(); break; }
     // traffic
     for (const c of this.traffic) {
       if (c.dir > 0) { let sp = c.sp; if (this.rush) sp *= 0.2 + 0.8 * Math.max(0, Math.sin(this.t * 0.45 + c.ph)); if (!this.rush && !walk && this.mode !== 'okada') sp = Math.max(sp, this.speedT * 1.02); c.z -= sp * dt;
@@ -259,8 +270,7 @@ export class Ride {
   stop() {
     if (!this.active) return; this.active = false; this.stage.override = null;
     for (const q of this.people) { q.av.root.userData.av = true; q.av.dispose(); }
-    const free = (o) => { if (o.userData.av) return; if (o.isMesh && !o.isSkinnedMesh) o.geometry.dispose(); for (const c of o.children) free(c); };
-    for (const g of this.segs) free(g); for (const c of this.traffic) free(c.v); if (this.veh) free(this.veh); this.sky.geometry.dispose(); this.sky.material.dispose(); this.veh = null; this.av = null; this.scene = null; this.segs = []; this.traffic = []; this.peds = []; this.people = [];
+    for(const g of this.segs)g.userData.resources.dispose();this.accessoryResources.dispose();this.resources.dispose();this.sun.shadow.map?.dispose();trimKitCaches(); this.veh = null; this.av = null; this.scene = null; this.segs = []; this.traffic = []; this.peds = []; this.people = [];
   }
 }
 const rr2 = (a, b) => a + Math.random() * (b - a);

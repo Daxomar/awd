@@ -13,10 +13,20 @@ import { fitLook } from '../fits.js';
 
 const h = (cls, txt) => { const e = document.createElement('div'); e.className = cls; if (txt != null) e.textContent = txt; return e; };
 export class World {
-  constructor(stage, tagsEl) { this.stage = stage; this.tagsEl = tagsEl; this.room = null; this.others = new Map(); this.bubbles = []; this.ray = new THREE.Raycaster(); this.v = new THREE.Vector3(); }
+  constructor(stage, tagsEl) { this.stage = stage; this.tagsEl = tagsEl; this.room = null; this.others = new Map(); this.bubbles = []; this.ray = new THREE.Raycaster(); this.v = new THREE.Vector3();
+    this.onResize=()=>{
+      if(!this.room?.group.visible||this.stage.override)return;
+      const zoom=this.stage.view.zoom,target=this.stage.view.target.clone(),previousFit=this.fitZoom;
+      this.fitZoom=fitRoom(this.stage,this.spec);
+      const scale=this.fitZoom/previousFit;
+      this.baseZoom*=scale;this.stage.view.zoom=zoom*scale;this.stage.view.target.copy(target);
+      this.stage.zoomMin=this.baseZoom*.45;this.stage.zoomMax=this.baseZoom*1.35;this.stage.applyView();
+    };
+    globalThis.addEventListener?.('resize',this.onResize);
+  }
   get spec() { return this.room && this.room.spec; }
   clear() {
-    this.clearSelection();
+    this.clearSelection();this.hideGem();
     if (this.room) { for (const id of [...this.room.people.keys()]) this.room.removePerson(id); this.room.dispose(); }
     this.room = null; this.others.clear(); this.tagsEl.innerHTML = ''; this.bubbles = []; this.gemObj = null; this.npcs = [];
   }
@@ -28,11 +38,11 @@ export class World {
     if (!spec) spec = VENUES.circle;
     spec = structuredClone(spec);
     if(msg.home?.mine){const item=spec.items.length,sp=spec.spawn||{x:0,z:0};spec.items.push({kind:'doormat',x:sp.x,z:sp.z,label:'Home door'});spec.zones.push({id:'exit',label:'Walk outside',icon:'ph-person-simple-walk',item,acts:[],route:'neighbourhood'});}
-    if(msg.place==='n:'+G.state.home){const item=spec.items.length;spec.items.push({kind:'street_building:5,4',x:4,z:-10,label:'YOUR HOME',color:'#e5d7bf'});spec.zones.push({id:'home',label:'Go indoors',icon:'ph-house',item,acts:[],route:'home'});}
+    if(msg.place==='n:'+G.state.home){const item=spec.items.length;spec.items.push({kind:'street_building:5,4',x:4,z:-10,label:'YOUR HOME',family:spec.environment?.family,style:spec.environment?.style,color:spec.environment?.wall||'#e5d7bf'});spec.zones.push({id:'home',label:'Go indoors',icon:'ph-house',item,acts:[],route:'home'});}
     this.elapsed=0;
     if(this.custody)spec.spawn={x:-2.8,z:-2.4};
     const room = (this.room = new Room(this.stage).build(spec));
-    fitRoom(this.stage, spec); this.stage.view.zoom *= innerHeight > innerWidth * 1.3 ? 0.7 : 1; if(spec.neighbourhood){this.stage.view.zoom=spec.estate?28:18;this.stage.view.target.set(0,.8,6);}this.stage.applyView(); this.baseZoom = this.stage.view.zoom; this.stage.zoomMin = this.baseZoom * 0.45; this.stage.zoomMax = this.baseZoom * 1.35;
+    this.fitZoom=fitRoom(this.stage, spec); if(spec.neighbourhood){this.stage.view.zoom=spec.estate?40:30;this.stage.view.target.set(0,.8,4);}this.stage.applyView(); this.baseZoom = this.stage.view.zoom; this.stage.zoomMin = this.baseZoom * 0.45; this.stage.zoomMax = this.baseZoom * 1.35;
     this.stage.bounds = [-spec.w / 2, spec.w / 2, -spec.d / 2, spec.d / 2];
     this.itemZone = new Map(); for (const z of spec.zones || []) if (!this.itemZone.has(z.item)) this.itemZone.set(z.item, z);
     // A television and its sofa, or a cooker and its counter, share one activity.
@@ -42,7 +52,7 @@ export class World {
     this.npcs = [];
     (spec.npcs || []).forEach((n, i) => { const id = 'npc' + i; const P = placeNpc(room, n); room.addPerson(id, new Avatar(n.look), P.x, P.z, { label: n.label, npc: true }); room.placeAt(id, P.x, P.z, P.yaw, P.pose, P.y); this.npcs.push(id); const person=room.people.get(id);person.schedule=n;person.nextMove=2+i*2;person.patrolIndex=1;this.tag(id, n.label, 'npc'); });
     // me: enter at the door and walk a few steps in
-    const sp = spec.spawn || { x: 0, z: 0 }; const meAv = new Avatar(meLook || {}); meAv.baseLook = meLook; const me = room.addPerson('me', meAv, sp.x, sp.z, { label: meName });
+    const sp = this.custody?spec.spawn:room.spawn; const meAv = new Avatar(meLook || {}); meAv.baseLook = meLook; const me = room.addPerson('me', meAv, sp.x, sp.z, { label: meName });
     this.tag('me', meName, 'me');
     const [fi, fj] = room.nearestFree(sp.x * 0.55 + (Math.random() - 0.5) * 2.4, sp.z * 0.55 + (Math.random() - 0.5) * 2.4); const CELL = 0.25;
     this.entry = { x: (fi + 0.5) * CELL - spec.w / 2, z: (fj + 0.5) * CELL - spec.d / 2 }; room.walkTo('me', this.entry.x, this.entry.z);
@@ -56,7 +66,7 @@ export class World {
   setStatus(id, ic) { const p = this.room && this.room.people.get(id); if (!p || !p.tagEl) return; const st = p.tagEl.querySelector('.st'); st.textContent = ic || ''; st.hidden = !ic; }
   // ---- others ----
   addOther(e) {
-    if (!this.room || this.room.people.has('p' + e.id)) return; const spec = this.spec; const sp = spec.spawn || { x: 0, z: 0 };
+    if (!this.room || this.room.people.has('p' + e.id)) return; const spec = this.spec; const sp = this.room.spawn;
     const id = 'p' + e.id; const av = new Avatar(fitLook(e.lk || {}, e.fit)); av.baseLook = e.lk; av.fit = e.fit || null;
     let x = e.x, z = e.z; const fresh = x == null; if (fresh) { x = sp.x; z = sp.z; }
     this.room.addPerson(id, av, x, z, { name: e.n, pid: e.id }); this.others.set(e.id, e); this.tag(id, e.n);
@@ -94,7 +104,7 @@ export class World {
     m.position.set(x, 0.5, z); m.userData.gem = g.id; m.castShadow = true; r.group.add(m); this.gemObj = m;
     const glow = new THREE.PointLight('#8a63ff', 4, 2.5, 1.5); glow.position.set(0, 0.2, 0); m.add(glow);
   }
-  hideGem() { if (this.gemObj) { this.gemObj.parent && this.gemObj.parent.remove(this.gemObj); this.gemObj = null; } }
+  hideGem() { if (this.gemObj) { this.gemObj.parent && this.gemObj.parent.remove(this.gemObj);this.gemObj.geometry.dispose();this.gemObj.material.dispose(); this.gemObj = null; } }
   // ---- input ----
   clearSelection(){this.selectionPerson=null;if(!this.selection)return;this.selection.removeFromParent();this.selection.geometry.dispose();this.selection.material.dispose();this.selection=null;}
   focusTarget({item,person}){
@@ -132,8 +142,8 @@ export class World {
   }
   floater(text, bad) { const p = this.me; if (!p) return; const f = h('floater' + (bad ? ' bad' : ''), text); const [sx, sy] = this.screenOf(p.x, 2.0, p.z); f.style.left = sx + 'px'; f.style.top = sy + 'px'; this.tagsEl.append(f); setTimeout(() => f.remove(), 1700); }
   loadEstate(m) {
-    if(this.place!=='e:'+m.area||!this.room)return;const r=this.room;for(const rec of [...r.items])if(rec.spec.owner){r.group.remove(rec.obj);rec.obj.traverse(o=>o.geometry?.dispose());r.items=r.items.filter(i=>i!==rec);}r.nav=null;
-    m.owners.forEach((owner,i)=>{const x=[-5,5,-14,14][i%4],z=[0,-8,13][Math.floor(i/4)];r.addItem({kind:'street_building:6,4',x,z,rot:z>6?Math.PI:0,label:'@'+owner.name,owner,color:['#f0e6d4','#e0d2bf','#d6e1d7'][i%3]});});r.buildNav();this.estate=m;
+    if(this.place!=='e:'+m.area||!this.room)return;const r=this.room;for(const rec of [...r.items])if(rec.spec.owner)r.removeItem(rec);r.nav=null;
+    m.owners.forEach((owner,i)=>{const {x,z,rot}=r.spec.ownerPlots[i];r.addItem({kind:'street_building:6,4',x,z,rot,label:'@'+owner.name,owner,family:r.spec.environment?.family,style:r.spec.environment?.style,color:['#f0e6d4','#e0d2bf','#d6e1d7'][i%3]});});r.buildNav();this.estate=m;
   }
   update(dt) {
     const selected=this.room?.people.get(this.selectionPerson);if(selected&&this.selection){this.selection.position.x=selected.x;this.selection.position.z=selected.z;}

@@ -5,6 +5,7 @@
 // toilet → toilet (or compound door) · cook → gas cooker (coal pot without gas) · tv → seat facing the TV (if tv) ·
 // code → laptop desk (if laptop) · guitar → guitar stand stool (if guitar) · workout → dumbbells (if dumbbells).
 import { addDado } from './venues.js';
+import { dressHome } from './environment-profiles.js';
 
 const PI = Math.PI, HP = PI / 2;
 const I = (kind, x, z, rot = 0, o = {}) => ({ kind, x, z, rot, ...o });
@@ -133,5 +134,5 @@ const HOMES = {
 export const HOME_IDS = Object.keys(HOMES);
 export function homeSpec(homeId, items = {}) {
   const f = HOMES[homeId] || HOMES.nima; const own = {}; for (const k in items || {}) if (items[k]) own[k] = true;
-  return f(own);
+  return dressHome(f(own), homeId,own);
 }

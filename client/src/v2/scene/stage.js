@@ -1,6 +1,7 @@
 // Isometric stage: one renderer, an orthographic camera at a fixed iso angle, warm soft lighting,
 // a time-of-day background, and a single shadow-casting key light fitted to whatever is on screen.
 import * as THREE from 'three';
+import { environmentLight } from './environment-light.js';
 
 export class Stage {
   constructor(canvas) {
@@ -44,16 +45,14 @@ export class Stage {
   }
   // h = Accra hour (0-24). Day: soft mint-cream backdrop; night: deep indigo with warm interior light
   setTime(h) {
-    const day = Math.max(0, Math.min(1, (Math.sin(((h - 6) / 12) * Math.PI) + 0.15) * 2.2));
-    const dusk = Math.max(0, 1 - Math.abs(h - 18.2) / 1.4) + Math.max(0, 1 - Math.abs(h - 6) / 1.2);
-    this.night = 1 - day;
-    const dayC = new THREE.Color('#dfe7e4'), nightC = new THREE.Color('#1c2236'), duskC = new THREE.Color('#f1c9a5');
-    this.bg.copy(nightC).lerp(dayC, day).lerp(duskC, Math.min(0.55, dusk * 0.55));
-    this.hemi.intensity = 0.55 + 0.6 * day; this.hemi.color.set(day > 0.3 ? '#fff6e8' : '#b9c4ff');
-    this.key.intensity = 0.35 + 1.75 * day; this.key.color.set(day > 0.3 ? '#fff1dc' : '#ffcf98');
-    this.renderer.toneMappingExposure = 1.0 + 0.1 * day;
-    for (const l of this.lamps) l.intensity = l.userData.base * (0.15 + 0.85 * this.night);
+    this.hour=h;const light=environmentLight(h,this.environmentOutdoor);
+    this.night=light.night;this.bg.copy(light.background);this.hemi.color.copy(light.ambient);
+    this.hemi.intensity=light.hemi;this.hemi.groundColor.set(this.environmentOutdoor?'#727565':'#9a8b77');
+    this.key.color.copy(light.sun);this.key.intensity=light.key;this.fill.intensity=light.fill;
+    this.renderer.toneMappingExposure=light.exposure;
+    for(const l of this.lamps)l.intensity=l.userData.base*(this.environmentOutdoor ? .06+this.night*.68 : .18+this.night*.6);
   }
+
   pan(dx, dy) { // screen-space pan in world units
     const v = this.view, s = v.zoom / innerHeight;
     const right = new THREE.Vector3(Math.cos(v.yaw), 0, -Math.sin(v.yaw)), fwd = new THREE.Vector3(-Math.sin(v.yaw), 0, -Math.cos(v.yaw));

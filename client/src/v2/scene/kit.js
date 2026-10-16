@@ -7,6 +7,7 @@
 // Every item's meshes are merged per material (a typical item is 3–8 draw calls). Spinning parts (fans) are kept
 // separate and listed in obj.userData.spin = [{ obj, axis, speed }] for an optional animation hook.
 import * as THREE from 'three';
+import { EnvironmentCache } from './environment-resources.js';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
@@ -25,19 +26,22 @@ export const C = {
 };
 
 // ------------------------------------------------------------------ caches
-const MC = new Map(), GC = new Map(), TC = new Map();
+const templateGeometries=new WeakSet();
+const MC = new EnvironmentCache(96), GC = new EnvironmentCache(160), TC = new EnvironmentCache(48);
+export function trimKitCaches() { MC.trim(); TC.trim(); GC.trim(); }
+export function kitCacheStats() { return {materials:MC.size,textures:TC.size,templates:GC.size}; }
 export function mat(color, o = {}) {
-  const key = color + '|' + (o.r ?? 0.82) + '|' + (o.m ?? 0) + '|' + (o.e || '') + '|' + (o.ei ?? 1) + '|' + (o.map ? o.map.uuid : '') + '|' + (o.op ?? 1) + '|' + (o.side || 0) + '|' + (o.flat ? 1 : 0);
+  const key = color + '|' + (o.r ?? 0.82) + '|' + (o.m ?? 0) + '|' + (o.e || '') + '|' + (o.ei ?? 1) + '|' + (o.map ? o.map.uuid : '') + '|' + (o.op ?? 1) + '|' + (o.side || 0) + '|' + (o.flat ? 1 : 0) + '|' + !!o.vertex;
   let m = MC.get(key); if (m) return m;
-  m = new THREE.MeshStandardMaterial({ color, roughness: o.r ?? 0.82, metalness: o.m ?? 0, flatShading: !!o.flat });
+  m = new THREE.MeshStandardMaterial({ color, roughness: o.r ?? 0.82, metalness: o.m ?? 0, flatShading: !!o.flat, vertexColors: !!o.vertex });
   if (o.e) { m.emissive = new THREE.Color(o.e); m.emissiveIntensity = o.ei ?? 1; if (o.map && o.emap !== false) m.emissiveMap = o.map; }
   if (o.map) m.map = o.map;
   if (o.op != null && o.op < 1) { m.transparent = true; m.opacity = o.op; m.depthWrite = false; }
   if (o.side) m.side = THREE.DoubleSide;
   MC.set(key, m); return m;
 }
-const geo = (key, f) => { let g = GC.get(key); if (!g) { g = f(); GC.set(key, g); } return g; };
-const RB = (w, h, d, r) => { r = Math.max(0, Math.min(r, Math.min(w, h, d) / 2 - 0.002)); return r <= 0.004 ? geo(`b${w},${h},${d}`, () => new THREE.BoxGeometry(w, h, d)) : geo(`rb${w},${h},${d},${r}`, () => new RoundedBoxGeometry(w, h, d, 2, r)); };
+const geo = (key, f) => { let g = GC.get(key); if (!g) { g = f();templateGeometries.add(g); GC.set(key, g); } return g; };
+const RB = (w, h, d, r) => { r = Math.max(0, Math.min(r, Math.min(w, h, d) / 2 - 0.002)); return r <= 0.004 ? geo(`b${w},${h},${d}`, () => new THREE.BoxGeometry(w, h, d)) : geo(`rb${w},${h},${d},${r}`, () => new RoundedBoxGeometry(w, h, d, 1, r)); };
 const CY = (rt, rb, h, seg = 16, open = false) => geo(`c${rt},${rb},${h},${seg},${open}`, () => new THREE.CylinderGeometry(rt, rb, h, seg, 1, open));
 const SP = (r, ws = 12, hs = 8) => geo(`s${r},${ws},${hs}`, () => new THREE.SphereGeometry(r, ws, hs));
 const TO = (r, t, seg = 16, arc = PI * 2) => geo(`t${r},${t},${seg},${arc}`, () => new THREE.TorusGeometry(r, t, 6, seg, arc));
@@ -56,6 +60,7 @@ function noise(x, w, h, base, amt, n = 4000, size = 2) { x.fillStyle = base; x.f
 function star(x, cx, cy, r, col) { x.fillStyle = col; x.beginPath(); for (let i = 0; i < 10; i++) { const a = -HP + (i * PI) / 5, rr = i % 2 ? r * 0.4 : r; x.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr); } x.closePath(); x.fill(); }
 
 export const T = {
+  fabric: (color='#798c83') => tex('linen'+color,128,128,(x,w,h)=>{noise(x,w,h,color,.075,900,1);x.strokeStyle='rgba(255,255,255,.09)';x.lineWidth=1;for(let i=0;i<w;i+=4){x.beginPath();x.moveTo(i,0);x.lineTo(i,h);x.stroke();x.beginPath();x.moveTo(0,i);x.lineTo(w,i);x.stroke();}}),
   kente: (v = 0) => tex('kente' + v, 256, 256, (x, w, h) => {
     seed(7 + v); const sets = [[C.gGold, C.gGreen, C.gRed, '#1d1d1d'], ['#f0b323', '#1f4fa8', '#c8102e', '#111'], ['#e9a53b', '#5b2c83', '#2e8b57', '#1b1b1b']][v % 3];
     x.fillStyle = sets[0]; x.fillRect(0, 0, w, h);
@@ -114,7 +119,7 @@ const FLOOR_DRAW = {
       x.fillStyle = '#2f5d8a'; x.beginPath(); x.arc(cx, cy, s * 0.2, 0, PI * 2); x.fill(); x.fillStyle = shade(c, 0.35); x.beginPath(); x.arc(cx, cy, s * 0.12, 0, PI * 2); x.fill(); x.fillStyle = '#8c3b2a'; for (let k = 0; k < 4; k++) { const a = k * HP; x.beginPath(); x.arc(cx + Math.cos(a) * s * 0.32, cy + Math.sin(a) * s * 0.32, s * 0.05, 0, PI * 2); x.fill(); } }
     x.strokeStyle = shade(c, 0.25); x.lineWidth = 3; x.strokeRect(1, 1, w - 2, h - 2); },
   dirt: (x, w, h, c) => { noise(x, w, h, c, 0.2, 7000, 3); for (let i = 0; i < 60; i++) { x.fillStyle = shade(c, (rnd() - 0.3) * 0.5); x.beginPath(); x.arc(rnd() * w, rnd() * h, 1 + rnd() * 3, 0, PI * 2); x.fill(); } },
-  pavers: (x, w, h, c) => { x.fillStyle = shade(c, -0.35); x.fillRect(0, 0, w, h); const s = w / 4; for (let j = 0; j < 4; j++) for (let i = -1; i < 4; i++) { const ox = (j % 2) * s * 0.5; x.fillStyle = shade(pick([c, c, '#a5574a', '#8f8a80']), (rnd() - 0.5) * 0.1); x.beginPath(); x.roundRect(i * s + ox + 2, j * s + 2, s - 4, s - 4, 5); x.fill(); } },
+  pavers: (x, w, h, c) => { x.fillStyle = shade(c, -0.35); x.fillRect(0, 0, w, h); const s = w / 4; for (let j = 0; j < 4; j++) for (let i = -1; i < 4; i++) { const ox = (j % 2) * s * 0.5; x.fillStyle = shade(pick([c,c,shade(c,.05),shade(c,-.07)]), (rnd() - 0.5) * 0.1); x.beginPath(); x.roundRect(i * s + ox + 2, j * s + 2, s - 4, s - 4, 5); x.fill(); } },
   asphalt: (x, w, h, c) => { noise(x, w, h, c, 0.18, 9000, 2); },
   stone: (x, w, h, c) => { x.fillStyle = shade(c, -0.3); x.fillRect(0, 0, w, h); const s = w / 3; for (let j = 0; j < 3; j++) for (let i = -1; i < 3; i++) { x.fillStyle = shade(c, (rnd() - 0.5) * 0.18); x.fillRect(i * s + (j % 2) * s * 0.5 + 3, j * s + 3, s - 6, s - 6); } },
   court: (x, w, h, c) => { noise(x, w, h, c, 0.08, 3000, 2); },
@@ -130,7 +135,7 @@ export function floorMaterial(kind = 'tiles', color, w = 8, d = 8) {
 
 // ------------------------------------------------------------------ builder
 const M = (m) => (typeof m === 'string' ? mat(m) : m);
-class B {
+export class B {
   constructor() { this.g = new THREE.Group(); this.spin = []; }
   add(geom, m, x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0, sx = 1, sy = 1, sz = 1) { const o = new THREE.Mesh(geom, M(m)); o.position.set(x, y, z); o.rotation.set(rx, ry, rz); o.scale.set(sx, sy, sz); this.g.add(o); return o; }
   box(w, h, d, m, x = 0, y = 0, z = 0, r = 0.02, ry = 0) { return this.add(RB(w, h, d, r), m, x, y + h / 2, z, 0, ry, 0); } // y = bottom
@@ -149,11 +154,16 @@ function finalize(g) {
   g.updateMatrixWorld(true); const groups = new Map(); const out = new THREE.Group(); const keep = [];
   for (const m of g.children.slice()) {
     if (!m.isMesh || m.userData.keep || m.userData.liveScreen || Array.isArray(m.material)) { keep.push(m); continue; }
-    const k = m.material.uuid + (m.userData.noShadow ? 'n' : ''); if (!groups.has(k)) groups.set(k, { mat: m.material, ns: !!m.userData.noShadow, list: [] });
+    const plain = !m.material.map && !m.material.transparent && !m.material.emissive.getHex() && !m.material.flatShading && m.material.side === THREE.FrontSide;
+    const surface = plain ? mat('#ffffff', {r:m.material.metalness > .3 ? .38 : .85, m:m.material.metalness > .3 ? .5 : 0, vertex:true}) : m.material;
+    const k = surface.uuid + (m.userData.noShadow ? 'n' : ''); if (!groups.has(k)) groups.set(k, { mat: surface, ns: !!m.userData.noShadow, list: [] });
     let gg = m.geometry.index ? m.geometry.toNonIndexed() : m.geometry.clone(); gg.applyMatrix4(m.matrix);
     for (const a of Object.keys(gg.attributes)) if (!['position', 'normal', 'uv'].includes(a)) gg.deleteAttribute(a);
     if (!gg.attributes.uv) gg.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(gg.attributes.position.count * 2), 2));
+    if (plain) { const colors = new Float32Array(gg.attributes.position.count * 3), c=m.material.color; for(let i=0;i<colors.length;i+=3){colors[i]=c.r;colors[i+1]=c.g;colors[i+2]=c.b;}gg.setAttribute('color',new THREE.BufferAttribute(colors,3)); }
     gg.morphAttributes = {}; groups.get(k).list.push(gg);
+    // Template geometry belongs to GC; standalone authored pieces have no cache owner.
+    if (!templateGeometries.has(m.geometry)) m.geometry.dispose();
   }
   for (const { mat: mm, ns, list } of groups.values()) { const merged = list.length === 1 ? list[0] : mergeGeometries(list, false); for (const l of list) if (l !== merged) l.dispose(); const mesh = new THREE.Mesh(merged, mm); if (ns) mesh.userData.noShadow = true; out.add(mesh); }
   for (const k of keep) out.add(k);
@@ -196,7 +206,7 @@ K.mattress = (o) => { const b = new B(); b.box(1.35, 0.2, 1.95, mat(C.foam, { r:
   b.box(0.6, 0.12, 0.34, C.white, -0.3, 0.21, -0.72, 0.05); b.box(0.6, 0.12, 0.34, '#f1e4c8', 0.32, 0.21, -0.74, 0.05); b.box(1.3, 0.06, 0.7, mat('#fff', { map: T.kente(1) }), 0, 0.21, 0.55, 0.03);
   return b.done([1.4, 2.0], [U.sit(-0.3, 0.05, 0.22, 0, 'lie'), U.sit(0.3, 0.05, 0.22, 0, 'lie')]); };
 K.bed = (o) => { const b = new B(); const wd = mat(o.color || C.woodD); b.box(1.62, 0.28, 2.05, wd, 0, 0.1, 0, 0.03); for (const sx of [-1, 1]) for (const sz of [-1, 1]) b.box(0.08, 0.12, 0.08, wd, sx * 0.74, 0, sz * 0.95, 0.01);
-  b.box(1.52, 0.2, 1.95, C.white, 0, 0.36, 0.02, 0.06); b.box(1.56, 0.05, 1.25, mat('#fff', { map: T.wax(o.sheet || '#7b2d8e', '#f2c230', '#2bb3a0') }), 0, 0.54, 0.38, 0.02); b.box(1.56, 0.02, 0.15, mat('#fff', { map: T.kente(0) }), 0, 0.585, -0.2, 0.005);
+  b.box(1.52, 0.2, 1.95, C.white, 0, 0.36, 0.02, 0.06); b.box(1.56, 0.05, 1.25, mat('#fff', { map: T.fabric(o.sheet || '#718782') }), 0, 0.54, 0.38, 0.02); b.box(1.56, 0.02, 0.15, mat('#fff', { map: T.kente(0) }), 0, 0.585, -0.2, 0.005);
   b.box(0.62, 0.14, 0.36, '#f5efe2', -0.37, 0.56, -0.74, 0.06); b.box(0.62, 0.14, 0.36, '#f5efe2', 0.37, 0.56, -0.74, 0.06);
   b.box(1.72, 1.05, 0.1, wd, 0, 0, -1.04, 0.04); b.box(1.5, 0.5, 0.04, shade(o.color || C.woodD, 0.18), 0, 0.5, -0.99, 0.02); b.box(1.72, 0.55, 0.08, wd, 0, 0, 1.04, 0.03);
   return b.done([1.75, 2.15], [U.sit(-0.36, 0.06, 0.58, 0, 'lie'), U.sit(0.36, 0.06, 0.58, 0, 'lie')]); };
@@ -423,7 +433,7 @@ K.cell_bars = (o) => { const b = new B(); const L = o.arg || 2.4; const m = mat(
 K.prayer_mats = (o) => { const b = new B(); const n = o.arg || 3; const cols = ['#1d6f42', '#8c1c13', '#1d3d8c', '#6b2fa0']; const use = []; for (let i = 0; i < n; i++) { const x = (i - (n - 1) / 2) * 0.85; b.box(0.7, 0.015, 1.2, mat('#fff', { map: T.stripes([cols[i % 4], shade(cols[i % 4], 0.3), cols[i % 4], C.gGold], 8, false) }), x, 0, 0, 0.005); b.box(0.5, 0.012, 0.25, mat(C.gGold), x, 0.015, -0.42, 0.005); use.push({ x, z: 0.2, y: 0, face: PI, pose: 'pray' }); }
   return b.done([n * 0.85, 1.2], use, { walkable: true }); };
 // --- outdoor & dressing
-K.rug = (o) => { const b = new B(); const [w, d] = o.dims || [2.0, 1.4]; b.box(w, 0.015, d, mat('#fff', { map: o.kente !== false ? T.kente(o.k || 1) : T.wax(), r: 0.95 }), 0, 0, 0, 0.005); b.box(w + 0.04, 0.01, d + 0.04, mat(o.color || '#3b2a1f'), 0, 0, 0, 0.003); return b.done([w, d], [{ x: 0, z: 0, y: 0.02, face: 0, pose: 'sit_floor' }], { walkable: true }); };
+K.rug = (o) => { const b = new B(); const [w, d] = o.dims || [2.0, 1.4]; b.box(w, 0.015, d, mat('#fff', { map: o.kente === true ? T.kente(o.k || 1) : T.fabric(o.color||['#c7b89b','#aab4a0','#bfa991'][o.k||0]), r: 0.95 }), 0, 0, 0, 0.005); b.box(w + 0.04, 0.01, d + 0.04, mat(o.color || '#3b2a1f'), 0, 0, 0, 0.003); return b.done([w, d], [{ x: 0, z: 0, y: 0.02, face: 0, pose: 'sit_floor' }], { walkable: true }); };
 K.plant = (o) => { const b = new B(); const pc = o.color || C.clay; b.cyl(0.2, 0.15, 0.36, mat(pc), 0, 0, 0, 12); b.add(TO(0.2, 0.025, 12), mat(shade(pc, -0.1)), 0, 0.36, 0, HP); b.cyl(0.18, 0.18, 0.02, '#4a2f20', 0, 0.34, 0, 12);
   for (let i = 0; i < 7; i++) { const a = (i / 7) * PI * 2; b.add(SP(0.1, 8, 6), mat(i % 2 ? C.leaf : C.leafD, { flat: true }), Math.cos(a) * 0.14, 0.75 + (i % 3) * 0.12, Math.sin(a) * 0.14, 0.4 * Math.sin(a), a, 0.5 * Math.cos(a), 0.7, 2.6, 0.3); } b.cyl(0.015, 0.02, 0.4, C.leafD, 0, 0.36, 0, 5);
   return b.done([0.42, 0.42], [U.stand(0, 0.5)]); };
@@ -434,7 +444,7 @@ K.picture = (o) => { const b = new B(); frame(b, 0, 1.6, 0.03, o.arg || 0.6, (o.
 K.wall_clock = (o) => { const b = new B(); b.cc(0.17, 0.17, 0.04, C.black, 0, 2.05, 0.03, HP, 0, 0, 20); b.cc(0.15, 0.15, 0.045, C.white, 0, 2.05, 0.035, HP, 0, 0, 20); b.bc(0.015, 0.11, 0.01, C.black, 0, 2.09, 0.06); b.bc(0.08, 0.015, 0.01, C.black, 0.035, 2.05, 0.062); return b.done([0.3, 0.05], [U.stand(0, 0.5)], { walkable: true }); };
 K.poster = (o) => { const b = new B(); b.box(0.7, 0.95, 0.01, mat('#fff', { map: T.text(o.label || 'JESUS\nIS LORD', o.color || '#c8102e', '#fff', 256, 340), e: '#fff', ei: 0.1 }), 0, 1.2, 0.02, 0.003); return b.done([0.7, 0.05], [U.stand(0, 0.5)], { walkable: true }); };
 K.calendar = (o) => K.poster({ ...o, label: o.label || '2026\nCALENDAR', color: o.color || '#1d6f42' });
-K.window_curtain = (o) => { const b = new B(); const W = o.arg || 1.4; const cm = mat('#fff', { map: T.wax(o.color || '#c8102e', '#f6d04d', '#1d3557'), r: 0.95 }); b.cc(0.015, 0.015, W + 0.5, C.woodD, 0, 2.22, 0.12, 0, 0, HP, 6); for (const s of [-1, 1]) for (let k = 0; k < 3; k++) b.box(0.13, 1.4, 0.05, cm, s * (W / 2 + 0.05 + k * 0.1), 0.82, 0.1 + (k % 2) * 0.03, 0.02);
+K.window_curtain = (o) => { const b = new B(); const W = o.arg || 1.4; const cm = mat('#fff', { map: T.fabric(o.color || '#8e9a7b'), r: 0.95 }); b.cc(0.015, 0.015, W + 0.5, C.woodD, 0, 2.22, 0.12, 0, 0, HP, 6); for (const s of [-1, 1]) for (let k = 0; k < 3; k++) b.box(0.13, 1.4, 0.05, cm, s * (W / 2 + 0.05 + k * 0.1), 0.82, 0.1 + (k % 2) * 0.03, 0.02);
   return b.done([W + 0.6, 0.15], [U.stand(0, 0.6)], { walkable: true }); };
 K.curtain = (o) => { const b = new B(); const L = o.arg || 2.0; const cm = mat('#fff', { map: T.wax(o.color || '#1f6fb8', '#f4c542', '#e34b32'), r: 0.95 }); b.cc(0.015, 0.015, L, C.chrome, 0, 2.15, 0, 0, 0, HP, 6); const n = Math.round(L / 0.16); for (let i = 0; i < n; i++) b.box(0.15, 2.0, 0.04, cm, -L / 2 + 0.08 + i * (L / n), 0.12, (i % 2) * 0.05 - 0.025, 0.015);
   for (const s of [-1, 1]) b.cyl(0.015, 0.015, 2.15, C.chrome, s * L / 2, 0, 0, 6); return b.done([L, 0.15], [U.stand(0, 0.5)]); };
@@ -460,7 +470,12 @@ K.palm_tree = (o) => { const b = new B(); const h = o.arg || 3.6; seed(h * 7); l
 K.tree = (o) => { const b = new B(); b.cyl(0.12, 0.16, 1.5, '#7a5a3a', 0, 0, 0, 7); leafClump(b, 0, 2.0, 0, 2.4, o.color || '#4b9a4a'); leafClump(b, 0.4, 1.7, 0.3, 1.5, '#3f8a42'); return b.done([0.5, 0.5], [U.stand(0, 0.6)]); };
 K.umbrella = (o) => { const b = new B(); b.cyl(0.025, 0.025, 2.2, C.chrome, 0, 0, 0, 6); b.add(CY(0.04, 0.95, 0.42, 16, true), mat('#fff', { map: T.stripes([o.color || '#e63946', '#f7f1e3'], 16, true), side: true }), 0, 2.14, 0); b.sph(0.05, C.white, 0, 2.37, 0); b.cyl(0.25, 0.25, 0.08, '#d0d0d0', 0, 0, 0, 12); return b.done([0.3, 0.3], [U.stand(0, 0.5)], { walkable: true }); };
 K.canopy = (o) => { const b = new B(); const W = o.arg || 4, D = o.arg2 || 4; const cols = o.colors || [o.color || '#c8102e', '#111111']; for (const sx of [-1, 1]) for (const sz of [-1, 1]) b.cyl(0.04, 0.04, 2.5, C.chrome, sx * W / 2, 0, sz * D / 2, 6);
-  const top = new THREE.Mesh(new THREE.ConeGeometry(Math.hypot(W, D) / 2, 0.8, 4, 1, true), mat('#fff', { map: T.stripes(cols, 8, true), side: true })); top.position.set(0, 2.9, 0); top.rotation.y = PI / 4; top.scale.set(1, 1, D / W); b.g.add(top);
+  // Four pitched panels fit the actual rectangular footprint. Scaling a rotated
+  // cone stretched narrow canopies beyond their posts and over nearby players.
+  const corners=[[-W/2,2.5,-D/2],[W/2,2.5,-D/2],[W/2,2.5,D/2],[-W/2,2.5,D/2]],vertices=[],uv=[];
+  for(let i=0;i<4;i++){vertices.push(...corners[i],0,3.15,0,...corners[(i+1)%4]);uv.push(0,0,.5,1,1,0);}
+  const roof=new THREE.BufferGeometry();roof.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));roof.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));roof.computeVertexNormals();
+  b.g.add(new THREE.Mesh(roof,mat('#fff',{map:T.stripes(cols,8,true),side:true})));
   for (const sz of [-1, 1]) b.box(W, 0.25, 0.02, mat('#fff', { map: T.stripes(cols, Math.round(W * 3), true) }), 0, 2.27, sz * D / 2, 0.005); for (const sx of [-1, 1]) b.box(0.02, 0.25, D, mat('#fff', { map: T.stripes(cols, Math.round(D * 3), true) }), sx * W / 2, 2.27, 0, 0.005);
   return b.done([W, D], [U.stand(0, 0)], { walkable: true }); };
 K.awning = (o) => { const b = new B(); const W = o.arg || 3; b.bc(W, 0.04, 1.0, mat('#fff', { map: T.stripes([o.color || '#2a9d8f', '#f7f1e3'], Math.round(W * 4), true) }), 0, 2.45, 0.5, 0.25); b.box(W, 0.2, 0.02, mat('#fff', { map: T.stripes([o.color || '#2a9d8f', '#f7f1e3'], Math.round(W * 4), true) }), 0, 2.1, 0.98, 0.005); for (const s of [-1, 1]) b.cyl(0.02, 0.02, 2.3, C.chrome, s * W / 2, 0, 0.98, 6);
@@ -636,7 +651,26 @@ K.fish_smoker = (o) => { const b = new B(); const cl = mat('#a8653f', { r: 0.95 
 
 // friendly aliases from the brief
 K.street_road = (o) => { const b=new B(), w=o.arg||34,d=o.arg2||5; b.box(w,.025,d,'#666a69');for(let x=-w/2+1;x<w/2;x+=3)b.box(1.5,.008,.08,'#eadab1',x,.03,0);for(const z of [-d/2,d/2])b.box(w,.07,.2,'#beb5a4',0,0,z);return b.done([w,d],[U.stand(0,0)],{walkable:true}); };
-K.street_building = (o) => { const b=new B(),w=o.arg||5,d=o.arg2||4,c=o.color||'#eadac0';b.box(w,3.1,d,c);b.box(w+.25,.2,d+.25,'#816755',0,3.1,0);b.box(.85,2.15,.06,'#594735',0,0,d/2+.04);for(const x of [-w*.3,w*.3]){b.box(.85,1,.06,'#526d78',x,1.1,d/2+.04);b.box(.05,1,.07,'#ddd6c5',x,1.1,d/2+.07);}b.plane(w*.8,.45,mat('#fff',{map:T.text(o.label||'RESIDENCE','#263e35')}),0,2.7,d/2+.06);return b.done([w,d],[U.stand(0,d/2+.9)]); };
+K.street_building = (o) => {
+  const b=new B(),w=o.arg||5,d=o.arg2||4,c=o.color||'#eadac0',style=o.style||'compound';
+  const modern=['modern','villa','gallery'].includes(style),historic=style==='coastal',H=modern?3.4:2.75,trim=modern?'#6b796f':historic?'#547e85':'#8b6b4c';
+  b.box(w,H,d,c,0,0,0,.025);b.box(w+.12,.18,d+.12,trim,0,0,0,.01);
+  if(modern){b.box(w+.25,.15,d+.25,'#eee5d4',0,H,0,.015);b.box(w*.6,.26,d*.62,c,-w*.14,H+.15,-d*.16,.015);}
+  else {b.bc(w+.35,.12,d*.58,'#a77e5a',0,H+.16,-d*.25,-.18,0,0,.01);b.bc(w+.35,.12,d*.58,'#a77e5a',0,H+.16,d*.25,.18,0,0,.01);}
+  b.box(.88,2.05,.07,'#6f5843',0,0,d/2+.04,.01);b.box(.06,.08,.08,'#c9b27b',.3,.95,d/2+.09,.005);
+  for(const x of [-w*.3,w*.3]){
+    b.box(w*.25,1.15,.075,'#4b7177',x,.85,d/2+.04,.01);
+    for(const dx of [-w*.13,w*.13])b.box(.05,1.25,.13,'#eee3ce',x+dx,.8,d/2+.07,.004);
+    b.box(w*.28,.06,.18,'#eee3ce',x,.8,d/2+.1,.004);
+    b.box(.035,1.15,.09,'#d8d8c7',x,.85,d/2+.1,.003);
+    if(historic)for(const sign of [-1,1])for(let y=.9;y<1.95;y+=.18)b.box(.18,.08,.06,trim,x+sign*w*.16,y,d/2+.08,.003);
+  }
+  b.box(w*.85,.09,.62,trim,0,2.25,d/2+.22,.01);
+  for(const x of [-w*.43,w*.43])b.box(.075,2.25,.075,trim,x,0,d/2+.38,.006);
+  b.box(w*.85,.035,.65,'#c6b799',0,.012,d/2+.15,.006);
+  b.plane(w*.76,.32,mat('#fff',{map:T.text(o.label||'RESIDENCE',trim,'#f3ecdc',256,64)}),0,2.48,d/2+.08);
+  return b.done([w,d],[U.stand(0,d/2+.9)]);
+};
 K.street_gate = (o) => { const b=new B();for(const x of [-1,1])b.box(.18,2.4,.25,'#888477',x,0,0);b.box(2.3,.5,.16,'#29483f',0,2.25,0);b.plane(2.1,.38,mat('#fff',{map:T.text(o.label||'NEIGHBOURHOOD','#29483f')}),0,2.5,.09);return b.done([2.3,.3],[U.stand(0,.7)],{walkable:true}); };
 K.khebab_grill = () => { const b=new B();for(const x of [-.55,.55])for(const z of [-.22,.22])b.box(.05,.75,.05,C.steel,x,0,z);b.box(1.3,.2,.65,'#34332d',0,.65,0);b.box(1.2,.06,.55,mat('#e86e26',{e:'#f65413',ei:.65}),0,.85,0);for(let x=-.5;x<=.5;x+=.13){b.bar([x,.94,-.35],[x,.94,.42],.014,C.woodL);for(const z of [-.2,0,.2])b.sph(.055,'#9e5530',x,.96,z,1,.7,1);}const smoke=b.keep(b.sph(.15,mat('#d9d2c4',{op:.18}),0,1.3,0,1,1.4,1));const made=b.done([1.35,.7],[U.work(0,.85)]);made.obj.userData.smoke=smoke;return made; };
 K.icecream_bicycle = () => { const b=new B();for(const x of [-.65,.65]){b.add(TO(.36,.035,20),C.black,x,.39,0,0,HP);for(let a=0;a<PI;a+=PI/4)b.bar([x,.39+Math.cos(a)*.34,Math.sin(a)*.34],[x,.39-Math.cos(a)*.34,-Math.sin(a)*.34],.006,C.steel);}b.bar([-.65,.4,0],[0,.95,0],.025,'#bd2e3a');b.bar([0,.95,0],[.65,.4,0],.025,'#bd2e3a');b.bar([-.65,.4,0],[.65,.4,0],.025,'#bd2e3a');b.box(.3,.05,.18,C.black,0,.97,0);b.bar([.65,.4,0],[.5,1.15,0],.025,C.chrome);b.bar([.5,1.15,-.25],[.5,1.15,.25],.02,C.chrome);b.box(.75,.55,.55,'#f5f4e9',-.65,.7,0,.05);b.plane(.65,.35,mat('#fff',{map:T.text('FanYogo','#bd2e3a')}),-.65,.97,.28);return b.done([1.9,.65],[U.work(0,.8)]); };
@@ -661,10 +695,34 @@ K.treadmill = () => {const b=new B();b.box(.85,.12,1.7,'#262e32',0,.05,0);b.box(
 K.kitchen_counter = K.counter;
 K.tv_stand = K.tv; K.lectern_stand = K.lectern; K.plane_window = K.runway_window; K.chair = K.plastic_chair; K.table = K.plastic_table; K.bench = K.wooden_bench;
 
+K.room_divider = (o) => {const b=new B(),L=o.arg||2,H=o.arg2||1.05;b.box(L,H,.13,o.color||'#e8dfcd',0,0,0,.012);b.box(L+.06,.06,.19,o.trim||'#836950',0,H,0,.01);b.box(L,.08,.15,o.trim||'#836950',0,0,0,.006);for(const x of [-L/2+.05,L/2-.05])b.box(.065,H+.12,.17,o.trim||'#836950',x,0,0,.008);return b.done([L,.18],[U.stand(0,.5)]);};
+K.solar_unit = () => {const b=new B();b.box(.65,.55,.22,'#d7ddd6',0,.25,0,.04);b.box(.28,.09,.025,'#536b64',0,.6,.12,.01);b.box(.62,.06,.22,'#b6bdb2',0,.24,0,.01);return b.done([.7,.25],[U.stand(0,.5)],{walkable:true});};
+K.camera_case = () => {const b=new B();b.box(.42,.26,.25,'#65584b',0,0,0,.05);b.box(.26,.12,.13,'#303f3c',0,.26,0,.02);b.cc(.055,.055,.06,'#6b9295',0,.33,.09,HP,0,0,12);return b.done([.5,.3],[U.stand(0,.5)],{walkable:true});};
+function finishFurniture(name,o,r){
+  const b=new B();let detail=false;
+  if(name==='bed'){
+    b.box(1.45,.35,.05,mat('#fff',{map:T.fabric(o.sheet||'#718782')}),0,.6,-.98,.025);
+    for(const x of [-.46,0,.46])b.sph(.023,'#c6b494',x,.79,-.94,1,1,.35,6,4);
+    if(o.upgraded)b.box(1.5,.045,1.9,'#ebe7d9',0,.53,.02,.018);
+    detail=true;
+  }
+  if(['sofa','armchair','vip_sofa'].includes(name)){
+    const L=name==='armchair'?1:o.arg||2;
+    b.bc(.27,.27,.1,mat('#fff',{map:T.fabric('#bfa784')}),L/2-.3,.61,-.1,-.25,0,.12,.05);
+    b.box(L-.1,.018,.03,'#b7a37e',0,.28,.43,.004);detail=true;
+  }
+  if(['counter','kitchen_counter'].includes(name)){
+    const L=o.arg||2,n=Math.max(1,Math.round(L/.6));for(let i=0;i<n;i++){const x=-L/2+(i+.5)*L/n;b.box(L/n-.05,.6,.025,o.color||'#708980',x,.18,.315,.012);b.box(.13,.023,.04,'#b9ad8b',x,.72,.34,.005);}detail=true;
+  }
+  if(name==='fridge'){b.box(.5,.012,.018,'#b2bbb8',0,.16,.34,.003);for(let i=0;i<4;i++)b.box(.11,.012,.012,'#7e8b85',-.2+i*.13,.12,.34,.002);detail=true;}
+  if(name==='toilet'){b.cyl(.155,.155,.008,'#b3c9c4',0,.451,.06,16);detail=true;}
+  if(detail)r.obj.add(b.done([0,0],[]).obj);
+  return r;
+}
 export const ITEM_KINDS = Object.keys(K);
 export function makeItem(kind, opts = {}) {
   const [name, args] = String(kind).split(':'); const f = K[name];
   const o = { ...opts }; if (args) { const a = args.split(',').map(Number); o.arg = a[0]; if (a.length > 1) o.arg2 = a[1]; }
   if (!f) { console.warn('[kit] unknown item', kind); const b = new B(); b.box(0.5, 0.5, 0.5, '#ff00ff', 0, 0, 0); return b.done([0.5, 0.5], [U.stand(0, 0.6)]); }
-  const r = f(o); r.kind = name; return r;
+  const r = finishFurniture(name,o,f(o)); r.kind = name; return r;
 }
