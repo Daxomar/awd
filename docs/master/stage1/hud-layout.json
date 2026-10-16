@@ -1,0 +1,4222 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "boxes": {
+        ".player-status": {
+          "x": 21,
+          "y": 17,
+          "w": 218.796875,
+          "h": 44,
+          "right": 239.796875,
+          "bottom": 61
+        },
+        ".wallet-control": {
+          "x": 249.796875,
+          "y": 17,
+          "w": 104.203125,
+          "h": 44,
+          "right": 354,
+          "bottom": 61
+        },
+        ".location-control": {
+          "x": 21,
+          "y": 66,
+          "w": 333,
+          "h": 44,
+          "right": 354,
+          "bottom": 110
+        },
+        ".optional-objective": {
+          "x": 21,
+          "y": 110,
+          "w": 333,
+          "h": 44,
+          "right": 354,
+          "bottom": 154
+        },
+        ".street-context": null,
+        ".street-entrance": null,
+        ".map-filters": null,
+        ".city-controls": null,
+        ".play-nav": {
+          "x": 12,
+          "y": 738,
+          "w": 351,
+          "h": 66,
+          "right": 363,
+          "bottom": 804
+        },
+        ".hud-surface": {
+          "x": 12,
+          "y": 10,
+          "w": 351,
+          "h": 147,
+          "right": 363,
+          "bottom": 157
+        }
+      },
+      "controls": [
+        {
+          "label": "Character status",
+          "scrollableFilter": false,
+          "x": 21,
+          "y": 17,
+          "w": 218.796875,
+          "h": 44,
+          "right": 239.796875,
+          "bottom": 61
+        },
+        {
+          "label": "Wallet GH\u20b5942. Open MoMo",
+          "scrollableFilter": false,
+          "x": 249.796875,
+          "y": 17,
+          "w": 104.203125,
+          "h": 44,
+          "right": 354,
+          "bottom": 61
+        },
+        {
+          "label": "Current location and city map",
+          "scrollableFilter": false,
+          "x": 21,
+          "y": 66,
+          "w": 333,
+          "h": 44,
+          "right": 354,
+          "bottom": 110
+        },
+        {
+          "label": "Ready to claim: Complete a work shift. Open milestones",
+          "scrollableFilter": false,
+          "x": 21,
+          "y": 110,
+          "w": 333,
+          "h": 44,
+          "right": 354,
+          "bottom": 154
+        },
+        {
+          "label": "Home",
+          "scrollableFilter": false,
+          "x": 17,
+          "y": 743,
+          "w": 61.796875,
+          "h": 54,
+          "right": 78.796875,
+          "bottom": 797
+        },
+        {
+          "label": "Map",
+          "scrollableFilter": false,
+          "x": 86.796875,
+          "y": 743,
+          "w": 61.796875,
+          "h": 54,
+          "right": 148.59375,
+          "bottom": 797
+        },
+        {
+          "label": "Interact",
+          "scrollableFilter": false,
+          "x": 156.59375,
+          "y": 734,
+          "w": 61.796875,
+          "h": 62,
+          "right": 218.390625,
+          "bottom": 796
+        },
+        {
+          "label": "Chat",
+          "scrollableFilter": false,
+          "x": 226.390625,
+          "y": 743,
+          "w": 61.796875,
+          "h": 54,
+          "right": 288.1875,
+          "bottom": 797
+        },
+        {
+          "label": "Phone",
+          "scrollableFilter": false,
+          "x": 296.1875,
+          "y": 743,
+          "w": 61.8125,
+          "h": 54,
+          "right": 358,
+          "bottom": 797
+        }
+      ],
+      "text": [
+        {
+          "selector": ".player-copy strong",
+          "text": "p8mvays0d40",
+          "x": 71,
+          "y": 21.078125,
+          "w": 147.796875,
+          "h": 20,
+          "right": 218.796875,
+          "bottom": 41.078125,
+          "clipped": false
+        },
+        {
+          "selector": ".wallet-control strong",
+          "text": "GH\u20b5942",
+          "x": 285.796875,
+          "y": 28,
+          "w": 57.203125,
+          "h": 20,
+          "right": 343,
+          "bottom": 48,
+          "clipped": false
+        },
+        {
+          "selector": ".current-location",
+          "text": "Sankofa Tech Hub, Osu",
+          "x": 41,
+          "y": 73.40625,
+          "w": 258.046875,
+          "h": 16.1875,
+          "right": 299.046875,
+          "bottom": 89.59375,
+          "clipped": false
+        },
+        {
+          "selector": ".online-count",
+          "text": "1 player online",
+          "x": 53,
+          "y": 91.59375,
+          "w": 62.65625,
+          "h": 12,
+          "right": 115.65625,
+          "bottom": 103.59375,
+          "clipped": false
+        },
+        {
+          "selector": ".location-control time",
+          "text": "18:21",
+          "x": 305.046875,
+          "y": 81.078125,
+          "w": 28.953125,
+          "h": 14.84375,
+          "right": 334,
+          "bottom": 95.921875,
+          "clipped": false
+        },
+        {
+          "selector": ".optional-objective",
+          "text": "Ready to claim: Complete a work shift",
+          "x": 21,
+          "y": 110,
+          "w": 333,
+          "h": 44,
+          "right": 354,
+          "bottom": 154,
+          "clipped": false
+        }
+      ],
+      "pins": [],
+      "overflow": false,
+      "mapView": false,
+      "view": "home",
+      "width": 375,
+      "height": 812
+    },
+    {
+      "boxes": {
+        ".player-status": {
+          "x": 21,
+          "y": 17,
+          "w": 233.796875,
+          "h": 44,
+          "right": 254.796875,
+          "bottom": 61
+        },
+        ".wallet-control": {
+          "x": 264.796875,
+          "y": 17,
+          "w": 104.203125,
+          "h": 44,
+          "right": 369,
+          "bottom": 61
+        },
+        ".location-control": {
+          "x": 21,
+          "y": 66,
+          "w": 348,
+          "h": 44,
+          "right": 369,
+          "bottom": 110
+        },
+        ".optional-objective": {
+          "x": 21,
+          "y": 110,
+          "w": 348,
+          "h": 44,
+          "right": 369,
+          "bottom": 154
+        },
+        ".street-context": null,
+        ".street-entrance": null,
+        ".map-filters": null,
+        ".city-controls": null,
+        ".play-nav": {
+          "x": 12,
+          "y": 770,
+          "w": 366,
+          "h": 66,
+          "right": 378,
+          "bottom": 836
+        },
+        ".hud-surface": {
+          "x": 12,
+          "y": 10,
+          "w": 366,
+          "h": 147,
+          "right": 378,
+          "bottom": 157
+        }
+      },
+      "controls": [
+        {
+          "label": "Character status",
+          "scrollableFilter": false,
+          "x": 21,
+          "y": 17,
+          "w": 233.796875,
+          "h": 44,
+          "right": 254.796875,
+          "bottom": 61
+        },
+        {
+          "label": "Wallet GH\u20b5942. Open MoMo",
+          "scrollableFilter": false,
+          "x": 264.796875,
+          "y": 17,
+          "w": 104.203125,
+          "h": 44,
+          "right": 369,
+          "bottom": 61
+        },
+        {
+          "label": "Current location and city map",
+          "scrollableFilter": false,
+          "x": 21,
+          "y": 66,
+          "w": 348,
+          "h": 44,
+          "right": 369,
+          "bottom": 110
+        },
+        {
+          "label": "Ready to claim: Complete a work shift. Open milestones",
+          "scrollableFilter": false,
+          "x": 21,
+          "y": 110,
+          "w": 348,
+          "h": 44,
+          "right": 369,
+          "bottom": 154
+        },
+        {
+          "label": "Home",
+          "scrollableFilter": false,
+          "x": 17,
+          "y": 775,
+          "w": 64.796875,
+          "h": 54,
+          "right": 81.796875,
+          "bottom": 829
+        },
+        {
+          "label": "Map",
+          "scrollableFilter": false,
+          "x": 89.796875,
+          "y": 775,
+          "w": 64.796875,
+          "h": 54,
+          "right": 154.59375,
+          "bottom": 829
+        },
+        {
+          "label": "Interact",
+          "scrollableFilter": false,
+          "x": 162.59375,
+          "y": 766,
+          "w": 64.796875,
+          "h": 62,
+          "right": 227.390625,
+          "bottom": 828
+        },
+        {
+          "label": "Chat",
+          "scrollableFilter": false,
+          "x": 235.390625,
+          "y": 775,
+          "w": 64.796875,
+          "h": 54,
+          "right": 300.1875,
+          "bottom": 829
+        },
+        {
+          "label": "Phone",
+          "scrollableFilter": false,
+          "x": 308.1875,
+          "y": 775,
+          "w": 64.8125,
+          "h": 54,
+          "right": 373,
+          "bottom": 829
+        }
+      ],
+      "text": [
+        {
+          "selector": ".player-copy strong",
+          "text": "p8mvays0d40",
+          "x": 71,
+          "y": 21.078125,
+          "w": 162.796875,
+          "h": 20,
+          "right": 233.796875,
+          "bottom": 41.078125,
+          "clipped": false
+        },
+        {
+          "selector": ".wallet-control strong",
+          "text": "GH\u20b5942",
+          "x": 300.796875,
+          "y": 28,
+          "w": 57.203125,
+          "h": 20,
+          "right": 358,
+          "bottom": 48,
+          "clipped": false
+        },
+        {
+          "selector": ".current-location",
+          "text": "Sankofa Tech Hub, Osu",
+          "x": 41,
+          "y": 73.40625,
+          "w": 273.046875,
+          "h": 16.1875,
+          "right": 314.046875,
+          "bottom": 89.59375,
+          "clipped": false
+        },
+        {
+          "selector": ".online-count",
+          "text": "1 player online",
+          "x": 53,
+          "y": 91.59375,
+          "w": 62.65625,
+          "h": 12,
+          "right": 115.65625,
+          "bottom": 103.59375,
+          "clipped": false
+        },
+        {
+          "selector": ".location-control time",
+          "text": "18:21",
+          "x": 320.046875,
+          "y": 81.078125,
+          "w": 28.953125,
+          "h": 14.84375,
+          "right": 349,
+          "bottom": 95.921875,
+          "clipped": false
+        },
+        {
+          "selector": ".optional-objective",
+          "text": "Ready to claim: Complete a work shift",
+          "x": 21,
+          "y": 110,
+          "w": 348,
+          "h": 44,
+          "right": 369,
+          "bottom": 154,
+          "clipped": false
+        }
+      ],
+      "pins": [],
+      "overflow": false,
+      "mapView": false,
+      "view": "home",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "boxes": {
+        ".player-status": {
+          "x": 21,
+          "y": 17,
+          "w": 273.796875,
+          "h": 44,
+          "right": 294.796875,
+          "bottom": 61
+        },
+        ".wallet-control": {
+          "x": 304.796875,
+          "y": 17,
+          "w": 104.203125,
+          "h": 44,
+          "right": 409,
+          "bottom": 61
+        },
+        ".location-control": {
+          "x": 21,
+          "y": 66,
+          "w": 388,
+          "h": 44,
+          "right": 409,
+          "bottom": 110
+        },
+        ".optional-objective": {
+          "x": 21,
+          "y": 110,
+          "w": 388,
+          "h": 44,
+          "right": 409,
+          "bottom": 154
+        },
+        ".street-context": null,
+        ".street-entrance": null,
+        ".map-filters": null,
+        ".city-controls": null,
+        ".play-nav": {
+          "x": 12,
+          "y": 858,
+          "w": 406,
+          "h": 66,
+          "right": 418,
+          "bottom": 924
+        },
+        ".hud-surface": {
+          "x": 12,
+          "y": 10,
+          "w": 406,
+          "h": 147,
+          "right": 418,
+          "bottom": 157
+        }
+      },
+      "controls": [
+        {
+          "label": "Character status",
+          "scrollableFilter": false,
+          "x": 21,
+          "y": 17,
+          "w": 273.796875,
+          "h": 44,
+          "right": 294.796875,
+          "bottom": 61
+        },
+        {
+          "label": "Wallet GH\u20b5942. Open MoMo",
+          "scrollableFilter": false,
+          "x": 304.796875,
+          "y": 17,
+          "w": 104.203125,
+          "h": 44,
+          "right": 409,
+          "bottom": 61
+        },
+        {
+          "label": "Current location and city map",
+          "scrollableFilter": false,
+          "x": 21,
+          "y": 66,
+          "w": 388,
+          "h": 44,
+          "right": 409,
+          "bottom": 110
+        },
+        {
+          "label": "Ready to claim: Complete a work shift. Open milestones",
+          "scrollableFilter": false,
+          "x": 21,
+          "y": 110,
+          "w": 388,
+          "h": 44,
+          "right": 409,
+          "bottom": 154
+        },
+        {
+          "label": "Home",
+          "scrollableFilter": false,
+          "x": 17,
+          "y": 863,
+          "w": 72.796875,
+          "h": 54,
+          "right": 89.796875,
+          "bottom": 917
+        },
+        {
+          "label": "Map",
+          "scrollableFilter": false,
+          "x": 97.796875,
+          "y": 863,
+          "w": 72.796875,
+          "h": 54,
+          "right": 170.59375,
+          "bottom": 917
+        },
+        {
+          "label": "Interact",
+          "scrollableFilter": false,
+          "x": 178.59375,
+          "y": 854,
+          "w": 72.796875,
+          "h": 62,
+          "right": 251.390625,
+          "bottom": 916
+        },
+        {
+          "label": "Chat",
+          "scrollableFilter": false,
+          "x": 259.390625,
+          "y": 863,
+          "w": 72.796875,
+          "h": 54,
+          "right": 332.1875,
+          "bottom": 917
+        },
+        {
+          "label": "Phone",
+          "scrollableFilter": false,
+          "x": 340.1875,
+          "y": 863,
+          "w": 72.8125,
+          "h": 54,
+          "right": 413,
+          "bottom": 917
+        }
+      ],
+      "text": [
+        {
+          "selector": ".player-copy strong",
+          "text": "p8mvays0d40",
+          "x": 71,
+          "y": 21.078125,
+          "w": 202.796875,
+          "h": 20,
+          "right": 273.796875,
+          "bottom": 41.078125,
+          "clipped": false
+        },
+        {
+          "selector": ".wallet-control strong",
+          "text": "GH\u20b5942",
+          "x": 340.796875,
+          "y": 28,
+          "w": 57.203125,
+          "h": 20,
+          "right": 398,
+          "bottom": 48,
+          "clipped": false
+        },
+        {
+          "selector": ".current-location",
+          "text": "Sankofa Tech Hub, Osu",
+          "x": 41,
+          "y": 73.40625,
+          "w": 313.046875,
+          "h": 16.1875,
+          "right": 354.046875,
+          "bottom": 89.59375,
+          "clipped": false
+        },
+        {
+          "selector": ".online-count",
+          "text": "1 player online",
+          "x": 53,
+          "y": 91.59375,
+          "w": 62.65625,
+          "h": 12,
+          "right": 115.65625,
+          "bottom": 103.59375,
+          "clipped": false
+        },
+        {
+          "selector": ".location-control time",
+          "text": "18:22",
+          "x": 360.046875,
+          "y": 81.078125,
+          "w": 28.953125,
+          "h": 14.84375,
+          "right": 389,
+          "bottom": 95.921875,
+          "clipped": false
+        },
+        {
+          "selector": ".optional-objective",
+          "text": "Ready to claim: Complete a work shift",
+          "x": 21,
+          "y": 110,
+          "w": 388,
+          "h": 44,
+          "right": 409,
+          "bottom": 154,
+          "clipped": false
+        }
+      ],
+      "pins": [],
+      "overflow": false,
+      "mapView": false,
+      "view": "home",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "boxes": {
+        ".player-status": {
+          "x": 20,
+          "y": 10,
+          "w": 235.796875,
+          "h": 44,
+          "right": 255.796875,
+          "bottom": 54
+        },
+        ".wallet-control": {
+          "x": 265.796875,
+          "y": 10,
+          "w": 104.203125,
+          "h": 44,
+          "right": 370,
+          "bottom": 54
+        },
+        ".location-control": {
+          "x": 20,
+          "y": 57,
+          "w": 350,
+          "h": 44,
+          "right": 370,
+          "bottom": 101
+        },
+        ".optional-objective": {
+          "x": 20,
+          "y": 101,
+          "w": 350,
+          "h": 44,
+          "right": 370,
+          "bottom": 145
+        },
+        ".street-context": null,
+        ".street-entrance": null,
+        ".map-filters": null,
+        ".city-controls": null,
+        ".play-nav": {
+          "x": 12,
+          "y": 462,
+          "w": 366,
+          "h": 60,
+          "right": 378,
+          "bottom": 522
+        },
+        ".hud-surface": {
+          "x": 12,
+          "y": 5,
+          "w": 366,
+          "h": 143,
+          "right": 378,
+          "bottom": 148
+        }
+      },
+      "controls": [
+        {
+          "label": "Character status",
+          "scrollableFilter": false,
+          "x": 20,
+          "y": 10,
+          "w": 235.796875,
+          "h": 44,
+          "right": 255.796875,
+          "bottom": 54
+        },
+        {
+          "label": "Wallet GH\u20b5942. Open MoMo",
+          "scrollableFilter": false,
+          "x": 265.796875,
+          "y": 10,
+          "w": 104.203125,
+          "h": 44,
+          "right": 370,
+          "bottom": 54
+        },
+        {
+          "label": "Current location and city map",
+          "scrollableFilter": false,
+          "x": 20,
+          "y": 57,
+          "w": 350,
+          "h": 44,
+          "right": 370,
+          "bottom": 101
+        },
+        {
+          "label": "Ready to claim: Complete a work shift. Open milestones",
+          "scrollableFilter": false,
+          "x": 20,
+          "y": 101,
+          "w": 350,
+          "h": 44,
+          "right": 370,
+          "bottom": 145
+        },
+        {
+          "label": "Home",
+          "scrollableFilter": false,
+          "x": 17,
+          "y": 467,
+          "w": 64.796875,
+          "h": 49,
+          "right": 81.796875,
+          "bottom": 516
+        },
+        {
+          "label": "Map",
+          "scrollableFilter": false,
+          "x": 89.796875,
+          "y": 467,
+          "w": 64.796875,
+          "h": 49,
+          "right": 154.59375,
+          "bottom": 516
+        },
+        {
+          "label": "Interact",
+          "scrollableFilter": false,
+          "x": 162.59375,
+          "y": 458.5,
+          "w": 64.796875,
+          "h": 56,
+          "right": 227.390625,
+          "bottom": 514.5
+        },
+        {
+          "label": "Chat",
+          "scrollableFilter": false,
+          "x": 235.390625,
+          "y": 467,
+          "w": 64.796875,
+          "h": 49,
+          "right": 300.1875,
+          "bottom": 516
+        },
+        {
+          "label": "Phone",
+          "scrollableFilter": false,
+          "x": 308.1875,
+          "y": 467,
+          "w": 64.8125,
+          "h": 49,
+          "right": 373,
+          "bottom": 516
+        }
+      ],
+      "text": [
+        {
+          "selector": ".player-copy strong",
+          "text": "p8mvays0d40",
+          "x": 70,
+          "y": 14.078125,
+          "w": 164.796875,
+          "h": 20,
+          "right": 234.796875,
+          "bottom": 34.078125,
+          "clipped": false
+        },
+        {
+          "selector": ".wallet-control strong",
+          "text": "GH\u20b5942",
+          "x": 301.796875,
+          "y": 21,
+          "w": 57.203125,
+          "h": 20,
+          "right": 359,
+          "bottom": 41,
+          "clipped": false
+        },
+        {
+          "selector": ".current-location",
+          "text": "Sankofa Tech Hub, Osu",
+          "x": 40,
+          "y": 64.40625,
+          "w": 275.046875,
+          "h": 16.1875,
+          "right": 315.046875,
+          "bottom": 80.59375,
+          "clipped": false
+        },
+        {
+          "selector": ".online-count",
+          "text": "1 player online",
+          "x": 52,
+          "y": 82.59375,
+          "w": 62.65625,
+          "h": 12,
+          "right": 114.65625,
+          "bottom": 94.59375,
+          "clipped": false
+        },
+        {
+          "selector": ".location-control time",
+          "text": "18:22",
+          "x": 321.046875,
+          "y": 72.078125,
+          "w": 28.953125,
+          "h": 14.84375,
+          "right": 350,
+          "bottom": 86.921875,
+          "clipped": false
+        },
+        {
+          "selector": ".optional-objective",
+          "text": "Ready to claim: Complete a work shift",
+          "x": 20,
+          "y": 101,
+          "w": 350,
+          "h": 44,
+          "right": 370,
+          "bottom": 145,
+          "clipped": false
+        }
+      ],
+      "pins": [],
+      "overflow": false,
+      "mapView": false,
+      "view": "home",
+      "width": 390,
+      "height": 530
+    },
+    {
+      "boxes": {
+        ".player-status": {
+          "x": 183,
+          "y": 10,
+          "w": 139.96875,
+          "h": 44,
+          "right": 322.96875,
+          "bottom": 54
+        },
+        ".wallet-control": {
+          "x": 332.96875,
+          "y": 10,
+          "w": 104.203125,
+          "h": 44,
+          "right": 437.171875,
+          "bottom": 54
+        },
+        ".location-control": {
+          "x": 449.171875,
+          "y": 10,
+          "w": 211.828125,
+          "h": 44,
+          "right": 661,
+          "bottom": 54
+        },
+        ".optional-objective": {
+          "x": 183,
+          "y": 54,
+          "w": 478,
+          "h": 44,
+          "right": 661,
+          "bottom": 98
+        },
+        ".street-context": null,
+        ".street-entrance": null,
+        ".map-filters": null,
+        ".city-controls": null,
+        ".play-nav": {
+          "x": 174,
+          "y": 322,
+          "w": 496,
+          "h": 60,
+          "right": 670,
+          "bottom": 382
+        },
+        ".hud-surface": {
+          "x": 174,
+          "y": 5,
+          "w": 496,
+          "h": 100,
+          "right": 670,
+          "bottom": 105
+        }
+      },
+      "controls": [
+        {
+          "label": "Character status",
+          "scrollableFilter": false,
+          "x": 183,
+          "y": 10,
+          "w": 139.96875,
+          "h": 44,
+          "right": 322.96875,
+          "bottom": 54
+        },
+        {
+          "label": "Wallet GH\u20b5942. Open MoMo",
+          "scrollableFilter": false,
+          "x": 332.96875,
+          "y": 10,
+          "w": 104.203125,
+          "h": 44,
+          "right": 437.171875,
+          "bottom": 54
+        },
+        {
+          "label": "Current location and city map",
+          "scrollableFilter": false,
+          "x": 449.171875,
+          "y": 10,
+          "w": 211.828125,
+          "h": 44,
+          "right": 661,
+          "bottom": 54
+        },
+        {
+          "label": "Ready to claim: Complete a work shift. Open milestones",
+          "scrollableFilter": false,
+          "x": 183,
+          "y": 54,
+          "w": 478,
+          "h": 44,
+          "right": 661,
+          "bottom": 98
+        },
+        {
+          "label": "Home",
+          "scrollableFilter": false,
+          "x": 179,
+          "y": 327,
+          "w": 90.796875,
+          "h": 49,
+          "right": 269.796875,
+          "bottom": 376
+        },
+        {
+          "label": "Map",
+          "scrollableFilter": false,
+          "x": 277.796875,
+          "y": 327,
+          "w": 90.796875,
+          "h": 49,
+          "right": 368.59375,
+          "bottom": 376
+        },
+        {
+          "label": "Interact",
+          "scrollableFilter": false,
+          "x": 376.59375,
+          "y": 318.5,
+          "w": 90.796875,
+          "h": 56,
+          "right": 467.390625,
+          "bottom": 374.5
+        },
+        {
+          "label": "Chat",
+          "scrollableFilter": false,
+          "x": 475.390625,
+          "y": 327,
+          "w": 90.796875,
+          "h": 49,
+          "right": 566.1875,
+          "bottom": 376
+        },
+        {
+          "label": "Phone",
+          "scrollableFilter": false,
+          "x": 574.1875,
+          "y": 327,
+          "w": 90.8125,
+          "h": 49,
+          "right": 665,
+          "bottom": 376
+        }
+      ],
+      "text": [
+        {
+          "selector": ".player-copy strong",
+          "text": "p8mvays0d40",
+          "x": 233,
+          "y": 22,
+          "w": 68.96875,
+          "h": 20,
+          "right": 301.96875,
+          "bottom": 42,
+          "clipped": true
+        },
+        {
+          "selector": ".wallet-control strong",
+          "text": "GH\u20b5942",
+          "x": 368.96875,
+          "y": 21,
+          "w": 57.203125,
+          "h": 20,
+          "right": 426.171875,
+          "bottom": 41,
+          "clipped": false
+        },
+        {
+          "selector": ".current-location",
+          "text": "Sankofa Tech Hub, Osu",
+          "x": 469.171875,
+          "y": 16.90625,
+          "w": 136.875,
+          "h": 16.1875,
+          "right": 606.046875,
+          "bottom": 33.09375,
+          "clipped": false
+        },
+        {
+          "selector": ".online-count",
+          "text": "1 player online",
+          "x": 481.171875,
+          "y": 35.09375,
+          "w": 62.65625,
+          "h": 12,
+          "right": 543.828125,
+          "bottom": 47.09375,
+          "clipped": false
+        },
+        {
+          "selector": ".location-control time",
+          "text": "18:22",
+          "x": 612.046875,
+          "y": 24.578125,
+          "w": 28.953125,
+          "h": 14.84375,
+          "right": 641,
+          "bottom": 39.421875,
+          "clipped": false
+        },
+        {
+          "selector": ".optional-objective",
+          "text": "Ready to claim: Complete a work shift",
+          "x": 183,
+          "y": 54,
+          "w": 478,
+          "h": 44,
+          "right": 661,
+          "bottom": 98,
+          "clipped": false
+        }
+      ],
+      "pins": [],
+      "overflow": false,
+      "mapView": false,
+      "view": "home",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "boxes": {
+        ".player-status": {
+          "x": 21,
+          "y": 17,
+          "w": 218.796875,
+          "h": 44,
+          "right": 239.796875,
+          "bottom": 61
+        },
+        ".wallet-control": {
+          "x": 249.796875,
+          "y": 17,
+          "w": 104.203125,
+          "h": 44,
+          "right": 354,
+          "bottom": 61
+        },
+        ".location-control": {
+          "x": 21,
+          "y": 66,
+          "w": 333,
+          "h": 44,
+          "right": 354,
+          "bottom": 110
+        },
+        ".optional-objective": {
+          "x": 21,
+          "y": 110,
+          "w": 333,
+          "h": 44,
+          "right": 354,
+          "bottom": 154
+        },
+        ".street-context": null,
+        ".street-entrance": null,
+        ".map-filters": {
+          "x": 12,
+          "y": 167,
+          "w": 351,
+          "h": 44,
+          "right": 363,
+          "bottom": 211
+        },
+        ".city-controls": {
+          "x": 12,
+          "y": 667,
+          "w": 351,
+          "h": 54,
+          "right": 363,
+          "bottom": 721
+        },
+        ".play-nav": {
+          "x": 12,
+          "y": 738,
+          "w": 351,
+          "h": 66,
+          "right": 363,
+          "bottom": 804
+        },
+        ".hud-surface": {
+          "x": 12,
+          "y": 10,
+          "w": 351,
+          "h": 147,
+          "right": 363,
+          "bottom": 157
+        }
+      },
+      "controls": [
+        {
+          "label": "City overview",
+          "scrollableFilter": false,
+          "x": 16,
+          "y": 671,
+          "w": 64.59375,
+          "h": 44,
+          "right": 80.59375,
+          "bottom": 715
+        },
+        {
+          "label": "Return to current location",
+          "scrollableFilter": false,
+          "x": 85.59375,
+          "y": 671,
+          "w": 64.609375,
+          "h": 44,
+          "right": 150.203125,
+          "bottom": 715
+        },
+        {
+          "label": "Places",
+          "scrollableFilter": false,
+          "x": 155.203125,
+          "y": 671,
+          "w": 64.59375,
+          "h": 44,
+          "right": 219.796875,
+          "bottom": 715
+        },
+        {
+          "label": "Explore districts",
+          "scrollableFilter": false,
+          "x": 224.796875,
+          "y": 671,
+          "w": 64.609375,
+          "h": 44,
+          "right": 289.40625,
+          "bottom": 715
+        },
+        {
+          "label": "Geographic map",
+          "scrollableFilter": false,
+          "x": 294.40625,
+          "y": 671,
+          "w": 64.59375,
+          "h": 44,
+          "right": 359,
+          "bottom": 715
+        },
+        {
+          "label": "All",
+          "scrollableFilter": true,
+          "x": 12,
+          "y": 167,
+          "w": 44,
+          "h": 44,
+          "right": 56,
+          "bottom": 211
+        },
+        {
+          "label": "Open now",
+          "scrollableFilter": true,
+          "x": 62,
+          "y": 167,
+          "w": 81.609375,
+          "h": 44,
+          "right": 143.609375,
+          "bottom": 211
+        },
+        {
+          "label": "Food",
+          "scrollableFilter": true,
+          "x": 149.609375,
+          "y": 167,
+          "w": 53.875,
+          "h": 44,
+          "right": 203.484375,
+          "bottom": 211
+        },
+        {
+          "label": "Work",
+          "scrollableFilter": true,
+          "x": 209.484375,
+          "y": 167,
+          "w": 55.859375,
+          "h": 44,
+          "right": 265.34375,
+          "bottom": 211
+        },
+        {
+          "label": "Fun",
+          "scrollableFilter": true,
+          "x": 271.34375,
+          "y": 167,
+          "w": 46.421875,
+          "h": 44,
+          "right": 317.765625,
+          "bottom": 211
+        },
+        {
+          "label": "Busy",
+          "scrollableFilter": true,
+          "x": 323.765625,
+          "y": 167,
+          "w": 52.078125,
+          "h": 44,
+          "right": 375.84375,
+          "bottom": 211
+        },
+        {
+          "label": "Estates",
+          "scrollableFilter": true,
+          "x": 381.84375,
+          "y": 167,
+          "w": 67.4375,
+          "h": 44,
+          "right": 449.28125,
+          "bottom": 211
+        },
+        {
+          "label": "Streets",
+          "scrollableFilter": true,
+          "x": 455.28125,
+          "y": 167,
+          "w": 65.9375,
+          "h": 44,
+          "right": 521.21875,
+          "bottom": 211
+        },
+        {
+          "label": "Character status",
+          "scrollableFilter": false,
+          "x": 21,
+          "y": 17,
+          "w": 218.796875,
+          "h": 44,
+          "right": 239.796875,
+          "bottom": 61
+        },
+        {
+          "label": "Wallet GH\u20b5942. Open MoMo",
+          "scrollableFilter": false,
+          "x": 249.796875,
+          "y": 17,
+          "w": 104.203125,
+          "h": 44,
+          "right": 354,
+          "bottom": 61
+        },
+        {
+          "label": "Current location and city map",
+          "scrollableFilter": false,
+          "x": 21,
+          "y": 66,
+          "w": 333,
+          "h": 44,
+          "right": 354,
+          "bottom": 110
+        },
+        {
+          "label": "Ready to claim: Complete a work shift. Open milestones",
+          "scrollableFilter": false,
+          "x": 21,
+          "y": 110,
+          "w": 333,
+          "h": 44,
+          "right": 354,
+          "bottom": 154
+        },
+        {
+          "label": "Home",
+          "scrollableFilter": false,
+          "x": 17,
+          "y": 743,
+          "w": 61.796875,
+          "h": 54,
+          "right": 78.796875,
+          "bottom": 797
+        },
+        {
+          "label": "Map",
+          "scrollableFilter": false,
+          "x": 86.796875,
+          "y": 743,
+          "w": 61.796875,
+          "h": 54,
+          "right": 148.59375,
+          "bottom": 797
+        },
+        {
+          "label": "Interact",
+          "scrollableFilter": false,
+          "x": 156.59375,
+          "y": 734,
+          "w": 61.796875,
+          "h": 62,
+          "right": 218.390625,
+          "bottom": 796
+        },
+        {
+          "label": "Chat",
+          "scrollableFilter": false,
+          "x": 226.390625,
+          "y": 743,
+          "w": 61.796875,
+          "h": 54,
+          "right": 288.1875,
+          "bottom": 797
+        },
+        {
+          "label": "Phone",
+          "scrollableFilter": false,
+          "x": 296.1875,
+          "y": 743,
+          "w": 61.8125,
+          "h": 54,
+          "right": 358,
+          "bottom": 797
+        }
+      ],
+      "text": [
+        {
+          "selector": ".player-copy strong",
+          "text": "p8mvays0d40",
+          "x": 71,
+          "y": 21.078125,
+          "w": 147.796875,
+          "h": 20,
+          "right": 218.796875,
+          "bottom": 41.078125,
+          "clipped": false
+        },
+        {
+          "selector": ".wallet-control strong",
+          "text": "GH\u20b5942",
+          "x": 285.796875,
+          "y": 28,
+          "w": 57.203125,
+          "h": 20,
+          "right": 343,
+          "bottom": 48,
+          "clipped": false
+        },
+        {
+          "selector": ".current-location",
+          "text": "Sankofa Tech Hub, Osu",
+          "x": 41,
+          "y": 73.40625,
+          "w": 258.046875,
+          "h": 16.1875,
+          "right": 299.046875,
+          "bottom": 89.59375,
+          "clipped": false
+        },
+        {
+          "selector": ".online-count",
+          "text": "1 player online",
+          "x": 53,
+          "y": 91.59375,
+          "w": 62.65625,
+          "h": 12,
+          "right": 115.65625,
+          "bottom": 103.59375,
+          "clipped": false
+        },
+        {
+          "selector": ".location-control time",
+          "text": "18:22",
+          "x": 305.046875,
+          "y": 81.078125,
+          "w": 28.953125,
+          "h": 14.84375,
+          "right": 334,
+          "bottom": 95.921875,
+          "clipped": false
+        },
+        {
+          "selector": ".optional-objective",
+          "text": "Ready to claim: Complete a work shift",
+          "x": 21,
+          "y": 110,
+          "w": 333,
+          "h": 44,
+          "right": 354,
+          "bottom": 154,
+          "clipped": false
+        }
+      ],
+      "pins": [
+        {
+          "x": 165.5,
+          "y": 383.4375,
+          "w": 44,
+          "h": 44,
+          "right": 209.5,
+          "bottom": 427.4375
+        },
+        {
+          "x": 254.8125,
+          "y": 227.75,
+          "w": 44,
+          "h": 44,
+          "right": 298.8125,
+          "bottom": 271.75
+        },
+        {
+          "x": 165.5,
+          "y": 279.65625,
+          "w": 44,
+          "h": 44,
+          "right": 209.5,
+          "bottom": 323.65625
+        },
+        {
+          "x": 254.8125,
+          "y": 331.546875,
+          "w": 44,
+          "h": 44,
+          "right": 298.8125,
+          "bottom": 375.546875
+        },
+        {
+          "x": 76.171875,
+          "y": 227.75,
+          "w": 44,
+          "h": 44,
+          "right": 120.171875,
+          "bottom": 271.75
+        }
+      ],
+      "overflow": false,
+      "mapView": true,
+      "view": "map",
+      "width": 375,
+      "height": 812
+    },
+    {
+      "boxes": {
+        ".player-status": {
+          "x": 21,
+          "y": 17,
+          "w": 233.796875,
+          "h": 44,
+          "right": 254.796875,
+          "bottom": 61
+        },
+        ".wallet-control": {
+          "x": 264.796875,
+          "y": 17,
+          "w": 104.203125,
+          "h": 44,
+          "right": 369,
+          "bottom": 61
+        },
+        ".location-control": {
+          "x": 21,
+          "y": 66,
+          "w": 348,
+          "h": 44,
+          "right": 369,
+          "bottom": 110
+        },
+        ".optional-objective": {
+          "x": 21,
+          "y": 110,
+          "w": 348,
+          "h": 44,
+          "right": 369,
+          "bottom": 154
+        },
+        ".street-context": null,
+        ".street-entrance": null,
+        ".map-filters": {
+          "x": 12,
+          "y": 167,
+          "w": 366,
+          "h": 44,
+          "right": 378,
+          "bottom": 211
+        },
+        ".city-controls": {
+          "x": 12,
+          "y": 699,
+          "w": 366,
+          "h": 54,
+          "right": 378,
+          "bottom": 753
+        },
+        ".play-nav": {
+          "x": 12,
+          "y": 770,
+          "w": 366,
+          "h": 66,
+          "right": 378,
+          "bottom": 836
+        },
+        ".hud-surface": {
+          "x": 12,
+          "y": 10,
+          "w": 366,
+          "h": 147,
+          "right": 378,
+          "bottom": 157
+        }
+      },
+      "controls": [
+        {
+          "label": "City overview",
+          "scrollableFilter": false,
+          "x": 16,
+          "y": 703,
+          "w": 67.59375,
+          "h": 44,
+          "right": 83.59375,
+          "bottom": 747
+        },
+        {
+          "label": "Return to current location",
+          "scrollableFilter": false,
+          "x": 88.59375,
+          "y": 703,
+          "w": 67.609375,
+          "h": 44,
+          "right": 156.203125,
+          "bottom": 747
+        },
+        {
+          "label": "Places",
+          "scrollableFilter": false,
+          "x": 161.203125,
+          "y": 703,
+          "w": 67.59375,
+          "h": 44,
+          "right": 228.796875,
+          "bottom": 747
+        },
+        {
+          "label": "Explore districts",
+          "scrollableFilter": false,
+          "x": 233.796875,
+          "y": 703,
+          "w": 67.609375,
+          "h": 44,
+          "right": 301.40625,
+          "bottom": 747
+        },
+        {
+          "label": "Geographic map",
+          "scrollableFilter": false,
+          "x": 306.40625,
+          "y": 703,
+          "w": 67.59375,
+          "h": 44,
+          "right": 374,
+          "bottom": 747
+        },
+        {
+          "label": "All",
+          "scrollableFilter": true,
+          "x": 12,
+          "y": 167,
+          "w": 44,
+          "h": 44,
+          "right": 56,
+          "bottom": 211
+        },
+        {
+          "label": "Open now",
+          "scrollableFilter": true,
+          "x": 62,
+          "y": 167,
+          "w": 81.609375,
+          "h": 44,
+          "right": 143.609375,
+          "bottom": 211
+        },
+        {
+          "label": "Food",
+          "scrollableFilter": true,
+          "x": 149.609375,
+          "y": 167,
+          "w": 53.875,
+          "h": 44,
+          "right": 203.484375,
+          "bottom": 211
+        },
+        {
+          "label": "Work",
+          "scrollableFilter": true,
+          "x": 209.484375,
+          "y": 167,
+          "w": 55.859375,
+          "h": 44,
+          "right": 265.34375,
+          "bottom": 211
+        },
+        {
+          "label": "Fun",
+          "scrollableFilter": true,
+          "x": 271.34375,
+          "y": 167,
+          "w": 46.421875,
+          "h": 44,
+          "right": 317.765625,
+          "bottom": 211
+        },
+        {
+          "label": "Busy",
+          "scrollableFilter": true,
+          "x": 323.765625,
+          "y": 167,
+          "w": 52.078125,
+          "h": 44,
+          "right": 375.84375,
+          "bottom": 211
+        },
+        {
+          "label": "Estates",
+          "scrollableFilter": true,
+          "x": 381.84375,
+          "y": 167,
+          "w": 67.4375,
+          "h": 44,
+          "right": 449.28125,
+          "bottom": 211
+        },
+        {
+          "label": "Streets",
+          "scrollableFilter": true,
+          "x": 455.28125,
+          "y": 167,
+          "w": 65.9375,
+          "h": 44,
+          "right": 521.21875,
+          "bottom": 211
+        },
+        {
+          "label": "Character status",
+          "scrollableFilter": false,
+          "x": 21,
+          "y": 17,
+          "w": 233.796875,
+          "h": 44,
+          "right": 254.796875,
+          "bottom": 61
+        },
+        {
+          "label": "Wallet GH\u20b5942. Open MoMo",
+          "scrollableFilter": false,
+          "x": 264.796875,
+          "y": 17,
+          "w": 104.203125,
+          "h": 44,
+          "right": 369,
+          "bottom": 61
+        },
+        {
+          "label": "Current location and city map",
+          "scrollableFilter": false,
+          "x": 21,
+          "y": 66,
+          "w": 348,
+          "h": 44,
+          "right": 369,
+          "bottom": 110
+        },
+        {
+          "label": "Ready to claim: Complete a work shift. Open milestones",
+          "scrollableFilter": false,
+          "x": 21,
+          "y": 110,
+          "w": 348,
+          "h": 44,
+          "right": 369,
+          "bottom": 154
+        },
+        {
+          "label": "Home",
+          "scrollableFilter": false,
+          "x": 17,
+          "y": 775,
+          "w": 64.796875,
+          "h": 54,
+          "right": 81.796875,
+          "bottom": 829
+        },
+        {
+          "label": "Map",
+          "scrollableFilter": false,
+          "x": 89.796875,
+          "y": 775,
+          "w": 64.796875,
+          "h": 54,
+          "right": 154.59375,
+          "bottom": 829
+        },
+        {
+          "label": "Interact",
+          "scrollableFilter": false,
+          "x": 162.59375,
+          "y": 766,
+          "w": 64.796875,
+          "h": 62,
+          "right": 227.390625,
+          "bottom": 828
+        },
+        {
+          "label": "Chat",
+          "scrollableFilter": false,
+          "x": 235.390625,
+          "y": 775,
+          "w": 64.796875,
+          "h": 54,
+          "right": 300.1875,
+          "bottom": 829
+        },
+        {
+          "label": "Phone",
+          "scrollableFilter": false,
+          "x": 308.1875,
+          "y": 775,
+          "w": 64.8125,
+          "h": 54,
+          "right": 373,
+          "bottom": 829
+        }
+      ],
+      "text": [
+        {
+          "selector": ".player-copy strong",
+          "text": "p8mvays0d40",
+          "x": 71,
+          "y": 21.078125,
+          "w": 162.796875,
+          "h": 20,
+          "right": 233.796875,
+          "bottom": 41.078125,
+          "clipped": false
+        },
+        {
+          "selector": ".wallet-control strong",
+          "text": "GH\u20b5942",
+          "x": 300.796875,
+          "y": 28,
+          "w": 57.203125,
+          "h": 20,
+          "right": 358,
+          "bottom": 48,
+          "clipped": false
+        },
+        {
+          "selector": ".current-location",
+          "text": "Sankofa Tech Hub, Osu",
+          "x": 41,
+          "y": 73.40625,
+          "w": 273.046875,
+          "h": 16.1875,
+          "right": 314.046875,
+          "bottom": 89.59375,
+          "clipped": false
+        },
+        {
+          "selector": ".online-count",
+          "text": "1 player online",
+          "x": 53,
+          "y": 91.59375,
+          "w": 62.65625,
+          "h": 12,
+          "right": 115.65625,
+          "bottom": 103.59375,
+          "clipped": false
+        },
+        {
+          "selector": ".location-control time",
+          "text": "18:22",
+          "x": 320.046875,
+          "y": 81.078125,
+          "w": 28.953125,
+          "h": 14.84375,
+          "right": 349,
+          "bottom": 95.921875,
+          "clipped": false
+        },
+        {
+          "selector": ".optional-objective",
+          "text": "Ready to claim: Complete a work shift",
+          "x": 21,
+          "y": 110,
+          "w": 348,
+          "h": 44,
+          "right": 369,
+          "bottom": 154,
+          "clipped": false
+        }
+      ],
+      "pins": [
+        {
+          "x": 173,
+          "y": 399.421875,
+          "w": 44,
+          "h": 44,
+          "right": 217,
+          "bottom": 443.421875
+        },
+        {
+          "x": 265.828125,
+          "y": 237.59375,
+          "w": 44,
+          "h": 44,
+          "right": 309.828125,
+          "bottom": 281.59375
+        },
+        {
+          "x": 173,
+          "y": 291.53125,
+          "w": 44,
+          "h": 44,
+          "right": 217,
+          "bottom": 335.53125
+        },
+        {
+          "x": 265.828125,
+          "y": 345.484375,
+          "w": 44,
+          "h": 44,
+          "right": 309.828125,
+          "bottom": 389.484375
+        },
+        {
+          "x": 80.15625,
+          "y": 237.59375,
+          "w": 44,
+          "h": 44,
+          "right": 124.15625,
+          "bottom": 281.59375
+        }
+      ],
+      "overflow": false,
+      "mapView": true,
+      "view": "map",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "boxes": {
+        ".player-status": {
+          "x": 21,
+          "y": 17,
+          "w": 273.796875,
+          "h": 44,
+          "right": 294.796875,
+          "bottom": 61
+        },
+        ".wallet-control": {
+          "x": 304.796875,
+          "y": 17,
+          "w": 104.203125,
+          "h": 44,
+          "right": 409,
+          "bottom": 61
+        },
+        ".location-control": {
+          "x": 21,
+          "y": 66,
+          "w": 388,
+          "h": 44,
+          "right": 409,
+          "bottom": 110
+        },
+        ".optional-objective": {
+          "x": 21,
+          "y": 110,
+          "w": 388,
+          "h": 44,
+          "right": 409,
+          "bottom": 154
+        },
+        ".street-context": null,
+        ".street-entrance": null,
+        ".map-filters": {
+          "x": 12,
+          "y": 167,
+          "w": 406,
+          "h": 44,
+          "right": 418,
+          "bottom": 211
+        },
+        ".city-controls": {
+          "x": 12,
+          "y": 787,
+          "w": 406,
+          "h": 54,
+          "right": 418,
+          "bottom": 841
+        },
+        ".play-nav": {
+          "x": 12,
+          "y": 858,
+          "w": 406,
+          "h": 66,
+          "right": 418,
+          "bottom": 924
+        },
+        ".hud-surface": {
+          "x": 12,
+          "y": 10,
+          "w": 406,
+          "h": 147,
+          "right": 418,
+          "bottom": 157
+        }
+      },
+      "controls": [
+        {
+          "label": "City overview",
+          "scrollableFilter": false,
+          "x": 16,
+          "y": 791,
+          "w": 75.59375,
+          "h": 44,
+          "right": 91.59375,
+          "bottom": 835
+        },
+        {
+          "label": "Return to current location",
+          "scrollableFilter": false,
+          "x": 96.59375,
+          "y": 791,
+          "w": 75.609375,
+          "h": 44,
+          "right": 172.203125,
+          "bottom": 835
+        },
+        {
+          "label": "Places",
+          "scrollableFilter": false,
+          "x": 177.203125,
+          "y": 791,
+          "w": 75.59375,
+          "h": 44,
+          "right": 252.796875,
+          "bottom": 835
+        },
+        {
+          "label": "Explore districts",
+          "scrollableFilter": false,
+          "x": 257.796875,
+          "y": 791,
+          "w": 75.609375,
+          "h": 44,
+          "right": 333.40625,
+          "bottom": 835
+        },
+        {
+          "label": "Geographic map",
+          "scrollableFilter": false,
+          "x": 338.40625,
+          "y": 791,
+          "w": 75.59375,
+          "h": 44,
+          "right": 414,
+          "bottom": 835
+        },
+        {
+          "label": "All",
+          "scrollableFilter": true,
+          "x": 12,
+          "y": 167,
+          "w": 44,
+          "h": 44,
+          "right": 56,
+          "bottom": 211
+        },
+        {
+          "label": "Open now",
+          "scrollableFilter": true,
+          "x": 62,
+          "y": 167,
+          "w": 81.609375,
+          "h": 44,
+          "right": 143.609375,
+          "bottom": 211
+        },
+        {
+          "label": "Food",
+          "scrollableFilter": true,
+          "x": 149.609375,
+          "y": 167,
+          "w": 53.875,
+          "h": 44,
+          "right": 203.484375,
+          "bottom": 211
+        },
+        {
+          "label": "Work",
+          "scrollableFilter": true,
+          "x": 209.484375,
+          "y": 167,
+          "w": 55.859375,
+          "h": 44,
+          "right": 265.34375,
+          "bottom": 211
+        },
+        {
+          "label": "Fun",
+          "scrollableFilter": true,
+          "x": 271.34375,
+          "y": 167,
+          "w": 46.421875,
+          "h": 44,
+          "right": 317.765625,
+          "bottom": 211
+        },
+        {
+          "label": "Busy",
+          "scrollableFilter": true,
+          "x": 323.765625,
+          "y": 167,
+          "w": 52.078125,
+          "h": 44,
+          "right": 375.84375,
+          "bottom": 211
+        },
+        {
+          "label": "Estates",
+          "scrollableFilter": true,
+          "x": 381.84375,
+          "y": 167,
+          "w": 67.4375,
+          "h": 44,
+          "right": 449.28125,
+          "bottom": 211
+        },
+        {
+          "label": "Streets",
+          "scrollableFilter": true,
+          "x": 455.28125,
+          "y": 167,
+          "w": 65.9375,
+          "h": 44,
+          "right": 521.21875,
+          "bottom": 211
+        },
+        {
+          "label": "Character status",
+          "scrollableFilter": false,
+          "x": 21,
+          "y": 17,
+          "w": 273.796875,
+          "h": 44,
+          "right": 294.796875,
+          "bottom": 61
+        },
+        {
+          "label": "Wallet GH\u20b5942. Open MoMo",
+          "scrollableFilter": false,
+          "x": 304.796875,
+          "y": 17,
+          "w": 104.203125,
+          "h": 44,
+          "right": 409,
+          "bottom": 61
+        },
+        {
+          "label": "Current location and city map",
+          "scrollableFilter": false,
+          "x": 21,
+          "y": 66,
+          "w": 388,
+          "h": 44,
+          "right": 409,
+          "bottom": 110
+        },
+        {
+          "label": "Ready to claim: Complete a work shift. Open milestones",
+          "scrollableFilter": false,
+          "x": 21,
+          "y": 110,
+          "w": 388,
+          "h": 44,
+          "right": 409,
+          "bottom": 154
+        },
+        {
+          "label": "Home",
+          "scrollableFilter": false,
+          "x": 17,
+          "y": 863,
+          "w": 72.796875,
+          "h": 54,
+          "right": 89.796875,
+          "bottom": 917
+        },
+        {
+          "label": "Map",
+          "scrollableFilter": false,
+          "x": 97.796875,
+          "y": 863,
+          "w": 72.796875,
+          "h": 54,
+          "right": 170.59375,
+          "bottom": 917
+        },
+        {
+          "label": "Interact",
+          "scrollableFilter": false,
+          "x": 178.59375,
+          "y": 854,
+          "w": 72.796875,
+          "h": 62,
+          "right": 251.390625,
+          "bottom": 916
+        },
+        {
+          "label": "Chat",
+          "scrollableFilter": false,
+          "x": 259.390625,
+          "y": 863,
+          "w": 72.796875,
+          "h": 54,
+          "right": 332.1875,
+          "bottom": 917
+        },
+        {
+          "label": "Phone",
+          "scrollableFilter": false,
+          "x": 340.1875,
+          "y": 863,
+          "w": 72.8125,
+          "h": 54,
+          "right": 413,
+          "bottom": 917
+        }
+      ],
+      "text": [
+        {
+          "selector": ".player-copy strong",
+          "text": "p8mvays0d40",
+          "x": 71,
+          "y": 21.078125,
+          "w": 202.796875,
+          "h": 20,
+          "right": 273.796875,
+          "bottom": 41.078125,
+          "clipped": false
+        },
+        {
+          "selector": ".wallet-control strong",
+          "text": "GH\u20b5942",
+          "x": 340.796875,
+          "y": 28,
+          "w": 57.203125,
+          "h": 20,
+          "right": 398,
+          "bottom": 48,
+          "clipped": false
+        },
+        {
+          "selector": ".current-location",
+          "text": "Sankofa Tech Hub, Osu",
+          "x": 41,
+          "y": 73.40625,
+          "w": 313.046875,
+          "h": 16.1875,
+          "right": 354.046875,
+          "bottom": 89.59375,
+          "clipped": false
+        },
+        {
+          "selector": ".online-count",
+          "text": "1 player online",
+          "x": 53,
+          "y": 91.59375,
+          "w": 62.65625,
+          "h": 12,
+          "right": 115.65625,
+          "bottom": 103.59375,
+          "clipped": false
+        },
+        {
+          "selector": ".location-control time",
+          "text": "18:22",
+          "x": 360.046875,
+          "y": 81.078125,
+          "w": 28.953125,
+          "h": 14.84375,
+          "right": 389,
+          "bottom": 95.921875,
+          "clipped": false
+        },
+        {
+          "selector": ".optional-objective",
+          "text": "Ready to claim: Complete a work shift",
+          "x": 21,
+          "y": 110,
+          "w": 388,
+          "h": 44,
+          "right": 409,
+          "bottom": 154,
+          "clipped": false
+        }
+      ],
+      "pins": [
+        {
+          "x": 193,
+          "y": 443.359375,
+          "w": 44,
+          "h": 44,
+          "right": 237,
+          "bottom": 487.359375
+        },
+        {
+          "x": 295.5,
+          "y": 264.671875,
+          "w": 44,
+          "h": 44,
+          "right": 339.5,
+          "bottom": 308.671875
+        },
+        {
+          "x": 193,
+          "y": 324.234375,
+          "w": 44,
+          "h": 44,
+          "right": 237,
+          "bottom": 368.234375
+        },
+        {
+          "x": 295.5,
+          "y": 383.796875,
+          "w": 44,
+          "h": 44,
+          "right": 339.5,
+          "bottom": 427.796875
+        },
+        {
+          "x": 90.484375,
+          "y": 264.671875,
+          "w": 44,
+          "h": 44,
+          "right": 134.484375,
+          "bottom": 308.671875
+        }
+      ],
+      "overflow": false,
+      "mapView": true,
+      "view": "map",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "boxes": {
+        ".player-status": {
+          "x": 20,
+          "y": 10,
+          "w": 235.796875,
+          "h": 44,
+          "right": 255.796875,
+          "bottom": 54
+        },
+        ".wallet-control": {
+          "x": 265.796875,
+          "y": 10,
+          "w": 104.203125,
+          "h": 44,
+          "right": 370,
+          "bottom": 54
+        },
+        ".location-control": {
+          "x": 20,
+          "y": 57,
+          "w": 350,
+          "h": 44,
+          "right": 370,
+          "bottom": 101
+        },
+        ".optional-objective": {
+          "x": 20,
+          "y": 101,
+          "w": 350,
+          "h": 44,
+          "right": 370,
+          "bottom": 145
+        },
+        ".street-context": null,
+        ".street-entrance": null,
+        ".map-filters": {
+          "x": 12,
+          "y": 167,
+          "w": 366,
+          "h": 44,
+          "right": 378,
+          "bottom": 211
+        },
+        ".city-controls": {
+          "x": 12,
+          "y": 394,
+          "w": 366,
+          "h": 54,
+          "right": 378,
+          "bottom": 448
+        },
+        ".play-nav": {
+          "x": 12,
+          "y": 462,
+          "w": 366,
+          "h": 60,
+          "right": 378,
+          "bottom": 522
+        },
+        ".hud-surface": {
+          "x": 12,
+          "y": 5,
+          "w": 366,
+          "h": 143,
+          "right": 378,
+          "bottom": 148
+        }
+      },
+      "controls": [
+        {
+          "label": "City overview",
+          "scrollableFilter": false,
+          "x": 16,
+          "y": 398,
+          "w": 67.59375,
+          "h": 44,
+          "right": 83.59375,
+          "bottom": 442
+        },
+        {
+          "label": "Return to current location",
+          "scrollableFilter": false,
+          "x": 88.59375,
+          "y": 398,
+          "w": 67.609375,
+          "h": 44,
+          "right": 156.203125,
+          "bottom": 442
+        },
+        {
+          "label": "Places",
+          "scrollableFilter": false,
+          "x": 161.203125,
+          "y": 398,
+          "w": 67.59375,
+          "h": 44,
+          "right": 228.796875,
+          "bottom": 442
+        },
+        {
+          "label": "Explore districts",
+          "scrollableFilter": false,
+          "x": 233.796875,
+          "y": 398,
+          "w": 67.609375,
+          "h": 44,
+          "right": 301.40625,
+          "bottom": 442
+        },
+        {
+          "label": "Geographic map",
+          "scrollableFilter": false,
+          "x": 306.40625,
+          "y": 398,
+          "w": 67.59375,
+          "h": 44,
+          "right": 374,
+          "bottom": 442
+        },
+        {
+          "label": "All",
+          "scrollableFilter": true,
+          "x": 12,
+          "y": 167,
+          "w": 44,
+          "h": 44,
+          "right": 56,
+          "bottom": 211
+        },
+        {
+          "label": "Open now",
+          "scrollableFilter": true,
+          "x": 62,
+          "y": 167,
+          "w": 81.609375,
+          "h": 44,
+          "right": 143.609375,
+          "bottom": 211
+        },
+        {
+          "label": "Food",
+          "scrollableFilter": true,
+          "x": 149.609375,
+          "y": 167,
+          "w": 53.875,
+          "h": 44,
+          "right": 203.484375,
+          "bottom": 211
+        },
+        {
+          "label": "Work",
+          "scrollableFilter": true,
+          "x": 209.484375,
+          "y": 167,
+          "w": 55.859375,
+          "h": 44,
+          "right": 265.34375,
+          "bottom": 211
+        },
+        {
+          "label": "Fun",
+          "scrollableFilter": true,
+          "x": 271.34375,
+          "y": 167,
+          "w": 46.421875,
+          "h": 44,
+          "right": 317.765625,
+          "bottom": 211
+        },
+        {
+          "label": "Busy",
+          "scrollableFilter": true,
+          "x": 323.765625,
+          "y": 167,
+          "w": 52.078125,
+          "h": 44,
+          "right": 375.84375,
+          "bottom": 211
+        },
+        {
+          "label": "Estates",
+          "scrollableFilter": true,
+          "x": 381.84375,
+          "y": 167,
+          "w": 67.4375,
+          "h": 44,
+          "right": 449.28125,
+          "bottom": 211
+        },
+        {
+          "label": "Streets",
+          "scrollableFilter": true,
+          "x": 455.28125,
+          "y": 167,
+          "w": 65.9375,
+          "h": 44,
+          "right": 521.21875,
+          "bottom": 211
+        },
+        {
+          "label": "Character status",
+          "scrollableFilter": false,
+          "x": 20,
+          "y": 10,
+          "w": 235.796875,
+          "h": 44,
+          "right": 255.796875,
+          "bottom": 54
+        },
+        {
+          "label": "Wallet GH\u20b5942. Open MoMo",
+          "scrollableFilter": false,
+          "x": 265.796875,
+          "y": 10,
+          "w": 104.203125,
+          "h": 44,
+          "right": 370,
+          "bottom": 54
+        },
+        {
+          "label": "Current location and city map",
+          "scrollableFilter": false,
+          "x": 20,
+          "y": 57,
+          "w": 350,
+          "h": 44,
+          "right": 370,
+          "bottom": 101
+        },
+        {
+          "label": "Ready to claim: Complete a work shift. Open milestones",
+          "scrollableFilter": false,
+          "x": 20,
+          "y": 101,
+          "w": 350,
+          "h": 44,
+          "right": 370,
+          "bottom": 145
+        },
+        {
+          "label": "Home",
+          "scrollableFilter": false,
+          "x": 17,
+          "y": 467,
+          "w": 64.796875,
+          "h": 49,
+          "right": 81.796875,
+          "bottom": 516
+        },
+        {
+          "label": "Map",
+          "scrollableFilter": false,
+          "x": 89.796875,
+          "y": 467,
+          "w": 64.796875,
+          "h": 49,
+          "right": 154.59375,
+          "bottom": 516
+        },
+        {
+          "label": "Interact",
+          "scrollableFilter": false,
+          "x": 162.59375,
+          "y": 458.5,
+          "w": 64.796875,
+          "h": 56,
+          "right": 227.390625,
+          "bottom": 514.5
+        },
+        {
+          "label": "Chat",
+          "scrollableFilter": false,
+          "x": 235.390625,
+          "y": 467,
+          "w": 64.796875,
+          "h": 49,
+          "right": 300.1875,
+          "bottom": 516
+        },
+        {
+          "label": "Phone",
+          "scrollableFilter": false,
+          "x": 308.1875,
+          "y": 467,
+          "w": 64.8125,
+          "h": 49,
+          "right": 373,
+          "bottom": 516
+        }
+      ],
+      "text": [
+        {
+          "selector": ".player-copy strong",
+          "text": "p8mvays0d40",
+          "x": 70,
+          "y": 14.078125,
+          "w": 164.796875,
+          "h": 20,
+          "right": 234.796875,
+          "bottom": 34.078125,
+          "clipped": false
+        },
+        {
+          "selector": ".wallet-control strong",
+          "text": "GH\u20b5942",
+          "x": 301.796875,
+          "y": 21,
+          "w": 57.203125,
+          "h": 20,
+          "right": 359,
+          "bottom": 41,
+          "clipped": false
+        },
+        {
+          "selector": ".current-location",
+          "text": "Sankofa Tech Hub, Osu",
+          "x": 40,
+          "y": 64.40625,
+          "w": 275.046875,
+          "h": 16.1875,
+          "right": 315.046875,
+          "bottom": 80.59375,
+          "clipped": false
+        },
+        {
+          "selector": ".online-count",
+          "text": "1 player online",
+          "x": 52,
+          "y": 82.59375,
+          "w": 62.65625,
+          "h": 12,
+          "right": 114.65625,
+          "bottom": 94.59375,
+          "clipped": false
+        },
+        {
+          "selector": ".location-control time",
+          "text": "18:22",
+          "x": 321.046875,
+          "y": 72.078125,
+          "w": 28.953125,
+          "h": 14.84375,
+          "right": 350,
+          "bottom": 86.921875,
+          "clipped": false
+        },
+        {
+          "selector": ".optional-objective",
+          "text": "Ready to claim: Complete a work shift",
+          "x": 20,
+          "y": 101,
+          "w": 350,
+          "h": 44,
+          "right": 370,
+          "bottom": 145,
+          "clipped": false
+        }
+      ],
+      "pins": [
+        {
+          "x": 173,
+          "y": 242.625,
+          "w": 44,
+          "h": 44,
+          "right": 217,
+          "bottom": 286.625
+        },
+        {
+          "x": 327.0625,
+          "y": 332.15625,
+          "w": 44,
+          "h": 44,
+          "right": 371.0625,
+          "bottom": 376.15625
+        },
+        {
+          "x": 289.59375,
+          "y": 242.625,
+          "w": 44,
+          "h": 44,
+          "right": 333.59375,
+          "bottom": 286.625
+        }
+      ],
+      "overflow": false,
+      "mapView": true,
+      "view": "map",
+      "width": 390,
+      "height": 530
+    },
+    {
+      "boxes": {
+        ".player-status": {
+          "x": 183,
+          "y": 10,
+          "w": 139.96875,
+          "h": 44,
+          "right": 322.96875,
+          "bottom": 54
+        },
+        ".wallet-control": {
+          "x": 332.96875,
+          "y": 10,
+          "w": 104.203125,
+          "h": 44,
+          "right": 437.171875,
+          "bottom": 54
+        },
+        ".location-control": {
+          "x": 449.171875,
+          "y": 10,
+          "w": 211.828125,
+          "h": 44,
+          "right": 661,
+          "bottom": 54
+        },
+        ".optional-objective": {
+          "x": 183,
+          "y": 54,
+          "w": 478,
+          "h": 44,
+          "right": 661,
+          "bottom": 98
+        },
+        ".street-context": null,
+        ".street-entrance": null,
+        ".map-filters": {
+          "x": 174,
+          "y": 112,
+          "w": 496,
+          "h": 44,
+          "right": 670,
+          "bottom": 156
+        },
+        ".city-controls": {
+          "x": 174,
+          "y": 254,
+          "w": 496,
+          "h": 54,
+          "right": 670,
+          "bottom": 308
+        },
+        ".play-nav": {
+          "x": 174,
+          "y": 322,
+          "w": 496,
+          "h": 60,
+          "right": 670,
+          "bottom": 382
+        },
+        ".hud-surface": {
+          "x": 174,
+          "y": 5,
+          "w": 496,
+          "h": 100,
+          "right": 670,
+          "bottom": 105
+        }
+      },
+      "controls": [
+        {
+          "label": "City overview",
+          "scrollableFilter": false,
+          "x": 178,
+          "y": 258,
+          "w": 93.59375,
+          "h": 44,
+          "right": 271.59375,
+          "bottom": 302
+        },
+        {
+          "label": "Return to current location",
+          "scrollableFilter": false,
+          "x": 276.59375,
+          "y": 258,
+          "w": 93.609375,
+          "h": 44,
+          "right": 370.203125,
+          "bottom": 302
+        },
+        {
+          "label": "Places",
+          "scrollableFilter": false,
+          "x": 375.203125,
+          "y": 258,
+          "w": 93.59375,
+          "h": 44,
+          "right": 468.796875,
+          "bottom": 302
+        },
+        {
+          "label": "Explore districts",
+          "scrollableFilter": false,
+          "x": 473.796875,
+          "y": 258,
+          "w": 93.609375,
+          "h": 44,
+          "right": 567.40625,
+          "bottom": 302
+        },
+        {
+          "label": "Geographic map",
+          "scrollableFilter": false,
+          "x": 572.40625,
+          "y": 258,
+          "w": 93.59375,
+          "h": 44,
+          "right": 666,
+          "bottom": 302
+        },
+        {
+          "label": "All",
+          "scrollableFilter": true,
+          "x": 174,
+          "y": 112,
+          "w": 44,
+          "h": 44,
+          "right": 218,
+          "bottom": 156
+        },
+        {
+          "label": "Open now",
+          "scrollableFilter": true,
+          "x": 224,
+          "y": 112,
+          "w": 81.609375,
+          "h": 44,
+          "right": 305.609375,
+          "bottom": 156
+        },
+        {
+          "label": "Food",
+          "scrollableFilter": true,
+          "x": 311.609375,
+          "y": 112,
+          "w": 53.875,
+          "h": 44,
+          "right": 365.484375,
+          "bottom": 156
+        },
+        {
+          "label": "Work",
+          "scrollableFilter": true,
+          "x": 371.484375,
+          "y": 112,
+          "w": 55.859375,
+          "h": 44,
+          "right": 427.34375,
+          "bottom": 156
+        },
+        {
+          "label": "Fun",
+          "scrollableFilter": true,
+          "x": 433.34375,
+          "y": 112,
+          "w": 46.421875,
+          "h": 44,
+          "right": 479.765625,
+          "bottom": 156
+        },
+        {
+          "label": "Busy",
+          "scrollableFilter": true,
+          "x": 485.765625,
+          "y": 112,
+          "w": 52.078125,
+          "h": 44,
+          "right": 537.84375,
+          "bottom": 156
+        },
+        {
+          "label": "Estates",
+          "scrollableFilter": true,
+          "x": 543.84375,
+          "y": 112,
+          "w": 67.4375,
+          "h": 44,
+          "right": 611.28125,
+          "bottom": 156
+        },
+        {
+          "label": "Streets",
+          "scrollableFilter": true,
+          "x": 617.28125,
+          "y": 112,
+          "w": 65.9375,
+          "h": 44,
+          "right": 683.21875,
+          "bottom": 156
+        },
+        {
+          "label": "Character status",
+          "scrollableFilter": false,
+          "x": 183,
+          "y": 10,
+          "w": 139.96875,
+          "h": 44,
+          "right": 322.96875,
+          "bottom": 54
+        },
+        {
+          "label": "Wallet GH\u20b5942. Open MoMo",
+          "scrollableFilter": false,
+          "x": 332.96875,
+          "y": 10,
+          "w": 104.203125,
+          "h": 44,
+          "right": 437.171875,
+          "bottom": 54
+        },
+        {
+          "label": "Current location and city map",
+          "scrollableFilter": false,
+          "x": 449.171875,
+          "y": 10,
+          "w": 211.828125,
+          "h": 44,
+          "right": 661,
+          "bottom": 54
+        },
+        {
+          "label": "Ready to claim: Complete a work shift. Open milestones",
+          "scrollableFilter": false,
+          "x": 183,
+          "y": 54,
+          "w": 478,
+          "h": 44,
+          "right": 661,
+          "bottom": 98
+        },
+        {
+          "label": "Home",
+          "scrollableFilter": false,
+          "x": 179,
+          "y": 327,
+          "w": 90.796875,
+          "h": 49,
+          "right": 269.796875,
+          "bottom": 376
+        },
+        {
+          "label": "Map",
+          "scrollableFilter": false,
+          "x": 277.796875,
+          "y": 327,
+          "w": 90.796875,
+          "h": 49,
+          "right": 368.59375,
+          "bottom": 376
+        },
+        {
+          "label": "Interact",
+          "scrollableFilter": false,
+          "x": 376.59375,
+          "y": 318.5,
+          "w": 90.796875,
+          "h": 56,
+          "right": 467.390625,
+          "bottom": 374.5
+        },
+        {
+          "label": "Chat",
+          "scrollableFilter": false,
+          "x": 475.390625,
+          "y": 327,
+          "w": 90.796875,
+          "h": 49,
+          "right": 566.1875,
+          "bottom": 376
+        },
+        {
+          "label": "Phone",
+          "scrollableFilter": false,
+          "x": 574.1875,
+          "y": 327,
+          "w": 90.8125,
+          "h": 49,
+          "right": 665,
+          "bottom": 376
+        }
+      ],
+      "text": [
+        {
+          "selector": ".player-copy strong",
+          "text": "p8mvays0d40",
+          "x": 233,
+          "y": 22,
+          "w": 68.96875,
+          "h": 20,
+          "right": 301.96875,
+          "bottom": 42,
+          "clipped": true
+        },
+        {
+          "selector": ".wallet-control strong",
+          "text": "GH\u20b5942",
+          "x": 368.96875,
+          "y": 21,
+          "w": 57.203125,
+          "h": 20,
+          "right": 426.171875,
+          "bottom": 41,
+          "clipped": false
+        },
+        {
+          "selector": ".current-location",
+          "text": "Sankofa Tech Hub, Osu",
+          "x": 469.171875,
+          "y": 16.90625,
+          "w": 136.875,
+          "h": 16.1875,
+          "right": 606.046875,
+          "bottom": 33.09375,
+          "clipped": false
+        },
+        {
+          "selector": ".online-count",
+          "text": "1 player online",
+          "x": 481.171875,
+          "y": 35.09375,
+          "w": 62.65625,
+          "h": 12,
+          "right": 543.828125,
+          "bottom": 47.09375,
+          "clipped": false
+        },
+        {
+          "selector": ".location-control time",
+          "text": "18:22",
+          "x": 612.046875,
+          "y": 24.578125,
+          "w": 28.953125,
+          "h": 14.84375,
+          "right": 641,
+          "bottom": 39.421875,
+          "clipped": false
+        },
+        {
+          "selector": ".optional-objective",
+          "text": "Ready to claim: Complete a work shift",
+          "x": 183,
+          "y": 54,
+          "w": 478,
+          "h": 44,
+          "right": 661,
+          "bottom": 98,
+          "clipped": false
+        }
+      ],
+      "pins": [
+        {
+          "x": 400,
+          "y": 172.734375,
+          "w": 44,
+          "h": 44,
+          "right": 444,
+          "bottom": 216.734375
+        },
+        {
+          "x": 485.78125,
+          "y": 172.734375,
+          "w": 44,
+          "h": 44,
+          "right": 529.78125,
+          "bottom": 216.734375
+        }
+      ],
+      "overflow": false,
+      "mapView": true,
+      "view": "map",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "boxes": {
+        ".player-status": {
+          "x": 21,
+          "y": 17,
+          "w": 218.796875,
+          "h": 44,
+          "right": 239.796875,
+          "bottom": 61
+        },
+        ".wallet-control": {
+          "x": 249.796875,
+          "y": 17,
+          "w": 104.203125,
+          "h": 44,
+          "right": 354,
+          "bottom": 61
+        },
+        ".location-control": {
+          "x": 21,
+          "y": 66,
+          "w": 333,
+          "h": 44,
+          "right": 354,
+          "bottom": 110
+        },
+        ".optional-objective": {
+          "x": 21,
+          "y": 110,
+          "w": 333,
+          "h": 44,
+          "right": 354,
+          "bottom": 154
+        },
+        ".street-context": null,
+        ".street-entrance": null,
+        ".map-filters": null,
+        ".city-controls": null,
+        ".play-nav": {
+          "x": 12,
+          "y": 738,
+          "w": 351,
+          "h": 66,
+          "right": 363,
+          "bottom": 804
+        },
+        ".hud-surface": {
+          "x": 12,
+          "y": 10,
+          "w": 351,
+          "h": 147,
+          "right": 363,
+          "bottom": 157
+        }
+      },
+      "controls": [
+        {
+          "label": "Character status",
+          "scrollableFilter": false,
+          "x": 21,
+          "y": 17,
+          "w": 218.796875,
+          "h": 44,
+          "right": 239.796875,
+          "bottom": 61
+        },
+        {
+          "label": "Wallet GH\u20b5942. Open MoMo",
+          "scrollableFilter": false,
+          "x": 249.796875,
+          "y": 17,
+          "w": 104.203125,
+          "h": 44,
+          "right": 354,
+          "bottom": 61
+        },
+        {
+          "label": "Current location and city map",
+          "scrollableFilter": false,
+          "x": 21,
+          "y": 66,
+          "w": 333,
+          "h": 44,
+          "right": 354,
+          "bottom": 110
+        },
+        {
+          "label": "Ready to claim: Complete a work shift. Open milestones",
+          "scrollableFilter": false,
+          "x": 21,
+          "y": 110,
+          "w": 333,
+          "h": 44,
+          "right": 354,
+          "bottom": 154
+        },
+        {
+          "label": "Home",
+          "scrollableFilter": false,
+          "x": 17,
+          "y": 743,
+          "w": 61.796875,
+          "h": 54,
+          "right": 78.796875,
+          "bottom": 797
+        },
+        {
+          "label": "Map",
+          "scrollableFilter": false,
+          "x": 86.796875,
+          "y": 743,
+          "w": 61.796875,
+          "h": 54,
+          "right": 148.59375,
+          "bottom": 797
+        },
+        {
+          "label": "Interact",
+          "scrollableFilter": false,
+          "x": 156.59375,
+          "y": 734,
+          "w": 61.796875,
+          "h": 62,
+          "right": 218.390625,
+          "bottom": 796
+        },
+        {
+          "label": "Chat",
+          "scrollableFilter": false,
+          "x": 226.390625,
+          "y": 743,
+          "w": 61.796875,
+          "h": 54,
+          "right": 288.1875,
+          "bottom": 797
+        },
+        {
+          "label": "Phone",
+          "scrollableFilter": false,
+          "x": 296.1875,
+          "y": 743,
+          "w": 61.8125,
+          "h": 54,
+          "right": 358,
+          "bottom": 797
+        }
+      ],
+      "text": [
+        {
+          "selector": ".player-copy strong",
+          "text": "p8mvays0d40",
+          "x": 71,
+          "y": 21.078125,
+          "w": 147.796875,
+          "h": 20,
+          "right": 218.796875,
+          "bottom": 41.078125,
+          "clipped": false
+        },
+        {
+          "selector": ".wallet-control strong",
+          "text": "GH\u20b5942",
+          "x": 285.796875,
+          "y": 28,
+          "w": 57.203125,
+          "h": 20,
+          "right": 343,
+          "bottom": 48,
+          "clipped": false
+        },
+        {
+          "selector": ".current-location",
+          "text": "Sankofa Tech Hub, Osu",
+          "x": 41,
+          "y": 73.40625,
+          "w": 258.046875,
+          "h": 16.1875,
+          "right": 299.046875,
+          "bottom": 89.59375,
+          "clipped": false
+        },
+        {
+          "selector": ".online-count",
+          "text": "1 player online",
+          "x": 53,
+          "y": 91.59375,
+          "w": 62.65625,
+          "h": 12,
+          "right": 115.65625,
+          "bottom": 103.59375,
+          "clipped": false
+        },
+        {
+          "selector": ".location-control time",
+          "text": "18:22",
+          "x": 305.046875,
+          "y": 81.078125,
+          "w": 28.953125,
+          "h": 14.84375,
+          "right": 334,
+          "bottom": 95.921875,
+          "clipped": false
+        },
+        {
+          "selector": ".optional-objective",
+          "text": "Ready to claim: Complete a work shift",
+          "x": 21,
+          "y": 110,
+          "w": 333,
+          "h": 44,
+          "right": 354,
+          "bottom": 154,
+          "clipped": false
+        }
+      ],
+      "pins": [],
+      "overflow": false,
+      "mapView": false,
+      "view": "home-return",
+      "width": 375,
+      "height": 812
+    },
+    {
+      "boxes": {
+        ".player-status": {
+          "x": 21,
+          "y": 17,
+          "w": 233.796875,
+          "h": 44,
+          "right": 254.796875,
+          "bottom": 61
+        },
+        ".wallet-control": {
+          "x": 264.796875,
+          "y": 17,
+          "w": 104.203125,
+          "h": 44,
+          "right": 369,
+          "bottom": 61
+        },
+        ".location-control": {
+          "x": 21,
+          "y": 66,
+          "w": 348,
+          "h": 44,
+          "right": 369,
+          "bottom": 110
+        },
+        ".optional-objective": {
+          "x": 21,
+          "y": 110,
+          "w": 348,
+          "h": 44,
+          "right": 369,
+          "bottom": 154
+        },
+        ".street-context": null,
+        ".street-entrance": null,
+        ".map-filters": null,
+        ".city-controls": null,
+        ".play-nav": {
+          "x": 12,
+          "y": 770,
+          "w": 366,
+          "h": 66,
+          "right": 378,
+          "bottom": 836
+        },
+        ".hud-surface": {
+          "x": 12,
+          "y": 10,
+          "w": 366,
+          "h": 147,
+          "right": 378,
+          "bottom": 157
+        }
+      },
+      "controls": [
+        {
+          "label": "Character status",
+          "scrollableFilter": false,
+          "x": 21,
+          "y": 17,
+          "w": 233.796875,
+          "h": 44,
+          "right": 254.796875,
+          "bottom": 61
+        },
+        {
+          "label": "Wallet GH\u20b5942. Open MoMo",
+          "scrollableFilter": false,
+          "x": 264.796875,
+          "y": 17,
+          "w": 104.203125,
+          "h": 44,
+          "right": 369,
+          "bottom": 61
+        },
+        {
+          "label": "Current location and city map",
+          "scrollableFilter": false,
+          "x": 21,
+          "y": 66,
+          "w": 348,
+          "h": 44,
+          "right": 369,
+          "bottom": 110
+        },
+        {
+          "label": "Ready to claim: Complete a work shift. Open milestones",
+          "scrollableFilter": false,
+          "x": 21,
+          "y": 110,
+          "w": 348,
+          "h": 44,
+          "right": 369,
+          "bottom": 154
+        },
+        {
+          "label": "Home",
+          "scrollableFilter": false,
+          "x": 17,
+          "y": 775,
+          "w": 64.796875,
+          "h": 54,
+          "right": 81.796875,
+          "bottom": 829
+        },
+        {
+          "label": "Map",
+          "scrollableFilter": false,
+          "x": 89.796875,
+          "y": 775,
+          "w": 64.796875,
+          "h": 54,
+          "right": 154.59375,
+          "bottom": 829
+        },
+        {
+          "label": "Interact",
+          "scrollableFilter": false,
+          "x": 162.59375,
+          "y": 766,
+          "w": 64.796875,
+          "h": 62,
+          "right": 227.390625,
+          "bottom": 828
+        },
+        {
+          "label": "Chat",
+          "scrollableFilter": false,
+          "x": 235.390625,
+          "y": 775,
+          "w": 64.796875,
+          "h": 54,
+          "right": 300.1875,
+          "bottom": 829
+        },
+        {
+          "label": "Phone",
+          "scrollableFilter": false,
+          "x": 308.1875,
+          "y": 775,
+          "w": 64.8125,
+          "h": 54,
+          "right": 373,
+          "bottom": 829
+        }
+      ],
+      "text": [
+        {
+          "selector": ".player-copy strong",
+          "text": "p8mvays0d40",
+          "x": 71,
+          "y": 21.078125,
+          "w": 162.796875,
+          "h": 20,
+          "right": 233.796875,
+          "bottom": 41.078125,
+          "clipped": false
+        },
+        {
+          "selector": ".wallet-control strong",
+          "text": "GH\u20b5942",
+          "x": 300.796875,
+          "y": 28,
+          "w": 57.203125,
+          "h": 20,
+          "right": 358,
+          "bottom": 48,
+          "clipped": false
+        },
+        {
+          "selector": ".current-location",
+          "text": "Sankofa Tech Hub, Osu",
+          "x": 41,
+          "y": 73.40625,
+          "w": 273.046875,
+          "h": 16.1875,
+          "right": 314.046875,
+          "bottom": 89.59375,
+          "clipped": false
+        },
+        {
+          "selector": ".online-count",
+          "text": "1 player online",
+          "x": 53,
+          "y": 91.59375,
+          "w": 62.65625,
+          "h": 12,
+          "right": 115.65625,
+          "bottom": 103.59375,
+          "clipped": false
+        },
+        {
+          "selector": ".location-control time",
+          "text": "18:22",
+          "x": 320.046875,
+          "y": 81.078125,
+          "w": 28.953125,
+          "h": 14.84375,
+          "right": 349,
+          "bottom": 95.921875,
+          "clipped": false
+        },
+        {
+          "selector": ".optional-objective",
+          "text": "Ready to claim: Complete a work shift",
+          "x": 21,
+          "y": 110,
+          "w": 348,
+          "h": 44,
+          "right": 369,
+          "bottom": 154,
+          "clipped": false
+        }
+      ],
+      "pins": [],
+      "overflow": false,
+      "mapView": false,
+      "view": "home-return",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "boxes": {
+        ".player-status": {
+          "x": 21,
+          "y": 17,
+          "w": 273.796875,
+          "h": 44,
+          "right": 294.796875,
+          "bottom": 61
+        },
+        ".wallet-control": {
+          "x": 304.796875,
+          "y": 17,
+          "w": 104.203125,
+          "h": 44,
+          "right": 409,
+          "bottom": 61
+        },
+        ".location-control": {
+          "x": 21,
+          "y": 66,
+          "w": 388,
+          "h": 44,
+          "right": 409,
+          "bottom": 110
+        },
+        ".optional-objective": {
+          "x": 21,
+          "y": 110,
+          "w": 388,
+          "h": 44,
+          "right": 409,
+          "bottom": 154
+        },
+        ".street-context": null,
+        ".street-entrance": null,
+        ".map-filters": null,
+        ".city-controls": null,
+        ".play-nav": {
+          "x": 12,
+          "y": 858,
+          "w": 406,
+          "h": 66,
+          "right": 418,
+          "bottom": 924
+        },
+        ".hud-surface": {
+          "x": 12,
+          "y": 10,
+          "w": 406,
+          "h": 147,
+          "right": 418,
+          "bottom": 157
+        }
+      },
+      "controls": [
+        {
+          "label": "Character status",
+          "scrollableFilter": false,
+          "x": 21,
+          "y": 17,
+          "w": 273.796875,
+          "h": 44,
+          "right": 294.796875,
+          "bottom": 61
+        },
+        {
+          "label": "Wallet GH\u20b5942. Open MoMo",
+          "scrollableFilter": false,
+          "x": 304.796875,
+          "y": 17,
+          "w": 104.203125,
+          "h": 44,
+          "right": 409,
+          "bottom": 61
+        },
+        {
+          "label": "Current location and city map",
+          "scrollableFilter": false,
+          "x": 21,
+          "y": 66,
+          "w": 388,
+          "h": 44,
+          "right": 409,
+          "bottom": 110
+        },
+        {
+          "label": "Ready to claim: Complete a work shift. Open milestones",
+          "scrollableFilter": false,
+          "x": 21,
+          "y": 110,
+          "w": 388,
+          "h": 44,
+          "right": 409,
+          "bottom": 154
+        },
+        {
+          "label": "Home",
+          "scrollableFilter": false,
+          "x": 17,
+          "y": 863,
+          "w": 72.796875,
+          "h": 54,
+          "right": 89.796875,
+          "bottom": 917
+        },
+        {
+          "label": "Map",
+          "scrollableFilter": false,
+          "x": 97.796875,
+          "y": 863,
+          "w": 72.796875,
+          "h": 54,
+          "right": 170.59375,
+          "bottom": 917
+        },
+        {
+          "label": "Interact",
+          "scrollableFilter": false,
+          "x": 178.59375,
+          "y": 854,
+          "w": 72.796875,
+          "h": 62,
+          "right": 251.390625,
+          "bottom": 916
+        },
+        {
+          "label": "Chat",
+          "scrollableFilter": false,
+          "x": 259.390625,
+          "y": 863,
+          "w": 72.796875,
+          "h": 54,
+          "right": 332.1875,
+          "bottom": 917
+        },
+        {
+          "label": "Phone",
+          "scrollableFilter": false,
+          "x": 340.1875,
+          "y": 863,
+          "w": 72.8125,
+          "h": 54,
+          "right": 413,
+          "bottom": 917
+        }
+      ],
+      "text": [
+        {
+          "selector": ".player-copy strong",
+          "text": "p8mvays0d40",
+          "x": 71,
+          "y": 21.078125,
+          "w": 202.796875,
+          "h": 20,
+          "right": 273.796875,
+          "bottom": 41.078125,
+          "clipped": false
+        },
+        {
+          "selector": ".wallet-control strong",
+          "text": "GH\u20b5942",
+          "x": 340.796875,
+          "y": 28,
+          "w": 57.203125,
+          "h": 20,
+          "right": 398,
+          "bottom": 48,
+          "clipped": false
+        },
+        {
+          "selector": ".current-location",
+          "text": "Sankofa Tech Hub, Osu",
+          "x": 41,
+          "y": 73.40625,
+          "w": 313.046875,
+          "h": 16.1875,
+          "right": 354.046875,
+          "bottom": 89.59375,
+          "clipped": false
+        },
+        {
+          "selector": ".online-count",
+          "text": "1 player online",
+          "x": 53,
+          "y": 91.59375,
+          "w": 62.65625,
+          "h": 12,
+          "right": 115.65625,
+          "bottom": 103.59375,
+          "clipped": false
+        },
+        {
+          "selector": ".location-control time",
+          "text": "18:22",
+          "x": 360.046875,
+          "y": 81.078125,
+          "w": 28.953125,
+          "h": 14.84375,
+          "right": 389,
+          "bottom": 95.921875,
+          "clipped": false
+        },
+        {
+          "selector": ".optional-objective",
+          "text": "Ready to claim: Complete a work shift",
+          "x": 21,
+          "y": 110,
+          "w": 388,
+          "h": 44,
+          "right": 409,
+          "bottom": 154,
+          "clipped": false
+        }
+      ],
+      "pins": [],
+      "overflow": false,
+      "mapView": false,
+      "view": "home-return",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "boxes": {
+        ".player-status": {
+          "x": 20,
+          "y": 10,
+          "w": 235.796875,
+          "h": 44,
+          "right": 255.796875,
+          "bottom": 54
+        },
+        ".wallet-control": {
+          "x": 265.796875,
+          "y": 10,
+          "w": 104.203125,
+          "h": 44,
+          "right": 370,
+          "bottom": 54
+        },
+        ".location-control": {
+          "x": 20,
+          "y": 57,
+          "w": 350,
+          "h": 44,
+          "right": 370,
+          "bottom": 101
+        },
+        ".optional-objective": {
+          "x": 20,
+          "y": 101,
+          "w": 350,
+          "h": 44,
+          "right": 370,
+          "bottom": 145
+        },
+        ".street-context": null,
+        ".street-entrance": null,
+        ".map-filters": null,
+        ".city-controls": null,
+        ".play-nav": {
+          "x": 12,
+          "y": 462,
+          "w": 366,
+          "h": 60,
+          "right": 378,
+          "bottom": 522
+        },
+        ".hud-surface": {
+          "x": 12,
+          "y": 5,
+          "w": 366,
+          "h": 143,
+          "right": 378,
+          "bottom": 148
+        }
+      },
+      "controls": [
+        {
+          "label": "Character status",
+          "scrollableFilter": false,
+          "x": 20,
+          "y": 10,
+          "w": 235.796875,
+          "h": 44,
+          "right": 255.796875,
+          "bottom": 54
+        },
+        {
+          "label": "Wallet GH\u20b5942. Open MoMo",
+          "scrollableFilter": false,
+          "x": 265.796875,
+          "y": 10,
+          "w": 104.203125,
+          "h": 44,
+          "right": 370,
+          "bottom": 54
+        },
+        {
+          "label": "Current location and city map",
+          "scrollableFilter": false,
+          "x": 20,
+          "y": 57,
+          "w": 350,
+          "h": 44,
+          "right": 370,
+          "bottom": 101
+        },
+        {
+          "label": "Ready to claim: Complete a work shift. Open milestones",
+          "scrollableFilter": false,
+          "x": 20,
+          "y": 101,
+          "w": 350,
+          "h": 44,
+          "right": 370,
+          "bottom": 145
+        },
+        {
+          "label": "Home",
+          "scrollableFilter": false,
+          "x": 17,
+          "y": 467,
+          "w": 64.796875,
+          "h": 49,
+          "right": 81.796875,
+          "bottom": 516
+        },
+        {
+          "label": "Map",
+          "scrollableFilter": false,
+          "x": 89.796875,
+          "y": 467,
+          "w": 64.796875,
+          "h": 49,
+          "right": 154.59375,
+          "bottom": 516
+        },
+        {
+          "label": "Interact",
+          "scrollableFilter": false,
+          "x": 162.59375,
+          "y": 458.5,
+          "w": 64.796875,
+          "h": 56,
+          "right": 227.390625,
+          "bottom": 514.5
+        },
+        {
+          "label": "Chat",
+          "scrollableFilter": false,
+          "x": 235.390625,
+          "y": 467,
+          "w": 64.796875,
+          "h": 49,
+          "right": 300.1875,
+          "bottom": 516
+        },
+        {
+          "label": "Phone",
+          "scrollableFilter": false,
+          "x": 308.1875,
+          "y": 467,
+          "w": 64.8125,
+          "h": 49,
+          "right": 373,
+          "bottom": 516
+        }
+      ],
+      "text": [
+        {
+          "selector": ".player-copy strong",
+          "text": "p8mvays0d40",
+          "x": 70,
+          "y": 14.078125,
+          "w": 164.796875,
+          "h": 20,
+          "right": 234.796875,
+          "bottom": 34.078125,
+          "clipped": false
+        },
+        {
+          "selector": ".wallet-control strong",
+          "text": "GH\u20b5942",
+          "x": 301.796875,
+          "y": 21,
+          "w": 57.203125,
+          "h": 20,
+          "right": 359,
+          "bottom": 41,
+          "clipped": false
+        },
+        {
+          "selector": ".current-location",
+          "text": "Sankofa Tech Hub, Osu",
+          "x": 40,
+          "y": 64.40625,
+          "w": 275.046875,
+          "h": 16.1875,
+          "right": 315.046875,
+          "bottom": 80.59375,
+          "clipped": false
+        },
+        {
+          "selector": ".online-count",
+          "text": "1 player online",
+          "x": 52,
+          "y": 82.59375,
+          "w": 62.65625,
+          "h": 12,
+          "right": 114.65625,
+          "bottom": 94.59375,
+          "clipped": false
+        },
+        {
+          "selector": ".location-control time",
+          "text": "18:22",
+          "x": 321.046875,
+          "y": 72.078125,
+          "w": 28.953125,
+          "h": 14.84375,
+          "right": 350,
+          "bottom": 86.921875,
+          "clipped": false
+        },
+        {
+          "selector": ".optional-objective",
+          "text": "Ready to claim: Complete a work shift",
+          "x": 20,
+          "y": 101,
+          "w": 350,
+          "h": 44,
+          "right": 370,
+          "bottom": 145,
+          "clipped": false
+        }
+      ],
+      "pins": [],
+      "overflow": false,
+      "mapView": false,
+      "view": "home-return",
+      "width": 390,
+      "height": 530
+    },
+    {
+      "boxes": {
+        ".player-status": {
+          "x": 183,
+          "y": 10,
+          "w": 139.96875,
+          "h": 44,
+          "right": 322.96875,
+          "bottom": 54
+        },
+        ".wallet-control": {
+          "x": 332.96875,
+          "y": 10,
+          "w": 104.203125,
+          "h": 44,
+          "right": 437.171875,
+          "bottom": 54
+        },
+        ".location-control": {
+          "x": 449.171875,
+          "y": 10,
+          "w": 211.828125,
+          "h": 44,
+          "right": 661,
+          "bottom": 54
+        },
+        ".optional-objective": {
+          "x": 183,
+          "y": 54,
+          "w": 478,
+          "h": 44,
+          "right": 661,
+          "bottom": 98
+        },
+        ".street-context": null,
+        ".street-entrance": null,
+        ".map-filters": null,
+        ".city-controls": null,
+        ".play-nav": {
+          "x": 174,
+          "y": 322,
+          "w": 496,
+          "h": 60,
+          "right": 670,
+          "bottom": 382
+        },
+        ".hud-surface": {
+          "x": 174,
+          "y": 5,
+          "w": 496,
+          "h": 100,
+          "right": 670,
+          "bottom": 105
+        }
+      },
+      "controls": [
+        {
+          "label": "Character status",
+          "scrollableFilter": false,
+          "x": 183,
+          "y": 10,
+          "w": 139.96875,
+          "h": 44,
+          "right": 322.96875,
+          "bottom": 54
+        },
+        {
+          "label": "Wallet GH\u20b5942. Open MoMo",
+          "scrollableFilter": false,
+          "x": 332.96875,
+          "y": 10,
+          "w": 104.203125,
+          "h": 44,
+          "right": 437.171875,
+          "bottom": 54
+        },
+        {
+          "label": "Current location and city map",
+          "scrollableFilter": false,
+          "x": 449.171875,
+          "y": 10,
+          "w": 211.828125,
+          "h": 44,
+          "right": 661,
+          "bottom": 54
+        },
+        {
+          "label": "Ready to claim: Complete a work shift. Open milestones",
+          "scrollableFilter": false,
+          "x": 183,
+          "y": 54,
+          "w": 478,
+          "h": 44,
+          "right": 661,
+          "bottom": 98
+        },
+        {
+          "label": "Home",
+          "scrollableFilter": false,
+          "x": 179,
+          "y": 327,
+          "w": 90.796875,
+          "h": 49,
+          "right": 269.796875,
+          "bottom": 376
+        },
+        {
+          "label": "Map",
+          "scrollableFilter": false,
+          "x": 277.796875,
+          "y": 327,
+          "w": 90.796875,
+          "h": 49,
+          "right": 368.59375,
+          "bottom": 376
+        },
+        {
+          "label": "Interact",
+          "scrollableFilter": false,
+          "x": 376.59375,
+          "y": 318.5,
+          "w": 90.796875,
+          "h": 56,
+          "right": 467.390625,
+          "bottom": 374.5
+        },
+        {
+          "label": "Chat",
+          "scrollableFilter": false,
+          "x": 475.390625,
+          "y": 327,
+          "w": 90.796875,
+          "h": 49,
+          "right": 566.1875,
+          "bottom": 376
+        },
+        {
+          "label": "Phone",
+          "scrollableFilter": false,
+          "x": 574.1875,
+          "y": 327,
+          "w": 90.8125,
+          "h": 49,
+          "right": 665,
+          "bottom": 376
+        }
+      ],
+      "text": [
+        {
+          "selector": ".player-copy strong",
+          "text": "p8mvays0d40",
+          "x": 233,
+          "y": 22,
+          "w": 68.96875,
+          "h": 20,
+          "right": 301.96875,
+          "bottom": 42,
+          "clipped": true
+        },
+        {
+          "selector": ".wallet-control strong",
+          "text": "GH\u20b5942",
+          "x": 368.96875,
+          "y": 21,
+          "w": 57.203125,
+          "h": 20,
+          "right": 426.171875,
+          "bottom": 41,
+          "clipped": false
+        },
+        {
+          "selector": ".current-location",
+          "text": "Sankofa Tech Hub, Osu",
+          "x": 469.171875,
+          "y": 16.90625,
+          "w": 136.875,
+          "h": 16.1875,
+          "right": 606.046875,
+          "bottom": 33.09375,
+          "clipped": false
+        },
+        {
+          "selector": ".online-count",
+          "text": "1 player online",
+          "x": 481.171875,
+          "y": 35.09375,
+          "w": 62.65625,
+          "h": 12,
+          "right": 543.828125,
+          "bottom": 47.09375,
+          "clipped": false
+        },
+        {
+          "selector": ".location-control time",
+          "text": "18:22",
+          "x": 612.046875,
+          "y": 24.578125,
+          "w": 28.953125,
+          "h": 14.84375,
+          "right": 641,
+          "bottom": 39.421875,
+          "clipped": false
+        },
+        {
+          "selector": ".optional-objective",
+          "text": "Ready to claim: Complete a work shift",
+          "x": 183,
+          "y": 54,
+          "w": 478,
+          "h": 44,
+          "right": 661,
+          "bottom": 98,
+          "clipped": false
+        }
+      ],
+      "pins": [],
+      "overflow": false,
+      "mapView": false,
+      "view": "home-return",
+      "width": 844,
+      "height": 390
+    }
+  ],
+  "pageErrors": [],
+  "scope": "Disposable authenticated local cookie session. Real DOM at device scale 1, .5 WebGL pixel ratio, sampled software rendering. No phone FPS claim."
+}

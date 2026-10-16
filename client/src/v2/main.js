@@ -223,7 +223,7 @@ function setView(v, focusPlace, forGem) {
   closeAdPreview?.();
   if(v==='map'&&ride.active)return toast('Your journey is in progress. The map reopens on arrival.');
   view = v; hud.setNav(v === 'map' ? 'map' : 'home');
-  const inMap = v === 'map'; map.show(inMap); hud.chips.hidden = inMap; if (world.room) world.room.group.visible = !inMap; world.tagsEl.hidden = inMap; hud.zones.hidden = inMap;
+  const inMap = v === 'map'; ui.classList.toggle('map-view', inMap); map.show(inMap); hud.chips.hidden = inMap; if (world.room) world.room.group.visible = !inMap; world.tagsEl.hidden = inMap; hud.zones.hidden = inMap;
   if (inMap) {
     const hh = accraClock().h; stage.setTime(hh); drawPins();
     const id = focusPlace || G.state.place; const L = id === 'home' && G.state.home ? G.cat.homes[G.state.home] : loc(id) || loc('circle'); const [x, z] = map.slotOf(id === 'home' ? 'h:' + G.state.home : id) || map.toMap(L.x, L.z); map.currentId = G.state.place === 'home' ? 'h:' + G.state.home : G.state.place; map.current = map.slotOf(map.currentId) || map.toMap(L.x, L.z); map.focus(x, z, map.mode==='compact'?map.normalZoom:focusPlace?5:9);

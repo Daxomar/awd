@@ -1,0 +1,71 @@
+{
+  "workspace": ".",
+  "branch": "main",
+  "integrator": "root",
+  "characterOwnership": "Claude: characters/, avatar runtime/model manifests/GLBs and tools/fetch-human.py; never stage or revert concurrent edits",
+  "cards": [
+    {
+      "id": "stage0",
+      "owner": "root",
+      "state": "merged",
+      "scope": [
+        "docs/master/stage0",
+        "tools/master-inventory.mjs"
+      ],
+      "gate": "74 client + 73 server tests, build, authenticated baseline, inventory passed",
+      "evidence": "docs/master/stage0/checkpoint.md"
+    },
+    {
+      "id": "stage1",
+      "owner": "root",
+      "state": "merged",
+      "scope": [
+        "client/src/v2/scene/map.js",
+        "client/src/v2/scene/city/compact.js",
+        "shared/world-locations.js",
+        "client/src/v2/main.js (map lines only)"
+      ],
+      "gate": "Core CI38945165436, 79 client + 73 server + 62 PostgreSQL checks, independent review, and final 15-state/five-viewport HUD acceptance passed",
+      "evidence": "docs/master/stage1/checkpoint.md"
+    },
+    {
+      "id": "stage1-review",
+      "owner": "stage1_review",
+      "state": "merged",
+      "scope": [
+        "Read-only Stage1 diff"
+      ],
+      "gate": "Independent code review approved: no confirmed changed-code findings. Older landscape HUD defect referred to separate fix."
+    },
+    {
+      "id": "stage2-integration-design",
+      "owner": "property_architecture",
+      "state": "merged",
+      "scope": [
+        "Read-only existing housing/rooms/travel integration"
+      ],
+      "gate": "Blueprint delivered: SQL units/assets/residences, revision-bound rooms, trusted benefits context and exact legacy pricing preserved"
+    },
+    {
+      "id": "stage2-implementation",
+      "owner": "root",
+      "state": "ready",
+      "scope": [
+        "Finite property backend, transaction integration and UI; no character production"
+      ],
+      "gate": "Stage1 review passed; then actual two-player buy/furnish/renovate/resale, persistence, races and private access tests"
+    },
+    {
+      "id": "landscape-hud",
+      "owner": "hud_layout_fix",
+      "state": "merged",
+      "scope": [
+        "client/src/v2/ui/game-ui.css",
+        "client/src/v2/main.js (view class only)",
+        "tools/master-hud-layout-test.py",
+        "docs/master/stage1/hud-*"
+      ],
+      "gate": "Core CI38945165436, 79 client + 73 server + 62 PostgreSQL checks, independent review, and final 15-state/five-viewport HUD acceptance passed"
+    }
+  ]
+}

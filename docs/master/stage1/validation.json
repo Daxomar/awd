@@ -1,5 +1,5 @@
 {
-  "status": "local acceptance passed; exact-commit CI pending",
+  "status": "Stage 1 complete: local, container and independent review passed",
   "server": {
     "tests": 73,
     "pass": 73,
@@ -152,8 +152,32 @@
     "errors": [],
     "scope": "Local desktop SwiftShader, .5 WebGL pixel ratio, paced animation updates and sampled rendering with shadows disabled for capture; real game/network timers. DOM screenshots use device scale 1. No phone FPS or production capacity claim."
   },
-  "review": "Manual review: dual-coordinate travel isolation, geographic fetch cancellation/retry, resource ownership, home-marker remapping, HUD input boundaries and scoped character integration. No new server authority or financial action.",
+  "review": "Independent code review approved core and final HUD/map safety changes; no actionable findings.",
   "ci": {
-    "status": "pending"
+    "id": 38945165436,
+    "sha": "6fc52bf26b767d29bf40e11efa7d9bb78af3f693",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/Daxomar/awd/actions/runs/38945165436"
+  },
+  "hudFollowup": {
+    "record": "hud-layout.json",
+    "passed": true,
+    "authenticatedStates": 15,
+    "viewports": 5,
+    "targetedTests": 27,
+    "build": {
+      "passed": true,
+      "mainKB": 565.41,
+      "gzipKB": 204.95
+    },
+    "checks": [
+      "44px controls and filters",
+      "no HUD/filter/pin overlap",
+      "wallet/online/time unclipped",
+      "no horizontal overflow",
+      "map-view class cleared on room return",
+      "zero page errors"
+    ]
   }
 }

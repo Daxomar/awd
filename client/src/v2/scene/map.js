@@ -170,10 +170,15 @@ export class CityMap {
     if(this.mode==='geographic'){this.foundation?.update(v.zoom,v.target.x,v.target.z,st.aspect);if(this.terrain)this.terrain.localRoads.visible=v.zoom<65;this.chunks?.update(v.target.x,v.target.z,v.zoom);}this.ads.update(st.camera); this.ads.sample(st); this.layout();
   }
   layout() {
+    const viewport=[innerWidth,innerHeight].join(':');
+    if(this.safeViewport!==viewport||this.layoutDirty){
+      const filters=this.ui.querySelector('.map-filters');
+      this.markerTop=Math.max(163,filters?filters.offsetTop+filters.offsetHeight:0);this.safeViewport=viewport;
+    }
     const v = this.stage.view, signature = [innerWidth, innerHeight, v.target.x, v.target.z, v.zoom, this.showNames].join(':');
     if (!this.layoutDirty && this.lastLayout === signature) return; this.lastLayout = signature; this.layoutDirty = false;
     const rect = this.ui.getBoundingClientRect(), vec = new THREE.Vector3(), project = (x, z, y = 0) => { vec.set(x, y, z).project(this.stage.camera); return { sx: (vec.x * .5 + .5) * innerWidth - rect.left, sy: (-vec.y * .5 + .5) * innerHeight - rect.top, depth: vec.z }; };
-    const width = rect.width, height = rect.height, top = 163, bottom = 150;
+    const width = rect.width, height = rect.height, top = this.markerTop, bottom = 150;
     const input = [...this.pins.values()].map(p => ({ ...project(p.x, p.z, .015), ...p.it, keep: p.it.keep || p.it.id === this.selectedId }));
     const groups = clusterMarkers(input, { width, height, top, bottom, radius: this.showNames ? 190 : 48, inset:this.showNames?100:24 });
     for (const p of this.pins.values()) p.el.hidden = true;

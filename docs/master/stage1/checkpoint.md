@@ -66,7 +66,7 @@ six neighborhood frames, compact/geographic switching and five viewport sizes.
 The final browser record passes direct canvas building selection and complete
 map disposal: all 53 referenced geometries and 23 instance buffers released, no
 remaining map children and the active room retained. All five viewports pass
-without horizontal overflow, with toolbar touch targets at least 44×44 CSS pixels.
+without horizontal overflow, with toolbar touch targets at least 44ï¿½44 CSS pixels.
 There are zero page errors.
 
 Before: [normal city](../stage0/city-normal.jpg), [overview](../stage0/city-overview.jpg).
@@ -110,6 +110,24 @@ not new purchasable individual units. Those are Stage 2. Third-person exploratio
 ambient traffic/NPCs and final physical-device performance remain later stages.
 Existing ad prices/eligibility and travel economics are unchanged.
 
-No approval boundary was crossed. Stage 2 can begin after this stage's final
-browser/CI acceptance passes; it must reuse transactional ownership infrastructure
+No approval boundary was crossed. Stage 2 can begin after the passed core CI,
+browser and review gates. It must reuse transactional ownership infrastructure
 and keep legacy home ownership separate from the new finite property units.
+
+## Final mobile HUD correction
+
+Independent review approved the scoped HUD correction. The additional
+[authenticated layout record](hud-layout.json) passes 15 actual home/map/return
+states across all five required viewports. Identity, wallet, online count and clock
+remain unclipped; controls and filters are at least 44 CSS pixels, without HUD,
+filter or pin overlap, horizontal overflow or page errors. Room context returns
+correctly after closing the map. The final build is 565.41 kB / 204.95 kB gzip;
+27 targeted checks pass. Core suite and Docker CI evidence remains recorded above.
+Follow-up CI is tracked separately for this small layout commit.
+
+Latest captures: [landscape map](hud-map-844x390.jpg),
+[short portrait map](hud-map-390x530.jpg), [portrait home](hud-home-390x844.jpg).
+Earlier `mobile-*` captures remain historical evidence before this correction.
+Changes also include `client/src/v2/ui/game-ui.css`, cached filter-safe marker
+layout in `scene/map.js`, the map-view UI class in `main.js`, and the disposable
+local helper `tools/master-hud-layout-test.py`. No database changes.
