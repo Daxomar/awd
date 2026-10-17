@@ -9,8 +9,9 @@ export const AMBIENT_PREFIX = 'npc-amb';
 const COLS = ['#c8102e', '#1f6fb8', '#f2b632', '#2a9d8f', '#7b2d8e', '#e76f51', '#f4f4f4', '#22313f', '#e9c46a'];
 const CAR_COLS = ['#c8102e', '#f2f0e6', '#1f6fb8', '#2b2b2b', '#9aa0a6', '#f2c230'];
 
-export function ambientBudget(nav = globalThis.navigator || {}) {
-  const low = (nav.deviceMemory && nav.deviceMemory <= 4) || (nav.hardwareConcurrency && nav.hardwareConcurrency <= 4);
+export function ambientBudget(nav = globalThis.navigator || {}, crowd = null) {
+  // The graphics quality setting decides when it is set; otherwise the device class does.
+  const low = crowd ? crowd === 'low' : (nav.deviceMemory && nav.deviceMemory <= 4) || (nav.hardwareConcurrency && nav.hardwareConcurrency <= 4);
   // Residents are full avatars (the main triangle cost), so low-end devices get four people at most.
   return low ? { walkers: 2, talkers: 2, parked: 2, moving: 1 } : { walkers: 4, talkers: 2, parked: 4, moving: 1 };
 }

@@ -107,12 +107,14 @@ async def main():
         await p.wait_for_function("()=>__qa.some(m=>m.t==='hired')", timeout=20000)
         check(await p.evaluate("()=>__G.state.job?.id")=='tech', 'qualified player is hired as a Tech intern')
 
-        # B3: a short active work session (Nightlife at night, Tech by day).
-        career = 'dj' if night else 'tech'
-        if career == 'dj':
-            await travel(p, 'vibes')
-            await p.evaluate("()=>__net.send({t:'apply',id:'dj'})")
-            await p.wait_for_function("()=>__G.state.job?.id==='dj'||__qa.filter(m=>m.t==='hired').length>1", timeout=60000)
+        # B3: a short active work session. Shifts only run on a career's work days (Accra = UTC): Nightlife at night,
+        # Tech on weekdays, Market Trading (works Saturdays, no course needed) at weekends.
+        weekday = (datetime.datetime.now(datetime.timezone.utc).weekday() + 1) % 7   # game days: 0 = Sunday
+        career = 'dj' if night else 'tech' if weekday in (1, 2, 3, 4, 5) else 'trader'
+        if career != 'tech':
+            await travel(p, {'dj': 'vibes', 'trader': 'makola'}[career])
+            await p.evaluate(f"()=>__net.send({{t:'apply',id:'{career}'}})")
+            await p.wait_for_function(f"()=>__G.state.job?.id==='{career}'||__qa.filter(m=>m.t==='hired').length>1", timeout=60000)
         before = await p.evaluate('()=>__G.state.cash+__G.state.momo')
         start = datetime.datetime.now()
         await p.evaluate("()=>__net.send({t:'work',op:'start'})")

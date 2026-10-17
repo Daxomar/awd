@@ -9,7 +9,7 @@
 // - Risk is fictional game design: it depends on time, carried cash, skills and recent history, and is identical in
 //   every neighbourhood. No real place is treated as more dangerous than another.
 const MIN = 60000, HOUR = 3600000;
-export const RULES = {checkMs: MIN, chance: 1 / 45, gapMs: 20 * MIN, perDay: 3, calmMs: 6 * HOUR, dailyLossCap: 250, history: 20};
+export const RULES = {checkMs: MIN, chance: 1 / 45, gapMs: 20 * MIN, perDay: 3, calmMs: 6 * HOUR, dailyLossCap: 250, history: 20, newcomerGraceMs: 30 * MIN};
 
 const night = (c) => c.h >= 22 || c.h < 5;
 const day = (c) => c.h >= 8 && c.h < 19;
@@ -161,6 +161,8 @@ export function stateOf(s) {
 export function offer(s, c, rnd = Math.random) {
   const L = stateOf(s), now = c.now;
   if (L.active || !c.idle || now < L.checkAt) return null;
+  // Stage 12: a brand-new player gets half an hour to find their feet before any random event interrupts them.
+  if (s.flags?.bornAt && now - s.flags.bornAt < RULES.newcomerGraceMs) return null;
   L.checkAt = now + RULES.checkMs;
   if (L.dayKey !== c.day) { L.dayKey = c.day; L.today = 0; }
   s.lifeEvents = L;

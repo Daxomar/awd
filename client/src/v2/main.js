@@ -13,6 +13,7 @@ import { VENUES, placeNpc } from './scene/venues.js';
 import { fitRoom } from './scene/frame.js';
 import { loadAvatars, Avatar } from './scene/avatars.js';
 import { World } from './scene/world.js';
+import { Governor, stepDown, saveQuality, resolveTier, lowEnd, TIERS } from './scene/quality.js';
 import { Studio } from './scene/studio.js';
 import { stylist } from './ui/stylist.js';
 import { fitLook, myFit } from './fits.js';
@@ -61,7 +62,10 @@ async function boot() {
   // shared render loop (backdrop, onboarding preview, game)
   const clock = new THREE.Clock(); let tAcc = 0, lastFrame = 0; const frameMs = matchMedia('(pointer: coarse)').matches || innerWidth < 600 ? 1000/30 : 1000/60;
   stage?.setTime(accraClock().h);
-  const loop = (time) => { requestAnimationFrame(loop); if (document.hidden || time - lastFrame < frameMs - 1) return; lastFrame = time; const dt = Math.min(0.05, clock.getDelta()); tAcc += dt;
+  const governor = new Governor();
+  const loop = (time) => { requestAnimationFrame(loop); if (document.hidden || time - lastFrame < frameMs - 1) return; const gap = time - lastFrame; lastFrame = time;
+    // Auto graphics: a device that keeps missing frames in the city is stepped down one quality level at a time.
+    if (stage.qualityPref === 'auto' && view === 'room' && governor.sample(time, gap)) { const next = stepDown(stage.quality); if (next !== stage.quality) { stage.applyQuality(next); toast(`Graphics set to ${TIERS[next].name} to keep the game smooth. Change it in Settings.`); } } const dt = Math.min(0.05, clock.getDelta()); tAcc += dt;
     if (backdrop) backdrop(dt); studio.update(dt); if (ride.active) ride.update(dt); else if (world && view === 'room' && !studio.open) world.update(dt); if (map && view === 'map') map.update(dt);
     hud?.streetHint(view==='room'&&!ride.active&&!studio.open?world?.localHint():null);
     if (hud && tAcc > 0.25) { tAcc = 0; hud.progress(); applyCamera(); if (joy) joy.hidden = view !== 'room' || ride.active || studio.open || !world || !world.room || worldBlocked(ui); }
@@ -230,6 +234,7 @@ const act = (window.__act = {
   sendMoney(name) { phone.show('momo', { send: name }); }, message(name) { phone.show('messages', { dm: name }); },
   oware(pid, name) { owareChallenge(pid, name, act); }, practice() { phone.close(); net.send({ t: 'oware_practice' }); },
   wardrobe(mode = 'wardrobe') { openStylist(mode); },
+  setQuality(pref) { saveQuality(pref); if (!stage) return; stage.qualityPref = pref; stage.applyQuality(resolveTier(pref, {mobile: stage.mobile, low: lowEnd()})); },
   async logout() { try { const r=await fetch('/api/logout',{method:'POST',headers:{'content-type':'application/json'},body:'{}'});if(!r.ok)throw Error();try{localStorage.removeItem('awd_token');}catch{}net.close();location.reload(); }catch{toast('Could not log out. Please try again.','bad');} },
   socialFx(pid) { const p = world.room && world.room.people.get('p' + pid); if (p) world.room.walkTo('me', p.x + 0.7, p.z + 0.4); },
   // start an activity in a zone: walk there, sit/stand, tell the server

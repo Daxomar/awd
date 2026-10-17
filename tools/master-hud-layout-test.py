@@ -15,11 +15,11 @@ from playwright.async_api import async_playwright
 MEASURE = """() => {
  const visible=e=>!!e&&!!e.getClientRects().length;
  const box=e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,right:r.right,bottom:r.bottom};};
- const selectors=['.player-status','.wallet-control','.location-control','.optional-objective',
+ const selectors=['.player-status','.wallet-control','.location-control','.objectives-hud',
    '.street-context','.street-entrance','.map-filters','.city-controls','.play-nav','.hud-surface'];
  const boxes=Object.fromEntries(selectors.map(s=>[s,visible(document.querySelector(s))?box(document.querySelector(s)):null]));
  const controls=[...document.querySelectorAll('.hud-surface button,.city-controls button,.play-nav button,.map-filters button')].filter(visible).map(e=>({label:e.getAttribute('aria-label')||e.textContent,scrollableFilter:!!e.closest('.map-filters'),...box(e)}));
- const text=['.player-copy strong','.wallet-control strong','.current-location','.online-count','.location-control time','.optional-objective'].map(s=>{const e=document.querySelector(s);return {selector:s,text:e?.textContent||'',...box(e),clipped:e.scrollWidth>e.clientWidth+1};});
+ const text=['.player-copy strong','.wallet-control strong','.current-location','.online-count','.location-control time','.objectives-hud'].map(s=>{const e=document.querySelector(s);return {selector:s,text:e?.textContent||'',...box(e),clipped:e.scrollWidth>e.clientWidth+1};});
  const pins=[...document.querySelectorAll('.mapui .pin')].filter(e=>visible(e)&&getComputedStyle(e).visibility!=='hidden').map(box);
  return {boxes,controls,text,pins,overflow:document.documentElement.scrollWidth>innerWidth+1,mapView:document.querySelector('.game-ui').classList.contains('map-view')};
 }"""
@@ -68,7 +68,7 @@ async def main():
                     assert not result['overflow'], result
                     assert result['mapView'] == (view == 'map'), result
                     boxes = result['boxes']
-                    hud = ['.player-status', '.wallet-control', '.location-control', '.optional-objective', '.street-context']
+                    hud = ['.player-status', '.wallet-control', '.location-control', '.objectives-hud', '.street-context']
                     for i, first in enumerate(hud):
                         for second in hud[i+1:]:
                             assert not overlaps(boxes[first], boxes[second]), (view, width, first, second, boxes)

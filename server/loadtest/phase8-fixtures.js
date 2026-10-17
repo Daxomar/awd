@@ -21,6 +21,8 @@ if(process.argv[2]==='age-businesses'){
    if(!a)throw Error('Could not draw required natural fixture birth outcome.');
    const o=Game.DATA.ORIGINS[origin];Object.assign(state,{onboarded:true,name:a.username,origin,home:o.homes[0],place,cash:o.cash,momo:o.momo,rentPaidUntil:Date.now()+7*86400000});
    state.flags.bornAt=Date.now()-2*86400000;state.traits=['hustler','highlife'];
+   // Journeys about other features must not be interrupted by a random life event; the life-event journey sets its own state.
+   state.lifeEvents={checkAt:Date.now()+3*3600000};
    await savePlayers([{id:a.id,state,worth:Game.netWorth(state)}]);fixtures.push({role,username:a.username,password:a.password,id:a.id,cookie:a.sessionKey,origin,home:state.home});
   }
   await fs.mkdir(dir,{recursive:true});await fs.writeFile(new URL('fixtures.json',dir),JSON.stringify(fixtures),{mode:0o600});console.log('Isolated browser fixtures saved with natural Hustler/Dbee outcomes.');

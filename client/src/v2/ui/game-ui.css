@@ -85,7 +85,7 @@
 .obj-copy strong{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink,#1d3b31)}
 .obj-bar{flex:none;width:34px;height:5px;border-radius:3px;background:#234f3d1a;overflow:hidden}
 .obj-bar i{display:block;height:100%;background:#2f8a5b;border-radius:3px}
-.obj-btn{flex:none;min-height:36px;min-width:52px;padding:0 12px;border:0;border-radius:18px;background:#1f5a44;color:#fff;font:600 12px var(--body,system-ui);cursor:pointer}
+.obj-btn{flex:none;min-height:44px;min-width:52px;padding:0 12px;border:0;border-radius:22px;background:#1f5a44;color:#fff;font:600 12px var(--body,system-ui);cursor:pointer}
 .obj-btn.claim{background:#c58a1c}
 .obj-btn:disabled{opacity:.55}
 .obj-panel{max-height:min(46vh,340px);overflow:auto;padding:2px 8px 8px;border-top:1px solid #234f3d12}

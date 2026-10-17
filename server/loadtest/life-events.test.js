@@ -94,3 +94,11 @@ test('outcomes connect to careers, friendships, finances and businesses through 
   assert.equal(b.state.flags.bizDip.m, 0.7, 'a setback lowers exactly one upcoming business settlement');
   assert.ok(b.state.lifeEvents.calmUntil > now, 'a setback counts as a loss for the calm period');
 });
+
+test('new players get a 30-minute grace period before any random life event', () => {
+  const s = player(950).state, c = ctx({h: 12});
+  s.flags.bornAt = c.now - 10 * 60000;
+  assert.equal(LE.offer(s, c, always), null, 'ten minutes after onboarding: no event');
+  s.flags.bornAt = c.now - LE.RULES.newcomerGraceMs - 1;
+  assert.ok(LE.offer(s, {...c, now: c.now + LE.RULES.checkMs}, always), 'after the grace period events can be offered');
+});

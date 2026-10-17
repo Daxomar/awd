@@ -2,11 +2,13 @@
 // a time-of-day background, and a single shadow-casting key light fitted to whatever is on screen.
 import * as THREE from 'three';
 import { environmentLight } from './environment-light.js';
+import { savedQuality, resolveTier, pixelRatio, lowEnd, TIERS } from './quality.js';
 
 export class Stage {
   constructor(canvas) {
     const mobile = matchMedia('(pointer: coarse)').matches;
-    const dpr = Math.min(window.devicePixelRatio || 1, mobile ? 1.5 : 2);
+    this.mobile = mobile; this.qualityPref = savedQuality(); this.quality = resolveTier(this.qualityPref, {mobile, low: lowEnd()});
+    const dpr = pixelRatio(this.quality, {mobile, devicePixelRatio: window.devicePixelRatio});
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
     this.renderer.setPixelRatio(dpr);
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -27,13 +29,24 @@ export class Stage {
     this.collide = null; // (from, to) => clear distance along the ray, set by the active scene
     this.hemi = new THREE.HemisphereLight('#fff6e8', '#7d7366', 1.15); this.scene.add(this.hemi);
     this.key = new THREE.DirectionalLight('#fff1dc', 2.1); this.key.castShadow = true;
-    this.key.shadow.mapSize.set(mobile ? 1024 : 2048, mobile ? 1024 : 2048); this.key.shadow.bias = -0.0004; this.key.shadow.normalBias = 0.02; this.key.shadow.radius = 4;
+    const map = Math.min(TIERS[this.quality].shadowMap, mobile ? 1024 : 2048); this.key.castShadow = TIERS[this.quality].shadows;
+    this.key.shadow.mapSize.set(map, map); this.key.shadow.bias = -0.0004; this.key.shadow.normalBias = 0.02; this.key.shadow.radius = 4;
     const sc = this.key.shadow.camera; sc.left = -14; sc.right = 14; sc.top = 14; sc.bottom = -14; sc.near = 1; sc.far = 80;
     this.scene.add(this.key, this.key.target);
     this.fill = new THREE.DirectionalLight('#cfe0ff', 0.45); this.fill.position.set(-20, 12, 10); this.scene.add(this.fill);
     this.lamps = []; // point lights added by rooms (night)
     this.night = 0;
     this.resize(); addEventListener('resize', () => this.resize());
+  }
+  // Stage 12.3: change graphics quality without reloading (pixel ratio, shadow casting and shadow-map size).
+  applyQuality(tier) {
+    const t = TIERS[tier]; if (!t) return;
+    this.quality = tier;
+    this.renderer.setPixelRatio(pixelRatio(tier, {mobile: this.mobile, devicePixelRatio: window.devicePixelRatio}));
+    this.key.castShadow = t.shadows;
+    const map = Math.min(t.shadowMap, this.mobile ? 1024 : 2048);
+    if (this.key.shadow.mapSize.x !== map) { this.key.shadow.map?.dispose(); this.key.shadow.map = null; this.key.shadow.mapSize.set(map, map); }
+    this.resize();
   }
   resize() {
     const w = innerWidth, h = innerHeight; this.renderer.setSize(w, h, false); this.aspect = w / h; this.persp.aspect = this.aspect; this.applyView();

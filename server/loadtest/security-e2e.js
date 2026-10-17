@@ -83,15 +83,21 @@ try{
   // A malformed key arrives empty, so the request is simply unauthenticated (401); a wrong key is refused (403).
   r=await fetch(BASE+'/api/admin/ads',{headers:{'x-admin-key':'é'.repeat(32)}});assert.ok([401,403].includes(r.status));
   if(process.env.ADMIN_KEY_FILE){
+    // Since Stage 10 a booking needs a signed-in account, artwork of at least 600x300 and a receipt email;
+    // the artwork stays private (owner, staff or key holder only) until the campaign is paid and on air.
     const key=fs.readFileSync(process.env.ADMIN_KEY_FILE,'utf8').trim();
-    const image=await sharp({create:{width:16,height:16,channels:3,background:'#ffffff'}}).jpeg().toBuffer();
-    r=await post('/api/ads',{slot:'circle',title:'Security test',contact:'0000000000',weeks:1,image:'data:image/jpeg;base64,'+image.toString('base64')});assert.equal(r.status,200);const ad=await r.json();assert.ok(ad.manual);
-    assert.equal((await fetch(BASE+`/ads/${ad.id}.jpg`)).status,404);
-    assert.equal((await fetch(BASE+`/ads/${ad.id}.jpg`,{headers:{'x-admin-key':key}})).status,200);
-    for(const action of ['markpaid','approve'])assert.equal((await post('/api/admin/ads',{id:ad.id,action},null,{'x-admin-key':key})).status,200);
-    assert.equal((await fetch(BASE+`/ads/${ad.id}.jpg`)).status,200);
+    r=await post('/api/login',{username:b.username,password});assert.equal(r.status,200);const adCookie=cookieOf(r);
+    const slot=(await (await fetch(BASE+'/api/billboards')).json()).slots.find(s=>s.availability==='available'&&!s.paused);assert.ok(slot,'an available placement');
+    const image=await sharp({create:{width:600,height:300,channels:3,background:'#ffffff'}}).jpeg().toBuffer();
+    r=await post('/api/ads',{slot:slot.id,title:'Security test',contact:'0240000000',email:'qa@example.com',weeks:1,category:'business',orderKey:'security-'+tag+'-ad',image:'data:image/jpeg;base64,'+image.toString('base64')},adCookie);
+    const booked=await r.json();assert.equal(r.status,200);assert.ok(!booked.error,booked.error);
+    const ad=(await pool.query("select a.id from ad_orders a join payment_orders p on p.type='ad' and p.legacy_id=a.id where p.acct=$1 order by a.id desc limit 1",[b.id])).rows[0];assert.ok(ad);
+    assert.equal((await fetch(BASE+`/ads/${ad.id}.jpg`)).status,404,'unpaid artwork is private');
+    assert.equal((await fetch(BASE+`/ads/${ad.id}.jpg`,{headers:{cookie:adCookie}})).status,200,'the buyer sees their own artwork');
+    assert.equal((await fetch(BASE+`/ads/${ad.id}.jpg`,{headers:{'x-admin-key':key}})).status,200,'the key holder sees it');
     assert.equal((await post('/api/admin/ads',{id:ad.id,action:'takedown'},null,{'x-admin-key':key})).status,200);
     assert.equal((await fetch(BASE+`/ads/${ad.id}.jpg`)).status,404);
+    assert.equal((await post('/api/admin/ads',{id:ad.id,action:'takedown'},null,{'x-admin-key':'wrong-key-'+'x'.repeat(30)})).status,403);
   }
   // Account-wide login throttling and WS burst disconnect are enforced.
   r=await post('/api/login',{username:b.username,password});assert.equal(r.status,200);const bc=cookieOf(r);

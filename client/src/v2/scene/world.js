@@ -8,7 +8,8 @@ import { homeSpec } from './homes.js';
 import { propertyRoomSpec } from './property-room.js';
 import { fitRoom } from './frame.js';
 import { Avatar } from './avatars.js';
-import { Ambient } from './ambient.js';
+import { Ambient, ambientBudget } from './ambient.js';
+import { TIERS } from './quality.js';
 import { G, accraNow } from '../store.js';
 import { streetSpec, extraVenue } from './neighbourhood.js';
 import { fitLook } from '../fits.js';
@@ -74,7 +75,7 @@ export class World {
     this.npcs = [];
     (spec.npcs || []).forEach((n, i) => { const id = 'npc' + i; const P = placeNpc(room, n); room.addPerson(id, new Avatar(n.look), P.x, P.z, { label: n.label, npc: true }); room.placeAt(id, P.x, P.z, P.yaw, P.pose, P.y); this.npcs.push(id); const person=room.people.get(id);person.schedule=n;person.nextMove=2+i*2;person.patrolIndex=1;this.tag(id, n.label, 'npc'); });
     // Stage 9: pooled ambient residents and traffic on neighbourhood streets (never in homes, estates or custody).
-    if (spec.neighbourhood && !spec.estate && !this.custody) this.ambient = new Ambient(room, { hour: Number.isInteger(globalThis.__AWD_QA_HOUR__) ? globalThis.__AWD_QA_HOUR__ : new Date(accraNow()).getUTCHours(), seed: spec.area || msg.place });   // QA may pin the hour
+    if (spec.neighbourhood && !spec.estate && !this.custody) this.ambient = new Ambient(room, { budget: ambientBudget(undefined, TIERS[this.stage.quality]?.crowd), hour: Number.isInteger(globalThis.__AWD_QA_HOUR__) ? globalThis.__AWD_QA_HOUR__ : new Date(accraNow()).getUTCHours(), seed: spec.area || msg.place });   // QA may pin the hour
     // me: enter at the door and walk a few steps in
     const sp = this.custody?spec.spawn:room.spawn; const meAv = new Avatar(meLook || {}); meAv.baseLook = meLook; const me = room.addPerson('me', meAv, sp.x, sp.z, { label: meName });
     this.tag('me', meName, 'me');

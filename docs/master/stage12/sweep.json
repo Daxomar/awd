@@ -1,0 +1,141 @@
+{
+ "scope": "Loopback QA server, disposable fixtures, SwiftShader Chromium; not phone performance.",
+ "runs": {
+  "world": {
+   "covers": "city views, destinations",
+   "exit": 0,
+   "pass": 0,
+   "fail": 0,
+   "seconds": 183,
+   "lastLine": ""
+  },
+  "hud-layout": {
+   "covers": "12.6 viewports 375x812, 390x844, 430x932, 390x530, 844x390",
+   "exit": 1,
+   "pass": 0,
+   "fail": 0,
+   "seconds": 33,
+   "lastLine": "AssertionError: ('home', 375, {'label': 'Claim', 'scrollableFilter': False, 'x': 294.359375, 'y': 117, 'w': 55.640625, 'h': 36, 'right': 350, 'bottom': 153})"
+  },
+  "meet": {
+   "covers": "A (HUD objectives), F social discovery, G empty server",
+   "exit": 1,
+   "pass": 3,
+   "fail": 0,
+   "seconds": 69,
+   "lastLine": "OSError: [Errno 22] Invalid argument: 'docs\\\\master\\\\stage6\\\\d2-hud-expanded.jpg'"
+  },
+  "career": {
+   "covers": "B career qualification, C auto-work",
+   "exit": 1,
+   "pass": 4,
+   "fail": 0,
+   "seconds": 166,
+   "lastLine": "playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 20000ms exceeded."
+  },
+  "property": {
+   "covers": "D property ownership and resale",
+   "exit": 1,
+   "pass": 2,
+   "fail": 0,
+   "seconds": 265,
+   "lastLine": "playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 30000ms exceeded."
+  },
+  "vehicle": {
+   "covers": "E vehicle resale",
+   "exit": 1,
+   "pass": 6,
+   "fail": 0,
+   "seconds": 200,
+   "lastLine": "playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 30000ms exceeded."
+  },
+  "camera": {
+   "covers": "H third-person home",
+   "exit": 1,
+   "pass": 0,
+   "fail": 0,
+   "seconds": 212,
+   "lastLine": "playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 120000ms exceeded."
+  },
+  "life-events": {
+   "covers": "I personal life event",
+   "exit": 0,
+   "pass": 10,
+   "fail": 0,
+   "seconds": 163,
+   "lastLine": ""
+  },
+  "business": {
+   "covers": "J player business (settlement, reconnect)",
+   "exit": 1,
+   "pass": 0,
+   "fail": 0,
+   "seconds": 67,
+   "lastLine": "  - waiting for get_by_role(\"button\", name=\"Manage business\", exact=True)"
+  },
+  "ambient": {
+   "covers": "J business frontage, ambient street life",
+   "exit": 0,
+   "pass": 9,
+   "fail": 0,
+   "seconds": 267,
+   "lastLine": ""
+  },
+  "advertise": {
+   "covers": "K advertising checkout and activation",
+   "exit": 0,
+   "pass": 14,
+   "fail": 0,
+   "seconds": 292,
+   "lastLine": ""
+  },
+  "events": {
+   "covers": "L community event",
+   "exit": 0,
+   "pass": 15,
+   "fail": 0,
+   "seconds": 557,
+   "lastLine": ""
+  },
+  "admin": {
+   "covers": "M administrator security",
+   "exit": 0,
+   "pass": 17,
+   "fail": 0,
+   "seconds": 46,
+   "lastLine": ""
+  },
+  "commerce": {
+   "covers": "N trading under reconnects",
+   "exit": 0,
+   "pass": 0,
+   "fail": 0,
+   "seconds": 129,
+   "lastLine": ""
+  },
+  "social": {
+   "covers": "N shared activities and messages",
+   "exit": 0,
+   "pass": 0,
+   "fail": 0,
+   "seconds": 158,
+   "lastLine": ""
+  },
+  "housing": {
+   "covers": "N home visits and housing",
+   "exit": 0,
+   "pass": 0,
+   "fail": 0,
+   "seconds": 118,
+   "lastLine": ""
+  },
+  "dbee": {
+   "covers": "O Dbee progression",
+   "exit": 0,
+   "pass": 0,
+   "fail": 0,
+   "seconds": 122,
+   "lastLine": ""
+  }
+ }
+}

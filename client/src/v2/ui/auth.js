@@ -6,7 +6,7 @@ export function authScreen(ui) {
     let mode = 'signup';
     const err = h('div.err'); const u = h('input', { autocomplete: 'username', autocapitalize: 'off', maxLength: 16, placeholder: 'e.g. kofi_boateng' }); const p = h('input', { type: 'password', autocomplete: 'new-password', maxLength:128, placeholder: 'At least 12 characters' });
     const dob = h('input', { type: 'date', max: new Date(Date.now() - 18 * 365.25 * 864e5).toISOString().slice(0, 10) }); const agree = h('input', { type: 'checkbox' });
-    const dobF = h('div.field', null, h('label', null, 'Date of birth'), dob); const agreeF = h('label.check', null, agree, h('span', null, 'I am 18 or older and I agree to play fair: no harassment, no scams, no selling game money.'));
+    const dobF = h('div.field', null, h('label', null, 'Date of birth'), dob); const agreeF = h('label.check', null, agree, h('span', null, 'I am 18 or older and I agree to play fair: no harassment, no scams, no selling game money. ', h('a', {href: '/privacy.html', target: '_blank', rel: 'noopener'}, 'Privacy and community rules')));
     const btn = h('button.btn.primary.wide', { type: 'submit' }, 'Start my Accra life');
     const tabs = h('div.tabs', null, h('button.on', { type: 'button', onclick: () => set('signup') }, 'New here'), h('button', { type: 'button', onclick: () => set('login') }, 'I have an account'));
     const set = (m) => { mode = m; tabs.children[0].classList.toggle('on', m === 'signup'); tabs.children[1].classList.toggle('on', m === 'login'); dobF.hidden = agreeF.hidden = m === 'login'; btn.textContent = m === 'signup' ? 'Start my Accra life' : 'Log in'; p.autocomplete = m === 'signup' ? 'new-password' : 'current-password'; err.textContent = ''; };

@@ -15,6 +15,7 @@ import {lifeScreen} from './life.js';
 import {properties as propertyApp} from './property.js';
 import {openCourse,careerNeeds,certified} from '../ui/courses.js';
 import {eventsApp,profileSettings,homeGuests} from './social-life.js';
+import {PREFS,TIERS,savedQuality} from '../scene/quality.js';
 
 const grad = (a, b) => `linear-gradient(160deg, ${a}, ${b})`;
 const cell = (o) => h('button.cell' + (o.ic ? '' : '.noic'), { onclick: o.onclick }, o.ic instanceof Node ? o.ic : o.ic ? h('div.ci', { style: { background: o.icbg || '#8e8e93' } }, typeof o.ic === 'string' && o.ic.length <= 3 && !/^[a-z]/.test(o.ic) ? o.ic : icf(o.ic)) : null, h('div.cm', null, h('div.c1', null, o.t), o.s ? h('div.c2', null, o.s) : null), o.r != null ? h('div.cr', null, o.r) : null, o.onclick && o.chev !== false ? ic('caret-right', 'chev') : null);
@@ -23,6 +24,15 @@ const seg = (opts, cur, on) => h('div.seg-i', null, ...opts.map(([k, l]) => h('b
 const AT_AGENT = () => ['momo', 'bank', 'mall', 'circle'].includes(G.state.place);
 
 export function makeApps(act) {
+  // Stage 12.3: graphics quality per device (kept in this browser only).
+  function graphics(win) {
+    win.page('Graphics', () => { const cur = savedQuality();
+      return h('div', null, h('p', {style: {padding: '0 8px', color: '#8e8e93', fontSize: '14px'}}, 'Lower settings save battery and keep slower phones smooth. Auto chooses for your device and steps down if the game struggles.'),
+        group(null, ...PREFS.map(k => cell({t: k === 'auto' ? 'Auto (recommended)' : TIERS[k].name, s: k === 'auto' ? 'Chooses for this device' : TIERS[k].detail,
+          r: k === cur ? ic('check', '') : null, chev: false, onclick: () => { act.setQuality(k); act.toast(`Graphics: ${k === 'auto' ? 'Auto' : TIERS[k].name}.`); win.refresh(); }}))),
+        h('p', {style: {padding: '0 8px', color: '#8e8e93', fontSize: '12px'}}, 'Street crowd size changes the next time you enter a neighbourhood.'));
+    });
+  }
   function accountSecurity(win) {
     const current=h('input.f',{type:'password',autocomplete:'current-password',maxLength:128,placeholder:'Current password'});
     const password=h('input.f',{type:'password',autocomplete:'new-password',minLength:12,maxLength:128,placeholder:'New password (12–128 characters)'});
@@ -332,7 +342,7 @@ export function makeApps(act) {
   const settings = { id: 'settings', name: 'Settings', icon: 'gear-six', bg: grad('#8e8e93', '#636366'), dock: true,
     open(win) { win.page('Settings', () => { const f = G.state.flags || {};
       return h('div', null, group(null, h('label.cell.noic', null, h('div.cm', null, h('div.c1', null, 'Romance'), h('div.c2', null, 'Allow flirting and dating requests')), h('input', { type: 'checkbox', checked: !f.flirtOff, style: { width: '24px', height: '24px' }, onchange: (e) => { net.send({ t: 'settings', flirtOff: !e.target.checked }); f.flirtOff = !e.target.checked; } }))),
-        group(null, cell({ ic: 'megaphone', icbg: '#ff9f0a', t: 'Advertise your business', s: 'Put your brand on billboards across Accra', onclick: () => window.open('/advertise.html', '_blank') }), cell({ ic: 'question', icbg: '#0a84ff', t: 'How to play', onclick: () => win.phone.openApp('help') }), cell({ ic: 'shield-check', icbg: '#34c759', t: 'Safety', s: 'Never trade game money for real money. Report anyone who asks for nudes, money or personal info.' })),
+        group(null, cell({ ic: 'megaphone', icbg: '#ff9f0a', t: 'Advertise your business', s: 'Put your brand on billboards across Accra', onclick: () => window.open('/advertise.html', '_blank') }), cell({ ic: 'question', icbg: '#0a84ff', t: 'How to play', onclick: () => win.phone.openApp('help') }), cell({ ic: 'monitor', icbg: '#5e5ce6', t: 'Graphics', s: 'Battery saver, balanced or sharp', onclick: () => graphics(win) }), cell({ ic: 'shield-check', icbg: '#34c759', t: 'Safety', s: 'Never trade game money for real money. Report anyone who asks for nudes, money or personal info.' }), cell({ ic: 'file-text', icbg: '#8e8e93', t: 'Privacy and community rules', s: 'What the game keeps and the rules everyone plays by', onclick: () => window.open('/privacy.html', '_blank', 'noopener') })),
         group(null,cell({ic:'lock-key',t:'Account security',s:'Change password or log out every device',onclick:()=>accountSecurity(win)}), cell({ t: h('span', { style: { color: '#ff3b30' } }, 'Log out'), onclick: () => act.logout(), chev: false })), h('div', { style: { color: '#8e8e93', fontSize: '12px', textAlign: 'center' } }, 'Accra We Dey · 18+ · v2'));
     }); } };
   const help = { id: 'help', name: 'Help', icon: 'lifebuoy', bg: grad('#0a84ff', '#0040dd'),

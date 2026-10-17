@@ -193,6 +193,8 @@ for(const route of ['/api/ads/mine','/api/ads/cancel','/api/ads/retry','/api/ads
     json(res,ab,await Ads.exposure(a.id,b));
   });
 });
+// Retention: day-level activity is kept about 13 months (enough for monthly and yearly comparisons), as the privacy page says.
+setInterval(()=>pool.query("delete from player_activity_days where day<current_date-400").catch(e=>console.error('[activity retention]',e.code)),86400000).unref();
 setInterval(()=>pool.query("delete from ad_exposures where at<now()-interval '90 days'").catch(e=>console.error('[ad retention]',e.code)),86400000).unref();
 app.get('/api/packs', (res) => res.cork(() => securityHeaders(res).writeHeader('content-type', 'application/json').end(JSON.stringify({ packs: Social.PACKS, cap: Social.TOPUP_WEEK_CAP, live: Social.paymentsLive }))));
 app.get('/ads/:id',(res,req)=>{

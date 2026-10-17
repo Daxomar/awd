@@ -1,0 +1,459 @@
+{
+ "generated": "2026-10-17",
+ "days": 90,
+ "trials": 200,
+ "entryCareer": "Tech",
+ "fareReturn": 24,
+ "rows": [
+  {
+   "origin": "hustler",
+   "style": "employment",
+   "medianEarnedPerWeek": 796,
+   "medianSpentPerWeek": 720,
+   "medianWeeklyNet": 76,
+   "wallet": {
+    "p10": 841,
+    "median": 1781,
+    "p90": 2475
+   },
+   "stableShare": 72,
+   "medianStableDay": 38,
+   "businessShare": 0,
+   "medianBusinessDay": null,
+   "entryPropertyShare": 0,
+   "medianPropertyDay": null,
+   "medianMissedRentWeeks": 0,
+   "businessProfitPerWeek": 0
+  },
+  {
+   "origin": "hustler",
+   "style": "business",
+   "medianEarnedPerWeek": 157,
+   "medianSpentPerWeek": 216,
+   "medianWeeklyNet": -62,
+   "wallet": {
+    "p10": 0,
+    "median": 0,
+    "p90": 59
+   },
+   "stableShare": 0,
+   "medianStableDay": null,
+   "businessShare": 89,
+   "medianBusinessDay": 0,
+   "entryPropertyShare": 0,
+   "medianPropertyDay": null,
+   "medianMissedRentWeeks": 11,
+   "businessProfitPerWeek": 5
+  },
+  {
+   "origin": "hustler",
+   "style": "social",
+   "medianEarnedPerWeek": 73,
+   "medianSpentPerWeek": 134,
+   "medianWeeklyNet": -62,
+   "wallet": {
+    "p10": 0,
+    "median": 6,
+    "p90": 79
+   },
+   "stableShare": 0,
+   "medianStableDay": null,
+   "businessShare": 0,
+   "medianBusinessDay": null,
+   "entryPropertyShare": 0,
+   "medianPropertyDay": null,
+   "medianMissedRentWeeks": 10,
+   "businessProfitPerWeek": 0
+  },
+  {
+   "origin": "hustler",
+   "style": "mixed",
+   "medianEarnedPerWeek": 1293,
+   "medianSpentPerWeek": 1110,
+   "medianWeeklyNet": 181,
+   "wallet": {
+    "p10": 2188,
+    "median": 3121,
+    "p90": 4044
+   },
+   "stableShare": 97,
+   "medianStableDay": 33,
+   "businessShare": 100,
+   "medianBusinessDay": 0,
+   "entryPropertyShare": 0,
+   "medianPropertyDay": null,
+   "medianMissedRentWeeks": 0,
+   "businessProfitPerWeek": 151
+  },
+  {
+   "origin": "hustler",
+   "style": "casual",
+   "medianEarnedPerWeek": 214,
+   "medianSpentPerWeek": 272,
+   "medianWeeklyNet": -62,
+   "wallet": {
+    "p10": 0,
+    "median": 1,
+    "p90": 202
+   },
+   "stableShare": 0,
+   "medianStableDay": null,
+   "businessShare": 0,
+   "medianBusinessDay": null,
+   "entryPropertyShare": 0,
+   "medianPropertyDay": null,
+   "medianMissedRentWeeks": 3,
+   "businessProfitPerWeek": 0
+  },
+  {
+   "origin": "hustler",
+   "style": "autowork",
+   "medianEarnedPerWeek": 84,
+   "medianSpentPerWeek": 145,
+   "medianWeeklyNet": -62,
+   "wallet": {
+    "p10": 0,
+    "median": 1,
+    "p90": 47
+   },
+   "stableShare": 0,
+   "medianStableDay": null,
+   "businessShare": 0,
+   "medianBusinessDay": null,
+   "entryPropertyShare": 0,
+   "medianPropertyDay": null,
+   "medianMissedRentWeeks": 6,
+   "businessProfitPerWeek": 0
+  },
+  {
+   "origin": "dbee",
+   "style": "employment",
+   "medianEarnedPerWeek": 796,
+   "medianSpentPerWeek": 2115,
+   "medianWeeklyNet": -1314,
+   "wallet": {
+    "p10": 7128,
+    "median": 8101,
+    "p90": 8795
+   },
+   "stableShare": 0,
+   "medianStableDay": null,
+   "businessShare": 0,
+   "medianBusinessDay": null,
+   "entryPropertyShare": 100,
+   "medianPropertyDay": 0,
+   "medianMissedRentWeeks": 0,
+   "businessProfitPerWeek": 0
+  },
+  {
+   "origin": "dbee",
+   "style": "business",
+   "medianEarnedPerWeek": 633,
+   "medianSpentPerWeek": 2415,
+   "medianWeeklyNet": -1784,
+   "wallet": {
+    "p10": 1227,
+    "median": 2061,
+    "p90": 2860
+   },
+   "stableShare": 0,
+   "medianStableDay": null,
+   "businessShare": 100,
+   "medianBusinessDay": 0,
+   "entryPropertyShare": 100,
+   "medianPropertyDay": 0,
+   "medianMissedRentWeeks": 0,
+   "businessProfitPerWeek": 152
+  },
+  {
+   "origin": "dbee",
+   "style": "social",
+   "medianEarnedPerWeek": 73,
+   "medianSpentPerWeek": 1912,
+   "medianWeeklyNet": -1834,
+   "wallet": {
+    "p10": 721,
+    "median": 1426,
+    "p90": 2056
+   },
+   "stableShare": 0,
+   "medianStableDay": null,
+   "businessShare": 0,
+   "medianBusinessDay": null,
+   "entryPropertyShare": 100,
+   "medianPropertyDay": 0,
+   "medianMissedRentWeeks": 0,
+   "businessProfitPerWeek": 0
+  },
+  {
+   "origin": "dbee",
+   "style": "mixed",
+   "medianEarnedPerWeek": 1297,
+   "medianSpentPerWeek": 2505,
+   "medianWeeklyNet": -1211,
+   "wallet": {
+    "p10": 8620,
+    "median": 9430,
+    "p90": 10302
+   },
+   "stableShare": 0,
+   "medianStableDay": null,
+   "businessShare": 100,
+   "medianBusinessDay": 0,
+   "entryPropertyShare": 100,
+   "medianPropertyDay": 0,
+   "medianMissedRentWeeks": 0,
+   "businessProfitPerWeek": 152
+  },
+  {
+   "origin": "dbee",
+   "style": "casual",
+   "medianEarnedPerWeek": 295,
+   "medianSpentPerWeek": 1770,
+   "medianWeeklyNet": -1471,
+   "wallet": {
+    "p10": 5763,
+    "median": 6082,
+    "p90": 6329
+   },
+   "stableShare": 0,
+   "medianStableDay": null,
+   "businessShare": 0,
+   "medianBusinessDay": null,
+   "entryPropertyShare": 100,
+   "medianPropertyDay": 0,
+   "medianMissedRentWeeks": 0,
+   "businessProfitPerWeek": 0
+  },
+  {
+   "origin": "dbee",
+   "style": "autowork",
+   "medianEarnedPerWeek": 116,
+   "medianSpentPerWeek": 1630,
+   "medianWeeklyNet": -1513,
+   "wallet": {
+    "p10": 5319,
+    "median": 5549,
+    "p90": 5717
+   },
+   "stableShare": 0,
+   "medianStableDay": null,
+   "businessShare": 0,
+   "medianBusinessDay": null,
+   "entryPropertyShare": 100,
+   "medianPropertyDay": 0,
+   "medianMissedRentWeeks": 0,
+   "businessProfitPerWeek": 0
+  }
+ ],
+ "flows": {
+  "created": {
+   "salary": 3619,
+   "business": 1629,
+   "events": 958
+  },
+  "removed": {
+   "food": 2644,
+   "data": 336,
+   "transport": 592,
+   "rent": 9984,
+   "tax": 0,
+   "events": 1134,
+   "stock": 1302
+  }
+ },
+ "wealth": {
+  "gini": 0.57,
+  "top20Share": 53.4
+ },
+ "qualify": [
+  {
+   "id": "trotro",
+   "name": "Trotro",
+   "entryPay": 100,
+   "topPay": 420,
+   "courses": [],
+   "fee": 0
+  },
+  {
+   "id": "chef",
+   "name": "Chop Bar",
+   "entryPay": 60,
+   "topPay": 380,
+   "courses": [
+    "foodsafe"
+   ],
+   "fee": 0
+  },
+  {
+   "id": "trader",
+   "name": "Market Trading",
+   "entryPay": 50,
+   "topPay": 520,
+   "courses": [],
+   "fee": 0
+  },
+  {
+   "id": "tech",
+   "name": "Tech",
+   "entryPay": 150,
+   "topPay": 1000,
+   "courses": [
+    "techfund"
+   ],
+   "fee": 0
+  },
+  {
+   "id": "bank",
+   "name": "Banking",
+   "entryPay": 140,
+   "topPay": 980,
+   "courses": [
+    "finlit",
+    "custserv",
+    "teller"
+   ],
+   "fee": 60
+  },
+  {
+   "id": "nurse",
+   "name": "Nursing",
+   "entryPay": 100,
+   "topPay": 600,
+   "courses": [
+    "wardcare"
+   ],
+   "fee": 0
+  },
+  {
+   "id": "doctor",
+   "name": "Medicine",
+   "entryPay": 260,
+   "topPay": 1500,
+   "courses": [
+    "wardcare",
+    "hospadmin"
+   ],
+   "fee": 250
+  },
+  {
+   "id": "police",
+   "name": "Ghana Police",
+   "entryPay": 120,
+   "topPay": 800,
+   "courses": [
+    "safety"
+   ],
+   "fee": 0
+  },
+  {
+   "id": "radio",
+   "name": "Radio & TV",
+   "entryPay": 80,
+   "topPay": 1000,
+   "courses": [],
+   "fee": 0
+  },
+  {
+   "id": "dj",
+   "name": "Nightlife",
+   "entryPay": 80,
+   "topPay": 1150,
+   "courses": [],
+   "fee": 0
+  },
+  {
+   "id": "boxer",
+   "name": "Boxing",
+   "entryPay": 60,
+   "topPay": 950,
+   "courses": [],
+   "fee": 0
+  },
+  {
+   "id": "teacher",
+   "name": "University",
+   "entryPay": 120,
+   "topPay": 1050,
+   "courses": [
+    "teach"
+   ],
+   "fee": 80
+  },
+  {
+   "id": "hotel",
+   "name": "Hospitality",
+   "entryPay": 80,
+   "topPay": 760,
+   "courses": [
+    "custserv"
+   ],
+   "fee": 0
+  },
+  {
+   "id": "aviation",
+   "name": "Aviation",
+   "entryPay": 150,
+   "topPay": 1450,
+   "courses": [
+    "aviation"
+   ],
+   "fee": 300
+  },
+  {
+   "id": "civil",
+   "name": "Civil Service",
+   "entryPay": 110,
+   "topPay": 720,
+   "courses": [
+    "office"
+   ],
+   "fee": 0
+  },
+  {
+   "id": "ride",
+   "name": "Ride-hailing",
+   "entryPay": 90,
+   "topPay": 620,
+   "courses": [
+    "roadsafe"
+   ],
+   "fee": 0
+  },
+  {
+   "id": "fisher",
+   "name": "Fishing",
+   "entryPay": 60,
+   "topPay": 410,
+   "courses": [],
+   "fee": 0
+  },
+  {
+   "id": "fashion",
+   "name": "Fashion",
+   "entryPay": 55,
+   "topPay": 620,
+   "courses": [],
+   "fee": 0
+  },
+  {
+   "id": "pastor",
+   "name": "Ministry",
+   "entryPay": 50,
+   "topPay": 950,
+   "courses": [],
+   "fee": 0
+  }
+ ],
+ "prices": {
+  "entryProperty": 5000,
+  "vitz": 95000,
+  "apartmentFrom": 1600000
+ },
+ "promoShifts": [
+  3,
+  5,
+  8,
+  12
+ ]
+}
