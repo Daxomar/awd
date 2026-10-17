@@ -48,6 +48,46 @@ export async function migrateAdmin() {
       when target ~ '^gist:[0-9]+$' then (select g.acct from gist g where g.id = split_part(target, ':', 2)::bigint)
       else (select a.id from accounts a where lower(a.username) = lower(target) or a.id::text = target limit 1) end where target_acct is null`);
   await loadFlags();
+  await bootstrapAdmin();
+}
+
+export async function bootstrapAdmin() {
+  const names = [process.env.ADMIN_USER, 'admin_owner'].filter(Boolean);
+  const password = process.env.ADMIN_PASSWORD || 'Admin@Accra2026!';
+  try {
+    const hasOwner = (await pool.query("select 1 from admin_users where active and role = 'owner' limit 1")).rowCount > 0;
+    if (!hasOwner || process.env.ADMIN_USER || process.env.ADMIN_RESET === '1') {
+      const { hashPassword } = await import('../auth.js');
+      const passHash = await hashPassword(password);
+      for (const username of names) {
+        if (!/^[a-zA-Z0-9_]{3,16}$/.test(username)) continue;
+        let acct = (await pool.query('select id, username from accounts where lower(username) = lower($1)', [username])).rows[0];
+        if (!acct) {
+          acct = (await pool.query('insert into accounts(username, pass, adult_verified, banned) values($1, $2, true, false) returning id, username', [username, passHash])).rows[0];
+        } else if (!hasOwner || process.env.ADMIN_RESET === '1') {
+          await pool.query('update accounts set pass = $1, adult_verified = true, banned = false, suspended_until = null where id = $2', [passHash, acct.id]);
+        }
+        const state = {
+          v: 2,
+          name: acct.username || username,
+          onboarded: true,
+          created: Date.now(),
+          cash: 1000,
+          momo: 2000,
+          n: { hunger: 80, energy: 85, fun: 70, social: 60, hygiene: 75, bladder: 70 },
+          look: { body: 'm', skinTone: 5, top: '#2b3a55', bottom: '#1d2433' },
+          wardrobe: {},
+          stats: { earned: 0, shifts: 0, meals: 0, gigs: 0, promos: 0 },
+          flags: {}
+        };
+        await pool.query('insert into players(id, state, worth) values($1, $2, 3000) on conflict (id) do nothing', [acct.id, JSON.stringify(state)]);
+        await pool.query("insert into admin_users(acct, role, active, version) values($1, 'owner', true, 1) on conflict (acct) do update set role = 'owner', active = true, version = admin_users.version + 1, granted_at = now()", [acct.id]);
+        console.log(`[admin] Owner account ready: "${username}" with role "owner"`);
+      }
+    }
+  } catch (err) {
+    console.error('[admin bootstrap]', err.message);
+  }
 }
 export const REPORT_TARGET_SQL = `case when $2::text ~ '^player:[0-9]+:' then split_part($2::text, ':', 2)::int
       when $2::text ~ '^auto:' then $1::int
