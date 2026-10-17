@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import { stepPerson, approach, turnTowards, ACCEL } from '../src/v2/scene/locomotion.js';
 import { actionFor, ACTIVITY_ACTION, ROAM, CLIP_PROPS } from '../src/v2/scene/actions.js';
 import { planStreet } from '../src/v2/scene/street-kit.js';
+import { ambientBudget, BASE_AREA, populationFor } from '../src/v2/scene/ambient.js';
+import { SOCIALS } from '../src/v2/ui/people.js';
 import { nearestSlots } from '../src/v2/scene/street-boards.js';
 import { fitSize } from '../src/v2/scene/billboard-face.js';
 import { clothAccents } from '../src/v2/scene/awd-runtime.js';
@@ -80,4 +82,27 @@ test('kente and ankara colourways pick two contrasting accents', () => {
     const accents = clothAccents(primary);
     assert.equal(accents.length, 2); assert.ok(!accents.includes(primary));
   }
+});
+
+test('a bigger neighbourhood gets more street life, within a device cap', () => {
+  const small = ambientBudget({}, 'normal', BASE_AREA), big = ambientBudget({}, 'normal', 88 * 88);
+  assert.ok(big.walkers > small.walkers && big.moving > small.moving, 'the 88 m street is busier than the old one');
+  assert.ok(big.walkers <= 9 && big.moving <= 3 && big.parked <= 9, 'still capped for phones');
+  const low = ambientBudget({}, 'low', 88 * 88);
+  assert.ok(low.walkers <= small.walkers && low.moving <= 1, 'battery saver stays small whatever the size');
+  assert.equal(populationFor(2, big).moving, 0, 'no traffic in the small hours');
+  assert.ok(populationFor(13, big).walkers >= populationFor(23, big).walkers, 'quieter at night');
+});
+
+test('every social a player can pick has its own animation on the server', async () => {
+  const server = await import('../../server/src/shard.js');
+  for (const [kind] of SOCIALS) {
+    const s = server.SOCIALS[kind];
+    assert.ok(s, `server is missing the ${kind} social`);
+    assert.ok(s.anim || s.request, `${kind} has no gesture to play`);
+  }
+  assert.equal(server.SOCIALS.wave.anim, 'wave', 'waving must look like a wave, not a nod');
+  assert.equal(server.SOCIALS.handshake.anim, 'handshake');
+  assert.equal(server.SOCIALS.hug.anim, 'hug');
+  assert.ok(SOCIALS.find(([k, , , min]) => k === 'handshake' && min === 0), 'anyone can shake hands');
 });

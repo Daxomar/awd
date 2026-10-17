@@ -4,7 +4,7 @@ import {h,ic,sheet,closeSheets} from './dom.js';
 import {G} from '../store.js';
 import {net} from '../net.js';
 import {portrait} from './portrait.js';
-export const SOCIALS=[['wave','icon:hand-waving','Wave',0],['chat','icon:chat-circle-dots','Talk',0],['joke','icon:smiley','Joke',0],['compliment','icon:star','Praise',3],['gist','icon:chat-circle-dots','Gist',8],['dance','icon:person-simple-dance','Dance',10],['hug','icon:smiley','Hug',25],['flirt','icon:smiley','Flirt',35],['askout','icon:envelope','Ask out',70],['propose','icon:diamond','Propose',120]];
+export const SOCIALS=[['wave','icon:hand-waving','Wave',0],['handshake','icon:handshake','Shake hands',0],['chat','icon:chat-circle-dots','Talk',0],['joke','icon:smiley','Joke',0],['compliment','icon:star','Praise',3],['gist','icon:chat-circle-dots','Gist',8],['dance','icon:person-simple-dance','Dance',10],['hug','icon:smiley','Hug',25],['flirt','icon:smiley','Flirt',35],['askout','icon:envelope','Ask out',70],['propose','icon:diamond','Propose',120]];
 export const LEVELS=[[0,'Stranger'],[10,'Acquaintance'],[30,'Friend'],[70,'Good friend'],[120,'Best friend']];
 export const level=pts=>LEVELS.filter(([t])=>pts>=t).pop()[1];
 export function openPerson(pid,name,act){
@@ -41,8 +41,13 @@ export function openPerson(pid,name,act){
    try{const result=await social(kind);if(!disposed){if(!result.pending)act.socialFx?.(pid,kind);sh.close();}}catch(e){fail(e.message);}finally{pending=false;notice.textContent='';socs.querySelectorAll('button').forEach(b=>b.disabled=false);}
   }},h('span.se',null,icon),label)));
   const button=(text,icon,fn)=>h('button.world-row',{onclick:()=>{sh.close();fn();}},ic(icon),h('span',null,text),ic('caret-right'));
-  body.replaceChildren(card,h('h3.panel-heading',null,'Spend time together'),socs,notice,error,h('h3.panel-heading',null,'Keep in touch'),
-   button('Friendship & invitations','users',()=>act.phone('relationships',{name:p.name})),button('Private message','chat-circle-text',()=>act.message(p.name)),button('Send money','hand-coins',()=>act.sendMoney(p.name)),button('Challenge to Oware','squares-four',()=>act.oware(pid,p.name)),
+  // Talking comes first: anyone may message anyone. A stranger receives a message request, and accepting
+  // it makes the two of you acquaintances, so nobody has to send a separate friend request.
+  const stranger=pts<10&&!p.me;
+  const talk=h('button.btn.primary.wide',{onclick:()=>{sh.close();act.message(p.name);}},ic('chat-circle-text'),'Message @'+p.name);
+  body.replaceChildren(card,talk,stranger?h('p.context-hint',null,'They get a message request first. When they accept, you two become acquaintances.'):null,
+   h('h3.panel-heading',null,'Spend time together'),socs,notice,error,h('h3.panel-heading',null,'Keep in touch'),
+   button('Friendship & invitations','users',()=>act.phone('relationships',{name:p.name})),button('Send money','hand-coins',()=>act.sendMoney(p.name)),button('Challenge to Oware','squares-four',()=>act.oware(pid,p.name)),
    ...(G.state.place==='home'&&!p.me?[button('Invite to my home','house-line',()=>net.send({t:'home_invite',name:p.name}))]:[]),
    ...(p.visiting?[button('Ask to leave my home','door-open',()=>net.send({t:'home_remove',name:p.name}))]:[]),
    button('Full profile','user-circle',()=>act.phone('contacts',p.name)),

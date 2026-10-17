@@ -77,3 +77,32 @@ meshes, textures or animations. Budget GH₵0. No balances, prices, odds or save
   street with the kit, dumbbell curls, eating in the Ghana home shirt, a green kente dress, an ankara
   shirt, the new walk, a live advert on a street billboard, and tap-to-walk with its marker.
 - Not measured: phone frame rate (needs real phones); the larger street adds about 50 instanced draw calls.
+
+## Meeting other players (2026-10-18)
+
+- **Tap a player, talk to them.** The player card now opens with a Message button, so anyone can write to
+  anyone. A stranger receives a **message request** (the existing `dm_links` flow): one message arrives,
+  and nothing more until they accept. Accepting now makes the two of you **acquaintances**
+  (`ACCEPT_POINTS` = 10 friendship, below the Friend level at 30, `server/src/social.js`), so meeting
+  people happens by talking instead of by sending a separate friend request. An existing, warmer
+  friendship is never lowered, and an offline player's saved state is raised in place.
+- **Gestures show on the avatar.** Every social carried `anim: 'agree'` (a nod) or nothing at all, so a
+  wave, a joke and a hug all looked the same. Each now has its own clip: wave, handshake, talk, laugh,
+  agree, dance, hug. Three are new in `characters/scripts/awd_anim.py` (`handshake`, `hug`, `laugh`), and
+  **Shake hands** is a new social anyone can use. Both people play the gesture and are turned to face each
+  other first (`world.faceEachOther`), so a wave is never played at someone's back.
+- **A livelier neighbourhood.** The crowd budget was written for the old 36 x 30 m street and left the new
+  88 m one feeling deserted. `ambientBudget` now scales with ground area and caps per device: a big
+  neighbourhood gets up to 9 residents, 2 chatting pairs, 9 parked vehicles and 3 moving ones (battery
+  saver keeps the old small numbers). Traffic drives several different streets of the real street graph
+  instead of queueing on the longest one, and trotros share the road with cars.
+- **The players-online count.** It was accurate — three connected players reported three, five reported
+  five — but it counted load-test bots as people and showed a bare "1 player online" when you were the
+  only one connected. It now counts real players only, and adds the number of players **active today**
+  from `player_activity_days`, cached for a minute: "1 player online · 70 today".
+
+Verified on the loopback QA server: a stranger's first message arrives as a request, accepting it leaves
+both players on 10 friendship and lets the next message through; the four social clips load and play on a
+player's avatar in the game; a normal-tier neighbourhood builds 10 residents and 3 moving vehicles and the
+cars drive along the streets. Not verified: two live players greeting each other side by side, and phone
+frame rate.

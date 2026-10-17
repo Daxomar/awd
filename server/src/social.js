@@ -165,11 +165,24 @@ export async function thread(p, name) {
   const look=(await pool.query("select state->'look' as look from players where id=$1",[o.id])).rows[0]?.look;
   return { t: 'dm_thread', with: o.username, look, request: link&&{status:link.status,incoming:link.initiator!==p.acct}, blocked: blocked(p.state, o.id), rows: r.rows.reverse().map((x) => ({ id: +x.id, text: x.text, kind: x.kind, amount: x.amount, status: x.status, mine: x.from_id === p.acct, at: +x.at })) };
 }
+// Accepting someone's message request is how most people meet: it makes the two of you acquaintances
+// (ACCEPT_POINTS, below the Friend level at 30) without anyone sending a separate friend request.
+// An existing, warmer friendship is never lowered, and an offline player's saved state is raised in place.
+export const ACCEPT_POINTS = 10;
+async function acquaint(shard, p, other) {
+  const live = shard.byAcct(other.id), raise = (f, n) => ({ ...(f || {}), n, pts: Math.max(ACCEPT_POINTS, f?.pts || 0) });
+  p.state.friends[other.id] = raise(p.state.friends[other.id], other.username); p.dirty = true;
+  if (live) { live.state.friends[p.acct] = raise(live.state.friends[p.acct], p.name); live.dirty = true; return; }
+  await pool.query(`update players set state = jsonb_set(state, '{friends,${String(p.acct | 0)}}',
+      jsonb_build_object('n', $2::text, 'pts', greatest($3::int, coalesce((state->'friends'->$4->>'pts')::int, 0))), true)
+    where id = $1`, [other.id, p.name, ACCEPT_POINTS, String(p.acct | 0)]).catch(() => {});
+}
 export async function answerDm(shard,p,m){
  const other=await acctByName(m.name);if(!other)return {t:'toast',k:'bad',m:'Player not found.'};
  const r=await pool.query("update dm_links set status=$4 where a=$1 and b=$2 and initiator=$3 and status='pending' returning *",[Math.min(p.acct,other.id),Math.max(p.acct,other.id),other.id,m.yes?'accepted':'declined']);
  if(!r.rows.length)return {t:'toast',k:'bad',m:'This request is no longer pending.'};
- shard.deliverDm(other.id,{t:'dm_request_answer',from:p.name,fromAcct:p.acct,yes:!!m.yes});return thread(p,other.username);
+ if(m.yes)await acquaint(shard,p,other);
+ shard.deliverDm(other.id,{t:'dm_request_answer',from:p.name,fromAcct:p.acct,yes:!!m.yes,friend:!!m.yes});return thread(p,other.username);
 }
 export async function unreadCount(p) { const r = await pool.query(`select count(*)::int n from dms where to_id=$1 and not read`, [p.acct]); return r.rows[0].n; }
 export async function block(p, name, on) {

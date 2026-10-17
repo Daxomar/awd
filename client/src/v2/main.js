@@ -256,7 +256,7 @@ const act = (window.__act = {
   wardrobe(mode = 'wardrobe') { openStylist(mode); },
   setQuality(pref) { saveQuality(pref); if (!stage) return; stage.qualityPref = pref; stage.applyQuality(resolveTier(pref, {mobile: stage.mobile, low: lowEnd()})); },
   async logout() { try { const r=await fetch('/api/logout',{method:'POST',headers:{'content-type':'application/json'},body:'{}'});if(!r.ok)throw Error();try{localStorage.removeItem('awd_token');}catch{}net.close();location.reload(); }catch{toast('Could not log out. Please try again.','bad');} },
-  socialFx(pid) { const p = world.room && world.room.people.get('p' + pid); if (p) world.room.walkTo('me', p.x + 0.7, p.z + 0.4); },
+  socialFx(pid) { const p = world.room && world.room.people.get('p' + pid), me = world.me; if (!p || !me) return; const dx = me.x - p.x, dz = me.z - p.z, len = Math.hypot(dx, dz) || 1, gap = 1.05; world.walkMe(p.x + (dx / len) * gap, p.z + (dz / len) * gap); },
   // start an activity in a zone: walk there, sit/stand, tell the server
   async start(a, zone) {
     if (a.opens) { if(a.opens==='matches')return openMatches(); if (OPENS[a.opens]) return phone.show(OPENS[a.opens], a.opens === 'momo' ? 'cash' : null); if (STYLE_OPENS[a.opens]) return openStylist(STYLE_OPENS[a.opens]); if (a.opens === 'circlephones') return openPhoneMarket(net, act); return toast('Coming soon to this place.', ''); }
@@ -438,7 +438,11 @@ function bindNet() {
   net.on('rst', (m) => { world.setStatus('p' + m.id, m.st);world.setAction('p' + m.id, m.act, m.st); { const p = world.room && world.room.people.get('p' + m.id); if (p && (p.av.fit || null) !== (m.fit || null)) world.restyle(m.id, null, m.fit || null); } if (!m.st) { const p = world.room && world.room.people.get('p' + m.id); if (p && p.pose !== 'stand') world.room.placeAt('p' + m.id, p.x, p.z, p.yaw, 'stand'); } });
   net.on('ranim', (m) => world.animOther(m.id, m.a));
   net.on('chat', (m) => { if (m.ch === 'room') { world.bubble(m.id === G.myId ? 'me' : 'p' + m.id, m.m); hud.chatLine(m.n, m.m); } else hud.chatLine('icon:globe-hemisphere-west ' + m.n, m.m); });
-  net.on('rsocial', (m) => { for (const id of [m.a, m.b]) { const who = id === G.myId ? 'me' : 'p' + id; world.bubble(who, m.ic, 'social'); const p = world.room && world.room.people.get(who); if (p) world.gesture(p, m.anim); } });
+  net.on('rsocial', (m) => {
+    const who = (id) => (id === G.myId ? 'me' : 'p' + id);
+    if (m.face) world.faceEachOther(who(m.a), who(m.b));
+    for (const id of [m.a, m.b]) { world.bubble(who(id), m.ic, 'social'); const p = world.room && world.room.people.get(who(id)); if (p) world.gesture(p, m.anim); }
+  });
   net.on('social_done', (m) => toast(`${m.label} with ${m.with} · ${m.level} (${m.pts})`, 'good'));
   net.on('social_in', (m) => toast(`${m.ic} ${m.from}: ${m.label.toLowerCase()} · ${m.level}`, ''));
   net.on('askout_in', async (m) => { const yes = await confirmBox(m.propose ? { title: ` ${m.from} is proposing!`, text: 'Will you get engaged? Accra will hear about it.', yes: 'YES ', no: 'Not yet' } : { title: ` ${m.from} is asking you out`, text: 'Say yes and you become a couple in Accra We Dey. You can always say no.', yes: 'Yes ', no: 'Not now' }); net.send({ t: 'askout_reply', id: m.id, yes }); });
@@ -510,7 +514,7 @@ function bindNet() {
   net.on('oware', (m) => { phone.close(); closeSheets(); owareView(ui, m); });
   net.on('oware_invite', async (m) => { const yes = await confirmBox({ title: ` ${m.from} challenges you to Oware`, text: m.stake ? `Stake ${cedi(m.stake)} each · winner takes ${cedi(Math.round(m.stake * 2 * 0.95))}.` : 'Friendly game, no money.', yes: 'Play', no: 'Not now' }); net.send({ t: 'oware_answer', id: m.id, yes }); });
   // world
-  net.on('places', (m) => { G.places = m.c; G.online = m.online; if (view === 'map') map.setPresence(m.c); hud.clock(); });
+  net.on('places', (m) => { G.places = m.c; G.online = m.online; G.today = m.today ?? null; if (view === 'map') map.setPresence(m.c); hud.clock(); });
   net.on('gem_drop', (m) => { G.gem = { ...m.gem, area: m.area }; if (!m.quiet) toast(m.hint, 'gold'); if (G.state.place === m.gem.place) world.showGem(m.gem); refresh(); if (view === 'map') drawPins(); });
   net.on('gem_gone', (m) => { G.gem = null; world.hideGem(); if (m.by) toast(` ${m.by} found the gem at ${m.place} (+${cedi(m.prize)})`, ''); refresh(); if (view === 'map') drawPins(); });
   net.on('gem_won', (m) => { G.gem = null; world.hideGem(); G.state.momo = m.momo; celebrate({ icon: 'icon:diamond', title: `You found the gem!`, text: `+${cedi(m.prize)} to your MoMo. ${m.found.toLocaleString()} gem${m.found === 1 ? "" : "s"} found in Accra so far.` }); refresh(); });

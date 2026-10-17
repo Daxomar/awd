@@ -103,17 +103,17 @@
       "base": {
         "0": {
           "asset": "client/public/assets/characters/prototype/awd_male_base_lod0.glb",
-          "bytes": 3382708,
+          "bytes": 3482460,
           "triangles": 28588
         },
         "1": {
           "asset": "client/public/assets/characters/prototype/awd_male_base_lod1.glb",
-          "bytes": 1931124,
+          "bytes": 2030952,
           "triangles": 12092
         },
         "2": {
           "asset": "client/public/assets/characters/prototype/awd_male_base_lod2.glb",
-          "bytes": 1491760,
+          "bytes": 1591364,
           "triangles": 4230
         }
       },
@@ -138,19 +138,19 @@
       "lods": {
         "0": {
           "asset": "client/public/assets/characters/prototype/awd_male_prototype_lod0.glb",
-          "bytes": 3490172,
+          "bytes": 3589928,
           "triangles": 28000,
           "meshes": 11
         },
         "1": {
           "asset": "client/public/assets/characters/prototype/awd_male_prototype_lod1.glb",
-          "bytes": 2258924,
+          "bytes": 2358680,
           "triangles": 12462,
           "meshes": 8
         },
         "2": {
           "asset": "client/public/assets/characters/prototype/awd_male_prototype_lod2.glb",
-          "bytes": 1839784,
+          "bytes": 1939512,
           "triangles": 4354,
           "meshes": 8
         }
@@ -162,17 +162,17 @@
       "base": {
         "0": {
           "asset": "client/public/assets/characters/prototype/awd_female_base_lod0.glb",
-          "bytes": 3366356,
+          "bytes": 3466108,
           "triangles": 28588
         },
         "1": {
           "asset": "client/public/assets/characters/prototype/awd_female_base_lod1.glb",
-          "bytes": 1920812,
+          "bytes": 2020676,
           "triangles": 12092
         },
         "2": {
           "asset": "client/public/assets/characters/prototype/awd_female_base_lod2.glb",
-          "bytes": 1484956,
+          "bytes": 1584556,
           "triangles": 4230
         }
       },
@@ -197,19 +197,19 @@
       "lods": {
         "0": {
           "asset": "client/public/assets/characters/prototype/awd_female_prototype_lod0.glb",
-          "bytes": 3461596,
+          "bytes": 3561352,
           "triangles": 28064,
           "meshes": 11
         },
         "1": {
           "asset": "client/public/assets/characters/prototype/awd_female_prototype_lod1.glb",
-          "bytes": 2226844,
+          "bytes": 2326600,
           "triangles": 12486,
           "meshes": 8
         },
         "2": {
           "asset": "client/public/assets/characters/prototype/awd_female_prototype_lod2.glb",
-          "bytes": 1809876,
+          "bytes": 1909604,
           "triangles": 4365,
           "meshes": 8
         }

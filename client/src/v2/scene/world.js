@@ -78,7 +78,7 @@ export class World {
     this.npcs = [];
     (spec.npcs || []).forEach((n, i) => { const id = 'npc' + i; const P = placeNpc(room, n); room.addPerson(id, new Avatar(n.look), P.x, P.z, { label: n.label, npc: true }); room.placeAt(id, P.x, P.z, P.yaw, P.pose, P.y); this.npcs.push(id); const person=room.people.get(id);person.schedule=n;person.nextMove=2+i*2;person.patrolIndex=1;this.tag(id, n.label, 'npc'); });
     // Stage 9: pooled ambient residents and traffic on neighbourhood streets (never in homes, estates or custody).
-    if (spec.neighbourhood && !spec.estate && !this.custody) this.ambient = new Ambient(room, { budget: ambientBudget(undefined, TIERS[this.stage.quality]?.crowd), hour: Number.isInteger(globalThis.__AWD_QA_HOUR__) ? globalThis.__AWD_QA_HOUR__ : new Date(accraNow()).getUTCHours(), seed: spec.area || msg.place });   // QA may pin the hour
+    if (spec.neighbourhood && !spec.estate && !this.custody) this.ambient = new Ambient(room, { budget: ambientBudget(undefined, TIERS[this.stage.quality]?.crowd, spec.w * spec.d), hour: Number.isInteger(globalThis.__AWD_QA_HOUR__) ? globalThis.__AWD_QA_HOUR__ : new Date(accraNow()).getUTCHours(), seed: spec.area || msg.place });   // QA may pin the hour
     // me: enter at the door and walk a few steps in
     const sp = this.custody?spec.spawn:room.spawn; const meAv = new Avatar(meLook || {}); meAv.baseLook = meLook; const me = room.addPerson('me', meAv, sp.x, sp.z, { label: meName });
     this.tag('me', meName, 'me');
@@ -128,7 +128,19 @@ export class World {
     else this.room.walkTo(id, m.x, m.z);
   }
   animOther(pid, a) { const p = this.room && this.room.people.get('p' + pid); if (p) this.gesture(p, a); }
-  gesture(p, a) { if (a === 'dance') { p.anim = 'dance'; clearTimeout(p.danceT); p.danceT = setTimeout(() => { p.anim = null; }, 6000); } else p.av.gesture(a === 'wave' ? 'agree' : a); }
+  // Play a social gesture. Dance loops for a few seconds; everything else is a one-shot clip, and an
+  // avatar whose character set lacks it falls back to a nod rather than standing still.
+  gesture(p, a) {
+    if (a === 'dance') { p.anim = 'dance'; clearTimeout(p.danceT); p.danceT = setTimeout(() => { p.anim = null; }, 6000); return; }
+    p.av.gesture(p.av.actions?.[a] ? a : 'agree');
+  }
+  // Turn two people to face each other before they greet (a wave to someone's back reads as a bug).
+  faceEachOther(a, b) {
+    const pa = this.room?.people.get(a), pb = this.room?.people.get(b);
+    if (!pa || !pb || (pa.x === pb.x && pa.z === pb.z)) return;
+    pa.path = []; pb.path = []; pa.steer = null; pb.steer = null;
+    pa.yaw = Math.atan2(pb.x - pa.x, pb.z - pa.z); pb.yaw = Math.atan2(pa.x - pb.x, pa.z - pb.z);
+  }
   // ---- me ----
   get me() { return this.room && this.room.people.get('me'); }
   localHint(){

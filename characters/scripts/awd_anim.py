@@ -491,10 +491,62 @@ ACTION_CLIPS = (lift, box, eat, drink, phone_use, photo, cook, scrub, sweep, car
                 read, pull, fix, swim)
 
 
+# ---------------------------------------------------------------- social gestures (2026-10)
+# One-shot clips played when two players interact (client/src/v2/ui/people.js SOCIALS). Both people
+# play their own copy facing each other, so a wave is answered by a wave and a handshake meets in the
+# middle. Rig conventions are the ones arms() and fore() above encode.
+
+
+def handshake(rig):
+    """Offer the right hand, clasp, two firm shakes, release (2.6 s).
+
+    The upper arm barely swings forward and the elbow carries the reach, so the forearm is level and the
+    hand meets the other person's at waist height instead of ending up against the chest."""
+    def pose(reach, shake=0.0, lean=0.0):
+        k = arms(left=(6, 4, 14, 0.3), right=(16 * reach, 2, (70 + 9 * shake) * reach, 0.48))
+        k.update({'RightHand': [(X, -8 * reach), (Z, 10 * reach)], 'Spine': [(X, 5 * lean)],
+                  'Spine2': [(X, 3 * lean)], 'Head': [(X, 6 * lean)]})
+        return k
+    keys = [(0.0, {}), (0.45, pose(0.75, 0, 0.6)), (0.8, pose(1.0, 0, 1.0)), (1.1, pose(1.0, 1.0, 1.0)),
+            (1.4, pose(1.0, 0, 1.0)), (1.7, pose(1.0, 1.0, 1.0)), (2.0, pose(1.0, 0, 1.0)), (2.6, {})]
+    return bake_clip(rig, 'handshake', keys, 2.6, loop=False)
+
+
+def hug(rig):
+    """Open both arms wide, step in, close them round the other person, hold, release (3 s).
+
+    Only a little inward twist: more and the forearms cross the chest, which reads as folded arms."""
+    def pose(open_, close):
+        reach = (30 * open_ + 18 * close, 50 * open_ - 32 * close, (22 + 46 * close) * open_, 0.08 + 0.27 * close)
+        k = arms(left=reach, right=reach)
+        k.update({'Spine': [(X, 7 * close)], 'Spine2': [(X, 4 * close)], 'Head': [(X, 5 * close), (Z, 7 * close)],
+                  'hips': (0, -0.05 * close, 0)})
+        return k
+    keys = [(0.0, {}), (0.5, pose(1.0, 0.0)), (1.0, pose(1.0, 1.0)), (2.0, pose(1.0, 1.0)), (2.5, pose(1.0, 0.15)), (3.0, {})]
+    return bake_clip(rig, 'hug', keys, 3.0, loop=False)
+
+
+def laugh(rig):
+    """Head back, shoulders shaking, one hand to the belly (2.2 s)."""
+    def pose(amount, shake):
+        k = arms(left=(8, 6, 18, 0.5), right=(14 * amount, 3, 48 * amount, 0.62))
+        k.update({'Head': [(X, -18 * amount + 4 * shake), (Z, 5 * shake)], 'Neck': [(X, -8 * amount)],
+                  'Spine2': [(X, -7 * amount + 3 * shake)], 'Spine': [(X, 5 * amount)],
+                  'LeftShoulder': [(Y, -3 * shake)], 'RightShoulder': [(Y, 3 * shake)],
+                  'hips': (0, 0, -0.012 * amount)})
+        return k
+    keys = [(0.0, {}), (0.35, pose(1.0, 1.0)), (0.6, pose(1.0, -1.0)), (0.9, pose(1.0, 1.0)),
+            (1.2, pose(1.0, -1.0)), (1.5, pose(0.9, 0.5)), (2.2, {})]
+    return bake_clip(rig, 'laugh', keys, 2.2, loop=False)
+
+
+SOCIAL_CLIPS = (handshake, hug, laugh)
+
 def build_library(rig):
     """Every clip the live game calls (room.js play/anim, world.js gesture, server emotes)."""
     bpy.context.scene.render.fps = FPS
     clips = [idle(rig), walk(rig), run(rig), wave(rig), agree(rig), shake(rig), sad(rig), dance(rig)]
     clips += [make(rig) for make in ACTION_CLIPS]
+    clips += [make(rig) for make in SOCIAL_CLIPS]
     rig.animation_data.action = bpy.data.actions['idle']
     return clips

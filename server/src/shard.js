@@ -30,15 +30,17 @@ const ROOM_CAP = +(process.env.ROOM_CAP || 25);
 const D = Game.DATA;
 
 // player-to-player socials. min = friendship points needed, gain = social need for both, pts = friendship gained
+// `anim` is the clip both people play, facing each other (characters/scripts/awd_anim.py).
 export const SOCIALS = {
-  wave: { label: 'Wave', ic: 'icon:hand-waving', min: 0, gain: 5, pts: 1, anim: 'agree' },
-  chat: { label: 'Chat', ic: 'icon:chat-circle-dots', min: 0, gain: 16, pts: 3 },
-  joke: { label: 'Crack a joke', ic: 'icon:smiley', min: 0, gain: 12, fun: 12, pts: 3, skill: 'comedy' },
-  compliment: { label: 'Compliment', ic: 'icon:star', min: 3, gain: 14, pts: 4, skill: 'charisma' },
-  gist: { label: 'Share gist', ic: 'icon:chat-circle-dots', min: 8, gain: 20, fun: 6, pts: 4 },
+  wave: { label: 'Wave', ic: 'icon:hand-waving', min: 0, gain: 5, pts: 1, anim: 'wave' },
+  handshake: { label: 'Shake hands', ic: 'icon:handshake', min: 0, gain: 10, pts: 2, anim: 'handshake' },
+  chat: { label: 'Chat', ic: 'icon:chat-circle-dots', min: 0, gain: 16, pts: 3, anim: 'talk' },
+  joke: { label: 'Crack a joke', ic: 'icon:smiley', min: 0, gain: 12, fun: 12, pts: 3, skill: 'comedy', anim: 'laugh' },
+  compliment: { label: 'Compliment', ic: 'icon:star', min: 3, gain: 14, pts: 4, skill: 'charisma', anim: 'agree' },
+  gist: { label: 'Share gist', ic: 'icon:chat-circle-dots', min: 8, gain: 20, fun: 6, pts: 4, anim: 'talk' },
   dance: { label: 'Dance together', ic: 'icon:person-simple-dance', min: 10, gain: 18, fun: 18, pts: 5, anim: 'dance' },
-  hug: { label: 'Hug', ic: 'icon:smiley', min: 25, gain: 22, pts: 5 },
-  flirt: { label: 'Flirt', ic: 'icon:smiley', min: 35, gain: 16, fun: 12, pts: 6, romance: true },
+  hug: { label: 'Hug', ic: 'icon:smiley', min: 25, gain: 22, pts: 5, anim: 'hug' },
+  flirt: { label: 'Flirt', ic: 'icon:smiley', min: 35, gain: 16, fun: 12, pts: 6, romance: true, anim: 'laugh' },
   askout: { label: 'Ask out', ic: 'icon:envelope', min: 70, romance: true, request: true },
   propose: { label: 'Propose', ic: 'icon:diamond', min: 120, romance: true, request: true, propose: true },
 };
@@ -57,7 +59,19 @@ export class Shard {
     this.homePasses = new Map(); this.homeRemoved = new Map();
     setInterval(() => { if (this.eventsPending) return; this.eventsPending = true; Events.tick(this).catch((e) => console.error('[events]', e.code || e.message)).finally(() => { this.eventsPending = false; }); }, 30000).unref?.();
   }
-  get online() { return this.players.size; }
+  // Real people connected right now. Load-test bots hold sockets too but are never players.
+  get online() { let n = 0; for (const p of this.players.values()) if (!p.bot) n++; return n; }
+  // Distinct accounts that entered the city today (admin/store.js player_activity_days), cached for a
+  // minute. A small live population still reads as a living city instead of a bare "1 player online".
+  async activeToday() {
+    if (Date.now() - (this.todayAt || 0) < 60000) return this.todayCount ?? null;
+    this.todayAt = Date.now();
+    try {
+      const r = await pool.query('select count(distinct acct)::int n from player_activity_days where day = current_date');
+      this.todayCount = r.rows[0]?.n ?? null;
+    } catch { this.todayCount = null; }
+    return this.todayCount;
+  }
   byAcct(id) { return this.byAcctMap.get(id) || null; }
   byName(n) { n = String(n || '').toLowerCase(); for (const p of this.players.values()) if (p.name.toLowerCase() === n) return p; return null; }
   async join(ws, acct) {
@@ -382,7 +396,7 @@ export class Shard {
     fa.pts = Math.min(200, fa.pts + pts); fb.pts = Math.min(200, fb.pts + pts); fa.n = o.name; fb.n = p.name;
     for (const x of [p, o]) { const st = x.state; st.n.social = Math.min(100, st.n.social + S.gain); if (S.fun) st.n.fun = Math.min(100, st.n.fun + S.fun); Game.bump(st, 'social'); Game.bump(st, 'chat'); x.dirty = true; }
     const lvl = (v) => FRIEND_LEVELS.filter(([t]) => v >= t).pop()[1];
-    this.toRoom(p.room, { t: 'rsocial', a: p.id, b: o.id, kind: m.kind, ic: S.ic, anim: S.anim || 'agree' });
+    this.toRoom(p.room, { t: 'rsocial', a: p.id, b: o.id, kind: m.kind, ic: S.ic, anim: S.anim || 'agree', face: true });
     this.send(p, { t: 'social_done', with: o.name, kind: m.kind, label: S.label, pts: fa.pts, level: lvl(fa.pts) });
     this.send(o, { t: 'social_in', id: p.id, from: p.name, kind: m.kind, label: S.label, ic: S.ic, pts: fb.pts, level: lvl(fb.pts) });
   }
@@ -471,8 +485,12 @@ export class Shard {
   }
   broadcast(m, except) { const s = JSON.stringify(m); for (const o of this.players.values()) if (o !== except && !o.bot) try { o.ws.send(s, false); } catch {} }
   placesTick() {
-    const c = {}; for (const p of this.players.values()) { const pl = p.state.place; if (pl && Game.LOC[pl]) c[pl] = (c[pl] || 0) + 1; }
-    this.bus && this.bus.shards().then((sh) => { const total = Object.values(sh).reduce((a, b) => a + b, 0) || this.online; this.broadcast({ t: 'places', c, online: Math.max(total, this.online) }); }).catch(() => this.broadcast({ t: 'places', c, online: this.online }));
+    const c = {}; for (const p of this.players.values()) { if (p.bot) continue; const pl = p.state.place; if (pl && Game.LOC[pl]) c[pl] = (c[pl] || 0) + 1; }
+    this.activeToday().then((today) => {
+      const send = (online) => this.broadcast({ t: 'places', c, online, today: Number.isSafeInteger(today) ? Math.max(today, online) : null });
+      if (!this.bus) return send(this.online);
+      this.bus.shards().then((sh) => send(Math.max(Object.values(sh).reduce((a, b) => a + b, 0) || this.online, this.online))).catch(() => send(this.online));
+    }).catch(() => {});
   }
   // ---------------- feed, reports, chat ----------------
   gist(p, msg) {

@@ -9,11 +9,20 @@ export const AMBIENT_PREFIX = 'npc-amb';
 const COLS = ['#c8102e', '#1f6fb8', '#f2b632', '#2a9d8f', '#7b2d8e', '#e76f51', '#f4f4f4', '#22313f', '#e9c46a'];
 const CAR_COLS = ['#c8102e', '#f2f0e6', '#1f6fb8', '#2b2b2b', '#9aa0a6', '#f2c230'];
 
-export function ambientBudget(nav = globalThis.navigator || {}, crowd = null) {
+// Baseline street (the old 36 x 30 m neighbourhood); bigger places get proportionally more life, capped.
+export const BASE_AREA = 36 * 30;
+export function ambientBudget(nav = globalThis.navigator || {}, crowd = null, area = BASE_AREA) {
   // The graphics quality setting decides when it is set; otherwise the device class does.
   const low = crowd ? crowd === 'low' : (nav.deviceMemory && nav.deviceMemory <= 4) || (nav.hardwareConcurrency && nav.hardwareConcurrency <= 4);
-  // Residents are full avatars (the main triangle cost), so low-end devices get four people at most.
-  return low ? { walkers: 2, talkers: 2, parked: 2, moving: 1 } : { walkers: 4, talkers: 2, parked: 4, moving: 1 };
+  // Residents are full avatars (the main triangle cost), so low-end devices stay small. A neighbourhood is
+  // now 88 m across, so the same handful of people would read as deserted: scale with ground area and cap.
+  // Only people within 28 m are drawn, so the cap bounds what is on screen, not what exists.
+  const base = low ? { walkers: 2, talkers: 2, parked: 2, moving: 1 } : { walkers: 4, talkers: 2, parked: 4, moving: 1 };
+  const cap = low ? { walkers: 4, talkers: 2, parked: 4, moving: 1 } : { walkers: 9, talkers: 4, parked: 9, moving: 3 };
+  const grow = Math.max(1, Math.min(3.2, Math.sqrt(Math.max(area, 1) / BASE_AREA)));
+  const out = {};
+  for (const k of Object.keys(base)) out[k] = Math.min(cap[k], Math.round(base[k] * grow));
+  return out;
 }
 // Fewer people late at night, nobody chatting on the street after 23:00, no moving traffic in the small hours.
 export function populationFor(hour, budget) {
@@ -49,14 +58,21 @@ export class Ambient {
     room.buildNav = rebuild; if (this.items.length) room.buildNav();
     this.points = this.walkPoints(r, W, D); this.links = this.streetLinks();
     for (let i = 0; i < pop.walkers; i++) { const start = this.links ? this.links.nodes[Math.floor(r() * this.links.nodes.length)] : this.points[Math.floor(r() * this.points.length)]; this.person(`walk${i}`, start, r, { walk: true, lateral: (r() - 0.5) * 1.6 }); }
-    if (pop.talkers >= 2) { const p = this.points[Math.floor(r() * this.points.length)]; this.person('talkA', { x: p.x - 0.45, z: p.z }, r, { face: Math.PI / 2, gesture: 'agree' }); this.person('talkB', { x: p.x + 0.45, z: p.z }, r, { face: -Math.PI / 2, gesture: 'shake' }); }
+    for (let pair = 0; pair < Math.floor(pop.talkers / 2); pair++) {
+      const p = this.points[Math.floor(r() * this.points.length)];
+      if (this.ids.some((id) => { const q = this.room.people.get(id); return q && Math.hypot(q.x - p.x, q.z - p.z) < 4; })) continue;
+      this.person(`talk${pair}A`, { x: p.x - 0.45, z: p.z }, r, { face: Math.PI / 2, gesture: 'agree' });
+      this.person(`talk${pair}B`, { x: p.x + 0.45, z: p.z }, r, { face: -Math.PI / 2, gesture: 'shake' });
+    }
     // Slow traffic along the longest straight street: one mesh on a fixed line, never a driving simulation.
-    const lane = this.lane();
-    for (let i = 0; lane && i < pop.moving; i++) {
-      const obj = makeItem('car_display', { color: CAR_COLS[Math.floor(r() * CAR_COLS.length)] }).obj;
+    const lanes = this.lanes(pop.moving);
+    for (let i = 0; i < lanes.length; i++) {
+      const lane = lanes[i], trotro = r() < 0.4;
+      const obj = makeItem(trotro ? 'trotro' : 'car_display', { color: CAR_COLS[Math.floor(r() * CAR_COLS.length)] }).obj;
       obj.traverse(m => { if (m.isMesh) { m.castShadow = true; m.userData.decorative = true; } });
       room.group.add(obj);
-      const car = { obj, resources: new EnvironmentResources().capture(obj), lane, t: 0, dir: 1, speed: 3.2 / lane.len, wait: 0 }; this.place(car); this.cars.push(car);
+      const car = { obj, resources: new EnvironmentResources().capture(obj), lane, t: r(), dir: r() < 0.5 ? 1 : -1, speed: (trotro ? 2.6 : 3.4) / lane.len, wait: 0 };
+      this.place(car); this.cars.push(car);
     }
   }
   free(x, z) { const cell = this.room.nearestFree?.(x, z); if (!cell || !this.room.free?.(cell[0], cell[1])) return null; const C = 0.25; return { x: (cell[0] + 0.5) * C - this.room.spec.w / 2, z: (cell[1] + 0.5) * C - this.room.spec.d / 2 }; }
@@ -81,6 +97,29 @@ export class Ambient {
     }
     const best = [...runs.values()].filter(r => r.sum >= r.b - r.a - 0.01).sort((x, y) => (y.b - y.a) - (x.b - x.a))[0]; if (!best) return null;
     return best.hz ? mk(best.a + 2, best.c, best.b - 2, best.c) : mk(best.c, best.a + 2, best.c, best.b - 2);
+  }
+  // Up to `n` different straight streets for traffic, longest first, so cars are spread over the
+  // neighbourhood instead of queueing along one road. Falls back to the single authored road.
+  lanes(n) {
+    const g = this.room.streetStream?.graph;
+    if (!g) { const one = this.lane(); return one ? [one] : []; }
+    const mk = (ax, az, bx, bz) => { const len = Math.hypot(bx - ax, bz - az); return len > 10 ? { ax, az, bx, bz, len, ux: (bx - ax) / len, uz: (bz - az) / len } : null; };
+    const runs = new Map();
+    for (const sg of g.segments) {
+      const hz = sg.from[1] === sg.to[1], vt = sg.from[0] === sg.to[0]; if (!hz && !vt) continue;
+      const key = hz ? 'h' + sg.from[1] : 'v' + sg.from[0], i = hz ? 0 : 1;
+      const a = Math.min(sg.from[i], sg.to[i]), b = Math.max(sg.from[i], sg.to[i]);
+      const run = runs.get(key) || { hz, c: hz ? sg.from[1] : sg.from[0], a, b, sum: 0 };
+      run.a = Math.min(run.a, a); run.b = Math.max(run.b, b); run.sum += b - a; runs.set(key, run);
+    }
+    const whole = [...runs.values()].filter(r => r.sum >= r.b - r.a - 0.01).sort((x, y) => (y.b - y.a) - (x.b - x.a));
+    const out = [];
+    for (const r of whole) {
+      if (out.length >= n) break;
+      const lane = r.hz ? mk(r.a + 2, r.c, r.b - 2, r.c) : mk(r.c, r.a + 2, r.c, r.b - 2);
+      if (lane) out.push(lane);
+    }
+    return out;
   }
   place(c) { const L = c.lane; c.obj.position.set(L.ax + (L.bx - L.ax) * c.t, 0, L.az + (L.bz - L.az) * c.t); c.obj.rotation.y = Math.atan2(-L.uz * c.dir, L.ux * c.dir); }
   person(key, at, r, o) {
