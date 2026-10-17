@@ -144,8 +144,9 @@ export async function startPayment({ acct, type, key, amount, context, email, ph
     await db.query('commit');
     committed=true;db.release();released=true;
     if (claim) {
-      // Server-controlled return: advertising returns to the standalone advertising page, top-ups to the game.
-      const token = returnToken(row.ref), back = `${new URL(PUBLIC).origin}${type === 'ad' ? '/advertise.html' : '/'}?payment=${encodeURIComponent(token)}`;
+      // Server-controlled return: redirect directly back to the game with billboard placement
+      const token = returnToken(row.ref), placement = context?.placement ? `&placement=${encodeURIComponent(context.placement)}` : '';
+      const back = `${new URL(PUBLIC).origin}/?payment=${encodeURIComponent(token)}${placement}`;
       const response = await provider('transaction/initialize', { email: receipt, amount, currency: 'GHS', reference: row.ref,
         callback_url: back, channels: ['mobile_money', 'card'],
         metadata: { payment_order: row.id, purchase_type: type, cancel_action: back } });

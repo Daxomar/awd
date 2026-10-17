@@ -26,9 +26,9 @@ input[type=checkbox]{width:22px;min-height:22px;height:22px;flex:none;margin:2px
 .previews{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}@media(max-width:560px){.previews{grid-template-columns:1fr}}
 .scene{position:relative;border-radius:16px;overflow:hidden;aspect-ratio:4/3;background:linear-gradient(#6aa9d6 0,#cfe6f2 55%,#a9a08a 55%,#857c68 100%);transition:opacity .2s}
 .scene .cap{position:absolute;left:10px;top:8px;font-size:12px;font-weight:800;color:#183d32;background:#fffc;border-radius:8px;padding:2px 8px;z-index:2}
-.bb{position:absolute;left:12%;right:12%;top:16%;aspect-ratio:2/1;background:#111 center/cover no-repeat;border:6px solid #2d2d2d;border-radius:4px;box-shadow:0 10px 24px #0006;display:grid;place-items:center;color:#888;font-size:13px}
+.bb{position:absolute;left:12%;right:12%;top:16%;aspect-ratio:2/1;background:#0b1318 center/contain no-repeat;border:6px solid #2d2d2d;border-radius:4px;box-shadow:0 10px 24px #0006;display:grid;place-items:center;color:#888;font-size:13px}
 .bb::before,.bb::after{content:"";position:absolute;bottom:-62%;width:6%;height:60%;background:#4a4f55}.bb::before{left:18%}.bb::after{right:18%}
-.ground{position:absolute;left:8%;right:8%;bottom:6%;aspect-ratio:2/1;background:#333 center/cover no-repeat;transform:perspective(420px) rotateX(58deg);transform-origin:bottom;border:4px solid #e9dfc8;display:grid;place-items:center;color:#aaa;font-size:13px}
+.ground{display:none}
 .scene.dim{opacity:.45}
 .tot{display:flex;justify-content:space-between;align-items:baseline;margin-top:16px;font-weight:800;font-size:22px}
 .btn{display:block;width:100%;margin-top:16px;padding:15px;min-height:52px;border:0;border-radius:13px;font:inherit;font-weight:800;font-size:16px;background:linear-gradient(135deg,#f6c343,#e7932b);color:#1b1206;cursor:pointer;text-align:center;text-decoration:none}.btn[disabled]{opacity:.5;cursor:not-allowed}
@@ -46,19 +46,19 @@ a{color:var(--gold)}
 <header><div class="brand">ACCRA <span>WE DEY</span> · ADVERTISING</div><div class="acct" id="acct">Checking your account…</div></header>
 <main>
 <h1>Your brand on the streets of <em>Accra We Dey</em></h1>
-<p class="lead">Rent a billboard at a real Accra junction or a ground panel on a commercial plaza inside the game. Pay with MoMo or card through Paystack. Campaigns that pass our automated checks go live by themselves as soon as the payment is verified.</p>
+<p class="lead">Rent a prominent billboard at a real Accra junction inside the game. Pay with MoMo or card through Paystack. Campaigns that pass our automated checks go live automatically once payment is verified.</p>
 <div id="ret"></div>
 
-<section aria-labelledby="step1"><h2 id="step1"><b>1</b> Choose a placement <small id="slotNote"></small></h2>
-<div class="tabs" role="group" aria-label="Placement type"><button type="button" data-type="billboard" aria-pressed="true">Billboards</button><button type="button" data-type="ground" aria-pressed="false">Ground panels</button></div>
+<section aria-labelledby="step1"><h2 id="step1"><b>1</b> Choose a billboard <small id="slotNote"></small></h2>
+<div class="tabs" role="group" aria-label="Placement type" style="display:none"><button type="button" data-type="billboard" aria-pressed="true">Billboards</button></div>
 <div class="grid" id="slots">Loading placements…</div></section>
 
 <section aria-labelledby="step2"><h2 id="step2"><b>2</b> Your campaign</h2>
 <div class="panel">
 <label for="category">Campaign type</label><select id="category"></select>
 <label for="title">Campaign or business name</label><input id="title" maxlength="60" placeholder="e.g. Auntie Esi Waakye · New single out now" autocomplete="organization">
-<label for="img">Artwork (landscape 2:1; we crop to 1024 × 512)</label><input id="img" type="file" accept="image/png,image/jpeg,image/webp">
-<p class="hint">PNG, JPEG or WebP · at least 600 × 300 px · up to 4 MB and 10 megapixels. The server decodes and re-encodes every image.</p>
+<label for="img">Artwork (any dimension: landscape, square or portrait)</label><input id="img" type="file" accept="image/png,image/jpeg,image/webp">
+<p class="hint">PNG, JPEG or WebP · any dimension · up to 4 MB and 10 megapixels. The system automatically formats your image to show cleanly on the billboard.</p>
 <label for="url">Destination link (optional, opened when players tap the board)</label><input id="url" inputmode="url" placeholder="https://open.spotify.com/…  or  https://wa.me/233…">
 <p class="hint">https links only, no link shorteners. Links on our allowlist (streaming, social, WhatsApp, events and maps) can go live automatically; other websites are checked by a moderator first.</p>
 <label for="phone">Ghana phone number (for contact; entering it does not authorise any charge)</label><input id="phone" inputmode="tel" autocomplete="tel" placeholder="024 000 0000">
@@ -67,8 +67,8 @@ a{color:var(--gold)}
 </div></section>
 
 <section aria-labelledby="step3"><h2 id="step3"><b>3</b> Preview</h2>
-<div class="previews"><div class="scene" id="sceneBB"><span class="cap">Billboard</span><div class="bb" id="pvBB">Your artwork</div></div><div class="scene dim" id="sceneGround"><span class="cap">Ground panel</span><div class="ground" id="pvGround">Your artwork</div></div></div>
-<p class="hint">Previews are approximate. In the game, boards are lit at night and seen from the street and from the city map.</p></section>
+<div class="previews"><div class="scene" id="sceneBB"><span class="cap">Billboard</span><div class="bb" id="pvBB">Your artwork</div></div></div>
+<p class="hint">Previews are approximate. In the game, boards are lit day and night and visible live from the street and from the city map.</p></section>
 
 <section aria-labelledby="step4"><h2 id="step4"><b>4</b> Review and pay</h2>
 <div class="panel">
@@ -106,8 +106,8 @@ function fillCategories() { $('category').textContent = ''; for (const [k, v] of
 fillCategories();
 function summary() {
   $('tot').textContent = pick ? cedi(pick.price * +$('weeks').value) : '—';
-  $('summary').textContent = pick ? `${pick.name} · ${pick.type === 'ground' ? 'ground panel' : 'billboard'} ${pick.width} × ${pick.height} m · ${cedi(pick.price)} per 7 days · ${$('weeks').value} week(s)${pick.exclusive ? ' · exclusive: yours alone' : ' · shared rotation, 15 s per ad'}` : 'Choose a placement and add your artwork.';
-  $('sceneBB').classList.toggle('dim', pick?.type === 'ground'); $('sceneGround').classList.toggle('dim', pick ? pick.type !== 'ground' : true);
+  $('summary').textContent = pick ? `${pick.name} · billboard ${pick.width} × ${pick.height} m · ${cedi(pick.price)} per 7 days · ${$('weeks').value} week(s)${pick.exclusive ? ' · exclusive: yours alone' : ' · shared rotation, 15 s per ad'}` : 'Choose a billboard and add your artwork.';
+  $('sceneBB')?.classList.remove('dim');
 }
 function availability(s) {
   if (s.paused) return { ok: false, text: 'Bookings paused' };
@@ -116,8 +116,8 @@ function availability(s) {
 }
 function drawSlots() {
   const box = $('slots'); box.textContent = '';
-  const list = slots.filter((s) => (s.type || 'billboard') === type);
-  if (!list.length) { box.textContent = 'No placements of this type right now.'; return; }
+  const list = slots.filter((s) => (s.type || 'billboard') === 'billboard');
+  if (!list.length) { box.textContent = 'No billboards available right now.'; return; }
   for (const s of list) {
     const a = availability(s), b = el('button', 'slot'); b.type = 'button'; b.dataset.id = s.id; b.setAttribute('aria-pressed', String(pick?.id === s.id)); b.disabled = !a.ok;
     b.append(el('span', 'tier', s.tier), el('b', null, s.name), el('small', null, `${cedi(s.price)} / 7 days · ${s.width} × ${s.height} m`), el('small', null, a.text));
@@ -132,9 +132,9 @@ $('img').onchange = async () => {
   const fail = (m) => { $('out').replaceChildren(el('div', 'msg err', m)); $('img').value = ''; };
   if (!['image/png', 'image/jpeg', 'image/webp'].includes(f.type)) return fail('Use a PNG, JPEG or WebP image.');
   if (f.size > 4 * 1024 * 1024) return fail('Artwork must be 4 MB or smaller.');
-  try { const bmp = await createImageBitmap(f); const { width, height } = bmp; bmp.close(); if (width * height > 1e7) return fail('Artwork must be 10 megapixels or smaller.'); if (width < 600 || height < 300) return fail('Artwork must be at least 600 × 300 pixels.'); }
+  try { const bmp = await createImageBitmap(f); const { width, height } = bmp; bmp.close(); if (width * height > 1e7) return fail('Artwork must be 10 megapixels or smaller.'); if (width < 50 || height < 50) return fail('Artwork is too small.'); }
   catch { return fail('That image could not be read.'); }
-  const r = new FileReader(); r.onload = () => { img = r.result; for (const id of ['pvBB', 'pvGround']) { $(id).style.backgroundImage = `url("${img}")`; $(id).textContent = ''; } $('out').textContent = ''; }; r.readAsDataURL(f);
+  const r = new FileReader(); r.onload = () => { img = r.result; const pv = $('pvBB'); if (pv) { pv.style.backgroundImage = `url("${img}")`; pv.textContent = ''; } $('out').textContent = ''; }; r.readAsDataURL(f);
 };
 $('go').onclick = async () => {
   const out = $('out'), say = (m, k = 'err') => out.replaceChildren(el('div', 'msg ' + k, m));
@@ -192,7 +192,14 @@ async function returned() {
     if (r.status === 429 || r.status === 0 || r.status >= 500) { await new Promise((f) => setTimeout(f, 4000)); continue; }   // busy: check again
     if (r.error) { say(r.error, 'err'); return null; }
     const id = r.context?.campaign;
-    if (r.status === 'fulfilled') { say(`Payment verified (reference ${r.ref}). Your campaign status is shown below.`, 'ok'); return id; }
+    if (r.status === 'fulfilled') {
+      const placement = r.context?.placement || pick?.id || '';
+      say(`Payment verified! Taking you back to the game at your billboard…`, 'ok');
+      setTimeout(() => {
+        location.assign(`/?placement=${encodeURIComponent(placement)}`);
+      }, 1200);
+      return id;
+    }
     if (r.status === 'review') { say(`Payment received but needs review (reference ${r.ref}). We will resolve it; no need to pay again.`, 'err'); return id; }
     if (r.status === 'failed') { say('The payment was not completed. You can try again from Your campaigns.', 'err'); return id; }
     await new Promise((f) => setTimeout(f, 2500));
@@ -200,8 +207,8 @@ async function returned() {
   say('Payment is still being confirmed. Keep this page open or refresh in a minute; do not pay twice.', 'info'); return null;
 }
 (async () => {
-  try { const j = await fetch('/api/billboards').then((r) => r.json()); slots = j.slots || []; drawSlots(); $('slotNote').textContent = `${slots.length} placements`; } catch { $('slots').textContent = 'Placements are unavailable right now.'; }
-  const want = new URLSearchParams(location.search).get('placement'); if (want) { const s = slots.find((x) => x.id === want); if (s) { type = s.type || 'billboard'; pick = s; document.querySelectorAll('.tabs button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.type === type))); drawSlots(); summary(); } }
+  try { const j = await fetch('/api/billboards').then((r) => r.json()); slots = (j.slots || []).filter((s) => (s.type || 'billboard') === 'billboard'); drawSlots(); $('slotNote').textContent = `${slots.length} billboards`; } catch { $('slots').textContent = 'Billboards are unavailable right now.'; }
+  const want = new URLSearchParams(location.search).get('placement'); if (want) { const s = slots.find((x) => x.id === want); if (s) { type = s.type || 'billboard'; pick = s; drawSlots(); summary(); } }
   const id = await returned(); await loadMine(id); if (id) $('mine').scrollIntoView();
 })();
 </script></body></html>

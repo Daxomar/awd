@@ -100,9 +100,20 @@ export async function createOrder(b, acct) {
   if (PAYSTACK && !/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/.test(email)) return { error: 'A valid email is needed for the payment receipt.' };
   const m = /^data:image\/(png|jpeg|webp);base64,(.+)$/.exec(b.image || ''); if (!m) return { error: 'Upload a PNG, JPG or WebP image.' };
   const raw = Buffer.from(m[2], 'base64'); if (raw.length > 4 * 1024 * 1024) return { error: 'Image too large (max 4 MB).' };
-  // Safe decode and re-encode: the stored file is always a fresh 1024×512 JPEG produced by the server.
-  let img; try { const meta = await sharp(raw, { limitInputPixels: 10e6 }).metadata(); if (!['png', 'jpeg', 'webp'].includes(meta.format)) return { error: 'Upload a PNG, JPG or WebP image.' }; if ((meta.width || 0) < 600 || (meta.height || 0) < 300) return { error: 'Artwork must be at least 600 × 300 pixels.' };
-    img = await sharp(raw, { limitInputPixels: 10e6 }).rotate().resize(1024, 512, { fit: 'cover', position: 'attention' }).jpeg({ quality: 82, mozjpeg: true }).toBuffer(); } catch { return { error: 'That image could not be read (maximum 10 megapixels).' }; }
+  // Safe decode and re-encode: supports any dimension (portrait, square, landscape) formatted beautifully to 1024×512.
+  let img; try {
+    const meta = await sharp(raw, { limitInputPixels: 10e6 }).metadata();
+    if (!['png', 'jpeg', 'webp'].includes(meta.format)) return { error: 'Upload a PNG, JPG or WebP image.' };
+    if (!meta.width || !meta.height || meta.width < 50 || meta.height < 50) return { error: 'Image is too small.' };
+    const ratio = meta.width / meta.height;
+    if (ratio >= 1.85 && ratio <= 2.15) {
+      img = await sharp(raw, { limitInputPixels: 10e6 }).rotate().resize(1024, 512, { fit: 'cover', position: 'centre' }).jpeg({ quality: 86, mozjpeg: true }).toBuffer();
+    } else {
+      const bg = await sharp(raw, { limitInputPixels: 10e6 }).rotate().flatten({ background: '#0b1318' }).resize(1024, 512, { fit: 'cover' }).blur(25).modulate({ brightness: 0.45, saturation: 1.15 }).toBuffer();
+      const fg = await sharp(raw, { limitInputPixels: 10e6 }).rotate().resize(1024, 512, { fit: 'inside' }).toBuffer();
+      img = await sharp(bg).composite([{ input: fg, gravity: 'centre' }]).jpeg({ quality: 86, mozjpeg: true }).toBuffer();
+    }
+  } catch { return { error: 'That image could not be read (maximum 10 megapixels).' }; }
   const amount = s.price * weeks;
   const artwork=createHash('sha256').update(img).update(JSON.stringify({title,url:vet.url,weeks,email,contact,category:vet.category})).digest('hex');
   return Payments.startPayment({acct,type:'ad',key:b.orderKey,amount:amount*100,email,phone:contact,context:{screen:'ads',placement:s.id,weeks,artwork}},async(db,ref)=>{

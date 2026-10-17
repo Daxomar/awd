@@ -8,16 +8,19 @@ export class CityAds {
     const keep = new Set(slots.map(s => s.id));
     for (const b of [...this.boards]) if (!keep.has(b.slot.id)) { this.release(b); this.boards.splice(this.boards.indexOf(b), 1); }
     if (slots.length && !this.house) this.house = houseAd();
+    // Remove ground panels under billboards for now; show only prominent standing billboards
+    slots = slots.filter(s => s.type !== 'ground');
     for (const slot of slots) {
       let b = this.boards.find(b => b.slot.id === slot.id);
       if (!b) {
-        const root = new THREE.Group(), steel = new THREE.MeshStandardMaterial({ color: '#536c64', roughness: .8 });
-        const ground=slot.type==='ground',width=ground ? .34 : slot.tier==='MEGA' ? .52 : .44,height=width/2;
-        const frame = new THREE.Mesh(new THREE.BoxGeometry(width+(ground ? .014 : .024),ground ? .004 : height+.024,ground ? height+.014 : .025), steel);frame.position.y=ground ? .002 : .26;root.add(frame);
-        const face = new THREE.Mesh(new THREE.PlaneGeometry(width,height), new THREE.MeshStandardMaterial({ map: this.house, emissive: '#ffffff', emissiveMap: this.house, emissiveIntensity:ground ? .3 : .65,roughness:.65,metalness:0,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2 }));
-        if(ground){face.rotation.x=-Math.PI/2;face.position.y=.0055;}else{face.position.set(0,.26,.016);const pole=new THREE.Mesh(new THREE.BoxGeometry(.022,.2,.022),steel);pole.position.y=.1;root.add(pole);}
+        const root = new THREE.Group(), steel = new THREE.MeshStandardMaterial({ color: '#536c64', roughness: .7, metalness: .2 });
+        const width = slot.tier === 'MEGA' ? .72 : .58, height = width / 2;
+        const frame = new THREE.Mesh(new THREE.BoxGeometry(width + .028, height + .028, .028), steel); frame.position.y = .38; root.add(frame);
+        const face = new THREE.Mesh(new THREE.PlaneGeometry(width, height), new THREE.MeshStandardMaterial({ map: this.house, emissive: '#ffffff', emissiveMap: this.house, emissiveIntensity: .95, roughness: .5, metalness: 0.05, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
+        face.position.set(0, .38, .018);
+        const pole = new THREE.Mesh(new THREE.BoxGeometry(.032, .38, .032), steel); pole.position.y = .19; root.add(pole);
         root.add(face);
-        const [x, z] = display(slot.x, slot.z),offset=slot.offset||[-.18,-.18];root.position.set(x+offset[0],.006,z+offset[1]);root.rotation.y=slot.yaw||0;
+        const [x, z] = display(slot.x, slot.z), offset = slot.offset || [-.18, -.18]; root.position.set(x + offset[0], .006, z + offset[1]); root.rotation.y = slot.yaw || 0;
         b = { root, face, cur: null, seed: [...slot.id].reduce((n, c) => n + c.charCodeAt(0), 0) }; this.parent.add(root); this.boards.push(b);
       }
       b.slot = slot; b.ads = slot.live || []; b.cur = null;

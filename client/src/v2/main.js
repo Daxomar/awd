@@ -130,7 +130,27 @@ function game() {
   net.on('connection',m=>{hud.connection(m);hud.clock();}); G.connected = net.connected;
   bindInput(); joy = bindJoystick(); bindCamera(); bindNet(); chat = buildChat(ui, n => hud.badge('chat', n)); net.release();if(G.state.busy?.travel&&!ride.active)net.emit('busy',{busy:G.state.busy});
   showTutorial(ui);
-  resumePayment(phone,toast);
+  const focusBillboardOnMap = async (slotId) => {
+    if (!slotId) return;
+    try {
+      const j = await fetch('/api/billboards').then(r => r.json());
+      if (j.slots) map.setBillboards(j.slots);
+    } catch {}
+    setView('map');
+    const b = map.ads.boards.find(b => b.slot.id === slotId);
+    if (b) {
+      const limits = map.limits, min = stage.zoomMin;
+      map.limits = { ...limits, min: 0.85 };
+      stage.zoomMin = 0.85;
+      map.focus(b.root.position.x, b.root.position.z, 0.9, true);
+      setTimeout(() => adSheet(b), 1200);
+    }
+  };
+  resumePayment(phone, toast, { onAdConfirmed: focusBillboardOnMap });
+  const targetPlacement = new URLSearchParams(location.search).get('placement');
+  if (targetPlacement && !new URLSearchParams(location.search).get('payment')) {
+    setTimeout(() => focusBillboardOnMap(targetPlacement), 800);
+  }
   setTimeout(()=>net.send({t:'objective_status'}),2000);
   // Stage 10: advertising lives on its own page; signing in from there returns the player to it.
   if(new URLSearchParams(location.search).get('openAds')==='1')sheet(h('div.sheet-body',null,h('p',null,'You are signed in. Bookings, payments and campaign reports are on the advertising page.'),h('a.btn.primary.wide',{href:'/advertise.html'},'Back to advertising')),{title:'Advertising'});
