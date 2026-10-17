@@ -118,11 +118,21 @@
     {
       "id": "stage5",
       "owner": "claude",
-      "state": "ready",
+      "state": "merged",
       "scope": [
         "Career qualifications, courses, short active work, bounded auto-work, gated salary proposal"
       ],
-      "gate": "train, qualify, work actively, earn, progress, bounded auto-work"
+      "gate": "89 server + 88 client tests, build, journeys B 6/6 and C 3/3; salary proposal gated",
+      "evidence": "docs/master/stage5/checkpoint.md"
+    },
+    {
+      "id": "stage6",
+      "owner": "claude",
+      "state": "ready",
+      "scope": [
+        "HUD objectives, First Friend discovery redesign, empty-server behaviour"
+      ],
+      "gate": "HUD objectives, consent-based introduction, empty-server continuation"
     }
   ]
 }

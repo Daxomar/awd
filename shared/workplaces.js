@@ -1,6 +1,6 @@
 // Existing venue furniture coordinates; also used by the server to validate attendance.
 // Task tuples: title, situation, two choices, preferred choice. No clinical/financial advice.
-const make=(x,z,label,tasks)=>({x,z,label,tasks:tasks.map(([title,situation,choices,best=0],i)=>({key:String(i),title,situation,choices,best,seconds:90+i*30}))});
+const make=(x,z,label,tasks)=>({x,z,label,tasks:tasks.map(([title,situation,choices,best=0],i)=>({key:String(i),title,situation,choices,best,seconds:[40,55,70][i]??70}))});
 export const WORKPLACES={
   trotro:make(-2.4,-3.1,'Dispatch vehicle',[
     ['Prepare the departure','The route board and vehicle list differ.',['Check the station route list','Call an unconfirmed destination']],

@@ -42,7 +42,7 @@ test('crime cannot target players; detection/fines/recovery are server facts and
  Game.goPlace(p,'police');s.needsAt=release;s.lastDaily=Game.clock(release).day;s.lastWeekly=Math.floor((release/86400000+3)/7);
  const wallet=s.cash+s.momo,recovery=Game.onMsg(p,{t:'act',loc:'police',id:'community_service'},{},release);assert.equal(recovery.t,'busy');
  Game.tick(p,recovery.busy.end+1,{});assert.equal(life(s).legal.reviewUntil,review-6*3600000);assert.equal(s.cash+s.momo,wallet);
- Game.goPlace(p,'bank');assert.equal(Game.onMsg(p,{t:'apply',id:'bank'},{},review+1).t,'hired');
+ Game.goPlace(p,'bank');s.certs={finlit:{passedAt:1},custserv:{passedAt:1},teller:{passedAt:1}};assert.equal(Game.onMsg(p,{t:'apply',id:'bank'},{},review+1).t,'hired');
 });
 test('shared capabilities refer to real venues and long-term goals reject invented completion',()=>{
  assert.equal(sharedDefinition('meal','home'),null);assert.equal(sharedDefinition('conversation','home'),null);assert.equal(sharedDefinition('exercise','vibes'),null);
@@ -67,6 +67,8 @@ test('a legitimate promotion persists history and top rank has no invented next 
  const p=fixture(),s=p.state,now=Date.UTC(2026,9,16,12);Game.goPlace(p,'hub');
  s.job={id:'tech',rank:0,grade:3,perf:100,shifts:20,lastDay:-1};s.skills.coding=10;
  s.shift={start:now-3600000,last:now,worked:60,tasks:1,wins:0};s.needsAt=now;s.lastDaily=Game.clock(now).day;s.lastWeekly=Math.floor((now/86400000+3)/7);
+ const blocked=Game.tick(p,now,{});assert.equal(s.job.rank,0,'Junior Developer needs the coding certificate');assert.match(JSON.stringify(blocked),/Practical Coding Simulation/);
+ s.certs={codeprac:{passedAt:1}};s.job.perf=100;s.shift={start:now-3600000,last:now,worked:60,tasks:1,wins:0};
  Game.tick(p,now,{});assert.equal(s.job.rank,1);assert.equal(s.stats.promos,1);assert.equal(s.life.careers.tech.bestRank,1);
  s.job.rank=4;s.job.grade=3;s.job.perf=100;s.shift={start:now-3600000,last:now,worked:60,tasks:1,wins:0};
  const r=Game.tick(p,now,{});assert.ok(!JSON.stringify(r).includes('undefined'));assert.equal(s.job.perf,100);

@@ -1,6 +1,7 @@
 // Contextual object actions and the current room’s Around you options.
 import { h, ic, sheet, cedi, mins, closeSheets } from './dom.js';
 import {zoneActions} from './hud-state.js';
+import {coursesAt,openCourseList} from './courses.js';
 import { G, loc, actBlock, actColor, NEED_IC, isOpen } from '../store.js';
 
 export function actsFor(place) {
@@ -17,6 +18,7 @@ export function renderZones(el, spec, place, act) {
   if (car && !place.startsWith('visit')) { const [cid, c] = car; const mine = s.job && s.job.id === cid; el.append(h('button.zone', { onclick: () => act.jobHere(cid) }, h('span.zi', { style: { background: '#17150f' } }, c.ic), mine ? (s.shift ? 'At work' : 'Start shift') : 'Jobs here')); }
   // Neighbourhood streets advertise their finite property units and live player listings.
   if (/^[ne]:/.test(place||'')) el.append(h('button.zone', { onclick: () => act.phone('properties', { area: place.slice(2) }) }, h('span.zi', { style: { background: '#496c50' } }, h('i', { class: 'ph-fill ph-buildings' })), 'Property in this area'));
+  if (coursesAt(place).length) el.append(h('button.zone', { onclick: () => openCourseList(place, act) }, h('span.zi', { style: { background: '#5b4fc4' } }, h('i', { class: 'ph-fill ph-graduation-cap' })), 'Courses here'));
   if (place?.startsWith('unit:')) el.append(h('button.zone', { onclick: () => act.phone('properties', { unit: place.slice(5) }) }, h('span.zi', { style: { background: '#496c50' } }, h('i', { class: 'ph-fill ph-buildings' })), G.unitRoom?.mine ? 'Manage property' : 'Property details'));
   if (place === 'home') el.append(h('button.zone', { onclick: () => act.wardrobe('wardrobe') }, h('span.zi', { style: { background: '#bf5af2' } }, h('i', { class: 'ph-fill ph-coat-hanger' })), 'Wardrobe'));
   for (const z of spec.zones || []) {

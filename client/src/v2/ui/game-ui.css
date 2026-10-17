@@ -64,3 +64,9 @@
 .game-ui .camera-toggle[aria-pressed="true"] { background:#dfbc5f; }
 .game-ui.map-view .camera-toggle { display:none; }
 @media (max-height:600px) { .game-ui .camera-toggle { width:44px; height:44px; bottom:calc(var(--safe-b) + 84px + var(--keyboard-bottom,0px)); } }
+
+/* Stage 5 course assessment */
+.course-q { border:1px solid #d9d2c3; border-radius:12px; padding:10px 12px; margin:10px 0; }
+.course-q legend { font-weight:600; padding:0 4px; }
+.course-choice { display:flex; gap:10px; align-items:flex-start; min-height:44px; padding:6px 2px; }
+.course-choice input { width:20px; height:20px; margin-top:2px; flex:none; }

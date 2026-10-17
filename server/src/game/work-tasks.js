@@ -2,7 +2,7 @@ import {WORKPLACES} from '../../../shared/workplaces.js';
 export function currentTask(s){
   const sh=s.shift,work=WORKPLACES[s.job?.id];if(!sh||!work)return null;
   const index=(sh.completedTasks||[]).length,task=work.tasks[index];
-  if(!task||sh.worked<index*10)return null;
+  if(!task)return null;   // a work session runs its assignments back to back (Stage 5)
   return {...task,id:`${sh.start}:${index}`,station:{x:work.x,z:work.z,label:work.label},index};
 }
 export function taskView(s){

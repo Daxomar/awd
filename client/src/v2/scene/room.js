@@ -150,6 +150,9 @@ export class Room {
   removePerson(id) { const p = this.people.get(id); if (!p) return;clearTimeout(p.danceT); this.group.remove(p.av.root); p.av.dispose && p.av.dispose(); this.people.delete(id); }
   walkTo(id, x, z, onArrive, finalPose) {
     const p = this.people.get(id); if (!p) return; p.pose = 'stand'; p.poseAt = null; p.path = this.path(p.x, p.z, x, z); p.onArrive = onArrive || null; p.finalPose = finalPose || null;
+    // Already there (empty path): arrive now. Otherwise a station, seat or door tapped while
+    // standing on it would never run its callback.
+    if (!p.path.length) { const f = p.finalPose; if (f) { p.x = f.x; p.z = f.z; p.yaw = f.yaw ?? p.yaw; p.pose = f.pose || 'stand'; p.poseY = f.y || 0; } const cb = p.onArrive; p.onArrive = null; if (cb) queueMicrotask(cb); }
   }
   placeAt(id, x, z, yaw, pose, y = 0) { const p = this.people.get(id); if (!p) return; p.path = []; p.x = x; p.z = z; p.yaw = yaw; p.pose = pose || 'stand'; p.poseY = y; }
   update(dt) {

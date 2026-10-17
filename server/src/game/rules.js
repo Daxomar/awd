@@ -12,6 +12,7 @@ import { discoverable } from './discovery.js';
 import {WORKPLACES} from '../../../shared/workplaces.js';
 import {taskView,beginTask,tickTask} from './work-tasks.js';
 import * as Life from './life-progression.js';
+import * as Career from './careers.js';
 export const WARD = W;
 export const DATA = D;
 
@@ -95,7 +96,8 @@ export function catalog() {
     return { id: a.id, label: a.label, ic: a.ic, min: a.min, cost: a.cost, earn: a.earn ? [a.earn.base, a.earn.per || 0, a.earn.skill || null] : null, mg: a.mg, crime: a.crime ? Math.round(a.crime.catch * 100) : 0, crimeSkill:a.crime?.skill, open: a.open, days: a.days, req: a.req, tags: a.tags, opens: a.opens, sleep: a.sleep, rest: a.rest, fx, skill: a.skill ? Object.keys(a.skill) : null, food: a.inst && a.inst.food, rep: a.rep, cures: a.cures }; };
   return { locs: Object.values(LOC).map((l) => ({ id: l.id, name: l.name, area: l.area, neighbourhood:l.neighbourhood, estate:l.estate, ic: l.ic, x: Math.round(l.x), z: Math.round(l.z), open: l.open, days: l.days, blurb: l.blurb,discovery:discoverable(l), acts: l.acts.map(strip) })),
     homes: Object.fromEntries(Object.entries(D.HOMES).map(([k, h]) => [k, { ...h, x: Math.round(HOME_POS[k].x), z: Math.round(HOME_POS[k].z) }])), homeActs: Object.values(HOME_ACTS).map(strip),
-    careers: Object.fromEntries(Object.entries(D.CAREERS).map(([id,{mg,...c}])=>[id,{...c,workplace:{x:WORKPLACES[id].x,z:WORKPLACES[id].z,label:WORKPLACES[id].label}}])), transport: D.TRANSPORT, rush: D.RUSH, cars: D.CARS, traits: D.TRAITS, dreams: D.DREAMS, origins: D.ORIGINS, skills: D.SKILLS, items: ITEMS, biz: D.BUSINESSES, lands: D.LANDS, repTitles: REP_TITLES, promoSkill: D.PROMO_SKILL, promoShifts: D.PROMO_SHIFTS,
+    careers: Object.fromEntries(Object.entries(D.CAREERS).map(([id,{mg,...c}])=>[id,{...c,workplace:{x:WORKPLACES[id].x,z:WORKPLACES[id].z,label:WORKPLACES[id].label}}])),
+    courses: Object.fromEntries(Object.values(Career.COURSES).map(c=>[c.id,Career.publicCourse(c)])), careerReqs: Career.CAREER_REQS, autowork: Career.AUTO, session: Career.SESSION, transport: D.TRANSPORT, rush: D.RUSH, cars: D.CARS, traits: D.TRAITS, dreams: D.DREAMS, origins: D.ORIGINS, skills: D.SKILLS, items: ITEMS, biz: D.BUSINESSES, lands: D.LANDS, repTitles: REP_TITLES, promoSkill: D.PROMO_SKILL, promoShifts: D.PROMO_SHIFTS,
     allDreams: { ...D.DREAMS, ...ST.DREAM_INFO }, dreamTiers: Object.fromEntries(Object.entries(ST.DREAM_TIERS).map(([k, t]) => [k, t.map((x) => x[0])])), tierReward: ST.TIER_REWARD, contacts: ST.CONTACTS,
     missions: Object.fromEntries(ST.MISSIONS.map((m) => [m.id, m.label])), missionReward: ST.MISSION_REWARD, streakBonus: ST.STREAK_BONUS, wear: W.WEAR, uniform: W.UNIFORM, skinTones: W.SKIN, hairColors: W.HAIR_COLORS, defaultLook: W.DEFAULT_LOOK };
 }
@@ -290,16 +292,21 @@ function tickShift(p, now, policy) {
   const s = p.state, sh = s.shift, j = s.job, c = D.CAREERS[j.id], loc = LOC[c.at];
   const dt = (now - sh.last) / 60000; sh.last = now;
   if (at(p, loc.id)) sh.worked += dt; // you only get paid for time actually at work
-  const task=tickTask(p,c,now);if(task?.completed){addSkill(s,task.skill,.12);Life.workCompleted(s,{id:task.completed,correct:task.quality},now);}
+  const task=tickTask(p,c,now);if(task?.completed){addSkill(s,task.skill,.12);if(task.quality)sh.wins=(sh.wins||0)+1;Life.workCompleted(s,{id:task.completed,correct:task.quality},now);}
   const m = mood(s); let perfH = (0.6 + m / 80) * 7 + 0.6 * lvl(s, c.skill); for (const t of s.traits) if (D.TRAITS[t].work) perfH *= 1 + D.TRAITS[t].work;
   j.perf = clamp(j.perf + perfH * dt / 60, 0, 100);
   for (const [k, v] of [['energy', -5], ['fun', -5], ['hygiene', -3]]) s.n[k] = clamp(s.n[k] + v * dt / 60);
   addSkill(s, c.skill, 2.2 * dt / 60);
-  if (now - sh.start >= 60 * 60000) return endShift(p, now, policy);
+  if ((sh.completedTasks?.length || 0) >= Career.SESSION.tasks) return endShift(p, now, policy, true);
+  if (now - sh.start >= Career.SESSION.legacyMinutes * 60000) return endShift(p, now, policy);
   return null;
 }
-function endShift(p, now, policy) {
+function endShift(p, now, policy, session = false) {
   const s = p.state, sh = s.shift, j = s.job, c = D.CAREERS[j.id]; s.shift = null;
+  // A completed work session stands for the whole fictional shift: apply the rest of the
+  // hour's performance, skill and need effects that the legacy attendance model accrued.
+  if (session) { const rest = Math.max(0, 60 - sh.worked) / 60; const m = mood(s); let perfH = (0.6 + m / 80) * 7 + 0.6 * lvl(s, c.skill); for (const t of s.traits) if (D.TRAITS[t].work) perfH *= 1 + D.TRAITS[t].work;
+    j.perf = clamp(j.perf + perfH * rest, 0, 100); addSkill(s, c.skill, 2.2 * rest); for (const [k, v] of [['energy', -5], ['fun', -5], ['hygiene', -3]]) s.n[k] = clamp(s.n[k] + v * rest); sh.worked = 60; }
   const frac = Math.min(1, sh.worked / 60); if (frac < 0.1) return toast('You barely worked. No pay today.', 'bad');
   const stars = sh.wins >= 3 ? 1.15 : 1; const amt = shiftPay(s, now, policy) * Math.max(0.25, frac) * stars;
   const got = earn(s, amt, `${c.ranks[j.rank][0]} shift`); j.shifts++; j.lastDay = clock(now).day; s.stats.shifts++; addXp(s, 25);
@@ -307,8 +314,8 @@ function endShift(p, now, policy) {
   // promotions: perf 100 → grade up; grade 4 + requirements → rank up
   if (j.perf >= 100) {
     if (j.grade < 3) { j.grade++; j.perf = 60; out.grade = j.grade + 1; }
-    else if (j.rank < 4 && j.shifts >= D.PROMO_SHIFTS[j.rank] && lvl(s, c.skill) >= D.PROMO_SKILL[j.rank]) { j.rank++; j.grade = 0; j.perf = 45; j.shifts = 0; s.stats.promos++; moodlet(s, 'promoted', 30, 24, 'Promoted!'); out.promoted = c.ranks[j.rank][0]; out.newPay = shiftPay(s, now, policy); s.rep += 5; }
-    else if(j.rank<4) { j.perf = 99; out.needs = `${c.name}: need ${D.PROMO_SHIFTS[j.rank]} shifts at this rank and ${D.SKILLS[c.skill]} ${D.PROMO_SKILL[j.rank]}`; }
+    else if (j.rank < 4 && j.shifts >= D.PROMO_SHIFTS[j.rank] && lvl(s, c.skill) >= D.PROMO_SKILL[j.rank] && !Career.missingFor(s, j.id, j.rank + 1).length) { j.rank++; j.grade = 0; j.perf = 45; j.shifts = 0; s.stats.promos++; moodlet(s, 'promoted', 30, 24, 'Promoted!'); out.promoted = c.ranks[j.rank][0]; out.newPay = shiftPay(s, now, policy); s.rep += 5; }
+    else if(j.rank<4) { j.perf = 99; const courses = Career.missingFor(s, j.id, j.rank + 1).map(m => m.label); out.needs = `${c.name}: need ${D.PROMO_SHIFTS[j.rank]} shifts at this rank and ${D.SKILLS[c.skill]} ${D.PROMO_SKILL[j.rank]}${courses.length ? ' and ' + courses.join(', ') : ''}`; }
   }
   Life.shiftCompleted(s,sh.worked,got,out.promoted,now);
   return out;
@@ -320,10 +327,63 @@ function apply(p, id, now) {
   if(s.job?.id===id)return toast('You already hold this job. Your experience is retained.');
   const restriction=Life.employmentRestriction(s,id,now);if(restriction)return toast(restriction,'bad');
   for (const k in c.req || {}) if (lvl(s, k) < c.req[k]) return toast(`Needs ${D.SKILLS[k]} ${c.req[k]}.`, 'bad');
+  const prior0=Life.careerRecord(s,id)?.saved, missing=Career.missingFor(s,id,prior0?.rank||0);
+  if(missing.length)return toast(`Qualify first: ${missing.map(m=>m.label).join(', ')}. Open Jobs to find the course.`, 'bad');
   Life.rememberCareer(s);const prior=Life.careerRecord(s,id)?.saved;
   s.job = prior?{...prior,id}:{ id, rank: 0, grade: 0, perf: 60, shifts: 0, since: now, lastDay: -1 };
   Life.event(s,'career_hired',{career:id,returning:!!prior},now);
   return { t: 'hired', job: s.job, title: c.ranks[s.job.rank][0], pay: c.ranks[s.job.rank][1] };
+}
+
+// ---------- Stage 5: courses and auto-work ----------
+function takeCourse(p, msg, now) {
+  const s = p.state, course = Career.COURSES[String(msg.id)];
+  if (!course) return toast('Unknown course.', 'bad');
+  if (s.busy || s.shift) return toast('Finish your current activity first.', 'bad');
+  if (!at(p, course.at)) return toast(`Courses run at ${LOC[course.at].name}. Go there to take it.`, 'bad');
+  const blocked = Career.courseEligibility(s, course.id, (k) => lvl(s, k)); if (blocked) return toast(blocked, 'bad');
+  const rec = Career.certs(s)[course.id] || {};
+  if (course.cost && !rec.paid) { if (rec.retryAt > now) return toast(`You can retry in ${Math.ceil((rec.retryAt - now) / 60000)} min.`, 'bad'); }
+  if (course.cost && !rec.paid && !pay(s, course.cost, `Course fee: ${course.name}`)) return toast(`The course fee is GH₵${course.cost}.`, 'bad');
+  if (course.cost) Career.certs(s)[course.id] = { ...(Career.certs(s)[course.id] || { attempts: 0 }), paid: true };
+  const r = Career.gradeCourse(s, course.id, msg.answers, now); if (r.error) return toast(r.error, 'bad');
+  if (r.passed) { addXp(s, 30); Life.event(s, 'course_passed', { course: course.id, score: r.score }, now); bump(s, 'course:' + course.id); }
+  return { t: 'course_result', id: course.id, passed: r.passed, score: r.score, of: r.of, retryAt: Career.certs(s)[course.id].retryAt || null, state: view(s) };
+}
+function setAutowork(p, msg, now) {
+  const s = p.state; if (!s.job) return toast('Get a job before setting up auto-work.', 'bad');
+  const clean = Career.cleanAutowork(msg, D.TRANSPORT), old = s.autowork || {};
+  s.autowork = { ...clean, since: old.enabled && clean.enabled ? old.since : clock(now).day, lastDay: old.lastDay ?? clock(now).day - 1, results: old.results || [] };
+  return { t: 'st', state: view(s) };
+}
+// Settle completed work windows (offline catch-up capped at three days). Auto shifts never
+// interrupt the player, never replace an active shift that day and pay 70% of the shift wage.
+export function autoworkDue(s, now) { const aw = s.autowork; if (!aw?.enabled || !s.job) return false; const c = D.CAREERS[s.job.id], h = clock(now).h; return Career.dueAutoDays(aw, clock(now).day, c?.night ? false : h >= 22).length > 0; }
+function settleAutowork(p, now, policy) {
+  const s = p.state, aw = s.autowork; if (!aw?.enabled || !s.job || s.shift) return null;
+  const c = D.CAREERS[s.job.id]; if (!c) return null;
+  const days = Career.dueAutoDays(aw, clock(now).day, c.night ? false : clock(now).h >= 22); if (!days.length) return null;
+  let paid = 0;
+  for (const d of days) {
+    aw.lastDay = d; const wd = new Date(d * 86400000).getUTCDay(), j = s.job; let status = 'worked', fare = 0, wage = 0;
+    if (j.lastDay === d) status = 'you worked this day yourself';
+    else if (!c.days.includes(wd)) status = 'day off';
+    else if (s.flags.jailUntil > d * 86400000 + 6 * 3600000) status = 'in custody';
+    else if (s.sick?.level === 'serious') status = 'too sick';
+    else if (Career.missingFor(s, j.id, j.rank).length) status = 'missing qualification';
+    else if (!s.home) status = 'no home to commute from';
+    else {
+      const from = HOME_POS[s.home], to = LOC[c.at], km = Math.hypot(to.x - from.x, to.z - from.z) / 1000 * 1.3, q = tripQuote(aw.mode, km, d * 86400000 + 8 * 3600000, policy);
+      fare = q.tooFar ? Infinity : q.fare * 2;
+      if (fare > aw.maxSpend) status = q.tooFar ? 'transport cannot reach' : `round-trip fare GH₵${fare} is over your GH₵${aw.maxSpend} limit`;
+      else if (fare && !pay(s, fare, `Auto-work transport (${D.TRANSPORT[aw.mode].name})`)) status = 'could not afford transport';
+      else { wage = earn(s, shiftPay(s, now) * Career.AUTO.payShare, `${c.ranks[j.rank][0]} auto-shift`); j.perf = clamp(j.perf + Career.AUTO.perf, 0, 99); j.shifts += Career.AUTO.shiftCredit; addSkill(s, c.skill, 0.5); addXp(s, 10); s.stats.shifts++; paid += wage; }
+    }
+    if (status !== 'worked') fare = 0;
+    aw.results = [{ day: d, status, wage, fare }, ...(aw.results || [])].slice(0, Career.AUTO.results);
+    Life.event(s, 'autowork', { day: d, status, wage, fare }, now);
+  }
+  return paid ? { t: 'autowork_done', paid, results: aw.results.slice(0, days.length) } : { t: 'st', state: view(s) };
 }
 
 // ---------- property, purchases, travel, money ----------
@@ -426,6 +486,7 @@ export function tick(p, now, shard) {
   // hourly sickness check
   const hr = Math.floor(now / 3600000);
   if (s.lastHour !== hr) { s.lastHour = hr; s.heat = Math.max(0, (s.heat || 0) - 8); const low = Object.values(s.n).filter((v) => v < 20).length; s.neglect = Math.max(0, s.neglect + (low >= 3 ? low - 1 : low === 2 ? 0.5 : -1.5)); if (!s.sick && s.neglect >= 10 && Math.random() < Math.min(0.25, (s.neglect - 8) * 0.03)) { s.sick = { level: 'mild', since: now, kind: s.n.hygiene < 20 ? 'Typhoid' : s.n.hunger < 20 ? 'Food poisoning' : 'Malaria' }; out.push(toast(`You feel feverish… ${s.sick.kind}. See a doctor (Ridge or Korle Bu).`, 'bad')); } if (s.sick && s.sick.level === 'mild' && now - s.sick.since > 24 * 3600000) s.sick.level = 'serious'; }
+  const autoOut = settleAutowork(p, now, CUR.shard?.policy); if (autoOut) out.push(autoOut);
   // weekly & daily economy (real Accra calendar)
   const c = clock(now);
   if (c.h >= 18 && s.lastDaily !== c.day) { s.lastDaily = c.day; let tot = 0; const notes = [];
@@ -511,6 +572,8 @@ export function onMsg(p, msg, shard, now) {
     case 'mgResult': { const b = s.busy; if (!b || !b.mg) return null; s.busy = null; const secs = (now - b.start) / 1000; if (secs < 20) return toast('Too fast.', 'bad'); const stars = Math.max(0, Math.min(3, msg.stars | 0)); const skill = { trotro: 'hustle', waakye: 'cooking', bolu: 'driving', bughunt: 'coding', azonto: 'dance', boxing: 'fitness' }[b.mg]; let amt = (18 + stars * 22) * (1 + lvl(s, skill) * 0.07); amt *= hustleMult(s, b.id, now, skill); s.gd.earned += amt; const got = earn(s, amt, 'Gig'); addSkill(s, skill, 0.3 + stars * 0.25); s.gigRest[b.id] = now + 60 * 60000; s.stats.gigs++; return { t: 'done', id: b.id, earned: got, stars }; }
     case 'work': if(msg.op==='beginTask'){const c=D.CAREERS[s.job?.id];if(!s.shift||!c)return toast('Start your shift at work first.','bad');const error=beginTask(p,msg,c,now);return error?toast(error,'bad'):{t:'worktask',shift:{...s.shift,assignment:taskView(s)}};}return msg.op === 'start' ? startShift(p, now) : msg.op === 'task' && s.shift ? toast('Work performance is calculated by the server.') : msg.op === 'quit' ? ((s.job = null), (s.shift = null), { t: 'st', state: view(s) }) : msg.op === 'end' && s.shift ? ((s.shift = null), { t: 'st', state: view(s) }) : null;
     case 'apply': return apply(p, String(msg.id), now);
+    case 'course': return takeCourse(p, msg, now);
+    case 'autowork': return setAutowork(p, msg, now);
     case 'buy': return buy(p, msg, now);
     case 'travel': return travel(p, msg, now, shard);
     case 'bank': return bank(p, msg);

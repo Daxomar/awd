@@ -13,6 +13,7 @@ import { firstFriend } from './first-friend.js';
 import { milestones } from './objectives.js';
 import {lifeScreen} from './life.js';
 import {properties as propertyApp} from './property.js';
+import {openCourse,careerNeeds,certified} from '../ui/courses.js';
 
 const grad = (a, b) => `linear-gradient(160deg, ${a}, ${b})`;
 const cell = (o) => h('button.cell' + (o.ic ? '' : '.noic'), { onclick: o.onclick }, o.ic instanceof Node ? o.ic : o.ic ? h('div.ci', { style: { background: o.icbg || '#8e8e93' } }, typeof o.ic === 'string' && o.ic.length <= 3 && !/^[a-z]/.test(o.ic) ? o.ic : icf(o.ic)) : null, h('div.cm', null, h('div.c1', null, o.t), o.s ? h('div.c2', null, o.s) : null), o.r != null ? h('div.cr', null, o.r) : null, o.onclick && o.chev !== false ? ic('caret-right', 'chev') : null);
@@ -175,26 +176,44 @@ export function makeApps(act) {
       win.page('Jobs', () => {
         const s = G.state; const C = G.cat.careers; const out = h('div');
         if (s.job) { const c = C[s.job.id]; const j = s.job; const pay = c.ranks[j.rank][1]; const atWork = s.place === c.at; const today = Math.floor(accraNow() / 864e5) === j.lastDay;
-          out.append(h('div.group', { style: { padding: '16px' } }, h('div', { style: { fontSize: '13px', color: '#8e8e93' } }, `${c.name} · ${loc(c.at).name}`), h('div', { style: { font: '700 24px var(--disp)', margin: '2px 0' } }, `${c.ic} ${c.ranks[j.rank][0]}`), h('div', { style: { fontSize: '15px' } }, `${cedi(Math.round(pay * (1 + 0.05 * j.grade)))} per 1-hour shift · Grade ${j.grade + 1}/4`),
+          out.append(h('div.group', { style: { padding: '16px' } }, h('div', { style: { fontSize: '13px', color: '#8e8e93' } }, `${c.name} · ${loc(c.at).name}`), h('div', { style: { font: '700 24px var(--disp)', margin: '2px 0' } }, `${c.ic} ${c.ranks[j.rank][0]}`), h('div', { style: { fontSize: '15px' } }, `${cedi(Math.round(pay * (1 + 0.05 * j.grade)))} per work session · Grade ${j.grade + 1}/4`),
             h('div', { style: { margin: '10px 0 4px', fontSize: '13px', color: '#6d6d72' } }, `Performance ${Math.round(j.perf)}%`), h('div.fbar', null, h('i', { style: { width: j.perf + '%', background: '#34c759' } })),
             j.rank < 4 ? h('div', { style: { fontSize: '13px', color: '#6d6d72', marginTop: '8px' } }, `Next: ${c.ranks[j.rank + 1][0]} (${cedi(c.ranks[j.rank + 1][1])}) · needs ${G.cat.promoShifts[j.rank]} shifts (${j.shifts} done) and ${G.cat.skills[c.skill]} ${G.cat.promoSkill[j.rank]} (you: ${lvl(c.skill)})`) : null,
             h('div', { style: { fontSize: '13px', color: '#6d6d72', marginTop: '4px' } }, `Work days: ${c.days.map((d) => 'SMTWTFS'[d]).join(' ')} · ${c.night ? '20:00–04:00' : '06:00–22:00'}`),
             h('div.row', { style: { gap: '8px', marginTop: '12px' } }, s.shift ? h('button.ibtn.grow', { disabled: true }, 'On shift now') : today ? h('button.ibtn.grow.gray', { disabled: true }, 'Done for today') : atWork ? h('button.ibtn.green.grow', { onclick: () => { net.send({ t: 'work', op: 'start' }); act.closePhone(); } }, 'Start shift') : h('button.ibtn.grow', { onclick: () => { act.closePhone(); act.place(c.at); } }, 'Go to work'), h('button.ibtn.red', { onclick: () => { iosConfirm('Quit your job?', 'Your career history is retained if you return.', 'Quit', true).then((ok) => ok && net.send({ t: 'work', op: 'quit' })); } }, 'Quit'))));
         }
+        if (s.job) out.append(autoworkCard(win));
         out.append(h('button.ibtn.wide',{onclick:()=>act.phone('progression')},'Career progress & skills'));
         out.append(h('div.group-h', null, s.job ? 'Other careers' : 'Careers in Accra'));
-        if(s.shift){const task=s.shift.assignment;out.prepend(h('div.group',{style:{padding:'16px'}},h('strong',null,task?.title||'Workplace attendance'),h('p',null,`${Math.floor(s.shift.worked||0)}/60 minutes attended · ${s.shift.tasks||0}/3 assignments · satisfaction ${s.job.satisfaction??60}%`),h('p',null,task?.situation||'Your next assignment opens after more time on shift. Salary still depends on attendance.'),task?h('button.ibtn.wide',{onclick:()=>act.workAssignment()},task.stage==='working'?'View current work station':'Go to assignment station'):null));}
-        out.append(h('div.group', null, ...Object.entries(C).filter(([id]) => !s.job || s.job.id !== id).map(([id, c]) => { const reqs = Object.entries(c.req || {}); const ok = reqs.every(([k, v]) => lvl(k) >= v);
-          return cell({ ic: c.ic, icbg: ok ? '#f2f2f7' : '#f2f2f7', t: `${c.ranks[0][0]} · ${c.name}`, s: `${cedi(c.ranks[0][1])}/shift → up to ${cedi(c.ranks[4][1])} · ${loc(c.at).name}${reqs.length ? ' · needs ' + reqs.map(([k, v]) => `${G.cat.skills[k]} ${v}`).join(', ') : ''}`, onclick: () => careerPage(win, id) }); })));
+        if(s.shift){const task=s.shift.assignment;out.prepend(h('div.group',{style:{padding:'16px'}},h('strong',null,task?.title||'Workplace attendance'),h('p',null,`${s.shift.tasks||0}/3 assignments done · about 3 minutes in total · satisfaction ${s.job.satisfaction??60}%`),h('p',null,task?.situation||'Finish all three assignments to complete the shift and get paid.'),task?h('button.ibtn.wide',{onclick:()=>act.workAssignment()},task.stage==='working'?'View current work station':'Go to assignment station'):null));}
+        out.append(h('div.group', null, ...Object.entries(C).filter(([id]) => !s.job || s.job.id !== id).map(([id, c]) => { const reqs = Object.entries(c.req || {}); const courses = careerNeeds(id, 0); const ok = reqs.every(([k, v]) => lvl(k) >= v) && !courses.length;
+          return cell({ ic: c.ic, icbg: ok ? '#f2f2f7' : '#f2f2f7', t: `${c.ranks[0][0]} · ${c.name}`, s: `${cedi(c.ranks[0][1])}/shift → up to ${cedi(c.ranks[4][1])} · ${loc(c.at).name}${reqs.length ? ' · needs ' + reqs.map(([k, v]) => `${G.cat.skills[k]} ${v}`).join(', ') : ''}${courses.length ? ' · needs ' + courses.map(x => x.name).join(', ') : ''}${ok ? '' : ' · locked'}`, onclick: () => careerPage(win, id) }); })));
         return out;
       });
     } };
+  // Stage 5 auto-work: bounded baseline income on days you do not work yourself.
+  function autoworkCard(win) {
+    const s = G.state, aw = s.autowork || {}, A = G.cat.autowork || { payShare: 0.7, maxSpendCap: 500 };
+    const draft = { enabled: !!aw.enabled, mode: aw.mode || 'trotro', maxSpend: aw.maxSpend ?? 60 };
+    const modes = Object.entries(G.cat.transport).filter(([id]) => id !== 'car');
+    return h('div.group', { style: { padding: '16px' } }, h('strong', null, 'Auto-work'),
+      h('p', null, `On days you don't work yourself, your character can commute and work a shift for ${Math.round(A.payShare * 100)}% pay with slower promotion progress. It settles after the work window closes, catches up at most 3 offline days, and never interrupts what you are doing.`),
+      h('label.row', { style: { gap: '8px', alignItems: 'center', minHeight: '44px' } }, h('input', { type: 'checkbox', checked: draft.enabled, 'aria-label': 'Enable auto-work', onchange: e => draft.enabled = e.target.checked }), h('span', null, 'Enable auto-work')),
+      h('label', { style: { display: 'block', margin: '10px 0' } }, h('span', { style: { display: 'block', marginBottom: '4px' } }, 'Transport'), h('select', { style: { width: '100%' }, 'aria-label': 'Auto-work transport', onchange: e => draft.mode = e.target.value }, ...modes.map(([id, m]) => h('option', { value: id, selected: id === draft.mode }, m.name)))),
+      h('label', { style: { display: 'block', margin: '10px 0' } }, h('span', { style: { display: 'block', marginBottom: '4px' } }, `Max round-trip fare per day (up to ${cedi(A.maxSpendCap)})`), h('input', { style: { width: '100%' }, type: 'number', min: 0, max: A.maxSpendCap, step: 1, value: draft.maxSpend, 'aria-label': 'Maximum auto-work transport spend', oninput: e => draft.maxSpend = Math.round(Number(e.target.value) || 0) })),
+      h('button.ibtn.wide', { onclick: () => { net.send({ t: 'autowork', ...draft }); act.toast('Auto-work settings saved.'); } }, 'Save auto-work settings'),
+      (aw.results || []).length ? h('div', { style: { marginTop: '10px' } }, h('div', { style: { fontSize: '13px', color: '#6d6d72' } }, 'Recent auto-work'), ...aw.results.slice(0, 5).map(r => h('div', { style: { fontSize: '13px' } }, `${new Date(r.day * 864e5).toDateString()}: ${r.status}${r.wage ? ` · +${cedi(r.wage)}` : ''}${r.fare ? ` · fare ${cedi(r.fare)}` : ''}`))) : null);
+  }
   function careerPage(win, id) {
     const c = G.cat.careers[id]; const s = G.state;
-    win.page(c.name, () => { const reqs = Object.entries(c.req || {}); const ok = reqs.every(([k, v]) => lvl(k) >= v); const at = s.place === c.at;
-      return h('div', null, group('Ladder', ...c.ranks.map(([t, p], i) => cell({ ic: String(i + 1), icbg: i === 0 ? '#34c759' : '#c7c7cc', t, r: cedi(p) + '/shift' }))),
+    win.page(c.name, () => { const reqs = Object.entries(c.req || {}); const entry = careerNeeds(id, 0); const ok = reqs.every(([k, v]) => lvl(k) >= v) && !entry.length; const at = s.place === c.at;
+      const ladder = c.ranks.map(([t, p], i) => { const need = (G.cat.careerReqs?.[id]?.[i] || []).map(cid => G.cat.courses[cid]); return cell({ ic: String(i + 1), icbg: i === 0 ? '#34c759' : '#c7c7cc', t, s: need.length ? 'Needs ' + need.map(x => (certified(x.id) ? '✓ ' : '') + x.name).join(', ') : i ? `Needs ${G.cat.promoShifts[i - 1]} sessions and ${G.cat.skills[c.skill]} ${G.cat.promoSkill[i - 1]}` : 'Entry role', r: cedi(p) + '/shift' }); });
+      const missing = [...reqs.filter(([k, v]) => lvl(k) < v).map(([k, v]) => `${G.cat.skills[k]} ${v} (you: ${lvl(k)}) — practise at activities that train ${G.cat.skills[k]}`), ...entry.map(x => `${x.name} certificate — ${x.cost ? cedi(x.cost) : 'free'} at ${loc(x.at).name}`)];
+      return h('div', null, missing.length ? group('Why this job is locked', ...missing.map(t => cell({ t, chev: false }))) : null,
+        entry.length ? group('Training to qualify', ...entry.map(x => cell({ ic: 'icon:graduation-cap', icbg: '#f2f2f7', t: x.name, s: `${x.cost ? cedi(x.cost) : 'Free'} · ${loc(x.at).name}${(x.requires || []).filter(r => !certified(r)).length ? ' · after ' + x.requires.filter(r => !certified(r)).map(r => G.cat.courses[r].name).join(', ') : ''}`, onclick: () => openCourse(x.id, act) }))) : null,
+        group('Ladder', ...ladder),
         group('Details', cell({ t: 'Where', r: loc(c.at).name }), cell({ t: 'Skill', r: G.cat.skills[c.skill] }), cell({ t: 'Days', r: c.days.map((d) => 'SMTWTFS'[d]).join(' ') }), ...reqs.map(([k, v]) => cell({ t: `Needs ${G.cat.skills[k]} ${v}`, r: lvl(k) >= v ? '✓' : `you: ${lvl(k)}` }))),
-        h('div', { style: { color: '#6d6d72', fontSize: '13px', margin: '0 4px 12px' } }, 'Apply in person at the workplace. Shifts are one real hour and pay into MoMo.'),
+        h('div', { style: { color: '#6d6d72', fontSize: '13px', margin: '0 4px 12px' } }, 'Apply in person at the workplace. A shift is a short work session of three assignments (about 3 minutes), once per day, paid into MoMo.'),
         at ? h('button.ibtn.wide.green', { disabled: !ok, onclick: () => { net.send({ t: 'apply', id }); win.pop(); } }, s.job ? 'Switch to this job' : 'Apply now') : h('button.ibtn.wide', { onclick: () => { act.closePhone(); act.place(c.at); } }, `Go to ${loc(c.at).name}`));
     }, { small: true });
   }

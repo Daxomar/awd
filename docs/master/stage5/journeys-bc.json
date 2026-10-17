@@ -1,0 +1,17 @@
+{
+ "checks": [
+  {
+   "ok": true,
+   "check": "offline catch-up is at most three days and respects the fare limit"
+  },
+  {
+   "ok": true,
+   "check": "reconnecting does not settle or pay the same days again"
+  },
+  {
+   "ok": true,
+   "check": "no page errors "
+  }
+ ],
+ "scope": "Loopback disposable fixtures; QA backdating of auto-work start in the disposable database only; SwiftShader; real timers."
+}
