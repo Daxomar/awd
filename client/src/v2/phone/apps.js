@@ -14,6 +14,7 @@ import { milestones } from './objectives.js';
 import {lifeScreen} from './life.js';
 import {properties as propertyApp} from './property.js';
 import {openCourse,careerNeeds,certified} from '../ui/courses.js';
+import {eventsApp,profileSettings,homeGuests} from './social-life.js';
 
 const grad = (a, b) => `linear-gradient(160deg, ${a}, ${b})`;
 const cell = (o) => h('button.cell' + (o.ic ? '' : '.noic'), { onclick: o.onclick }, o.ic instanceof Node ? o.ic : o.ic ? h('div.ci', { style: { background: o.icbg || '#8e8e93' } }, typeof o.ic === 'string' && o.ic.length <= 3 && !/^[a-z]/.test(o.ic) ? o.ic : icf(o.ic)) : null, h('div.cm', null, h('div.c1', null, o.t), o.s ? h('div.c2', null, o.s) : null), o.r != null ? h('div.cr', null, o.r) : null, o.onclick && o.chev !== false ? ic('caret-right', 'chev') : null);
@@ -230,7 +231,7 @@ export function makeApps(act) {
   // ------------------------------------------------------------------ property & shopping
   const houses = { id: 'houses', name: 'Houses', icon: 'house-line', bg: grad('#30d158', '#0e7a4e'),
     open(win) { win.page('Houses', () => { const s = G.state; const H = G.cat.homes;
-      return h('div', null, h('div', { style: { color: '#6d6d72', fontSize: '14px', margin: '0 2px 10px' } }, 'Rent is weekly (Saturday 09:00). Landlords want advance. Better homes restore more energy and impress people.'),
+      return h('div', null, s.home ? h('button.ibtn.wide', { style: { marginBottom: '10px' }, onclick: () => homeGuests(win, act) }, 'Guests & visits at your home') : null, h('div', { style: { color: '#6d6d72', fontSize: '14px', margin: '0 2px 10px' } }, 'Rent is weekly (Saturday 09:00). Landlords want advance. Better homes restore more energy and impress people.'),
         h('div.group', null, ...Object.entries(H).map(([id, x]) => { const cur = s.home === id; const owned = s.owned && s.owned[id]; const adv = x.rent * (x.advance || 0);
           return cell({ ic: cur ? 'icon:key' : 'icon:house', icbg: cur ? '#34c759' : '#f2f2f7', t: x.name, s: `${cedi(x.rent)}/week · ${x.toilet} toilet · ${x.power === 'estate' ? 'estate power' : 'ECG grid'}${x.buy ? ' · buy ' + cedi(x.buy, true) : ''}`, r: cur ? 'Home' : owned ? 'Owned' : '', onclick: cur ? null : () => homePage(win, id) }); })));
     }); } };
@@ -288,8 +289,12 @@ export function makeApps(act) {
       const D = G.cat.allDreams[p.dream] || {};
       return h('div', null, h('div', { style: { textAlign: 'center', margin: '6px 0 16px' } }, portrait(p.look,name,'profile-portrait'), h('div', { style: { font: '700 22px var(--disp)' } }, '@' + p.name), h('div', { style: { color: '#8e8e93' } }, p.title + (p.online ? ' ·  online' : '')), p.partner ? h('div', { style: { color: '#ff2d55', fontWeight: 600, marginTop: '4px' } }, ` with @${p.partner}`) : null),
         p.me ? null : h('div.row', { style: { gap: '8px', marginBottom: '14px' } }, h('button.ibtn.grow', { onclick: () => dmThread(win, p.name) }, ic('chat-circle-text'), 'Message'), h('button.ibtn.green.grow', { onclick: () => sendFlow(win, p.name) }, ic('paper-plane-tilt'), 'Send')),
-        group(null, cell({ t: 'Net worth', r: cedi(p.worth, true) }), cell({ t: 'Job', r: p.job || 'Unemployed' }), cell({ t: 'Lives at', r: p.home }), p.car ? cell({ t: 'Drives', r: p.car }) : null, p.biz ? cell({ t: 'Businesses', r: p.biz }) : null, cell({ t: 'Dream', r: `${D.ic || ''} ${D.name || '—'} (${p.dreamTier}/5)` }), cell({ t: 'Reputation', r: p.rep }), p.me ? null : cell({ t: 'Friendship', r: `${level(p.friend)} · ${p.friend}` })),
-        p.me ? null : h('div', null, p.online && p.friend >= 10 ? h('button.ibtn.wide', { style: { marginBottom: '10px' }, onclick: () => { net.send({ t: 'visit', name: p.name, mode: G.state.car ? 'car' : 'trotro' }); act.closePhone(); } }, ' Visit their house') : null,
+        p.headline || p.badge ? h('div', { style: { textAlign: 'center', margin: '-8px 0 12px', color: '#6d6d72', fontSize: '14px' } }, [p.headline, p.badge ? '🏅 ' + p.badge : null].filter(Boolean).join(' · ')) : null,
+        group(null, 'worth' in p ? cell({ t: 'Net worth', r: cedi(p.worth, true) }) : null, 'job' in p ? cell({ t: 'Job', r: p.job || 'Unemployed' }) : null, 'home' in p ? cell({ t: 'Lives in', r: p.home }) : null, p.car ? cell({ t: 'Drives', r: p.car }) : null, p.owns?.length ? cell({ t: 'Owns', r: p.owns.join(', ') }) : null, p.biz ? cell({ t: 'Businesses', r: p.biz }) : null, p.badges?.length ? cell({ t: 'Badges', r: p.badges.length }) : null, cell({ t: 'Dream', r: `${D.ic || ''} ${D.name || '—'} (${p.dreamTier}/5)` }), 'rep' in p ? cell({ t: 'Reputation', r: p.rep }) : null, p.me ? null : cell({ t: 'Friendship', r: `${level(p.friend)} · ${p.friend}` })),
+        p.me ? h('button.ibtn.wide', { style: { marginBottom: '10px' }, onclick: () => profileSettings(win) }, 'Choose what others see') : null,
+        !p.me && G.state.place === 'home' && p.online ? h('button.ibtn.wide', { style: { marginBottom: '10px' }, onclick: () => net.send({ t: 'home_invite', name: p.name }) }, 'Invite to my home') : null,
+        p.visiting ? h('button.ibtn.wide.gray', { style: { marginBottom: '10px' }, onclick: () => net.send({ t: 'home_remove', name: p.name }) }, 'Ask to leave my home') : null,
+        p.me ? null : h('div', null, p.online ? h('button.ibtn.wide', { style: { marginBottom: '10px' }, onclick: () => { net.send({ t: 'visit', name: p.name, mode: G.state.car ? 'car' : 'trotro' }); act.closePhone(); } }, ' Visit their house') : null,
           h('div.row', { style: { gap: '8px' } }, h('button.ibtn.gray.grow', { onclick: () => { net.send({ t: 'block', name: p.name, on: !p.blocked }); p.blocked = !p.blocked; win.refresh(); } }, p.blocked ? 'Unblock' : 'Block'), h('button.ibtn.gray.grow', { style: { color: '#ff3b30' }, onclick: () => { net.send({ t: 'report', name: p.name, reason: 'Reported from profile' }); } }, 'Report'))));
     }, { small: true });
   }
@@ -297,6 +302,7 @@ export function makeApps(act) {
   const life = { id: 'life', name: 'My Life', icon: 'user-circle', bg: grad('#ff6482', '#d1365a'),
     open(win) { win.page('My Life', () => { const s = G.state; 
       return h('div', null, portrait(s.look,s.name,'profile-portrait'), h('div.group', { style: { padding: '16px' } }, h('div', { style: { font: '700 24px var(--disp)' } }, s.name), h('div', { style: { color: '#8e8e93' } }, `${repTitle()} · reputation ${s.rep}`), h('div', { style: { marginTop: '4px', fontSize: '14px' } }, s.traits.map((t) => `${G.cat.traits[t].ic} ${G.cat.traits[t].name}`).join('  ·  '))),
+        h('div.row', { style: { gap: '8px', margin: '0 0 12px' } }, h('button.ibtn.grow', { onclick: () => profileSettings(win) }, 'Public profile'), h('button.ibtn.grow.gray', { onclick: () => homeGuests(win, act) }, 'Guests at home')),
         group('Skills', ...Object.entries(G.cat.skills).map(([k, n]) => { const v = s.skills[k] || 0; return h('div.cell.noic', null, h('div.cm', null, h('div.row', { style: { justifyContent: 'space-between' } }, h('span.c1', null, n), h('span.c2', null, `Level ${Math.floor(v)}`)), h('div.fbar', null, h('i', { style: { width: (v % 1) * 100 + '%', background: '#0a84ff' } })))); })),
         group('Stats', cell({ t: 'Total earned', r: cedi(s.stats.earned) }), cell({ t: 'Shifts worked', r: s.stats.shifts }), cell({ t: 'Gigs done', r: s.stats.gigs }), cell({ t: 'Meals eaten', r: s.stats.meals }), cell({ t: 'Home meals stored', r: s.food || 0 }), cell({ t: 'Days in Accra', r: Math.max(1, Math.ceil((accraNow() - (s.flags.bornAt || s.created)) / 864e5)) })));
     }); } };
@@ -333,6 +339,7 @@ export function makeApps(act) {
   const ads = { id: 'ads', name: 'My Ads', icon: 'presentation-chart', bg: grad('#ffd60a', '#ff9f0a'), isNew: true, open(win,arg) {advertising(win,act,arg);} };
   const discovery={id:'explore',name:'Explore',icon:'compass',bg:grad('#397d64','#164635'),open(win){explore(win,act);}};
   const meet={id:'meet',name:'Meet',icon:'hand-waving',bg:grad('#367b91','#244f6c'),open(win){firstFriend(win,act);}};
+  const events={id:'events',name:'Events',icon:'calendar-star',bg:grad('#ff7a45','#c2410c'),open(win,arg){eventsApp(win,act,arg?.id);}};
   const objectives={id:'milestones',name:'Milestones',icon:'flag',bg:grad('#b08b3e','#685326'),open(win){milestones(win,act);}};
   const enterprise={id:'enterprise',name:'Business',icon:'storefront',bg:grad('#386b5b','#173c32'),open(win){lifeScreen(win,act,'business');}};
   const market={id:'market',name:'Trade',icon:'arrows-left-right',bg:grad('#487f88','#254650'),open(win){lifeScreen(win,act,'market');}};
@@ -341,5 +348,5 @@ export function makeApps(act) {
   const progression={id:'progression',name:'Development',hidden:true,icon:'trend-up',open(win){lifeScreen(win,act,'career');}};
   const properties=propertyApp(act);
   const carMarket={id:'carmarket',name:'Car market',icon:'steering-wheel',bg:grad('#3a6ea5','#1f3f66'),open(win,arg){lifeScreen(win,act,'vehicles',arg);}};
-  return [messages, momo, gist, jobs, discovery, meet, objectives, enterprise, market, relationships, finances, progression, goals, games, boutique, houses, properties, cars, carMarket, shop, invest, bank, forbes, contacts, life, health, police, civic, map, ads, help, settings].map((a) => ({ ...a, dock: ['messages', 'momo', 'gist', 'jobs'].includes(a.id) }));
+  return [messages, momo, gist, jobs, discovery, meet, events, objectives, enterprise, market, relationships, finances, progression, goals, games, boutique, houses, properties, cars, carMarket, shop, invest, bank, forbes, contacts, life, health, police, civic, map, ads, help, settings].map((a) => ({ ...a, dock: ['messages', 'momo', 'gist', 'jobs'].includes(a.id) }));
 }

@@ -169,7 +169,7 @@ const act = (window.__act = {
   zoneFocus(z){world.focusTarget({item:z.item});},clearFocus(){world.clearSelection();},
   sound(){cityAudio.controls();},
   interact(){if(ride.active||G.state.busy?.travel){hud.setNav('home');return toast('You can interact with places after you arrive.');}if(view==='map'){hud.setNav('map');return toast('Enter a place to interact with its surroundings.');}closeSheets();sheet(h('div.sheet-body',null,h('p.context-hint',null,'Tap an object in the world, or choose what is nearby.'),hud.zones,h('h3.panel-heading',null,'Players here'),world.others.size?h('div',null,...[...world.others.values()].map(p=>h('button.world-row',{onclick:()=>openPerson(p.id,p.n,act)},ic('user'),h('span',null,'@'+p.n),ic('caret-right')))):h('p.context-hint',null,'No other players in this room. City chat reaches everyone online.')),{title:'Around you',sub:G.placeName,onclose:()=>hud.setNav(view==='map'?'map':'home')});},
-  status(){hud.openStatus();}, meet(){closeSheets();phone.close();openMeet(act,{onObjective:d=>goObjective(d,act)});},
+  status(){hud.openStatus();}, roomPeople(){return [...(world?.others?.values?.()||[])];}, meet(){closeSheets();phone.close();openMeet(act,{onObjective:d=>goObjective(d,act)});},
   map() { act.nav('map'); }, phone(app, arg) { closeAdPreview?.();phone.show(app, arg); }, app(id) { closeAdPreview?.();phone.show(id); }, closePhone() { phone.close(); },
   previewAd(slot,image){
     if(!map.ready)return toast('The city map is still loading. Try the preview again shortly.');
@@ -423,6 +423,12 @@ function bindNet() {
   net.on('intro_offer',m=>{phone.notify({app:'meet',title:`@${m.from} wants to say hello`,body:'Accept or decline in Meet. Nothing is shared until you accept.'});toast(`@${m.from} wants to say hello. Open Meet to accept or decline.`);});
   net.on('intro_update',m=>{toast(m.status==='accepted'?`@${m.from} accepted your hello. Your conversation is open in Messages.`:'The player declined. You can say hello to someone else later.',m.status==='accepted'?'good':'');if(m.status==='accepted'&&!document.querySelector('.meet-body'))act.message(m.from);});
   net.on('intro_complete',()=>{toast('Your first conversation is complete.','good');});
+  // Stage 7: home invitations and community events.
+  net.on('home_invite_in',m=>{phone.notify({app:'contacts',title:`@${m.from} invited you over`,body:'The invitation lasts 30 minutes.'});confirmBox({title:`@${m.from} invited you over`,text:'Visit their home now? You can leave any time. The invitation lasts 30 minutes.',yes:'Go now',no:'Not now'}).then(ok=>net.send({t:'home_invite_answer',from:m.from,yes:ok,mode:G.state.car?'car':'trotro'}));});
+  net.on('event_live',m=>{toast(`${m.title} is happening now at ${m.venueName}.`,'good');phone.notify({app:'events',title:'Event starting',body:`${m.title} · ${m.venueName}`});});
+  net.on('event_invite',m=>{phone.notify({app:'events',title:`@${m.from} invited you`,body:m.title});});
+  net.on('event_cancelled',m=>{toast(`${m.title} was cancelled${m.reason?': '+m.reason:''}.`);});
+  net.on('st',m=>{if(m.profileSaved)toast('Profile saved.','good');});
   net.on('intro',m=>{if(G.introPaused!==m.optedOut){G.introPaused=m.optedOut;setTimeout(()=>net.send({t:'objective_status'}),2000);}});
   // A refresh that lands while the account is saving is retried a few times, so HUD progress never sticks.
   let objectiveRetries=0;

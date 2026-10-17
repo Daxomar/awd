@@ -6,7 +6,17 @@ input,button{font:inherit;padding:10px;border-radius:9px;border:1px solid #333;b
 .o{display:grid;grid-template-columns:200px 1fr;gap:12px;background:#1a1714;border-radius:12px;padding:12px;margin:10px 0}.o img{width:200px;aspect-ratio:2/1;object-fit:cover;border-radius:8px}
 .s{font-weight:800;text-transform:uppercase;font-size:12px}.pending_payment{color:#f6c343}.paid{color:#7cc3ff}.approved{color:#5be39b}.rejected{color:#ff7a6b}small{color:#b9b0a3}
 @media(max-width:560px){.o{grid-template-columns:1fr}.o img{width:100%}}</style></head><body><div class="w">
-<h2>Billboard orders</h2><input id="k" type="password" placeholder="Admin key"> <button id="load">Load</button><div id="list"></div></div>
+<h2>Billboard orders</h2><input id="k" type="password" placeholder="Admin key"> <button id="load">Load</button><div id="list"></div>
+<h2>Community events</h2>
+<div class="o" style="grid-template-columns:1fr"><div id="evform" style="display:grid;gap:8px">
+<label>Type <select id="ekind"></select></label><label>Venue <select id="evenue"></select></label>
+<label>Title <input id="etitle" maxlength="60"></label><label>Description <input id="edesc" maxlength="300"></label>
+<label>Starts <input id="estart" type="datetime-local"></label><label>Minutes <input id="emin" type="number" value="60" min="15" max="360"></label>
+<label>Capacity <input id="ecap" type="number" value="20" min="2" max="200"></label>
+<label><input id="enew" type="checkbox"> First-week players only</label>
+<label>XP reward (recorded, pending approval) <input id="exp" type="number" value="0" min="0" max="25"></label>
+<button id="ecreate">Schedule event</button><small id="enote"></small></div></div>
+<button id="eload">Load events</button><div id="elist"></div></div>
 <script>
 const $ = (id) => document.getElementById(id); try { sessionStorage.removeItem('awdk'); } catch {}
 async function load() {
@@ -25,4 +35,28 @@ async function load() {
   }
 }
 $('load').onclick = load;
+let kinds = {};
+const txt = (t) => { const p = document.createElement('div'); p.textContent = t; return p; };
+function venues() { const k = kinds[$('ekind').value]; const v = $('evenue'); v.textContent = ''; for (const id of k?.venues || []) { const o = document.createElement('option'); o.value = id; o.textContent = id; v.append(o); } }
+async function events() {
+  const k = $('k').value, r = await fetch('/api/admin/events', { headers: { 'x-admin-key': k } }).then((x) => x.json()), L = $('elist'); L.textContent = '';
+  if (r.error) { L.textContent = r.error; return; }
+  kinds = Object.fromEntries(Object.entries(r.kinds).filter(([, x]) => !x.player)); const sel = $('ekind');
+  if (!sel.options.length) { for (const [id, x] of Object.entries(kinds)) { const o = document.createElement('option'); o.value = id; o.textContent = x.name; sel.append(o); } venues(); }
+  for (const e of r.rows) {
+    const d = document.createElement('div'); d.className = 'o'; d.style.gridTemplateColumns = '1fr';
+    const st = document.createElement('div'); st.className = 's'; st.textContent = `${e.status}${e.reports ? ' · ' + e.reports + ' reports' : ''}`;
+    d.append(st, txt(`${e.title} (${e.kind}) at ${e.venue} · host ${e.host_name}`), txt(`${new Date(e.starts_at).toLocaleString()} → ${new Date(e.ends_at).toLocaleString()} · ${e.going}/${e.capacity} going · ${e.attended} attended`));
+    if (e.results) d.append(txt(`Results: ${e.results.attendees} attendees, ${e.results.minutes} min${e.results.rewardXp ? ', reward ' + e.results.rewardStatus : ''}`));
+    for (const rr of e.report_rows || []) d.append(txt('Report: ' + (rr.reason || '')));
+    for (const op of ['cancel', 'restore']) { const b = document.createElement('button'); b.textContent = op; b.onclick = async () => { const x = await fetch('/api/admin/events', { method: 'POST', headers: { 'content-type': 'application/json', 'x-admin-key': k }, body: JSON.stringify({ op, id: e.id, reason: op === 'cancel' ? prompt('Reason shown to players') || '' : undefined }) }).then((y) => y.json()); if (x.error) alert(x.error); events(); }; d.append(b); }
+    L.append(d);
+  }
+}
+$('ekind').onchange = venues; $('eload').onclick = events;
+$('ecreate').onclick = async () => {
+  const spec = { kind: $('ekind').value, venue: $('evenue').value, title: $('etitle').value, description: $('edesc').value, startsAt: new Date($('estart').value).getTime(), minutes: +$('emin').value, capacity: +$('ecap').value, eligibility: { newcomers: $('enew').checked }, rewardXp: +$('exp').value };
+  const x = await fetch('/api/admin/events', { method: 'POST', headers: { 'content-type': 'application/json', 'x-admin-key': $('k').value }, body: JSON.stringify({ op: 'create', spec }) }).then((y) => y.json());
+  $('enote').textContent = x.error || 'Scheduled.'; if (!x.error) events();
+};
 </script></body></html>

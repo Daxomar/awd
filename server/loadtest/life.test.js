@@ -62,6 +62,16 @@ test('private home access needs reciprocal accepted friendship and respects bloc
  a.state.friends[b.acct]={accepted:true};b.state.friends[a.acct]={accepted:true};
  assert.equal(Shard.prototype.canVisit(a,b),true);b.state.flags.blocked=[a.acct];assert.equal(Shard.prototype.canVisit(a,b),false);
  b.state.flags.blocked=[];b.state.place='circle';assert.equal(Shard.prototype.canVisit(a,b),false);
+ // Stage 7 owner-controlled access: invitations, open/closed modes, visitor limit and removal.
+ b.state.place='home';const members=new Set([b]),ctx={homePasses:new Map(),homeRemoved:new Map(),rooms:new Map([['home:'+b.acct,{members}]])};
+ const check=()=>Shard.prototype.visitCheck.call(ctx,a,b);
+ b.state.homeAccess={mode:'invite'};assert.equal(check().ok,false,'invite-only home refuses friends without an invitation');
+ ctx.homePasses.set(b.acct,new Map([[a.acct,Date.now()+60000]]));assert.equal(check().ok,true,'an invitation admits the guest');
+ ctx.homePasses.clear();b.state.homeAccess={mode:'closed'};assert.equal(check().ok,false);
+ a.state.friends={};b.state.friends={};b.state.homeAccess={mode:'open',limit:1};assert.equal(check().ok,true,'an open home admits non-friends');
+ const other=fixture();other.acct+=7;members.add(other);assert.equal(check().why,'full','the visitor limit applies');
+ a.state.place='visit:'+b.acct;assert.equal(check().ok,true,'a guest already inside is not counted against the limit');
+ a.state.place='circle';members.delete(other);ctx.homeRemoved.set(b.acct,new Map([[a.acct,Date.now()+60000]]));assert.equal(check().why,'removed','a removed guest cannot walk straight back in');
 });
 test('a legitimate promotion persists history and top rank has no invented next threshold',()=>{
  const p=fixture(),s=p.state,now=Date.UTC(2026,9,16,12);Game.goPlace(p,'hub');

@@ -138,11 +138,21 @@
     {
       "id": "stage7",
       "owner": "claude",
-      "state": "ready",
+      "state": "merged",
       "scope": [
         "public profiles, house visits, live community events"
       ],
-      "gate": "opt-in profile, consent visits, scheduled events"
+      "gate": "94 server tests, events integration 8/8, journey E 15/15",
+      "evidence": "docs/master/stage7/checkpoint.md"
+    },
+    {
+      "id": "stage8",
+      "owner": "claude",
+      "state": "ready",
+      "scope": [
+        "personal life events and consequences"
+      ],
+      "gate": "bounded, consented, recoverable life events"
     }
   ]
 }

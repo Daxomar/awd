@@ -13,6 +13,8 @@ import { loadPlayer, savePlayers, pool } from './db.js';
 import { randomUUID } from 'node:crypto';
 import { localRoomInfo, saveLocalMove } from './street-world.js';
 import * as FirstFriend from './first-friend.js';
+import * as Events from './events.js';
+import * as HomeAccess from './game/home-access.js';
 import * as Objectives from './objectives.js';
 import * as Life from './life-service.js';
 import {durableActions,durableTick,gameTransaction} from './life-game.js';
@@ -48,6 +50,9 @@ export class Shard {
     setInterval(() => this.placesTick(), 5000);
     // Free play: no unsolicited timed treasure hunts or story objectives.
     setInterval(() => this.flush().catch((e) => console.error('[save]', e.message)), CFG.saveEveryMs);
+    // Stage 7: event schedule transitions and real-presence attendance, persisted in SQL.
+    this.homePasses = new Map(); this.homeRemoved = new Map();
+    setInterval(() => { if (this.eventsPending) return; this.eventsPending = true; Events.tick(this).catch((e) => console.error('[events]', e.code || e.message)).finally(() => { this.eventsPending = false; }); }, 30000).unref?.();
   }
   get online() { return this.players.size; }
   byAcct(id) { return this.byAcctMap.get(id) || null; }
@@ -188,6 +193,9 @@ export class Shard {
       case 'oware_move': return this.oware.move(p, msg);
       case 'oware_resign': return this.oware.resign(p, msg);
       case 'visit': return this.visit(p, msg);
+      case 'home_invite': return this.homeInvite(p, msg);
+      case 'home_invite_answer': return this.homeInviteAnswer(p, msg);
+      case 'home_remove': return this.homeRemove(p, msg);
       case 'gem': return this.claimGem(p, msg);
       case 'report': return this.reportPlayer(p, msg);
       case 'ping': return this.send(p, { t: 'pong', c: msg.c, now: Date.now() });
@@ -197,6 +205,7 @@ export class Shard {
     // A 'seen' marker (Stage 6 guidance screens) has its own throttle so a routine refresh cannot swallow it.
     if(['objective_status','objective_claim'].includes(msg.t)){const key=msg.seen?'objectiveSeenAt':'objectiveAt';if(Date.now()-(p[key]||0)<1500)return this.send(p,{t:'objective_error',error:'Please wait a moment before refreshing milestones.'});p[key]=Date.now();return this.async(p,msg);}
     if(msg.t==='intro_people')return this.async(p,msg);
+    if(['events_list','event_rsvp','event_host','event_cancel','event_report'].includes(msg.t)){if(Date.now()-(p.eventAt||0)<(msg.t==='events_list'?1500:2500))return this.send(p,{t:'event_result',error:'Please wait a moment.'});p.eventAt=Date.now();return this.async(p,msg);}
     if(['intro_status','intro_request','intro_answer','intro_preferences'].includes(msg.t)){if(Date.now()-(p.introMessageAt||0)<1000)return this.send(p,{t:'intro_result',error:'Please wait a moment.'});p.introMessageAt=Date.now();return this.async(p,msg);}
     if (['estate_list','ballot','game_list','game_create','game_answer','game_move','game_resign'].includes(msg.t)) return this.async(p,msg);
     if (['send', 'dm', 'dm_answer','dm_threads', 'dm_thread', 'block', 'find', 'profile', 'forbes', 'momo_hist', 'topup'].includes(msg.t)) return this.async(p, msg);
@@ -253,6 +262,11 @@ export class Shard {
         case 'objective_status':r=await Objectives.list(p,msg.seen);break;
         case 'objective_claim':r=await Objectives.claim(p,msg.id);break;
         case 'intro_status':r=await FirstFriend.status(p);break;
+        case 'events_list':r=await Events.list(this,p);break;
+        case 'event_rsvp':r=await Events.rsvp(this,p,msg);break;
+        case 'event_host':r=await Events.host(this,p,msg);break;
+        case 'event_cancel':r=await Events.cancel(this,p,msg);break;
+        case 'event_report':r=await Events.report(this,p,msg);break;
         case 'intro_request':r=await FirstFriend.request(this,p,msg);break;
         case 'intro_answer':r=await FirstFriend.answer(this,p,msg);break;
         case 'intro_preferences':r=await FirstFriend.preferences(p,msg);break;
@@ -374,15 +388,51 @@ export class Shard {
     const o = this.byName(m.name); const now = Date.now();
     if (!o || o === p) return this.send(p, { t: 'toast', k: 'bad', m: 'They are not online right now.' });
     if (!o.state.home || o.state.place !== 'home') return this.send(p, { t: 'toast', k: 'bad', m: `${o.name} is not at home.` });
-    if(this.phase8Ready&&!this.canVisit(p,o))return this.send(p,{t:'toast',k:'bad',m:'Home visits require an accepted mutual friendship and unblocked access.'});
-    const f = p.state.friends[o.acct]; if (!f || f.pts < 10) return this.send(p, { t: 'toast', k: 'bad', m: `You need to know ${o.name} a bit first (Acquaintance) before you visit.` });
+    const decision=this.visitCheck(p,o);if(!decision.ok)return this.send(p,{t:'toast',k:'bad',m:decision.m});
+    const f = p.state.friends[o.acct]; if (!this.phase8Ready && !decision.pass && (!f || f.pts < 10)) return this.send(p, { t: 'toast', k: 'bad', m: `You need to know ${o.name} a bit first (Acquaintance) before you visit.` });
     const hp = Game.HOME_POS[o.state.home];
     if(this.phase8Ready&&!p.bot){const run=shadow=>Game.travel(shadow,{to:'visit:'+o.acct,mode:D.TRANSPORT[m.mode]?m.mode:'trotro'},now,this,{x:hp.x,z:hp.z,name:`${o.name}'s place`});run.request=m;return gameTransaction(this,p,run,now,queued);}
     const r = Game.travel(p, { to: 'visit:' + o.acct, mode: D.TRANSPORT[m.mode] ? m.mode : 'trotro' }, now, this, { x: hp.x, z: hp.z, name: `${o.name}'s place` });
     if (r) { this.send(p, r); this.after(p, r); }
   }
   // ---------------- daily gem hunt: a gem hides in one place; first to find it wins ----------------
-  canVisit(p,o){return !!(o&&o!==p&&o.state.home&&o.state.place==='home'&&!Social.isBlockedBy(p.state,o.acct)&&!Social.isBlockedBy(o.state,p.acct)&&p.state.friends[o.acct]?.accepted&&o.state.friends[p.acct]?.accepted);}
+  canVisit(p,o){return this.visitCheck(p,o).ok;}
+  // Stage 7: owner mode (friends/invite/open/closed), invitations and live house gatherings grant passes;
+  // blocks, removals and the visitor limit always apply. Players already inside are not counted against the limit.
+  visitCheck(p,o){
+    if(!o||o===p)return {ok:false,m:'They are not online right now.'};
+    const now=Date.now(),passUntil=this.homePasses?.get(o.acct)?.get(p.acct)||0,removedUntil=this.homeRemoved?.get(o.acct)?.get(p.acct)||0;
+    const pass=passUntil>now||Events.homePass(o.acct,p);
+    const room=this.rooms?.get('home:'+o.acct),visitors=room?[...room.members].filter(m=>m!==p&&m!==o).length:0;
+    const d=HomeAccess.visitDecision(o,{blocked:Social.isBlockedBy(p.state,o.acct)||Social.isBlockedBy(o.state,p.acct),removed:removedUntil>now,pass,
+      friends:!!(p.state.friends[o.acct]?.accepted&&o.state.friends[p.acct]?.accepted),visitors,staying:p.state.place==='visit:'+o.acct});
+    return {...d,pass};
+  }
+  homeInvite(p,m){
+    const now=Date.now();if(now-(p.homeInviteAt||0)<3000)return this.send(p,{t:'toast',k:'bad',m:'Wait a moment before sending another invitation.'});p.homeInviteAt=now;
+    if(!p.state.home||p.state.place!=='home')return this.send(p,{t:'toast',k:'bad',m:'Go home first, then invite people over.'});
+    const o=this.byName(m.name);if(!o||o===p||o.bot||!o.state.onboarded)return this.send(p,{t:'toast',k:'bad',m:'They are not online right now.'});
+    if(Social.isBlockedBy(p.state,o.acct)||Social.isBlockedBy(o.state,p.acct))return this.send(p,{t:'toast',k:'bad',m:'You cannot invite this player.'});
+    let passes=this.homePasses.get(p.acct);if(!passes)this.homePasses.set(p.acct,passes=new Map());
+    for(const [k,v] of passes)if(v<=now)passes.delete(k);if(passes.size>=20)return this.send(p,{t:'toast',k:'bad',m:'You have many open invitations. Wait for some to expire.'});
+    passes.set(o.acct,now+HomeAccess.PASS_MS);this.homeRemoved.get(p.acct)?.delete(o.acct);
+    this.send(o,{t:'home_invite_in',from:p.name,until:now+HomeAccess.PASS_MS});
+    return this.send(p,{t:'toast',k:'good',m:`Invitation sent to @${o.name}. It lasts 30 minutes.`});
+  }
+  homeInviteAnswer(p,m){
+    const o=this.byName(m.from),until=o&&this.homePasses.get(o.acct)?.get(p.acct);
+    if(!o||!until||until<=Date.now())return this.send(p,{t:'toast',k:'bad',m:'This invitation is no longer open.'});
+    if(m.yes!==true){this.homePasses.get(o.acct)?.delete(p.acct);this.send(o,{t:'toast',m:`@${p.name} can't come over right now.`});return this.send(p,{t:'toast',m:'Invitation declined.'});}
+    return this.visit(p,{name:o.name,mode:typeof m.mode==='string'?m.mode:'trotro'});
+  }
+  homeRemove(p,m){
+    if(!p.state.home||p.state.place!=='home')return this.send(p,{t:'toast',k:'bad',m:'You can only manage guests while you are at home.'});
+    const o=this.byName(m.name);if(!o||o.state.place!=='visit:'+p.acct)return this.send(p,{t:'toast',k:'bad',m:'That player is not visiting you.'});
+    this.homePasses.get(p.acct)?.delete(o.acct);let removed=this.homeRemoved.get(p.acct);if(!removed)this.homeRemoved.set(p.acct,removed=new Map());removed.set(o.acct,Date.now()+HomeAccess.REMOVAL_MS);
+    this.leaveHome(o,'The host asked guests to give them some space. Your visit has ended.');
+    return this.send(p,{t:'toast',m:`@${o.name} has left your home.`});
+  }
+  leaveHome(o,message){if(o.state.busy?.guestOf)o.state.busy=null;Game.goPlace(o,'circle');o.dirty=true;this.send(o,{t:'arrived',place:'circle',name:Game.LOC.circle.name});this.send(o,{t:'toast',m:message});this.enterRoom(o);}
   gemInfo() { const g = this.gem; return g && { id: g.id, place: g.place, seed: g.seed, prize: g.prize, until: g.until }; }
   gemTick() {
     const now = Date.now();
@@ -458,7 +508,7 @@ export class Shard {
     for (const p of this.players.values()) {
       if(p.connecting||p.moneyBusy||p.moneyUncertain||p.onboardingSave)continue;
       try {
-        if(this.phase8Ready&&p.state.place?.startsWith('visit:')&&!this.canVisit(p,this.byAcct(+p.state.place.slice(6)))){Game.goPlace(p,'circle');p.dirty=true;this.enterRoom(p);}
+        if(this.phase8Ready&&p.state.place?.startsWith('visit:')&&!this.canVisit(p,this.byAcct(+p.state.place.slice(6)))){this.leaveHome(p,'This home is no longer open to you. You are back at the Circle.');}
         if(p.propertyContext&&isUnitPlace(p.state.place)&&p.propertyContext.expiresAt-now<LEASE_RENEW_MS/2)this.renewProperty(p).catch(e=>this.fault(p,'property lease',e));
         if(!p.bot&&this.slowN%10===0)Social.claim(p).then(l=>l.forEach(m=>this.send(p,m))).catch(e=>console.error('[claim]',e.code||'transaction failed'));
         if(p.moneyBusy)continue;

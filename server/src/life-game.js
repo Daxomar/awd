@@ -4,7 +4,7 @@ import crypto from 'node:crypto';
 import {validRequest} from './life-journal.js';
 import {isUnitPlace,prepareProperty} from './property-context.js';
 
-export const durableActions=new Set(['act','work','apply','buy','bank','phone','travel','donate','jail','rentcar','bet','mgResult','bizcheck','course','autowork']);
+export const durableActions=new Set(['act','work','apply','buy','bank','phone','travel','donate','jail','rentcar','bet','mgResult','bizcheck','course','autowork','profile_set','homeaccess']);
 export function durableTick(s,now){
   const c=Game.clock(now),wk=Math.floor((now/86400000+3)/7);
   return !!(s.onboarded&&(

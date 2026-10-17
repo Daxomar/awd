@@ -1,0 +1,65 @@
+{
+ "checks": [
+  {
+   "ok": true,
+   "check": "admin API refuses requests without the admin key"
+  },
+  {
+   "ok": true,
+   "check": "administrator schedules an event at a real venue "
+  },
+  {
+   "ok": true,
+   "check": "the player discovers the live event in the Events app"
+  },
+  {
+   "ok": true,
+   "check": "RSVP is confirmed by the server"
+  },
+  {
+   "ok": true,
+   "check": "attendance is recorded from real presence at the venue (91 s)"
+  },
+  {
+   "ok": true,
+   "check": "no attendance accrues while disconnected (91 \u2192 91 s)"
+  },
+  {
+   "ok": true,
+   "check": "after reconnecting, the same attendance record continues (91 \u2192 151 s)"
+  },
+  {
+   "ok": true,
+   "check": "the RSVP persists across the disconnect"
+  },
+  {
+   "ok": true,
+   "check": "by default other players see career and reputation, not net worth or location"
+  },
+  {
+   "ok": true,
+   "check": "the owner chooses to show net worth and a headline; location stays private"
+  },
+  {
+   "ok": true,
+   "check": "the invited guest accepts and arrives at the private home"
+  },
+  {
+   "ok": true,
+   "check": "the host sees the guest in the home guests list"
+  },
+  {
+   "ok": true,
+   "check": "the host can ask a guest to leave; the guest is returned to a public place"
+  },
+  {
+   "ok": true,
+   "check": "a removed guest cannot walk straight back in"
+  },
+  {
+   "ok": true,
+   "check": "no page errors "
+  }
+ ],
+ "scope": "Loopback disposable fixtures; real server, DB and attendance tick; SwiftShader."
+}

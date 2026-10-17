@@ -14,6 +14,7 @@ import { migrateGist } from './gist.js';
 import * as Social from './social.js';
 import * as Payments from './payments.js';
 import * as FirstFriend from './first-friend.js';
+import * as Events from './events.js';
 import * as Objectives from './objectives.js';
 import * as Life from './life-service.js';
 import { signup, login, check, authenticate, cookieToken, sessionCookie, revoke, changePassword } from './auth.js';
@@ -21,7 +22,7 @@ import { securityHeaders, inlineScriptHashes, staticPath, allowedOrigin, clientI
 import { Shard } from './shard.js';
 import { Bus } from './bus.js';
 
-for (let i = 1; ; i++) { try { await migrate(); await Ads.migrateAds(); await migrateGist(); await Social.migrateSocial(); await Payments.migratePayments();await FirstFriend.migrateFirstFriend();await Life.migrateLife();await Objectives.migrateObjectives(); break; } catch (e) { console.error(`[db] not ready (${e.code || e.message}), retry ${i} in 3s`); await new Promise((r) => setTimeout(r, 3000)); } }
+for (let i = 1; ; i++) { try { await migrate(); await Ads.migrateAds(); await migrateGist(); await Social.migrateSocial(); await Payments.migratePayments();await FirstFriend.migrateFirstFriend();await Life.migrateLife();await Objectives.migrateObjectives(); await Events.migrateEvents(); break; } catch (e) { console.error(`[db] not ready (${e.code || e.message}), retry ${i} in 3s`); await new Promise((r) => setTimeout(r, 3000)); } }
 let shard;
 const bus = new Bus(CFG.shardId, (ch, m) => shard && shard.fromBus(ch, m));
 shard = new Shard(bus);
@@ -140,6 +141,8 @@ app.post('/api/ads', (res, req) => { if(!mutationAllowed(res,req))return; const 
 limitedRead('/api/ads/verify',req=>{const ref=qs(req).get('ref');return()=>Ads.verify(ref);},10,60,'payment-verify');
 app.post('/api/paystack/webhook', (res, req) => { const sig = req.getHeader('x-paystack-signature'); let buf = Buffer.alloc(0), ab = false; res.onAborted(() => (ab = true));
   res.onData((c, last) => { if(ab)return; if(buf.length+c.byteLength>65536){ab=true;buf=null;res.cork(()=>securityHeaders(res.writeStatus('413 Payload Too Large')).end());return;} buf=Buffer.concat([buf,Buffer.from(c)]); if(last) Ads.webhook(buf,sig).then(ok=>{if(!ab)res.cork(()=>securityHeaders(res.writeStatus(ok?'200 OK':'401 Unauthorized')).end());}).catch(()=>{if(!ab)res.cork(()=>res.writeStatus('503 Service Unavailable').end());}); }); });
+app.get('/api/admin/events', (res, req) => { const k = req.getHeader('x-admin-key'),ip=clientIp(res,req); let ab = false; res.onAborted(() => (ab = true)); (async()=>{if(!await allow(res,()=>ab,'admin',ip,10,60))return;const r=await Events.adminList(k);json(res,()=>ab,r,r.error?'403 Forbidden':'200 OK');})().catch(()=>json(res,()=>ab,{error:'Service unavailable.'},'503 Service Unavailable')); });
+app.post('/api/admin/events', (res, req) => { if(!mutationAllowed(res,req))return; const k = req.getHeader('x-admin-key'),ip=clientIp(res,req); readJson(res, async (b, isAborted) => { if(!await allow(res,isAborted,'admin',ip,10,60))return; const r = await Events.adminAct(shard, k, b); json(res, isAborted, r, r.error === 'forbidden' ? '403 Forbidden' : '200 OK'); }); });
 app.get('/api/admin/ads', (res, req) => { const k = req.getHeader('x-admin-key'),ip=clientIp(res,req); let ab = false; res.onAborted(() => (ab = true)); (async()=>{if(!await allow(res,()=>ab,'admin',ip,10,60))return;const r=await Ads.adminList(k);json(res,()=>ab,r,r.error?'403 Forbidden':'200 OK');})().catch(()=>json(res,()=>ab,{error:'Service unavailable.'},'503 Service Unavailable')); });
 app.post('/api/admin/ads', (res, req) => { if(!mutationAllowed(res,req))return; const k = req.getHeader('x-admin-key'),ip=clientIp(res,req); readJson(res, async (b, isAborted) => { if(!await allow(res,isAborted,'admin',ip,10,60))return; const r = await Ads.adminAct(k, b); json(res, isAborted, r, r.error === 'forbidden' ? '403 Forbidden' : '200 OK'); }); });
 limitedRead('/api/topup/verify',req=>{const ref=qs(req).get('ref');return()=>Social.topupVerify(ref,shard);},10,60,'payment-verify');

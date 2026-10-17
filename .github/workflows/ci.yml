@@ -44,6 +44,7 @@ jobs:
           node loadtest/ads-integration.js
           node loadtest/first-friend-integration.js
           node loadtest/objectives-integration.js
+          node loadtest/events-integration.js
           node loadtest/life-integration.js
           NODE_ENV=test BIRTH_SEED=ci-disposable-seed node loadtest/property-db.test.js
           NODE_ENV=test BIRTH_SEED=ci-disposable-seed node loadtest/vehicle-db.test.js

@@ -8,6 +8,7 @@ import { pool } from './db.js';
 import { moderate, BLOCK_MSG } from './filter.js';
 import * as D from './game/data.js';
 import * as Game from './game/rules.js';
+import * as Profile from './game/profile.js';
 import * as Payments from './payments.js';
 import {life,event,moneyEvent} from './game/life-progression.js';
 let dmObserver=null;
@@ -195,9 +196,10 @@ export async function profile(shard, p, name) {
   const live = shard.byAcct(a.id); let s = live ? live.state : null;
   if (!s) { const r = await pool.query('select state from players where id=$1', [a.id]); s = r.rows[0] && r.rows[0].state; }
   if (!s || !s.onboarded) return { t: 'profile', p: { name: a.username, fresh: true, online: !!live } };
-  const c = card(s, live); c.name = a.username; const f = p.state.friends && p.state.friends[a.id];
+  // Stage 7: only details the owner made public; never live location, balances or account data.
+  const me = a.id === p.acct, c = Profile.publicView({ ...card(s, live), name: a.username }, s, { me }); const f = p.state.friends && p.state.friends[a.id];
   if(shard.phase8Ready)c.partner=(await pool.query('select a.username from life_partners r join accounts a on a.id=r.other where r.acct=$1',[a.id])).rows[0]?.username||null;
-  return { t: 'profile', p: { ...c, friend: f ? f.pts : 0, blocked: blocked(p.state, a.id), me: a.id === p.acct } };
+  return { t: 'profile', p: { ...c, friend: f ? f.pts : 0, blocked: blocked(p.state, a.id), me, visiting: live && s.place === 'visit:' + p.acct ? true : undefined } };
 }
 let forbesCache = { at: 0, rows: [] };
 export async function forbes() {

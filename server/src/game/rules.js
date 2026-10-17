@@ -13,6 +13,8 @@ import {WORKPLACES} from '../../../shared/workplaces.js';
 import {taskView,beginTask,tickTask} from './work-tasks.js';
 import * as Life from './life-progression.js';
 import * as Career from './careers.js';
+import * as Profile from './profile.js';
+import * as HomeAccess from './home-access.js';
 export const WARD = W;
 export const DATA = D;
 
@@ -259,9 +261,18 @@ export const HOME_ACTS = {
   guitar: { id: 'guitar', label: 'Practise highlife guitar', ic: 'icon:guitar', min: 60, needs: { fun: 14 }, skill: { music: 0.7 }, req: { item: 'guitar' }, tags: ['music'] },
   workout: { id: 'workout', label: 'Home workout', ic: 'icon:barbell', min: 45, needs: { energy: -14, hygiene: -16, fun: 6 }, skill: { fitness: 0.6 }, req: { item: 'dumbbells' }, tags: ['workout'] },
 };
+// Stage 7: a visitor may use a few of the host's things (toilet, TV, guitar) when the host allows guests to.
+function guestHomeAction(p, id, now, shard) {
+  const s = p.state, host = shard?.byAcct?.(+s.place.slice(6));
+  if (!host || host.state.place !== 'home' || !host.state.home) return toast('Your host is not at home.', 'bad');
+  if (!HomeAccess.guestMayUse(host, id)) return toast('The host keeps that for themselves.', 'bad');
+  const r = homeAction(p, id, now, { canAct: true, place: s.place, items: host.state.items || {}, template: host.state.home });
+  if (r.t === 'busy') s.busy.guestOf = host.acct;
+  return r;
+}
 export function homeAction(p, id, now, residence) {
   const s = p.state, a = Object.hasOwn(HOME_ACTS,id)&&HOME_ACTS[id]; if (!a || !(residence||s.home)) return toast('No home.', 'bad');
-  if (residence ? !residence.canAct||s.place!=='unit:'+residence.unit : !at(p, 'home')) return toast('Go to your authorized home first.', 'bad');
+  if (residence ? !residence.canAct||s.place!==(residence.place||'unit:'+residence.unit) : !at(p, 'home')) return toast('Go to your authorized home first.', 'bad');
   const error=canDo(s,p,null,a,now,residence);if(error)return toast(error,'bad');
   const items=residence?.items||s.items,template=D.HOMES[residence?.template||s.home];
   if (a.power && dumsorNow(now) && template.power !== 'estate' && !items.solar && !(items.gen && s.fuel > 0)) return toast('Dumsor! No light. Generator or solar needed.', 'bad');
@@ -568,11 +579,13 @@ export function onMsg(p, msg, shard, now) {
     // Older development load tools may use the one-shot command. Public accounts
     // must complete saved checkpoints; a cached old client needs a reload.
     case 'onboard': return !s.onboarded&&(CFG.production||s.onboarding?.started)?toast('Reload the game and finish your saved setup steps.','bad'):onboard(p, msg);
-    case 'act': { if (msg.home) return homeAction(p, String(msg.id), now); const loc = LOC[msg.loc]; const a = loc && loc.acts.find((x) => x.id === msg.id); if (!a) return toast('Not available.', 'bad'); return startAction(p, loc, a, now, shard.policy); }
+    case 'act': { if (msg.home && s.place?.startsWith('visit:')) return guestHomeAction(p, String(msg.id), now, shard); if (msg.home) return homeAction(p, String(msg.id), now); const loc = LOC[msg.loc]; const a = loc && loc.acts.find((x) => x.id === msg.id); if (!a) return toast('Not available.', 'bad'); return startAction(p, loc, a, now, shard.policy); }
     case 'mgResult': { const b = s.busy; if (!b || !b.mg) return null; s.busy = null; const secs = (now - b.start) / 1000; if (secs < 20) return toast('Too fast.', 'bad'); const stars = Math.max(0, Math.min(3, msg.stars | 0)); const skill = { trotro: 'hustle', waakye: 'cooking', bolu: 'driving', bughunt: 'coding', azonto: 'dance', boxing: 'fitness' }[b.mg]; let amt = (18 + stars * 22) * (1 + lvl(s, skill) * 0.07); amt *= hustleMult(s, b.id, now, skill); s.gd.earned += amt; const got = earn(s, amt, 'Gig'); addSkill(s, skill, 0.3 + stars * 0.25); s.gigRest[b.id] = now + 60 * 60000; s.stats.gigs++; return { t: 'done', id: b.id, earned: got, stars }; }
     case 'work': if(msg.op==='beginTask'){const c=D.CAREERS[s.job?.id];if(!s.shift||!c)return toast('Start your shift at work first.','bad');const error=beginTask(p,msg,c,now);return error?toast(error,'bad'):{t:'worktask',shift:{...s.shift,assignment:taskView(s)}};}return msg.op === 'start' ? startShift(p, now) : msg.op === 'task' && s.shift ? toast('Work performance is calculated by the server.') : msg.op === 'quit' ? ((s.job = null), (s.shift = null), { t: 'st', state: view(s) }) : msg.op === 'end' && s.shift ? ((s.shift = null), { t: 'st', state: view(s) }) : null;
     case 'apply': return apply(p, String(msg.id), now);
     case 'course': return takeCourse(p, msg, now);
+    case 'profile_set': { s.profile = Profile.cleanProfile(msg, s); return { t: 'st', state: view(s), profileSaved: true }; }
+    case 'homeaccess': { s.homeAccess = HomeAccess.cleanAccess(msg, s); return { t: 'st', state: view(s), homeAccess: s.homeAccess }; }
     case 'autowork': return setAutowork(p, msg, now);
     case 'buy': return buy(p, msg, now);
     case 'travel': return travel(p, msg, now, shard);
