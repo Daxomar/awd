@@ -8,9 +8,14 @@ export function safeEqual(a, b) {
   const x = Buffer.from(a), y = Buffer.from(b);
   return x.length === y.length && crypto.timingSafeEqual(x, y);
 }
+const EXTRA_ORIGINS = new Set([
+  'https://accrawedey.world',
+  'https://www.accrawedey.world',
+]);
 export function allowedOrigin(origin, required = false) {
   if (!origin) return !required && CFG.dev;
   if (origin === CFG.publicOrigin) return true;
+  if (EXTRA_ORIGINS.has(origin)) return true;
   if (CFG.dev) {
     try { const u = new URL(origin); return ['localhost', '127.0.0.1', '[::1]'].includes(u.hostname) && ['http:', 'https:'].includes(u.protocol); } catch {}
   }
