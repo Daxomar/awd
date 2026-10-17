@@ -7,6 +7,7 @@
     "start": "node src/index.js",
     "reconcile:payments": "node reconcile-payments.js",
     "admin:grant": "node admin-grant.js",
+    "seed:admin": "node seed-admin.js",
     "bots": "node loadtest/bots.js",
     "test": "node --test loadtest/regression.test.js loadtest/phone-games.test.js loadtest/city.test.js loadtest/streets.test.js loadtest/security.test.js loadtest/onboarding.test.js loadtest/onboarding-durability.test.js loadtest/payments.test.js loadtest/discovery.test.js loadtest/work-tasks.test.js loadtest/first-friend.test.js loadtest/objectives.test.js loadtest/life.test.js loadtest/property-rules.test.js test/property-model.test.js loadtest/careers.test.js loadtest/social-life.test.js loadtest/life-events.test.js loadtest/ads-vetting.test.js loadtest/admin-roles.test.js"
   },
