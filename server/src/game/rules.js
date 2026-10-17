@@ -16,6 +16,7 @@ import * as Career from './careers.js';
 import * as Profile from './profile.js';
 import * as HomeAccess from './home-access.js';
 import * as LE from './life-events.js';
+import {flag} from '../admin/flags.js';
 export const WARD = W;
 export const DATA = D;
 
@@ -631,7 +632,8 @@ function lifeEventTick(p, now, out) {
   const s = p.state, r = LE.settle(s, now);
   for (const n of r.notes) out.push(toast(n));
   for (const d of r.paid) { const got = earn(s, d.amount, d.label); if (got) out.push(toast(`${d.label}: +GH₵${got}.`, 'good')); }
-  const a = LE.offer(s, lifeCtx(p, now)); if (a) out.push({ t: 'life_event', event: a });
+  // Stage 11: operations can pause new offers; anything already offered or running still settles above.
+  const a = flag('life_events') ? LE.offer(s, lifeCtx(p, now)) : null; if (a) out.push({ t: 'life_event', event: a });
 }
 function applyLifeOutcome(p, o, active, now) {
   const s = p.state, fx = [];

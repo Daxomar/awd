@@ -21,8 +21,13 @@ import { signup, login, check, authenticate, cookieToken, sessionCookie, revoke,
 import { securityHeaders, inlineScriptHashes, staticPath, allowedOrigin, clientIp, RateLimiter, parseMessage, takeMessage } from './security.js';
 import { Shard } from './shard.js';
 import { Bus } from './bus.js';
+import { migrateAdmin, recordConnection, touchOnline, bump, loadFlags } from './admin/store.js';
+import { registerAdmin } from './admin/routes.js';
+import { adminAuth, adminToken, endSessionsOf } from './admin/session.js';
+import { can } from './admin/roles.js';
+import * as Ops from './admin/ops.js';
 
-for (let i = 1; ; i++) { try { await migrate(); await Ads.migrateAds(); await migrateGist(); await Social.migrateSocial(); await Payments.migratePayments();await FirstFriend.migrateFirstFriend();await Life.migrateLife();await Objectives.migrateObjectives(); await Events.migrateEvents(); break; } catch (e) { console.error(`[db] not ready (${e.code || e.message}), retry ${i} in 3s`); await new Promise((r) => setTimeout(r, 3000)); } }
+for (let i = 1; ; i++) { try { await migrate(); await Ads.migrateAds(); await migrateGist(); await Social.migrateSocial(); await Payments.migratePayments();await FirstFriend.migrateFirstFriend();await Life.migrateLife();await Objectives.migrateObjectives(); await Events.migrateEvents(); await migrateAdmin(); break; } catch (e) { console.error(`[db] not ready (${e.code || e.message}), retry ${i} in 3s`); await new Promise((r) => setTimeout(r, 3000)); } }
 let shard;
 const bus = new Bus(CFG.shardId, (ch, m) => shard && shard.fromBus(ch, m));
 shard = new Shard(bus);
@@ -31,10 +36,13 @@ Payments.registerPayment('ad',Ads.fulfillPayment);
 Payments.registerPayment('topup',Social.fulfillPayment);
 Social.observeMessages(FirstFriend.reply);
 let introReconciling=false;
-setInterval(async()=>{if(introReconciling)return;introReconciling=true;try{await FirstFriend.reconcile(shard);}catch(e){console.error('[introduction reconciliation]',e.code||'deferred');}finally{introReconciling=false;}},60000).unref();
+setInterval(async()=>{if(introReconciling)return;introReconciling=true;try{await Ops.track('introduction-reconcile',()=>FirstFriend.reconcile(shard));}catch(e){console.error('[introduction reconciliation]',e.code||'deferred');}finally{introReconciling=false;}},60000).unref();
 let reconciling=false;
-setInterval(async()=>{if(reconciling)return;reconciling=true;try{await Payments.reconcile();}catch(e){console.error('[payment reconciliation]',e.code||'unavailable');}finally{reconciling=false;}},60000).unref();
+setInterval(async()=>{if(reconciling)return;reconciling=true;try{await Ops.track('payment-reconcile',()=>Payments.reconcile());}catch(e){console.error('[payment reconciliation]',e.code||'unavailable');}finally{reconciling=false;}},60000).unref();
 setInterval(() => bus.heartbeat(shard.online), 5000);
+// Stage 11: feature flags changed on any shard reach this one within 10 s; long sessions still count as active today.
+setInterval(()=>Ops.track('flag-refresh',loadFlags).catch(()=>{}),10000).unref();
+setInterval(()=>Ops.track('activity-touch',()=>touchOnline([...shard.players.values()].filter(p=>!p.bot&&p.acct>0).map(p=>p.acct))).catch(()=>{}),600000).unref();
 
 const BOT_KEY = CFG.dev ? process.env.BOT_KEY || '' : '';
 const limiter = new RateLimiter(bus.pub);
@@ -55,7 +63,7 @@ function readJson(res, cb, max = 16384) {
     }
   });
 }
-function json(res, isAborted, obj, status = '200 OK', headers={}) { if (isAborted()) return; res.cork(() => { res.writeStatus(status);for(const [k,v] of Object.entries(headers))res.writeHeader(k,v);securityHeaders(res).writeHeader('content-type', 'application/json').writeHeader('cache-control','no-store').end(JSON.stringify(obj)); }); }
+function json(res, isAborted, obj, status = '200 OK', headers={}) { if (isAborted()) return; Ops.count(status); res.cork(() => { res.writeStatus(status);for(const [k,v] of Object.entries(headers))res.writeHeader(k,v);securityHeaders(res).writeHeader('content-type', 'application/json').writeHeader('cache-control','no-store').end(JSON.stringify(obj)); }); }
 function mutationAllowed(res, req) {
   if (!allowedOrigin(req.getHeader('origin'))) { json(res, () => false, {error:'Request origin is not allowed.'}, '403 Forbidden'); return false; }
   if (!(req.getHeader('content-type') || '').toLowerCase().startsWith('application/json')) { json(res, () => false, {error:'Use application/json.'}, '415 Unsupported Media Type'); return false; }
@@ -71,6 +79,7 @@ function disconnectAccount(id, sessionHash) {
   bus.publish('awd:session', {id,sessionHash});
 }
 setInterval(() => pool.query("delete from sessions where expires_at<now() or last_seen<now()-interval '24 hours'").catch(e => console.error('[session cleanup]',e.code)), 3600000).unref();
+setInterval(() => pool.query("delete from admin_sessions where expires_at<now() or last_seen<now()-interval '30 minutes'").catch(e => console.error('[admin session cleanup]',e.code)), 600000).unref();
 
 const app = uWS.App();
 let lag = 0; { let t = performance.now(); setInterval(() => { const n = performance.now(); lag = Math.max(0, n - t - 500) * 0.3 + lag * 0.7; t = n; }, 500); }
@@ -99,6 +108,7 @@ for (const [route, fn] of [['/api/signup', signup], ['/api/login', login]]) {
       try {
         const result = await fn(body), {sessionKey,expiry,...publicResult} = result;
         if (!isAborted() && sessionKey) res.cork(() => res.writeHeader('set-cookie',sessionCookie(sessionKey,expiry)));
+        if (sessionKey) bump(route === '/api/signup' ? 'signup' : 'signin').catch(e => Ops.incident('counters', e.code));
         json(res,isAborted,{...publicResult,...(sessionKey ? {ok:true} : {})}, result.error ? '400 Bad Request' : '200 OK');
       } finally { authActive--; }
     });
@@ -118,13 +128,14 @@ for (const route of ['/api/logout','/api/logout-all','/api/password']) app.post(
       authActive++;
       try{
         const result=await changePassword(token,body);
-        if(result.ok) disconnectAccount(result.account);
+        if(result.ok){disconnectAccount(result.account);await endSessionsOf(result.account);}
         if(!ab()&&result.ok) res.cork(()=>res.writeHeader('set-cookie',sessionCookie('',0)));
         return json(res,ab,result.error?{error:result.error}:{ok:true},result.error?'400 Bad Request':'200 OK');
       }finally{authActive--;}
     }
     const a=await revoke(token,route==='/api/logout-all');
     if(a) disconnectAccount(a.id,route==='/api/logout-all'?null:a.sessionHash);
+    if(a&&route==='/api/logout-all') await endSessionsOf(a.id);
     if(!ab()) res.cork(()=>res.writeHeader('set-cookie',sessionCookie('',0)));
     json(res,ab,{ok:true});
   });
@@ -156,10 +167,8 @@ if(Payments.MOCK){
 limitedRead('/api/ads/verify',req=>{const ref=qs(req).get('ref');return()=>Ads.verify(ref);},10,60,'payment-verify');
 app.post('/api/paystack/webhook', (res, req) => { const sig = req.getHeader('x-paystack-signature'); let buf = Buffer.alloc(0), ab = false; res.onAborted(() => (ab = true));
   res.onData((c, last) => { if(ab)return; if(buf.length+c.byteLength>65536){ab=true;buf=null;res.cork(()=>securityHeaders(res.writeStatus('413 Payload Too Large')).end());return;} buf=Buffer.concat([buf,Buffer.from(c)]); if(last) Ads.webhook(buf,sig).then(ok=>{if(!ab)res.cork(()=>securityHeaders(res.writeStatus(ok?'200 OK':'401 Unauthorized')).end());}).catch(()=>{if(!ab)res.cork(()=>res.writeStatus('503 Service Unavailable').end());}); }); });
-app.get('/api/admin/events', (res, req) => { const k = req.getHeader('x-admin-key'),ip=clientIp(res,req); let ab = false; res.onAborted(() => (ab = true)); (async()=>{if(!await allow(res,()=>ab,'admin',ip,10,60))return;const r=await Events.adminList(k);json(res,()=>ab,r,r.error?'403 Forbidden':'200 OK');})().catch(()=>json(res,()=>ab,{error:'Service unavailable.'},'503 Service Unavailable')); });
-app.post('/api/admin/events', (res, req) => { if(!mutationAllowed(res,req))return; const k = req.getHeader('x-admin-key'),ip=clientIp(res,req); readJson(res, async (b, isAborted) => { if(!await allow(res,isAborted,'admin',ip,10,60))return; const r = await Events.adminAct(shard, k, b); json(res, isAborted, r, r.error === 'forbidden' ? '403 Forbidden' : '200 OK'); }); });
-app.get('/api/admin/ads', (res, req) => { const k = req.getHeader('x-admin-key'),ip=clientIp(res,req); let ab = false; res.onAborted(() => (ab = true)); (async()=>{if(!await allow(res,()=>ab,'admin',ip,10,60))return;const r=await Ads.adminList(k);json(res,()=>ab,r,r.error?'403 Forbidden':'200 OK');})().catch(()=>json(res,()=>ab,{error:'Service unavailable.'},'503 Service Unavailable')); });
-app.post('/api/admin/ads', (res, req) => { if(!mutationAllowed(res,req))return; const k = req.getHeader('x-admin-key'),ip=clientIp(res,req); readJson(res, async (b, isAborted) => { if(!await allow(res,isAborted,'admin',ip,10,60))return; const r = await Ads.adminAct(k, b); json(res, isAborted, r, r.error === 'forbidden' ? '403 Forbidden' : '200 OK'); }); });
+// Stage 11: the secure administrator API (role-checked sessions, audit log). The older owner-key calls still work, audited.
+registerAdmin(app,{shard,bus,json,readJson,mutationAllowed,allow,take:(c,i,m,s)=>limiter.take(c,i,m,s),clientIp,lag:()=>lag,disconnectAccount,Ads,Events,Payments});
 limitedRead('/api/topup/verify',req=>{const ref=qs(req).get('ref');return()=>Social.topupVerify(ref,shard);},10,60,'payment-verify');
 app.post('/api/payment/return',(res,req)=>{
   if(!mutationAllowed(res,req))return;
@@ -187,8 +196,9 @@ for(const route of ['/api/ads/mine','/api/ads/cancel','/api/ads/retry','/api/ads
 setInterval(()=>pool.query("delete from ad_exposures where at<now()-interval '90 days'").catch(e=>console.error('[ad retention]',e.code)),86400000).unref();
 app.get('/api/packs', (res) => res.cork(() => securityHeaders(res).writeHeader('content-type', 'application/json').end(JSON.stringify({ packs: Social.PACKS, cap: Social.TOPUP_WEEK_CAP, live: Social.paymentsLive }))));
 app.get('/ads/:id',(res,req)=>{
-  const id=Number(req.getParameter(0).replace(/\.jpg$/,'')),key=req.getHeader('x-admin-key'),token=cookieToken(req.getHeader('cookie'));let ab=false;res.onAborted(()=>{ab=true;});
-  (async()=>{const a=token?await authenticate(token):null;return Ads.adImagePath(id,key,a?.id);})().then(f=>{if(ab)return;res.cork(()=>{if(!f){res.writeStatus('404 Not Found');securityHeaders(res).end();return;}securityHeaders(res).writeHeader('content-type','image/jpeg').writeHeader('cache-control','private, no-store').end(fs.readFileSync(f));});})
+  const id=Number(req.getParameter(0).replace(/\.jpg$/,'')),key=req.getHeader('x-admin-key'),cookie=req.getHeader('cookie'),token=cookieToken(cookie),staffToken=adminToken(cookie);let ab=false;res.onAborted(()=>{ab=true;});
+  // Staff with advertising access can see artwork of campaigns that are not live yet (review, suspended).
+  (async()=>{const a=token?await authenticate(token):null,s=staffToken?await adminAuth(staffToken):null;return Ads.adImagePath(id,key,a?.id,!!s&&can(s.role,'ads.read'));})().then(f=>{if(ab)return;res.cork(()=>{if(!f){res.writeStatus('404 Not Found');securityHeaders(res).end();return;}securityHeaders(res).writeHeader('content-type','image/jpeg').writeHeader('cache-control','private, no-store').end(fs.readFileSync(f));});})
     .catch(()=>{if(!ab)res.cork(()=>res.writeStatus('503 Service Unavailable').end());});
 });
 
@@ -219,9 +229,10 @@ app.ws('/ws', {
     if (!d.open) { if (r.p) shard.leave(r.p); return; }
     if (r.error) { ws.send(JSON.stringify({ t: 'full', m: r.error })); ws.end(4001, 'full'); return; }
     d.p = r.p; for (const m of d.q) handle(ws, m.data, m.bin); d.q = null;
+    if (!d.acct.bot) recordConnection(d.acct.id).catch(e => Ops.incident('activity', e.code));
     d.sessionTimer=setInterval(async()=>{
       if(d.checking||!d.open)return;d.checking=true;
-      try { if(!d.acct.bot) {const a=d.sessionToken?await authenticate(d.sessionToken):(d.acct.exp>Date.now()&&(await pool.query('select id from accounts where id=$1 and not banned',[d.acct.id])).rows[0]);if(!a&&d.open)ws.end(4003,'Session expired');} }
+      try { if(!d.acct.bot) {const a=d.sessionToken?await authenticate(d.sessionToken):(d.acct.exp>Date.now()&&(await pool.query('select id from accounts where id=$1 and not banned and (suspended_until is null or suspended_until<now())',[d.acct.id])).rows[0]);if(!a&&d.open)ws.end(4003,'Session expired');} }
       // Disconnect on an unavailable verifier, but allow a fresh cookie-authenticated
       // connection to retry. Only a verified invalid session gets the terminal code.
       catch { if(d.open)ws.end(1013,'Session service unavailable'); }
@@ -248,6 +259,7 @@ if (STATIC) {
     if (!f || !fs.existsSync(f) || !fs.statSync(f).isFile()) { securityHeaders(res.writeStatus('404 Not Found')).end('not found'); return; }
     let body = CACHE.get(f); if (!body) { body = fs.readFileSync(f); if (cacheBytes + body.length < 256 * 1024 * 1024) { CACHE.set(f, body); cacheBytes += body.length; } }
     const ext = path.extname(f); securityHeaders(res,{html:ext==='.html',scriptHashes:ext==='.html'?inlineScriptHashes(body.toString()):[]});
+    if (url.startsWith('/admin')) res.writeHeader('x-robots-tag','noindex, nofollow');
     if (/^\.(js|css|json|svg|html|webmanifest|glb)$/.test(ext) && /gzip/.test(req.getHeader('accept-encoding')) && body.length > 1024) { let gz = GZ.get(f); if (!gz) { gz = zlib.gzipSync(body, { level: 9 }); GZ.set(f, gz); } body = gz; res.writeHeader('content-encoding', 'gzip').writeHeader('vary', 'accept-encoding'); }
     res.writeHeader('content-type', MIME[ext] || 'application/octet-stream').writeHeader('cache-control', /\/assets\/(index-|.*\.(glb|jpg|png|hdr))/.test(url) ? 'public, max-age=31536000, immutable' : url.startsWith('/map/') ? 'public, max-age=3600' : 'no-cache').end(body);
   });

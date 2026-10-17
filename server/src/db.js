@@ -33,6 +33,7 @@ export async function migrate() {
   create table if not exists reports (id bigserial primary key, reporter int, target text, text text, at timestamptz default now());
   create table if not exists homes (account int primary key, home text, x real, z real);
   alter table accounts add column if not exists adult_verified boolean not null default false;
+  alter table accounts add column if not exists suspended_until timestamptz;
   create table if not exists sessions (
     token_hash text primary key, account int not null references accounts(id) on delete cascade,
     expires_at timestamptz not null, last_seen timestamptz not null default now(), created_at timestamptz not null default now()

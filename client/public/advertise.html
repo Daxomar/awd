@@ -109,6 +109,7 @@ function summary() {
   $('sceneBB').classList.toggle('dim', pick?.type === 'ground'); $('sceneGround').classList.toggle('dim', pick ? pick.type !== 'ground' : true);
 }
 function availability(s) {
+  if (s.paused) return { ok: false, text: 'Bookings paused' };
   if (s.availability === 'reserved' || s.nextFree > Date.now() + 6e4) return { ok: false, text: 'Booked until ' + new Date(s.nextFree).toLocaleDateString() };
   return { ok: true, text: s.exclusive ? 'Available · yours alone' : `${s.onAir}/${s.cap} on air · available` };
 }

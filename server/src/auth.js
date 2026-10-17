@@ -63,9 +63,11 @@ export async function signup(body) {
 const dummy = hashPassword('dummy-account-password', Buffer.alloc(16, 7));
 export async function login({username,password} = {}) {
   if (typeof username !== 'string' || !USER_RE.test(username) || typeof password !== 'string' || password.length > 128 || Buffer.byteLength(password) > 512) return {error:'Wrong username or password.'};
-  const a = (await pool.query('select id,username,pass,banned from accounts where lower(username)=lower($1) order by id limit 1',[username])).rows[0];
+  const a = (await pool.query('select id,username,pass,banned,suspended_until from accounts where lower(username)=lower($1) order by id limit 1',[username])).rows[0];
   const matches = await verifyPassword(password, a?.pass || await dummy);
   if (!a || !matches || a.banned) return {error:'Wrong username or password.'};
+  // Stage 11: only someone who knows the password learns that the account is suspended, and until when.
+  if (a.suspended_until && +new Date(a.suspended_until) > Date.now()) return {error:`This account is suspended until ${new Date(a.suspended_until).toUTCString()}.`};
   const db = await pool.connect();
   try {
     await db.query('begin');
@@ -85,7 +87,8 @@ export function sessionCookie(key, expiry) {
 export async function authenticate(token) {
   if (!/^[A-Za-z0-9_-]{43}$/.test(token || '')) return null;
   const a = (await pool.query(`select a.id,a.username as u,s.expires_at from sessions s join accounts a on a.id=s.account
-    where s.token_hash=$1 and s.expires_at>now() and s.last_seen>now()-interval '24 hours' and not a.banned`,[digest(token)])).rows[0];
+    where s.token_hash=$1 and s.expires_at>now() and s.last_seen>now()-interval '24 hours' and not a.banned
+    and (a.suspended_until is null or a.suspended_until<now())`,[digest(token)])).rows[0];
   if (!a) return null;
   await pool.query("update sessions set last_seen=now() where token_hash=$1 and last_seen<now()-interval '5 minutes'",[digest(token)]);
   return {id:a.id,u:a.u,exp:+new Date(a.expires_at),sessionHash:digest(token)};

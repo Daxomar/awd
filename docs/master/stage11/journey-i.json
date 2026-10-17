@@ -1,0 +1,73 @@
+{
+ "checks": [
+  {
+   "ok": true,
+   "check": "signed-out visitors see only the staff sign-in, on a page separate from the game"
+  },
+  {
+   "ok": true,
+   "check": "the owner sees real overview metrics with definitions and the collection start date"
+  },
+  {
+   "ok": true,
+   "check": "the open report about the target player is listed"
+  },
+  {
+   "ok": true,
+   "check": "the owner suspends the player through the confirmation dialog with a reason"
+  },
+  {
+   "ok": true,
+   "check": "the report is closed as actioned with a recorded reason"
+  },
+  {
+   "ok": true,
+   "check": "the suspension and the report decision appear in the audit log with the reason"
+  },
+  {
+   "ok": true,
+   "check": "the world section renders live data"
+  },
+  {
+   "ok": true,
+   "check": "the ops section renders live data"
+  },
+  {
+   "ok": true,
+   "check": "the payments section renders live data"
+  },
+  {
+   "ok": true,
+   "check": "the economy section renders live data"
+  },
+  {
+   "ok": true,
+   "check": "the ads section renders live data"
+  },
+  {
+   "ok": true,
+   "check": "signing out ends the server session"
+  },
+  {
+   "ok": true,
+   "check": "a support analyst sees only their sections: Overview, Players, Reports"
+  },
+  {
+   "ok": true,
+   "check": "the server refuses payments to a support analyst even when requested directly"
+  },
+  {
+   "ok": true,
+   "check": "a hidden section in the address bar falls back to an allowed one"
+  },
+  {
+   "ok": true,
+   "check": "the console fits phone width without horizontal page scrolling (390px)"
+  },
+  {
+   "ok": true,
+   "check": "no page errors or Content Security Policy violations "
+  }
+ ],
+ "scope": "Loopback QA server; disposable staff and player accounts; desktop and phone-width Chromium."
+}

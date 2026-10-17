@@ -178,11 +178,12 @@
     {
       "id": "stage11",
       "owner": "claude",
-      "state": "ready",
+      "state": "merged",
       "scope": [
         "secure admin dashboard"
       ],
-      "gate": "roles, audit, real metrics"
+      "gate": "server 111 (7 new admin unit), admin integration 46/46 (43/43 Redis-less as in CI), journey I 17/17, events/ads/first-friend integrations pass",
+      "evidence": "docs/master/stage11/checkpoint.md"
     }
   ]
 }

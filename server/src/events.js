@@ -8,6 +8,7 @@ import {secret} from './secrets.js';
 import {safeEqual} from './security.js';
 import * as Game from './game/rules.js';
 import {accessOf} from './game/home-access.js';
+import {flag} from './admin/flags.js';
 
 const MIN = 60000, DAY = 86400000;
 const ADMIN_KEY = secret('ADMIN_KEY');
@@ -106,6 +107,7 @@ async function insert(db, c, host, createdBy, invited = []) {
   return id;
 }
 export async function host(shard, p, msg, now = Date.now()) {
+  if (!flag('player_event_hosting')) return {t: 'event_result', error: 'Hosting new events is paused for maintenance. Try again later.'};
   if (p.state.flags?.muteUntil > now || p.state.flags?.jailUntil > now) return {t: 'event_result', error: 'You cannot host events right now.'};
   const c = cleanSpec(msg.spec, {host: p, now});
   if (c.error) { if (c.blocked) shard.strike?.(p, c.blocked, msg.spec?.title); return {t: 'event_result', error: c.error}; }
@@ -234,14 +236,22 @@ export async function finish(id) {
 // ---------- administrator API ----------
 export async function adminList(key) {
   if (!adminOk(key)) return {error: 'forbidden'};
+  return listEvents();
+}
+// Stage 11: the role-checked dashboard calls these directly after its own authorization and audit.
+export async function listEvents() {
   const rows = (await pool.query(`select e.*, (select count(*) from event_attendance a where a.event=e.id and a.rsvp_at is not null) as going,
       (select count(*) from event_attendance a where a.event=e.id and a.first_seen is not null) as attended,
       (select coalesce(json_agg(json_build_object('reason',r.reason,'at',r.at)),'[]') from event_reports r where r.event=e.id) as report_rows
     from game_events e order by e.starts_at desc limit 200`)).rows;
-  return {rows, kinds: KINDS, limits: LIMITS.admin};
+  const venueNames = Object.fromEntries(Object.values(KINDS).flatMap(k => k.venues).map(v => [v, Game.LOC[v]?.name || v]));
+  return {rows, kinds: KINDS, limits: LIMITS.admin, venueNames};
 }
 export async function adminAct(shard, key, body = {}) {
   if (!adminOk(key)) return {error: 'forbidden'};
+  return actOnEvent(shard, body);
+}
+export async function actOnEvent(shard, body = {}) {
   if (body.op === 'create') {
     const c = cleanSpec(body.spec, {admin: true}); if (c.error) return {error: c.error};
     const db = await pool.connect();

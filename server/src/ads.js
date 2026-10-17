@@ -11,6 +11,7 @@ import { safeEqual } from './security.js';
 import * as Payments from './payments.js';
 import {createHash} from 'node:crypto';
 import {moderate} from './filter.js';
+import {flag} from './admin/flags.js';
 
 // ROTATION model (what makes billboards pay): every rotating board carries up to CAP ads, each on screen 15 s in turn,
 // priced per ad per week. Exclusive boards (airport) carry one advertiser at a time at a premium.
@@ -39,6 +40,7 @@ export async function migrateAds() {
     create table if not exists ad_exposures(campaign bigint not null references ad_orders(id),viewer int not null references accounts(id),bucket bigint not null,
       kind text not null check(kind in ('impression','click')),at timestamptz default now(),primary key(campaign,viewer,bucket,kind));
     create table if not exists ad_metrics_daily(campaign bigint not null references ad_orders(id),day date not null,impressions bigint not null default 0,clicks bigint not null default 0,primary key(campaign,day));`);
+  await pool.query('alter table ad_placements add column if not exists paused boolean not null default false');
   for(const s of SLOTS)await pool.query('insert into ad_placements(id,spec) values($1,$2) on conflict(id) do update set spec=excluded.spec,updated_at=now()',[s.id,JSON.stringify(s)]);
 }
 const clean = (s, n) => String(s || '').replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, n);
@@ -77,11 +79,12 @@ export async function listSlots() {
   await expireReservations();
   const r = await pool.query(`select id, slot, title, url, starts, ends from ad_orders where status='approved' and ends > $1 order by starts`, [now]);
   const held=(await pool.query("select placement,count(*)::int n,min(expires) as expires from ad_reservations where status in ('reserved','payment_pending','active') group by placement")).rows;
+  const paused=new Set((await pool.query('select id from ad_placements where paused')).rows.map(r=>r.id));
   return SLOTS.map((s) => {
     const mine = r.rows.filter((a) => a.slot === s.id); const live = mine.filter((a) => +a.starts <= now && +a.ends > now).map((a) => ({ id: +a.id, title: a.title, url: a.url, img: `/ads/${a.id}.jpg`, ends: +a.ends }));
     const nextFree = s.exclusive ? mine.reduce((t, a) => Math.max(t, +a.ends), now) : live.length >= CAP ? Math.min(...live.map((a) => a.ends)) : now;
     const reservation=held.find(r=>r.placement===s.id),cap=s.exclusive?1:CAP;
-    return { ...s, exclusive: !!s.exclusive, cap, onAir: live.length, rotate: ROTATE_S, nextFree:reservation?.n>=cap?Math.max(nextFree,+reservation.expires):nextFree, availability:reservation?.n>=cap||nextFree>now?'reserved':'available',live };
+    return { ...s, exclusive: !!s.exclusive, cap, onAir: live.length, rotate: ROTATE_S, nextFree:reservation?.n>=cap?Math.max(nextFree,+reservation.expires):nextFree, availability:paused.has(s.id)?'paused':reservation?.n>=cap||nextFree>now?'reserved':'available',paused:paused.has(s.id),live };
   });
 }
 
@@ -102,7 +105,8 @@ export async function createOrder(b, acct) {
   const amount = s.price * weeks;
   const artwork=createHash('sha256').update(img).update(JSON.stringify({title,url:vet.url,weeks,email,contact,category:vet.category})).digest('hex');
   return Payments.startPayment({acct,type:'ad',key:b.orderKey,amount:amount*100,email,phone:contact,context:{screen:'ads',placement:s.id,weeks,artwork}},async(db,ref)=>{
-    await db.query('select id from ad_placements where id=$1 for update',[s.id]);
+    const pl=(await db.query('select id,paused from ad_placements where id=$1 for update',[s.id])).rows[0];
+    if(pl?.paused)throw Object.assign(new Error('Bookings for this placement are paused. Choose another placement.'),{public:true});
     await expireReservations(db,s.id);
     const reservations=(await db.query("select seat from ad_reservations where placement=$1 and status in ('reserved','payment_pending','active')",[s.id])).rows;
     const legacy=(await db.query("select count(*) n from ad_orders a where slot=$1 and status in ('approved','paid') and (ends is null or ends>$2) and not exists(select 1 from ad_reservations r where r.order_id=a.id)",[s.id,Date.now()])).rows[0];
@@ -123,7 +127,8 @@ export async function fulfillPayment(db,order){
   else if(!['paid','approved'].includes(o.status))return {review:'Advertising order closed; refund/review required'};
   if(reservation)await db.query("update ad_reservations set status='reserved',expires=$2 where order_id=$1",[o.id,Date.now()+o.weeks*WEEK]);
   // Stage 10: verified payment + every automated check passed → live now (or right after the current exclusive booking).
-  if(!o.review){const r=await scheduleIn(db,o.id);if(r.ok)announce(o.slot);}
+  if(!o.review&&!flag('ads_auto_activation'))await db.query('update ad_orders set review=$2 where id=$1',[o.id,'Automatic activation is paused by operations; a moderator will review this campaign.']);
+  else if(!o.review){const r=await scheduleIn(db,o.id);if(r.ok)announce(o.slot);}
 }
 // put an order on air: rotation boards start now while they have room (else when the earliest ad ends); exclusive boards queue
 async function schedule(o) {
@@ -162,9 +167,20 @@ export async function webhook(rawBody, signature) {
 }
 // owner moderation
 const adminOk = (k) => !!ADMIN_KEY && safeEqual(k,ADMIN_KEY);
-export async function adminList(key) { if (!adminOk(key)) return { error: 'forbidden' }; const r = await pool.query(`select * from ad_orders order by id desc limit 200`); return { rows: r.rows.map((o) => ({ ...o, img: `/ads/${o.id}.jpg` })) }; }
-export async function adminAct(key, { id, action }) {
+export async function adminList(key) { if (!adminOk(key)) return { error: 'forbidden' }; return listOrders(); }
+// Stage 11: operations can pause new bookings on a placement; campaigns already booked keep running.
+export async function setPlacementPaused(id, paused) {
+  const r = await pool.query('update ad_placements set paused=$2, updated_at=now() where id=$1 and paused<>$2 returning id', [id, !!paused]);
+  return r.rowCount ? { ok: true } : { error: 'That placement is already in that state or does not exist.', httpStatus: '409 Conflict' };
+}
+export async function listOrders() { const r = await pool.query(`select * from ad_orders order by id desc limit 200`); return { rows: r.rows.map((o) => ({ ...o, img: `/ads/${o.id}.jpg` })) }; }
+export async function adminAct(key, b) {
   if (!adminOk(key)) return { error: 'forbidden' };
+  return actOnOrder(b);
+}
+// Stage 11: the role-checked dashboard never offers 'markpaid' (a status toggle is not provider verification).
+export async function actOnOrder({ id, action }, { allowManualPayment = true } = {}) {
+  if (action === 'markpaid' && !allowManualPayment) return { error: 'Payments are confirmed only by provider verification.' };
   const r = await pool.query(`select * from ad_orders where id=$1`, [id | 0]); const o = r.rows[0]; if (!o) return { error: 'not found' };
   if (action === 'markpaid' && o.status === 'pending_payment') return Payments.manualAdPayment(o.ref);
   else if (action === 'approve' && (o.status === 'paid')) {
@@ -175,9 +191,9 @@ export async function adminAct(key, { id, action }) {
   else return { error: `cannot ${action} an order that is ${o.status}` };
   return { ok: true };
 }
-export async function adImagePath(id,key='',acct=null) {
+export async function adImagePath(id,key='',acct=null,staff=false) {
   if(!Number.isSafeInteger(id)||id<1)return null;
-  if(!adminOk(key)){
+  if(!staff&&!adminOk(key)){
     const row=await pool.query("select 1 from ad_orders a where id=$1 and ((status='approved' and starts<=$2 and ends>$2) or exists(select 1 from payment_orders p where p.type='ad' and p.legacy_id=a.id and p.acct=$3))",[id,Date.now(),acct]);
     if(!row.rowCount)return null;
   }

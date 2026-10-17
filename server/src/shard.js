@@ -2,6 +2,7 @@
 // or a friend's home) or on the road. Each place runs as room instances of up to ROOM_CAP players; presence, walking,
 // sitting and chat are relayed only inside the room. Money, DMs and gems work across the whole city.
 import { CFG } from './config.js';
+import { REPORT_TARGET_SQL } from './admin/store.js';
 import { cleanText, moderate, BLOCK_MSG } from './filter.js';
 import * as Gist from './gist.js';
 import * as Game from './game/rules.js';
@@ -483,7 +484,7 @@ export class Shard {
     else if (msg.t === 'gist_del') Gist.hide(p.acct, msg.id).then(() => done({ t: 'gist_posted' })).catch(fail);
     else done({t:'toast',m:'Unknown Gist action.',k:'bad'});
   }
-  report(reporter, target, text) { if (reporter > 0) pool.query('insert into reports (reporter, target, text) values ($1,$2,$3)', [reporter, String(target).slice(0, 80), String(text || '').slice(0, 400)]).catch((e) => console.error('[report]', e.message)); }
+  report(reporter, target, text) { if (reporter > 0) pool.query(`insert into reports (reporter, target, text, target_acct) values ($1,$2,$3,${REPORT_TARGET_SQL})`, [reporter, String(target).slice(0, 80), String(text || '').slice(0, 400)]).catch((e) => console.error('[report]', e.message)); }
   reportPlayer(p, msg) {
     const o = this.players.get(msg.id | 0) || this.byName(msg.name); if (!o) return; const k = 'rep:' + o.acct; if (p[k]) return this.send(p, { t: 'toast', m: 'Already reported. Thanks.' }); p[k] = 1;
     this.report(p.acct, `player:${o.acct}:${o.name}`, cleanText(msg.reason || '', 200) + ' | last: ' + (o.lastChat || ''));

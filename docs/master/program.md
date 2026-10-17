@@ -41,7 +41,7 @@ flowchart LR
 | 8 | Complete locally (CI pending); [checkpoint](stage8/checkpoint.md) | Curated contextual events, bounded authoritative choices, fair neutral expiry, replay/disconnect tests |
 | 9 | Complete locally (CI pending; no phone FPS measured); [checkpoint](stage9/checkpoint.md) | Bounded ambient schedules/pooling/LOD, distinguish NPCs from real players, actual business frontage |
 | 10 | Complete locally with simulated Paystack (live key not enabled); [checkpoint](stage10/checkpoint.md) | Real standalone booking/management, safe media, verified payment return, eligible auto-activation and suspension |
-| 11 | Not started | Separate secure UI, server-enforced roles, audit, actual metrics, restricted moderation/payment/world controls |
+| 11 | Complete locally (CI step added; activity history starts at deployment); [checkpoint](stage11/checkpoint.md) | Separate secure UI, server-enforced roles, audit, actual metrics, restricted moderation/payment/world controls |
 | 12 | Not started | Journeys A–O, final economy simulations, exploit tests, mobile diagnostics, Docker, policies/release gates |
 
 Each stage must record its exact files, data changes, tests/results, gameplay

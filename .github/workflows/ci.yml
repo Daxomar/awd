@@ -48,6 +48,19 @@ jobs:
           node loadtest/life-integration.js
           NODE_ENV=test BIRTH_SEED=ci-disposable-seed node loadtest/property-db.test.js
           NODE_ENV=test BIRTH_SEED=ci-disposable-seed node loadtest/vehicle-db.test.js
+      - name: Verify the administrator API against a running server
+        working-directory: server
+        env:
+          DATABASE_URL: postgres://awd:disposable-ci-database-only@127.0.0.1:5432/awd_security
+          PORT: '8090'
+          PUBLIC_URL: http://127.0.0.1:8090
+          ADMIN_TEST_BASE: http://127.0.0.1:8090
+          REDIS_URL: redis://127.0.0.1:6390
+        run: |
+          node src/index.js > admin-server.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8090/health && break; sleep 2; done
+          node loadtest/admin-integration.js || (tail -40 admin-server.log; exit 1)
+          kill %1
       - run: npm ci && npm test && npm audit && npm run build
         working-directory: client
       - name: Initialize disposable Docker secrets
