@@ -53,7 +53,7 @@ export async function ads(view, ctx, state = {filter: 'all', page: 1}) {
     table([{label: '', get: c => h('img.thumb', {src: c.img, alt: '', loading: 'lazy'})}, {label: 'Campaign', get: c => h('div', {}, h('b', {text: c.title}), h('div.muted', {text: `#${c.id} · ${c.slot} · ${c.category || 'business'} · ${c.weeks} wk`}), c.review ? h('div.muted', {text: 'Review: ' + c.review}) : null)},
       {label: 'Status', get: statusTag}, {label: 'Paid', get: c => c.payment || '—'}, {label: 'Impressions', num: 1, get: c => num(c.impressions)}, {label: 'Price', num: 1, get: c => cedi(c.amount)},
       {label: '', get: c => ctx.can('ads.moderate') ? h('div.row', {},
-        c.status === 'paid' && h('button.btn.small', {onclick: () => act(c, 'approve')}, 'Approve'),
+        ['paid', 'pending_payment'].includes(c.status) && h('button.btn.small', {onclick: () => act(c, 'approve')}, 'Approve'),
         ['approved', 'paid'].includes(c.status) && !(c.ends && +c.ends <= Date.now()) && h('button.btn.ghost.small', {onclick: () => act(c, 'suspend')}, 'Suspend'),
         !['rejected', 'suspended', 'cancelled'].includes(c.status) && h('button.btn.ghost.small', {onclick: () => act(c, 'takedown')}, 'Take down')) : ''}],
     r.campaigns.rows, 'No campaigns in this list.'), pager(r.campaigns, page => ads(view, ctx, {...state, page})),

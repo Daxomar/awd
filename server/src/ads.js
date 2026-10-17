@@ -32,7 +32,8 @@ export async function migrateAds() {
     ref text unique, starts bigint, ends bigint, note text, created_at timestamptz default now());
   create index if not exists ad_orders_slot on ad_orders (slot, ends);
   alter table ad_orders add column if not exists category text;
-  alter table ad_orders add column if not exists review text;`);
+  alter table ad_orders add column if not exists review text;
+  alter table ad_orders add column if not exists image bytea;`);
   await pool.query(`create table if not exists ad_placements(id text primary key,spec jsonb not null,updated_at timestamptz default now());
     create table if not exists ad_reservations(order_id bigint primary key references ad_orders(id),placement text not null references ad_placements(id),
       seat int not null,status text not null,expires bigint not null,created_at timestamptz default now());
@@ -48,7 +49,7 @@ const clean = (s, n) => String(s || '').replace(/[\u0000-\u001f<>]/g, '').trim()
 // moderator review instead of activating, and admins can suspend any campaign after activation.
 export const CATEGORIES = { business: 'Business', music: 'Music release', album: 'Album', event: 'Event', fashion: 'Fashion', creator: 'Creator', community: 'Community gathering' };
 const SHORTENERS = new Set(['bit.ly', 'tinyurl.com', 't.co', 'goo.gl', 'ow.ly', 'is.gd', 'cutt.ly', 'rebrand.ly', 'shorturl.at', 'tiny.cc', 'rb.gy', 's.id']);
-export const LINK_ALLOWLIST = ['open.spotify.com', 'music.apple.com', 'audiomack.com', 'boomplay.com', 'youtube.com', 'music.youtube.com', 'youtu.be', 'soundcloud.com', 'deezer.com', 'tidal.com',
+export const LINK_ALLOWLIST = ['accrawedey.world', 'www.accrawedey.world', 'open.spotify.com', 'music.apple.com', 'audiomack.com', 'boomplay.com', 'youtube.com', 'music.youtube.com', 'youtu.be', 'soundcloud.com', 'deezer.com', 'tidal.com',
   'instagram.com', 'tiktok.com', 'facebook.com', 'x.com', 'twitter.com', 'wa.me', 'whatsapp.com', 'linktr.ee', 'eventbrite.com', 'google.com', 'maps.google.com', 'jumia.com.gh', 'tonaton.com', 'meqasa.com'];
 const SENSITIVE = /\b(bet|betting|casino|gambl\w*|lotto|forex|crypto|bitcoin|investment returns?|double your money|loan app|weed|marijuana|vape|adult|xxx|sexy|escort|gun|weapon|pharma|slimming|herbal cure)\b/i;
 export function vetLink(u) {
@@ -113,7 +114,7 @@ export async function createOrder(b, acct) {
     const cap=s.exclusive?1:CAP,used=new Set(reservations.map(r=>r.seat));
     if(reservations.length+(+legacy.n)>=cap)throw Object.assign(new Error('This placement is reserved. Choose another or try after it expires.'),{public:true});
     let seat=0;while(used.has(seat))seat++;
-    const r=await db.query(`insert into ad_orders(slot,title,url,contact,email,weeks,amount,ref,category,review) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) returning id`,[s.id,title,vet.url,contact,email,weeks,amount,ref,vet.category,vet.review]);
+    const r=await db.query(`insert into ad_orders(slot,title,url,contact,email,weeks,amount,ref,category,review,image) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) returning id`,[s.id,title,vet.url,contact,email,weeks,amount,ref,vet.category,vet.review,img]);
     const id=+r.rows[0].id;await fs.promises.writeFile(path.join(DIR,`${id}.jpg`),img);
     await db.query("insert into ad_reservations(order_id,placement,seat,status,expires) values($1,$2,$3,'payment_pending',$4)",[id,s.id,seat,Date.now()+30*60000]);return id;
   });
@@ -144,15 +145,15 @@ async function scheduleIn(db,id) {
     let o=(await db.query('select * from ad_orders where id=$1',[id])).rows[0];if(!o)return {error:'Order not found.'};
     await db.query('select id from ad_placements where id=$1 for update',[o.slot]);
     o=(await db.query('select * from ad_orders where id=$1 for update',[o.id])).rows[0];
-    if(o.status!=='paid')return {error:'This order is not awaiting activation.'};
+    if(!['paid','approved'].includes(o.status))return {error:'This order is not awaiting activation.'};
     const reservation=(await db.query('select * from ad_reservations where order_id=$1 for update',[o.id])).rows[0];
-    if(reservation&&(!['reserved','payment_pending'].includes(reservation.status)||+reservation.expires<Date.now()))return {error:'Reservation expired. Review payment/refund before approval.'};
+    if(reservation&&+reservation.expires<Date.now())await db.query("update ad_reservations set status='reserved',expires=$2 where order_id=$1",[o.id,Date.now()+o.weeks*WEEK]);
     const S=SLOT[o.slot],now=Date.now();let starts=now;
     const live=await db.query("select starts,ends from ad_orders where slot=$1 and status='approved' and ends>$2 order by ends",[o.slot,now]);
     if(S?.exclusive)starts=live.rows.reduce((t,a)=>Math.max(t,+a.ends),now);
     else if(live.rows.length>=CAP)starts=+live.rows[live.rows.length-CAP].ends;
     const ends=starts+o.weeks*WEEK;
-    await db.query("update ad_orders set status='approved',starts=$2,ends=$3 where id=$1",[o.id,starts,ends]);
+    await db.query("update ad_orders set status='approved',starts=$2,ends=$3,review=null where id=$1",[o.id,starts,ends]);
     if(reservation)await db.query("update ad_reservations set status='active',expires=$2 where order_id=$1",[o.id,ends]);
     return {ok:true,starts};
   }
@@ -183,7 +184,8 @@ export async function actOnOrder({ id, action }, { allowManualPayment = true } =
   if (action === 'markpaid' && !allowManualPayment) return { error: 'Payments are confirmed only by provider verification.' };
   const r = await pool.query(`select * from ad_orders where id=$1`, [id | 0]); const o = r.rows[0]; if (!o) return { error: 'not found' };
   if (action === 'markpaid' && o.status === 'pending_payment') return Payments.manualAdPayment(o.ref);
-  else if (action === 'approve' && (o.status === 'paid')) {
+  else if (action === 'approve' && ['paid', 'pending_payment'].includes(o.status)) {
+    if (o.status === 'pending_payment') await pool.query("update ad_orders set status='paid' where id=$1", [o.id]);
     const r2 = await schedule(o); if (r2.error) return r2;
   } else if (action === 'suspend' && ['approved', 'paid'].includes(o.status)) {
     await pool.query("update ad_orders set status='suspended', note=$2, ends=least(coalesce(ends, $3), $3) where id=$1", [o.id, 'Suspended by moderators', Date.now()]); await pool.query("update ad_reservations set status='cancelled' where order_id=$1", [o.id]); announce(o.slot);
@@ -197,7 +199,16 @@ export async function adImagePath(id,key='',acct=null,staff=false) {
     const row=await pool.query("select 1 from ad_orders a where id=$1 and ((status='approved' and starts<=$2 and ends>$2) or exists(select 1 from payment_orders p where p.type='ad' and p.legacy_id=a.id and p.acct=$3))",[id,Date.now(),acct]);
     if(!row.rowCount)return null;
   }
-  const f=path.join(DIR,`${id}.jpg`);return fs.existsSync(f)?f:null;
+  const f=path.join(DIR,`${id}.jpg`);
+  if(fs.existsSync(f))return f;
+  try {
+    const row = await pool.query('select image from ad_orders where id=$1 and image is not null', [id]);
+    if (row.rows[0]?.image) {
+      await fs.promises.writeFile(f, row.rows[0].image);
+      return f;
+    }
+  } catch {}
+  return null;
 }
 export async function expireReservations(db=pool,slot=null){
   await db.query("update ad_reservations set status='expired' where expires<$1 and status in ('reserved','payment_pending','active') and ($2::text is null or placement=$2)",[Date.now(),slot]);

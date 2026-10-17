@@ -14,8 +14,8 @@ export class CityAds {
         const root = new THREE.Group(), steel = new THREE.MeshStandardMaterial({ color: '#536c64', roughness: .8 });
         const ground=slot.type==='ground',width=ground ? .34 : slot.tier==='MEGA' ? .52 : .44,height=width/2;
         const frame = new THREE.Mesh(new THREE.BoxGeometry(width+(ground ? .014 : .024),ground ? .004 : height+.024,ground ? height+.014 : .025), steel);frame.position.y=ground ? .002 : .26;root.add(frame);
-        const face = new THREE.Mesh(new THREE.PlaneGeometry(width,height), new THREE.MeshStandardMaterial({ map: this.house, emissive: '#ffffff', emissiveMap: this.house, emissiveIntensity:ground ? .3 : .65,roughness:.65,metalness:0,polygonOffset:ground,polygonOffsetFactor:-2,polygonOffsetUnits:-2 }));
-        if(ground){face.rotation.x=-Math.PI/2;face.position.y=.0045;}else{face.position.set(0,.26,.014);const pole=new THREE.Mesh(new THREE.BoxGeometry(.022,.2,.022),steel);pole.position.y=.1;root.add(pole);}
+        const face = new THREE.Mesh(new THREE.PlaneGeometry(width,height), new THREE.MeshStandardMaterial({ map: this.house, emissive: '#ffffff', emissiveMap: this.house, emissiveIntensity:ground ? .3 : .65,roughness:.65,metalness:0,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2 }));
+        if(ground){face.rotation.x=-Math.PI/2;face.position.y=.0055;}else{face.position.set(0,.26,.016);const pole=new THREE.Mesh(new THREE.BoxGeometry(.022,.2,.022),steel);pole.position.y=.1;root.add(pole);}
         root.add(face);
         const [x, z] = display(slot.x, slot.z),offset=slot.offset||[-.18,-.18];root.position.set(x+offset[0],.006,z+offset[1]);root.rotation.y=slot.yaw||0;
         b = { root, face, cur: null, seed: [...slot.id].reduce((n, c) => n + c.charCodeAt(0), 0) }; this.parent.add(root); this.boards.push(b);
@@ -36,7 +36,14 @@ export class CityAds {
       let texture = this.house;
       if (ad) {
         if (!this.textures.has(key)) {
-          const t = this.loader.load(ad.img, loaded => { if (this.disposed || !this.textures.has(key)) loaded.dispose(); }); t.colorSpace = THREE.SRGBColorSpace; this.textures.set(key, t);
+          const t = this.loader.load(ad.img, loaded => {
+            if (this.disposed || !this.textures.has(key)) { loaded.dispose(); return; }
+            if (b.cur === key) { b.face.material.map = loaded; b.face.material.emissiveMap = loaded; b.face.material.needsUpdate = true; }
+          }, undefined, () => {
+            this.textures.delete(key);
+            if (b.cur === key) { b.face.material.map = this.house; b.face.material.emissiveMap = this.house; b.face.material.needsUpdate = true; }
+          });
+          t.colorSpace = THREE.SRGBColorSpace; this.textures.set(key, t);
         }
         texture = this.textures.get(key); this.textures.delete(key); this.textures.set(key, texture);
       }

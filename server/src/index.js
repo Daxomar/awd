@@ -200,7 +200,7 @@ app.get('/api/packs', (res) => res.cork(() => securityHeaders(res).writeHeader('
 app.get('/ads/:id',(res,req)=>{
   const id=Number(req.getParameter(0).replace(/\.jpg$/,'')),key=req.getHeader('x-admin-key'),cookie=req.getHeader('cookie'),token=cookieToken(cookie),staffToken=adminToken(cookie);let ab=false;res.onAborted(()=>{ab=true;});
   // Staff with advertising access can see artwork of campaigns that are not live yet (review, suspended).
-  (async()=>{const a=token?await authenticate(token):null,s=staffToken?await adminAuth(staffToken):null;return Ads.adImagePath(id,key,a?.id,!!s&&can(s.role,'ads.read'));})().then(f=>{if(ab)return;res.cork(()=>{if(!f){res.writeStatus('404 Not Found');securityHeaders(res).end();return;}securityHeaders(res).writeHeader('content-type','image/jpeg').writeHeader('cache-control','private, no-store').end(fs.readFileSync(f));});})
+  (async()=>{const a=token?await authenticate(token):null,s=staffToken?await adminAuth(staffToken):null;return Ads.adImagePath(id,key,a?.id,!!s&&can(s.role,'ads.read'));})().then(f=>{if(ab)return;res.cork(()=>{if(!f){res.writeStatus('404 Not Found');securityHeaders(res).writeHeader('access-control-allow-origin','*').end();return;}securityHeaders(res).writeHeader('access-control-allow-origin','*').writeHeader('content-type','image/jpeg').writeHeader('cache-control','public, max-age=3600').end(fs.readFileSync(f));});})
     .catch(()=>{if(!ab)res.cork(()=>res.writeStatus('503 Service Unavailable').end());});
 });
 
