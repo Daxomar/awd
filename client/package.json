@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node --test test/character-resources.test.js test/onboarding-session.test.js test/net-onboarding.test.js test/game-ui.test.js test/city-map.test.js test/environments.test.js test/streets.test.js test/awd-character-assets.test.js test/ad-exposure.test.js test/ad-placements.test.js test/compact-city.test.js test/property-room.test.js test/movement.test.js test/quality.test.js",
+    "test": "node --test test/character-resources.test.js test/onboarding-session.test.js test/net-onboarding.test.js test/game-ui.test.js test/city-map.test.js test/environments.test.js test/streets.test.js test/awd-character-assets.test.js test/ad-exposure.test.js test/ad-placements.test.js test/compact-city.test.js test/property-room.test.js test/movement.test.js test/quality.test.js test/world-life.test.js",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview --port 5174"

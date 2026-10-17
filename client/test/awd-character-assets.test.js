@@ -23,6 +23,10 @@ function glbJson(file) {
   const length = data.readUInt32LE(12);
   return JSON.parse(data.subarray(20, 20 + length).toString('utf8'));
 }
+// Locomotion and gestures, plus the activity actions (characters/scripts/awd_anim.py ACTION_CLIPS).
+const BASE_CLIPS = ['agree', 'dance', 'idle', 'run', 'sad', 'shake', 'walk', 'wave'];
+const ACTION_CLIPS = ['lift', 'box', 'eat', 'drink', 'phone_use', 'photo', 'cook', 'scrub', 'sweep', 'carry', 'type', 'guitar', 'drum',
+  'cheer', 'talk', 'read', 'pull', 'fix', 'swim'];
 const morphNames = (doc) => new Set(doc.meshes.flatMap((m) => m.extras?.targetNames || []));
 
 for (const sex of ['male', 'female']) {
@@ -33,7 +37,7 @@ for (const sex of ['male', 'female']) {
       const joints = doc.skins[0].joints.map((i) => doc.nodes[i].name);
       assert.equal(joints.length, 67);
       for (const bone of GAME_BONES) assert.ok(joints.includes(bone), `missing bone ${bone}`);
-      assert.deepEqual(doc.animations.map((a) => a.name).sort(), ['agree', 'dance', 'idle', 'run', 'sad', 'shake', 'walk', 'wave']);
+      assert.deepEqual(doc.animations.map((a) => a.name).sort(), [...BASE_CLIPS, ...ACTION_CLIPS].sort());
       const morphs = morphNames(doc);
       for (const slider of Object.keys(SLIDERS)) assert.ok(morphs.has(slider), `missing slider morph ${slider}`);
       for (const key of EXPRESSION_MORPHS) assert.equal(morphs.has(key), lod === 0, `expression ${key} at LOD${lod}`);

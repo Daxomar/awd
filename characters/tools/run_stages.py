@@ -22,6 +22,7 @@ CALLS = {
     'base': lambda: namespace['stage_base_export'](),
     'library': lambda: namespace['stage_library'](),
     'wardrobe': lambda: namespace['stage_wardrobe'](),
+    'props': lambda: namespace['stage_props'](),
 }
 log = ROOT / 'characters' / 'previews' / 'wip' / f'stages_{sex}.log'
 results = {}

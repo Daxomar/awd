@@ -33,7 +33,37 @@ const SLOT_PREFIX = [['AWD_Top', 'top'], ['AWD_Bottom', 'bottom'], ['AWD_Full', 
 const slotOf = (name) => SLOT_PREFIX.find(([prefix]) => name.startsWith(prefix))?.[1];
 const extrasOf = (o) => { for (let n = o; n; n = n.parent) if (n.userData?.awd_slot) return n.userData; return {}; };
 
-const LOOPED = new Set(['idle', 'walk', 'run', 'dance', 'sit_idle', 'talk', 'phone_use']);
+// Multicolour cloths (kente, ankara): the texture is a colourway mask (characters/tools/make_prints.py),
+// red = the chosen colour, green and blue = two accents, the rest = the ground. Accents are the two
+// Ghanaian flag-palette colours furthest from the chosen one, so every colourway stays a real kente.
+const CLOTH = /^AWD_(Kente|Ankara)_/;
+const CLOTH_PALETTE = ['#f2b632', '#0e7a4e', '#c8102e', '#1f6fb8', '#e76f51', '#7b2d8e'];
+const CLOTH_GROUND = { Kente: '#14110e', Ankara: '#f1e4c8' };
+const CLOTH_DEFAULT = { Kente: '#f2b632', Ankara: '#e76f51' };
+export function clothAccents(primary) {
+  const c = new THREE.Color(primary);
+  return CLOTH_PALETTE.map((hex) => { const o = new THREE.Color(hex); return [hex, (o.r - c.r) ** 2 + (o.g - c.g) ** 2 + (o.b - c.b) ** 2]; })
+    .sort((a, b) => b[1] - a[1]).slice(0, 2).map(([hex]) => hex);
+}
+function paintCloth(m, kind, primary) {
+  const [a, b] = clothAccents(primary);
+  // In the ankara mask the green channel holds the large motifs, so the chosen colour goes there.
+  const [r, g] = kind === 'Ankara' ? [a, primary] : [primary, a];
+  const uniforms = { awdP: { value: new THREE.Color(r) }, awdA: { value: new THREE.Color(g) }, awdB: { value: new THREE.Color(b) }, awdK: { value: new THREE.Color(CLOTH_GROUND[kind]) } };
+  m.color.set('#ffffff');
+  m.onBeforeCompile = (shader) => {
+    Object.assign(shader.uniforms, uniforms);
+    shader.fragmentShader = 'uniform vec3 awdP, awdA, awdB, awdK;\n' + shader.fragmentShader.replace('#include <map_fragment>', `#ifdef USE_MAP
+      vec3 awdW = texture2D( map, vMapUv ).rgb;
+      diffuseColor.rgb *= awdW.r * awdP + awdW.g * awdA + awdW.b * awdB + clamp( 1.0 - awdW.r - awdW.g - awdW.b, 0.0, 1.0 ) * awdK;
+    #endif`);
+  };
+  m.customProgramCacheKey = () => 'awd-cloth';
+}
+
+const LOOPED = new Set(['idle', 'walk', 'run', 'dance', 'sit_idle', 'talk', 'phone_use',
+  // activity actions (characters/scripts/awd_anim.py ACTION_CLIPS)
+  'lift', 'box', 'eat', 'drink', 'photo', 'cook', 'scrub', 'sweep', 'carry', 'type', 'guitar', 'drum', 'cheer', 'read', 'pull', 'fix', 'swim']);
 
 export class AwdTemplate {
   constructor(gltf) {
@@ -122,6 +152,9 @@ export class AwdCharacter {
       else if (name.startsWith('AWD_Hair_') || name.startsWith('AWD_Beard_') || name === 'AWD_Brows') {
         const colour = look.hairCol || '#141010';
         mesh.material = this.template.variant(base, 'hair' + colour, (m) => m.color.set(colour).multiplyScalar(HAIR_ALBEDO));
+      } else if (CLOTH.test(name)) {
+        const kind = CLOTH.exec(name)[1], colour = slotColour || CLOTH_DEFAULT[kind];
+        mesh.material = this.template.variant(base, 'cloth' + colour, (m) => paintCloth(m, kind, colour));
       } else if (slotColour && TINTED.test(name)) mesh.material = tint(base, slotColour);
       else mesh.material = base;   // prints, metal, lenses, soles and unset colours keep their authored look
     }

@@ -68,7 +68,8 @@ P.sit_floor.R.Leg = N(0.92, 0.04, 0.4);
 
 export const POSES = ['stand', ...Object.keys(P)];
 
-export function applyPose(av, pose) {
+// armsFree: an action clip (scene/actions.js) is driving the arms; only legs and hips are posed.
+export function applyPose(av, pose, armsFree = false) {
   const m = av.model;
   const p = pose==='stand'&&av.native&&av.curName==='idle'?P.relaxed:P[pose];
   if (!p) { if (av._posed) { m.position.set(0, 0, 0); m.rotation.set(0, 0, 0); av._posed = false; } return; }
@@ -86,7 +87,7 @@ export function applyPose(av, pose) {
   if (pose === 'lie') { // straighten the torso along the bed (idle sway would lift the head)
     aim(R, 'Spine', new THREE.Vector3(0, 0.1, -1).normalize(), _rq);
   }
-  for (const part of ['UpLeg', 'Leg', 'Foot', 'Arm', 'ForeArm', 'Hand']) {
+  for (const part of armsFree ? ['UpLeg', 'Leg', 'Foot'] : ['UpLeg', 'Leg', 'Foot', 'Arm', 'ForeArm', 'Hand']) {
     if (p[part]) aim(R, 'Left' + part, p[part], _rq);
     if (p.R[part]) aim(R, 'Right' + part, p.R[part], _rq);
   }

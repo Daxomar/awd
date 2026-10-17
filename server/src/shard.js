@@ -13,6 +13,7 @@ import * as PhoneGames from './game/phone-games.js';
 import { loadPlayer, savePlayers, pool } from './db.js';
 import { randomUUID } from 'node:crypto';
 import { localRoomInfo, saveLocalMove } from './street-world.js';
+import { STREET_HALF } from '../../shared/local-streets.js';
 import * as FirstFriend from './first-friend.js';
 import * as Events from './events.js';
 import * as HomeAccess from './game/home-access.js';
@@ -147,7 +148,7 @@ export class Shard {
     return pl;
   }
   fit(o) { const s = o.state, b = s.busy; return s.shift && s.job ? 'work:' + s.job.id : b && b.sleep ? 'sleep' : b && GYM.has(b.id) ? 'gym' : null; }
-  info(o) { const b = o.state.busy; return { id: o.id, n: o.name, lk: o.state.look, fit: this.fit(o), x: o.rx, z: o.rz, it: o.it, zn: o.zn, st: b && !b.travel ? b.ic : o.state.shift ? 'icon:briefcase' : '', lbl: b && !b.travel ? b.label || '' : o.state.shift ? 'At work' : '' }; }
+  info(o) { const b = o.state.busy; return { id: o.id, n: o.name, lk: o.state.look, fit: this.fit(o), x: o.rx, z: o.rz, it: o.it, zn: o.zn, st: b && !b.travel ? b.ic : o.state.shift ? 'icon:briefcase' : '', act: b && !b.travel ? b.id : '', lbl: b && !b.travel ? b.label || '' : o.state.shift ? 'At work' : '' }; }
   enterRoom(p) {
     if(this.phase8Ready&&p.state.place?.startsWith('visit:')&&!this.canVisit(p,this.byAcct(+p.state.place.slice(6)))){Game.goPlace(p,'circle');p.dirty=true;this.send(p,{t:'arrived',place:'circle',name:Game.LOC.circle.name});this.send(p,{t:'toast',m:'This private home is no longer available.'});}
     if(isUnitPlace(p.state.place)&&!this.roomBase(p)){const exit=p.propertyContext?.exit&&Game.LOC[p.propertyContext.exit]?p.propertyContext.exit:'circle';p.propertyContext=null;Game.goPlace(p,exit);p.dirty=true;this.send(p,{t:'arrived',place:exit,name:Game.LOC[exit].name});this.send(p,{t:'toast',m:'This property is no longer open to you.'});}
@@ -354,7 +355,9 @@ export class Shard {
   }
   roomMove(p, m) {
     if (!p.room) return; const now = Date.now(); if (now - (p.mvAt || 0) < 120) return; p.mvAt = now;
-    const n = (v) => (Number.isFinite(v) ? Math.max(-20, Math.min(20, Math.round(v * 100) / 100)) : null);
+    // Neighbourhood streets are 88 m across (shared/local-streets.js); every other room fits in 40 m.
+    const lim = p.state.place?.startsWith('n:') ? STREET_HALF : 20;
+    const n = (v) => (Number.isFinite(v) ? Math.max(-lim, Math.min(lim, Math.round(v * 100) / 100)) : null);
     const x=n(m.x),z=n(m.z);
     if(!saveLocalMove(p.state,x,z))return this.send(p,{t:'rpos',place:p.state.place,x:p.rx,z:p.rz});
     p.rx = x; p.rz = z;if(p.state.place?.startsWith('n:'))p.dirty=true;
@@ -531,7 +534,7 @@ export class Shard {
         if (p.state.onboarded && p.state.place !== p.roomPlace) this.enterRoom(p);
         // status changes (started/finished an activity) are shown to the room
         const b = p.state.busy, key = b && !b.travel ? b.id : p.state.shift ? 'shift' : '';
-        if (key !== (p.lastKey || '')) { p.lastKey = key; if (p.room) { const inf = this.info(p); this.toRoom(p.room, { t: 'rst', id: p.id, st: inf.st, lbl: inf.lbl, fit: inf.fit, zn: key ? p.zn : null }, p); } }
+        if (key !== (p.lastKey || '')) { p.lastKey = key; if (p.room) { const inf = this.info(p); this.toRoom(p.room, { t: 'rst', id: p.id, st: inf.st, act: inf.act, lbl: inf.lbl, fit: inf.fit, zn: key ? p.zn : null }, p); } }
         if (!p.bot && p.state.onboarded && (p.id & 1) === odd) this.send(p, { ...Game.me(p.state, now, this.policy), place: p.state.place });
       } catch (e) { this.fault(p, 'tick', e); }
     }

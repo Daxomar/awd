@@ -5,6 +5,7 @@
 // Room local coords: x in [-w/2, w/2], z in [-d/2, d/2]; back wall at z=-d/2, left wall at x=-w/2.
 import * as THREE from 'three';
 import { locomotion } from './movement.js';
+import { stepPerson } from './locomotion.js';
 import { makeItem, floorMaterial, trimKitCaches } from './kit.js';
 import { EnvironmentResources } from './environment-resources.js';
 import { buildEnvironmentArt } from './environment-art.js';
@@ -119,7 +120,7 @@ export class Room {
   }
   cellOf(x, z) { return [Math.max(0, Math.min(this.nav.nx - 1, Math.floor((x + this.spec.w / 2) / CELL))), Math.max(0, Math.min(this.nav.nz - 1, Math.floor((z + this.spec.d / 2) / CELL)))]; }
   free(i, j) { const n = this.nav; return i > 0 && j > 0 && i < n.nx && j < n.nz && !n.g[j * n.nx + i]; }
-  nearestFree(x, z) { const [ci, cj] = this.cellOf(x, z); if (this.free(ci, cj)) return [ci, cj]; for (let r = 1; r < 12; r++) for (let di = -r; di <= r; di++) for (let dj = -r; dj <= r; dj++) if (Math.max(Math.abs(di), Math.abs(dj)) === r && this.free(ci + di, cj + dj)) return [ci + di, cj + dj]; return [ci, cj]; }
+  nearestFree(x, z, reach = 12) { const [ci, cj] = this.cellOf(x, z); if (this.free(ci, cj)) return [ci, cj]; for (let r = 1; r < reach; r++) for (let di = -r; di <= r; di++) for (let dj = -r; dj <= r; dj++) if (Math.max(Math.abs(di), Math.abs(dj)) === r && this.free(ci + di, cj + dj)) return [ci + di, cj + dj]; return [ci, cj]; }
   path(x0, z0, x1, z1) {
     const { nx, nz } = this.nav; const [si, sj] = this.nearestFree(x0, z0), [ti, tj] = this.nearestFree(x1, z1); const start = sj * nx + si, goal = tj * nx + ti;
     const gS = new Float32Array(nx * nz).fill(1e9), came = new Int32Array(nx * nz).fill(-1), open = [start]; gS[start] = 0; const inOpen = new Uint8Array(nx * nz); inOpen[start] = 1;
@@ -147,29 +148,26 @@ export class Room {
     const p = { id, av: avatar, x, z, yaw: Math.PI * 0.25, path: [], speed: 1.45, pose: 'stand', info, poseAt: null };
     avatar.root.position.set(x, 0, z); avatar.root.userData.personId = id; this.group.add(avatar.root); this.people.set(id, p); return p;
   }
-  removePerson(id) { const p = this.people.get(id); if (!p) return;clearTimeout(p.danceT); this.group.remove(p.av.root); p.av.dispose && p.av.dispose(); this.people.delete(id); }
+  removePerson(id) { const p = this.people.get(id); if (!p) return;clearTimeout(p.danceT);p.props?.clear(); this.group.remove(p.av.root); p.av.dispose && p.av.dispose(); this.people.delete(id); }
   walkTo(id, x, z, onArrive, finalPose) {
-    const p = this.people.get(id); if (!p) return; p.pose = 'stand'; p.poseAt = null; p.path = this.path(p.x, p.z, x, z); p.onArrive = onArrive || null; p.finalPose = finalPose || null;
+    const p = this.people.get(id); if (!p) return; p.steer = null; p.pose = 'stand'; p.poseAt = null; p.path = this.path(p.x, p.z, x, z); p.onArrive = onArrive || null; p.finalPose = finalPose || null;
     // Already there (empty path): arrive now. Otherwise a station, seat or door tapped while
     // standing on it would never run its callback.
     if (!p.path.length) { const f = p.finalPose; if (f) { p.x = f.x; p.z = f.z; p.yaw = f.yaw ?? p.yaw; p.pose = f.pose || 'stand'; p.poseY = f.y || 0; } const cb = p.onArrive; p.onArrive = null; if (cb) queueMicrotask(cb); }
   }
-  placeAt(id, x, z, yaw, pose, y = 0) { const p = this.people.get(id); if (!p) return; p.path = []; p.x = x; p.z = z; p.yaw = yaw; p.pose = pose || 'stand'; p.poseY = y; }
+  placeAt(id, x, z, yaw, pose, y = 0) { const p = this.people.get(id); if (!p) return; p.path = []; p.steer = null; p.vel = 0; p.x = x; p.z = z; p.yaw = yaw; p.pose = pose || 'stand'; p.poseY = y; }
   update(dt) {
     this.elapsed+=dt;const motion=!this.motion?.matches;for(const m of this.glows)m.emissiveIntensity=.12+(this.stage.night||0)*.65;if(motion){for(const water of this.water||[])water.position.y=-.05+Math.sin(this.elapsed*.65)*.006;for(const s of this.screens)s.update(this.elapsed);for(const r of this.items){for(const spin of r.obj.userData.spin||[])spin.obj.rotation[spin.axis]+=dt*spin.speed;const smoke=r.obj.userData.smoke;if(smoke){smoke.position.y=1.3+(this.elapsed*.25)% .65;smoke.scale.setScalar(.85+Math.sin(this.elapsed)*.12);}}}
+    const walkable = (x, z) => { if (!this.nav) return true; const [i, j] = this.cellOf(x, z); return this.free(i, j); };
     for (const p of this.people.values()) {
-      let moving = false;
-      if (p.path.length) {
-        const [tx, tz] = p.path[0]; const dx = tx - p.x, dz = tz - p.z, dist = Math.hypot(dx, dz);
-        if (dist < 0.06) { p.path.shift(); if (!p.path.length) { if (p.finalPose) { p.x = p.finalPose.x; p.z = p.finalPose.z; p.yaw = p.finalPose.yaw; p.pose = p.finalPose.pose; p.poseY = p.finalPose.y || 0; } const cb = p.onArrive; p.onArrive = null; cb && cb(); } }
-        else { const st = Math.min(dist, p.speed * dt); p.x += (dx / dist) * st; p.z += (dz / dist) * st; const want = Math.atan2(dx, dz); let dy = want - p.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); p.yaw += dy * Math.min(1, dt * 12); moving = true; }
-      }
+      const moving = stepPerson(p, dt, walkable);
       const r = p.av.root; r.position.set(p.x, p.pose === 'stand' ? 0 : p.poseY || 0, p.z); r.rotation.set(0, p.yaw, 0);
       // Animation LOD: hidden people skip skinning; distant ambient people animate every Nth frame with the accumulated time.
       if (!r.visible) continue;
       let adt = dt; if (p.lodStep) { p.lodAcc = (p.lodAcc || 0) + dt; p.lodTick = (p.lodTick || 0) + 1; if (p.lodTick % p.lodStep) continue; adt = p.lodAcc; p.lodAcc = 0; }
-      p.av.play(moving ? locomotion(p.speed, this.spec?.outdoor || this.spec?.neighbourhood) : p.anim || 'idle'); p.av.update(adt, moving ? p.speed : 0);
-      applyPose(p.av, moving ? 'stand' : p.pose);
+      p.av.play(moving ? locomotion(Math.max(p.vel, p.steer?.speed || 0, p.speed * .9), this.spec?.outdoor || this.spec?.neighbourhood) : p.anim || 'idle'); p.av.update(adt, moving ? p.vel : 0);
+      applyPose(p.av, moving ? 'stand' : p.pose, !moving && !!p.action && p.anim === p.action.clip);
+      p.props?.update();
     }
   }
   // ---------- picking ----------

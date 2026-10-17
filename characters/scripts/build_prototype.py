@@ -16,9 +16,9 @@ import bpy
 ROOT = Path(globals().get('AWD_ROOT'))
 SCRIPTS = ROOT / 'characters' / 'scripts'
 MODULES = ['awd_human.py', 'awd_textures.py', 'awd_face.py', 'awd_expressions.py', 'awd_rig.py',
-           'awd_skin.py', 'awd_hair.py', 'awd_clothes.py', 'awd_shoes.py', 'awd_anim.py', 'awd_export.py', 'awd_morphs.py',
+           'awd_skin.py', 'awd_hair.py', 'awd_clothes.py', 'awd_drape.py', 'awd_shoes.py', 'awd_anim.py', 'awd_export.py', 'awd_morphs.py',
            'awd_preview.py', 'awd_hair_volume.py', 'awd_beard.py', 'awd_regions.py', 'awd_wardrobe.py',
-           'awd_accessories.py']
+           'awd_accessories.py', 'awd_props.py']
 G = {'AWD_ROOT': str(ROOT), '__name__': 'awd_pipeline'}
 for _module in MODULES:
     exec(compile((SCRIPTS / _module).read_text(), _module, 'exec'), G)
@@ -231,6 +231,18 @@ def stage_base_export():
     report = out / f'awd_{sex}_prototype_report.json'
     report.write_text(json.dumps({**(json.loads(report.read_text()) if report.exists() else {}), **reports}, indent=2))
     return {'seconds': round(time.time() - t, 1), 'base': {k: v['triangles'] for k, v in reports.items()}}
+
+
+def stage_props():
+    """Activity props (awd_props) for this body, positioned on its rest pose."""
+    t = time.time()
+    objs = G['build_props'](STATE['ctx'], G)
+    path = ROOT / 'characters' / 'export' / f"awd_props_{STATE['sex']}.glb"
+    G['export_props'](objs, path)
+    collection('AWD_Props', objs)
+    for o in objs:
+        o.hide_viewport = o.hide_render = True
+    return {'seconds': round(time.time() - t, 1), 'props': [o.name for o in objs], 'bytes': path.stat().st_size}
 
 
 def stage_wardrobe(items=None):

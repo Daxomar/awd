@@ -63,10 +63,16 @@ stage_base_export()     # undressed body LOD0-2 with body regions (~1 min)
 stage_wardrobe()        # every wardrobe id for this body, LOD0/LOD1 parts (~12 min)
 ```
 
+Since 2026-10 garments are hull-draped (`awd_drape.py`: cloth spans the body's hollows instead of
+shrink-wrapping it), football shirts and kente/ankara use original print artwork and colourway masks
+(run `python characters/tools/make_prints.py` first), the clip library includes 19 activity actions,
+and `stage_props()` exports the hand-held props (`awd_props_<sex>.glb`). See
+`docs/world-life-overhaul.md`.
+
 Headless alternative (no MCP), for example after a Blender restart:
 
 ```bash
-blender --background --factory-startup --python characters/tools/run_stages.py -- male body,dress,export,base,library,wardrobe
+blender --background --factory-startup --python characters/tools/run_stages.py -- male body,dress,export,base,props,library,wardrobe
 ```
 
 Then copy the exports to the client and refresh the manifest:

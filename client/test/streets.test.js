@@ -19,7 +19,7 @@ test('all eight deterministic local graphs are connected and geometrically disti
     assert.deepEqual(streetEntry(id,'home',id),g.lots.find(l=>l.role==='home').approach);
     for(const lot of g.lots){assert.ok(isStreetPoint(g,lot.approach.x,lot.approach.z),id+' frontage '+lot.id);assert.ok(Math.cos(streetArrivalYaw(id,lot.approach,0)-lot.rot)>.98,id+' doorway camera');}
     assert.equal(streetArrivalYaw(id,{x:0,z:0},.65),.65);
-    assert.equal(isStreetPoint(g,25,0),false);assert.equal(isStreetPoint(g,NaN,0),false);
+    assert.equal(isStreetPoint(g,g.w/2+1,0),false);assert.equal(isStreetPoint(g,NaN,0),false);
     assert.equal(isStreetPoint(g,g.lots[0].x,g.lots[0].z),false);
   }
   assert.equal(signatures.size,8);assert.equal(streetGraph('__proto__'),null);assert.ok(streetGraph('osu').pilot);

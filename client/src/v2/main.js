@@ -119,8 +119,8 @@ function game() {
   ui.classList.add('game-ui');gameplayViewport(ui);
   const tags = h('div.tags'); const mapUi = h('div.mapui', { hidden: true }); ui.append(tags, mapUi);
   world = new World(stage, tags); window.__world = world; map = new CityMap(stage, mapUi); window.__map = map; map.build(G.cat);
-  fetch('/api/billboards').then((r) => r.json()).then((j) => map.setBillboards(j.slots || [])).catch(() => {});
-  setInterval(() => fetch('/api/billboards').then((r) => r.json()).then((j) => map.setBillboards(j.slots || [])).catch(() => {}), 5 * 60000);
+  fetch('/api/billboards').then((r) => r.json()).then((j) => applyBoards(j.slots || [])).catch(() => {});
+  setInterval(() => fetch('/api/billboards').then((r) => r.json()).then((j) => applyBoards(j.slots || [])).catch(() => {}), 5 * 60000);
   const filters = h('div.map-filters', null, ...[['all', 'All'], ['open', 'Open now'], ['eat', 'Food'], ['gig', 'Work'], ['fun', 'Fun'], ['people', 'Busy'],['homes','Estates'],['streets','Streets']].map(([k, l]) => h('button' + (k === 'all' ? '.on' : ''), { onclick: (e) => { map.filter = k; filters.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b === e.currentTarget)); drawPins(); } }, l)));
   filters.append(h('label.map-names',null,h('input',{type:'checkbox',onchange:e=>{map.showNames=e.target.checked;} }),'Names'));mapUi.append(filters);
   hud = buildHud(ui, act);window.__hud=hud;window.__audio=cityAudio;phone=new Phone(ui,makeApps(act));window.__phone=phone;phone.onchange=()=>{if(phone.open){chat?.close();closeSheets();}hud.setNav(phone.open?'phone':view==='map'?'map':'home');};
@@ -128,13 +128,13 @@ function game() {
   setInterval(() => { hud.clock(); if (studio.open) return; const hh = accraClock().h; stage.setTime(hh); }, 5000); hud.clock();
   setInterval(() => { hud.quests(); }, 15000);
   net.on('connection',m=>{hud.connection(m);hud.clock();}); G.connected = net.connected;
-  bindInput(); joy = bindJoystick(); bindCamera(); bindNet(); chat = buildChat(ui, n => hud.badge('chat', n)); net.release();if(G.state.busy?.travel&&!ride.active)net.emit('busy',{busy:G.state.busy});
+  bindInput(); joy = bindJoystick(); bindCamera(); bindNet(); world.onRoam = (x, z) => net.send({ t: 'rmv', x, z, it: null, zn: null }); chat = buildChat(ui, n => hud.badge('chat', n)); net.release();if(G.state.busy?.travel&&!ride.active)net.emit('busy',{busy:G.state.busy});
   showTutorial(ui);
   const focusBillboardOnMap = async (slotId) => {
     if (!slotId) return;
     try {
       const j = await fetch('/api/billboards').then(r => r.json());
-      if (j.slots) map.setBillboards(j.slots);
+      if (j.slots) applyBoards(j.slots);
     } catch {}
     setView('map');
     const b = map.ads.boards.find(b => b.slot.id === slotId);
@@ -213,7 +213,7 @@ const act = (window.__act = {
     const back=h('button.btn.primary',{style:{position:'fixed',bottom:'100px',left:'16px',right:'16px',zIndex:50},onclick:()=>{closeAdPreview?.();window.open('/advertise.html?placement='+encodeURIComponent(slot.id),'_blank','noopener');}},'Preview only · book on the advertising page');ui.append(back);
     closeAdPreview=()=>{map.ads.clearPreview();map.limits=limits;stage.zoomMin=min;stage.view.zoom=Math.max(min,stage.view.zoom);stage.applyView();back.remove();closeAdPreview=null;};
   },
-  adInventory(slots){map.setBillboards(slots);},
+  adInventory(slots){applyBoards(slots);},
   recheckPayment(){resumePayment(phone,toast);},
   wallet() { phone.show('momo'); }, topup() { phone.show('momo', 'topup'); }, goals() { phone.show('goals'); }, me() { phone.show('life'); }, needs() { phone.show('health'); },
   work() { phone.show('jobs'); }, jobHere(cid) { const s = G.state; if (s.job && s.job.id === cid && !s.shift) { net.send({ t: 'work', op: 'start' }); } else phone.show('jobs'); },
@@ -293,6 +293,8 @@ function drawPins() {
   map.setPins(list, (id) => openPlace(id, act));
 }
 
+// Billboard inventory feeds both the city map and the street billboards around the player.
+function applyBoards(slots) { G.billboards = slots; map.setBillboards(slots); if (world?.room) world.refreshBoards(); }
 // ---------------------------------------------------------------- joystick: roam the place you're in (tap-to-walk still works)
 function bindJoystick() {
   const knob = h('i'); const pad = h('div.joy', { 'aria-label': 'Walk' }, knob); ui.append(pad);
@@ -302,15 +304,18 @@ function bindJoystick() {
     if(sp.localNetwork){const [i,j]=world.room.nearestFree(x,z);return world.room.free(i,j)?[(i+.5)*.25-sp.w/2,(j+.5)*.25-sp.d/2]:[world.me.x,world.me.z];}
     return [Math.max(-sp.w/2+.3,Math.min(sp.w/2-.3,x)),Math.max(-sp.d/2+.3,Math.min(sp.d/2-.3,z))];
   };
-  const step = () => { const me = world.me; if(!world.room||!me||worldBlocked(ui))return; const m = Math.min(1, Math.hypot(vx, vy)); if (m < 0.15) return;
+  // The pad steers the body directly (scene/locomotion.js eases speed and turning, and slides
+  // along obstacles); the server hears where we are heading a few times a second.
+  const step = () => { const me = world.me; if(!world.room||!me||worldBlocked(ui))return; const m = Math.min(1, Math.hypot(vx, vy)); if (m < 0.15) { me.steer = { dx: 0, dz: 0, speed: 0 }; return; }
     const yaw = stage.view.yaw; const dx = Math.cos(yaw) * vx - Math.sin(yaw) * -vy, dz = -Math.sin(yaw) * vx - Math.cos(yaw) * -vy; const L = Math.hypot(dx, dz) || 1;
-    const outdoor = !!(world.spec.outdoor || world.spec.neighbourhood), speed = joystickSpeed(m, outdoor), reach = Math.max(1.1 * m, speed * 0.55);
-    const [x, z] = clampXZ(me.x + (dx / L) * reach, me.z + (dz / L) * reach); world.walkMe(x, z); me.speed = speed;
-    const now = performance.now(); if (now - lastSend > 400) { lastSend = now; net.send({ t: 'rmv', x, z, it: null, zn: null }); } };
+    const outdoor = !!(world.spec.outdoor || world.spec.neighbourhood), speed = joystickSpeed(m, outdoor);
+    if (me.pose !== 'stand') world.standUp();
+    me.path = []; me.onArrive = null; me.finalPose = null; me.anim = null; me.speed = speed; me.steer = { dx: dx / L, dz: dz / L, speed };
+    const now = performance.now(); if (now - lastSend > 300) { lastSend = now; const [x, z] = clampXZ(me.x + (dx / L) * speed * 0.45, me.z + (dz / L) * speed * 0.45); net.send({ t: 'rmv', x, z, it: null, zn: null }); } };
   const move = (e) => { let dx = (e.clientX - ox) / 42, dy = (e.clientY - oy) / 42; const m = Math.hypot(dx, dy); if (m > 1) { dx /= m; dy /= m; } vx = dx; vy = dy; knob.style.transform = `translate(${dx * 30}px, ${dy * 30}px)`; };
-  pad.addEventListener('pointerdown', (e) => { e.stopPropagation();if(worldBlocked(ui))return; if (G.state.busy && !G.state.busy.travel) { net.send({ t: 'cancel' }); } pid = e.pointerId; try { pad.setPointerCapture(pid); } catch {} const r = pad.getBoundingClientRect(); ox = r.left + r.width / 2; oy = r.top + r.height / 2; pad.classList.add('on'); move(e); step(); timer = setInterval(step, 110); });
+  pad.addEventListener('pointerdown', (e) => { e.stopPropagation();if(worldBlocked(ui))return; if (G.state.busy && !G.state.busy.travel) { net.send({ t: 'cancel' }); } pid = e.pointerId; try { pad.setPointerCapture(pid); } catch {} const r = pad.getBoundingClientRect(); ox = r.left + r.width / 2; oy = r.top + r.height / 2; pad.classList.add('on'); move(e); step(); timer = setInterval(step, 50); });
   pad.addEventListener('pointermove', (e) => { if (e.pointerId === pid) move(e); });
-  const end = () => { if (pid == null) return; pid = null; clearInterval(timer); vx = vy = 0; knob.style.transform = ''; pad.classList.remove('on'); const me = world.me; if (me) { me.speed = 1.45; const p = me.path && me.path.length ? me.path[me.path.length - 1] : [me.x, me.z]; net.send({ t: 'rmv', x: p[0], z: p[1], it: null, zn: null }); } };
+  const end = () => { if (pid == null) return; pid = null; clearInterval(timer); vx = vy = 0; knob.style.transform = ''; pad.classList.remove('on'); const me = world.me; if (me) { me.steer = null; me.speed = 1.45; const coast = Math.min(0.35, (me.vel || 0) * 0.12), [x, z] = clampXZ(me.x + Math.sin(me.yaw) * coast, me.z + Math.cos(me.yaw) * coast); world.walkMe(x, z); net.send({ t: 'rmv', x, z, it: null, zn: null }); } };
   pad.addEventListener('pointerup', end); pad.addEventListener('pointercancel', end);
   return pad;
 }
@@ -354,8 +359,11 @@ function tap(x, y) {
   if (hit.type === 'floor') {
     if (G.state.busy && !G.state.busy.travel) return toast('Stop what you’re doing first.', '');
     let {x,z}=hit;
-    if(world.spec.localNetwork){const [i,j]=world.room.nearestFree(x,z);if(!world.room.free(i,j))return;x=(i+.5)*.25-world.spec.w/2;z=(j+.5)*.25-world.spec.d/2;}
-    world.walkMe(x,z);net.send({t:'rmv',x,z,it:null,zn:null});
+    // A tap on a roof, yard or verge walks to the nearest reachable point of the street (up to 12 m away).
+    if(world.spec.localNetwork){const [i,j]=world.room.nearestFree(x,z,48);if(!world.room.free(i,j))return toast('You cannot walk there.');x=(i+.5)*.25-world.spec.w/2;z=(j+.5)*.25-world.spec.d/2;}
+    // Far taps outdoors break into a jog; the ring shows where the player is heading.
+    const me=world.me,far=me&&Math.hypot(x-me.x,z-me.z)>7&&(world.spec.outdoor||world.spec.neighbourhood);
+    world.walkMe(x,z);if(me)me.speed=far?3.0:1.45;world.markTarget(x,z);net.send({t:'rmv',x,z,it:null,zn:null});
   }
 }
 
@@ -394,7 +402,7 @@ function bindNet() {
     if (rideEnd) { rideEnd(); rideEnd = null; } hud.top.hidden = false; hud.chips.hidden = false;
     closeSheets();world.clearSelection();
     G.room = m.key; G.place = m.place; G.placeName = m.name; G.unitRoom = m.home?.property ? m.home : null; confirmRoomArrival(G.state,m);
-    world.enter(m, fitLook(G.state.look, myFit()), G.state.name); if (world.me) { world.me.av.baseLook = G.state.look; world.me.av.fit = myFit(); } renderZones(hud.zones, world.spec, m.place, act); if (world.entry) net.send({ t: 'rmv', x: world.entry.x, z: world.entry.z, it: null, zn: null });
+    world.enter(m, fitLook(G.state.look, myFit()), G.state.name); if (world.me) { world.me.av.baseLook = G.state.look; world.me.av.fit = myFit(); } renderZones(hud.zones, world.spec, m.place, act); if (G.state.busy && !G.state.busy.travel) world.setAction('me', G.state.busy.id, G.state.busy.ic); if (world.entry) net.send({ t: 'rmv', x: world.entry.x, z: world.entry.z, it: null, zn: null });
     if (m.gem && G.gem) world.showGem(m.gem);
     setView('room'); refresh();
     if(m.place==='viewing'||m.place.startsWith('n:'))net.send({t:'matches'});
@@ -407,7 +415,7 @@ function bindNet() {
   net.on('rjoin', (m) => world.addOther(m.e)); net.on('rleave', (m) => world.removeOther(m.id)); net.on('rmv', (m) => world.moveOther(m));
   net.on('rpos',m=>{if(world.place===m.place&&world.me&&Number.isFinite(m.x)&&Number.isFinite(m.z))world.room.placeAt('me',m.x,m.z,world.me.yaw,'stand');});
   net.on('rlook', (m) => world.restyle(m.id, m.lk));
-  net.on('rst', (m) => { world.setStatus('p' + m.id, m.st); { const p = world.room && world.room.people.get('p' + m.id); if (p && (p.av.fit || null) !== (m.fit || null)) world.restyle(m.id, null, m.fit || null); } if (!m.st) { const p = world.room && world.room.people.get('p' + m.id); if (p && p.pose !== 'stand') world.room.placeAt('p' + m.id, p.x, p.z, p.yaw, 'stand'); } });
+  net.on('rst', (m) => { world.setStatus('p' + m.id, m.st);world.setAction('p' + m.id, m.act, m.st); { const p = world.room && world.room.people.get('p' + m.id); if (p && (p.av.fit || null) !== (m.fit || null)) world.restyle(m.id, null, m.fit || null); } if (!m.st) { const p = world.room && world.room.people.get('p' + m.id); if (p && p.pose !== 'stand') world.room.placeAt('p' + m.id, p.x, p.z, p.yaw, 'stand'); } });
   net.on('ranim', (m) => world.animOther(m.id, m.a));
   net.on('chat', (m) => { if (m.ch === 'room') { world.bubble(m.id === G.myId ? 'me' : 'p' + m.id, m.m); hud.chatLine(m.n, m.m); } else hud.chatLine('icon:globe-hemisphere-west ' + m.n, m.m); });
   net.on('rsocial', (m) => { for (const id of [m.a, m.b]) { const who = id === G.myId ? 'me' : 'p' + id; world.bubble(who, m.ic, 'social'); const p = world.room && world.room.people.get(who); if (p) world.gesture(p, m.anim); } });
@@ -420,14 +428,14 @@ function bindNet() {
     if (m.busy.travel) { closeSheets(); const t = m.busy.travel; setView('room'); if (world.room) world.room.group.visible = false; hud.zones.hidden = true; world.tagsEl.hidden = true; hud.top.hidden = false; hud.chips.hidden = true;
       if (rideEnd) { rideEnd(); rideEnd = null; } rideEnd = rideScreen(ui, { mode: t.mode, to: act._rideTo || m.busy.label.replace(/^.* to /, ''), from: G.placeName, start: m.busy.start, end: m.busy.end, rush: t.rush, ride, look: G.state.look, car: G.state.car || (G.state.rental?.until>accraNow()?G.state.rental.car:null), paint: G.state.car ? G.state.carStyle?.paint : null }); G.placeName = 'On the road'; hud.clock(); return; }
     if(m.cost)world.floater(`−${cedi(m.cost)}`,true);
-    toast(m.busy.label||'Activity started');
+    toast(m.busy.label||'Activity started');world.setAction('me',m.busy.id,m.busy.ic);
     const z = act._pending && act._pending.zone; act._pending = null;
     if (z && world.room) { const u = world.useZone(z); if (u) net.send({ t: 'rmv', x: u.x, z: u.z, it: u.it, u: u.u, zn: z.id }); }
   });
   net.on('mg', (m) => { const z = act._pending && act._pending.zone; act._pending = null; if (z) world.useZone(z); setTimeout(() => playMinigame(ui, m.id, (stars) => net.send({ t: 'mgResult', stars })), 600); });
-  net.on('cancelled', () => { G.state.busy = null; const p = world.standUp(); if (p) net.send({ t: 'rmv', x: p.x, z: p.z, it: null, zn: null }); refresh(); });
+  net.on('cancelled', () => { G.state.busy = null;world.setAction('me',null); const p = world.standUp(); if (p) net.send({ t: 'rmv', x: p.x, z: p.z, it: null, zn: null }); refresh(); });
   net.on('done', (m) => {
-    G.state.busy = null;toast(m.earned?`Activity complete · +${cedi(m.earned)}`:'Activity complete','good'); const fx = Object.entries(m.gains || {}).filter(([, v]) => v).map(([k, v]) => `${v > 0 ? '+' : ''}${v} ${({ hunger: '', energy: '', fun: '', social: '', hygiene: '', bladder: '' })[k] || k}`);
+    G.state.busy = null;world.setAction('me',null);toast(m.earned?`Activity complete · +${cedi(m.earned)}`:'Activity complete','good'); const fx = Object.entries(m.gains || {}).filter(([, v]) => v).map(([k, v]) => `${v > 0 ? '+' : ''}${v} ${({ hunger: '', energy: '', fun: '', social: '', hygiene: '', bladder: '' })[k] || k}`);
     if (m.earned) world.floater(`+${cedi(m.earned)}`); if (fx.length) setTimeout(() => world.floater(fx.slice(0, 3).join('  ')), m.earned ? 700 : 0);
     if (m.levelUp) celebrate({ icon: 'icon:chart-line-up', title: `${G.cat.skills[m.levelUp[0]]} level ${m.levelUp[1]}!`, text: 'You’re getting better. New gigs and promotions unlock with skill.', tone: 'gold' });
     if (m.crime === 'caught') net.send({t:'state'});
@@ -459,7 +467,7 @@ function bindNet() {
   net.on('intro_update',m=>{toast(m.status==='accepted'?`@${m.from} accepted your hello. Your conversation is open in Messages.`:'The player declined. You can say hello to someone else later.',m.status==='accepted'?'good':'');if(m.status==='accepted'&&!document.querySelector('.meet-body'))act.message(m.from);});
   net.on('intro_complete',()=>{toast('Your first conversation is complete.','good');});
   // Stage 10: a campaign activated after verified payment appears without a reload.
-  let adsRefresh;net.on('ads_changed',()=>{clearTimeout(adsRefresh);adsRefresh=setTimeout(()=>fetch('/api/billboards').then(r=>r.json()).then(j=>map.setBillboards(j.slots||[])).catch(()=>{}),1000);});
+  let adsRefresh;net.on('ads_changed',()=>{clearTimeout(adsRefresh);adsRefresh=setTimeout(()=>fetch('/api/billboards').then(r=>r.json()).then(j=>applyBoards(j.slots||[])).catch(()=>{}),1000);});
   // Stage 9: real player businesses shown at their venue.
   net.on('frontage',m=>world?.setFrontage?.(m));
   // Stage 8: personal life events are offered and resolved by the server.

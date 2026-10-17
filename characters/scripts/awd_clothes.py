@@ -331,7 +331,7 @@ def drape_down(bm, ctx, lo_z, hi_z, slope=0.18, front=True, bins=48):
 
 
 def shell(ctx, name, face_mask, ease, material, smooth=8, hem=0.004, uv='torso', cuts=None, envelope=None, trim=None,
-          shape=None):
+          shape=None, drape=None):
     body = ctx['body']
     obj = body.copy()
     obj.data = body.data.copy()
@@ -358,6 +358,10 @@ def shell(ctx, name, face_mask, ease, material, smooth=8, hem=0.004, uv='torso',
     bm.normal_update()
     for v in bm.verts:
         v.co += v.normal * float(ease(np.array(v.co[:])))
+    if drape is not None:   # awd_drape: cloth spans the hollows between the body's high points
+        hull_drape(bm, ctx, **drape)
+        if cuts:
+            snap_boundary(bm, cuts, iterations=1)
     clearance(bm, ctx)
     if envelope is not None:
         bridge_front(bm, ctx)
@@ -383,10 +387,24 @@ def shell(ctx, name, face_mask, ease, material, smooth=8, hem=0.004, uv='torso',
     for f in bm.faces:
         for loop in f.loops:
             x, y, z = loop.vert.co
-            if uv == 'torso':
+            if callable(uv):   # designed prints (football shirts): one artwork over the whole garment
+                loop[layer].uv = uv(x, y, z)
+            elif uv == 'torso':
                 loop[layer].uv = (math.atan2(x, -y) * 0.16 / TILE, z / TILE)
             else:
                 loop[layer].uv = ((x + (y if abs(x) > 0.12 else 0)) / TILE, z / TILE)
+    if callable(uv):   # faces across the side seam wrap instead of streaking over the artwork
+        plain = getattr(uv, 'plain', None)   # a face touching the plain swatch is all swatch (no smear)
+        for f in bm.faces:
+            if plain and any(tuple(round(c, 6) for c in loop[layer].uv) == plain for loop in f.loops):
+                for loop in f.loops:
+                    loop[layer].uv = plain
+                continue
+            us = [loop[layer].uv.x for loop in f.loops]
+            if max(us) - min(us) > 0.5:
+                for loop in f.loops:
+                    if loop[layer].uv.x < 0.5:
+                        loop[layer].uv.x += 1.0
     bm.to_mesh(obj.data)
     bm.free()
     obj.data.materials.clear()

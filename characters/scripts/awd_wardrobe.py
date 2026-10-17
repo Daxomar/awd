@@ -29,8 +29,8 @@ TOPS = {
     'crop': ('short', 'scoop', 'crop', -0.002, 'jersey', '#f4f4f2', (), ('chest',)),
     'polo': ('short', 'collar', 'normal', 0.002, 'pique', '#f4f4f2', (), UPPER),
     'hoodie': ('long', 'crew', 'normal', 0.008, 'fleece', '#f4f4f2', ('hood',), LONG_SLEEVE),
-    'jersey': ('short', 'v', 'normal', 0.003, 'mesh', '#f4f4f2', ('trim', 'star'), UPPER),
-    'jerseyaway': ('short', 'v', 'normal', 0.003, 'mesh', '#f2b632', ('trim', 'star'), UPPER),
+    'jersey': ('short', 'v', 'normal', 0.004, 'mesh', '#f4f4f2', ('kit', 'trim'), UPPER),
+    'jerseyaway': ('short', 'v', 'normal', 0.004, 'mesh', '#f2b632', ('kit', 'redtrim'), UPPER),
     'ankara': ('short', 'collar', 'normal', 0.004, 'ankara', '#e76f51', (), UPPER),
     'kenteshirt': ('short', 'collar', 'normal', 0.004, 'kente', '#f2b632', (), UPPER),
     'fugu': ('wide', 'v', 'tunic', 0.014, 'fugu', '#1f3f8f', (), UPPER),
@@ -65,6 +65,13 @@ FULL = {
 BAGGY = {'jeans': 1.0, 'ankarapants': 1.0, 'joggers': 0.9, 'shorts': 1.0, 'chinos': 0.8, 'suitpants': 0.6}
 # Regions of the trousers underneath that a top's tail covers completely (see awd-runtime.js).
 COVERS = {'kaftan': ('pelvis', 'thigh', 'knee'), 'tunic': ('pelvis',)}   # kaftan hem: 12 cm under the knee
+# How far each garment hangs from the skin (0) towards the body's convex hull (1): awd_drape.
+LOOSE = {'tee': 0.9, 'flagtee': 0.9, 'singlet': 0.7, 'crop': 0.55, 'polo': 0.85, 'hoodie': 1.0, 'jersey': 1.0,
+         'jerseyaway': 1.0, 'ankara': 0.85, 'kenteshirt': 0.85, 'fugu': 1.0, 'office': 0.8, 'kaftan': 1.0, 'suit': 1.0,
+         'kaba': 0.6, 'blouse': 0.65, 'sundress': 0.6, 'ankaradress': 0.7, 'kentedress': 0.6, 'bodycon': 0.25,
+         'kentecloth': 0.8, 'jeans': 1.0, 'chinos': 0.9, 'suitpants': 1.0, 'ankarapants': 1.0, 'joggers': 0.95,
+         'shorts': 1.0}
+FITTED_FEMALE = 0.8   # women's cuts follow the waist a little more
 SLEEVE = {'none': None, 'short': 0.48, 'puff': 0.42, 'wide': 0.90, 'long': 1.93}
 COLLAR_DIP = {'crew': 0.035, 'v': 0.085, 'scoop': 0.06, 'collar': 0.03, 'jacket': 0.20, 'toga': 0.06}
 
@@ -80,11 +87,50 @@ def smooth01(e0, e1, x):
 
 
 def material(G, kind, colour, item):
-    """Per-item fabric material (names start with AWD_Fabric_: tinted by the slot colour)."""
+    """Per-item fabric material (names start with AWD_Fabric_: tinted by the slot colour).
+
+    Kente and ankara are multicolour cloths: their texture is a colourway mask
+    (characters/tools/make_prints.py) and the game paints it with the chosen colour plus two
+    accents (AWD_Kente_ / AWD_Ankara_ materials, client/src/v2/scene/awd-runtime.js)."""
+    if kind in ('kente', 'ankara'):
+        name = f'awd_{kind}_mask'
+        image = bpy.data.images.get(name + '.png') or bpy.data.images.load(str(G['TEX_DIR'] / f'{name}.png'))
+        image.colorspace_settings.name = 'sRGB'
+        mat = G['_material'](f'AWD_{kind.capitalize()}_{item}', (1.0, 1.0, 1.0), 0.8, image)
+        next(n for n in mat.node_tree.nodes if n.type == 'TEX_IMAGE').extension = 'REPEAT'
+        return mat
     image = G['ankara_texture']() if kind == 'ankara' else (
         bpy.data.images.get(f'awd_fabric_{kind}') or G['fabric_texture'](kind))
     mat = G['_material'](f'AWD_Fabric_{kind}_{item}', srgb(colour), 0.6 if kind == 'mesh' else 0.85, image)
     next(n for n in mat.node_tree.nodes if n.type == 'TEX_IMAGE').extension = 'REPEAT'
+    return mat
+
+
+# Football shirts carry one designed artwork (characters/tools/make_prints.py) over the whole
+# shirt: u runs once around the body from the right side seam (front at 0.25, back at 0.75),
+# v from the hem (0) to the base of the neck (1).
+KITS = {'jersey': 'awd_kit_ghana_home', 'jerseyaway': 'awd_kit_ghana_away'}
+
+
+def jersey_uv(R, hem_z):
+    top = R['neck_z']
+    cy = R['chest_y']
+
+    def uv(x, y, z):
+        if abs(x) > 0.205:   # sleeves: the plain swatch (cuffs carry the trim)
+            return (0.62, 0.12)
+        theta = math.atan2(x, -(y - cy))
+        return (((theta + math.pi / 2) / (2 * math.pi)) % 1.0, (z - hem_z) / (top - hem_z))
+    uv.plain = (0.62, 0.12)
+    return uv
+
+
+def kit_material(G, item):
+    name = KITS[item]
+    image = bpy.data.images.get(name + '.png')
+    if image is None:
+        image = bpy.data.images.load(str(G['TEX_DIR'] / f'{name}.png'))
+    mat = G['_material'](f'AWD_Print_{item}', (1.0, 1.0, 1.0), 0.62, image)
     return mat
 
 
@@ -555,13 +601,15 @@ def build_top(ctx, G, item, sleeve, collar, hem, ease_extra, fabric, colour, ext
         if arm and flare:
             e += flare * min(1.0, (abs(p[0]) - 0.17) / 0.12)
         return e + ease_extra * 0.5 + 0.007 * (1 - G['_smoothstep'](R['hip_z'] + 0.02, R['hip_z'] + 0.09, p[2]))
-    trim = print_material(G, 'tricolour') if 'trim' in extras else None
-    envelope = {'window': 2, 'sigma': 1.2} if ctx['sex'] == 'female' else {'window': 5}
-    seat_top = R['hip_z'] + 0.08   # hems hang off the seat instead of tucking under it
-    obj = G['shell'](ctx, name or f'AWD_Top_{item}', torso | sleeves, ease, material(G, fabric, colour, item),
-                     smooth=14, cuts=cuts, envelope=envelope, trim=trim,
-                     shape=lambda bm: (G['drape_down'](bm, ctx, hem_z, seat_top, slope=0.3, front=False),
-                                       G['bridge_front'](bm, ctx, lo=hem_z - 0.01, hi=seat_top, back=True)))
+    trim = print_material(G, 'tricolour') if 'trim' in extras else (
+        G['_material']('AWD_Print_redtrim', (0.52, 0.012, 0.02), 0.6) if 'redtrim' in extras else None)
+    hang = LOOSE.get(item, 0.85) * (FITTED_FEMALE if ctx['sex'] == 'female' and item not in ('jersey', 'jerseyaway', 'hoodie', 'fugu', 'kaftan') else 1.0)
+    drape = {'loose': hang, 'ease': 0.003, 'parts': ['torso', 'pelvis', 'arm.L', 'arm.R', 'fore.L', 'fore.R'],
+             'hulls': G['_hulls'](ctx)}
+    print_uv = jersey_uv(R, hem_z) if 'kit' in extras else 'torso'
+    obj = G['shell'](ctx, name or f'AWD_Top_{item}', torso | sleeves, ease,
+                     kit_material(G, item) if 'kit' in extras else material(G, fabric, colour, item),
+                     smooth=10, cuts=cuts, trim=trim, drape=drape, uv=print_uv)
     # Details sit 16 mm off the body or 4 mm off the shirt, whichever is further out.
     layers = [(G['rest_bvh'](ctx['body']), 0.016), (G['rest_bvh'](obj), 0.004)]
     shirt = np.array([v.co[:] for v in obj.data.vertices])
@@ -648,13 +696,13 @@ def build_bottom(ctx, G, item, kind, hem, ease_extra, fabric, colour, hides):
             if hem == 'jogger':
                 lower *= G['_smoothstep'](hem_z, hem_z + 0.12, p[2])   # cuffed: snug at the ankle
             return 0.0085 + 0.010 * lower - 0.003 * G['_smoothstep'](R['hip_z'] - 0.03, R['hip_z'] + 0.03, p[2]) + ease_extra
-        bag = BAGGY[item] * (1.0 if ctx['sex'] == 'male' else 0.75)
-
-        def shape(bm):
-            G['bridge_front'](bm, ctx, lo=R['hip_z'] - 0.14, hi=waist_z, back=True)   # seat spans the cleft
-            G['baggy_legs'](bm, ctx, hem_z, *G['trouser_cut'](bag), cuff=hem == 'jogger')
+        hang = LOOSE.get(item, 1.0) * (1.0 if ctx['sex'] == 'male' else FITTED_FEMALE)
+        # Each leg hangs straight from the seat and thigh (its hull), so knees and calves no longer
+        # show through; joggers gather back onto the ankle under their cuff.
+        cuff = (lambda p: 1.0 - G['_smoothstep'](hem_z, hem_z + 0.10, p[2])) if hem == 'jogger' else None
+        drape = {'loose': hang, 'ease': 0.004, 'parts': ['pelvis', 'leg.L', 'leg.R'], 'hulls': G['_hulls'](ctx), 'keep': cuff}
         obj = G['shell'](ctx, f'AWD_Bottom_{item}', mask, ease, mat, smooth=14, uv='limb',
-                         cuts=[G['cut'](lambda p: p[2] - waist_z, True), G['cut'](lambda p: p[2] - hem_z, True)], shape=shape)
+                         cuts=[G['cut'](lambda p: p[2] - waist_z, True), G['cut'](lambda p: p[2] - hem_z, True)], drape=drape)
     else:
         obj = empty_garment(ctx, f'AWD_Bottom_{item}', mat)
         W = Writer(ctx, obj)

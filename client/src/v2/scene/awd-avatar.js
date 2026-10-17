@@ -17,7 +17,7 @@ const SLOTS = ['hair', 'beard', 'top', 'bottom', 'full', 'shoes', 'hat', 'glasse
 const HAT_SAFE_HAIR = new Set(['lowcut', 'fade', 'waves', 'twa', 'cornrows', 'bald']);
 // Ground speeds the clips were authored for (awd_anim.py walk/run stride and duration), m/s.
 const WALK_SPEED = 1.4, RUN_SPEED = 2.9, RUN_ABOVE = 2.4;
-const TIME_SCALE = [0.6, 1.8];
+const TIME_SCALE = [0.3, 1.7];
 const DRESS_TIMEOUT_MS = 10000;
 const GESTURE_FADE = 0.2;
 

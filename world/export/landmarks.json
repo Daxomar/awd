@@ -1,0 +1,107 @@
+{
+ "blackstar": {
+  "id": "blackstar",
+  "file": "assets/world/landmarks/blackstar.glb",
+  "bytes": 62864,
+  "triangles": 1060,
+  "materials": 12
+ },
+ "memorial": {
+  "id": "memorial",
+  "file": "assets/world/landmarks/memorial.glb",
+  "bytes": 47780,
+  "triangles": 744,
+  "materials": 10
+ },
+ "lighthouse": {
+  "id": "lighthouse",
+  "file": "assets/world/landmarks/lighthouse.glb",
+  "bytes": 26796,
+  "triangles": 392,
+  "materials": 9
+ },
+ "circle": {
+  "id": "circle",
+  "file": "assets/world/landmarks/circle.glb",
+  "bytes": 95668,
+  "triangles": 1788,
+  "materials": 6
+ },
+ "castle": {
+  "id": "castle",
+  "file": "assets/world/landmarks/castle.glb",
+  "bytes": 30884,
+  "triangles": 452,
+  "materials": 9
+ },
+ "stadium": {
+  "id": "stadium",
+  "file": "assets/world/landmarks/stadium.glb",
+  "bytes": 113484,
+  "triangles": 2136,
+  "materials": 7
+ },
+ "makola": {
+  "id": "makola",
+  "file": "assets/world/landmarks/makola.glb",
+  "bytes": 110856,
+  "triangles": 2008,
+  "materials": 11
+ },
+ "kantamanto": {
+  "id": "kantamanto",
+  "file": "assets/world/landmarks/kantamanto.glb",
+  "bytes": 134396,
+  "triangles": 2432,
+  "materials": 15
+ },
+ "mosque": {
+  "id": "mosque",
+  "file": "assets/world/landmarks/mosque.glb",
+  "bytes": 82596,
+  "triangles": 1472,
+  "materials": 7
+ },
+ "airport": {
+  "id": "airport",
+  "file": "assets/world/landmarks/airport.glb",
+  "bytes": 28812,
+  "triangles": 456,
+  "materials": 7
+ },
+ "ug": {
+  "id": "ug",
+  "file": "assets/world/landmarks/ug.glb",
+  "bytes": 40980,
+  "triangles": 652,
+  "materials": 8
+ },
+ "mall": {
+  "id": "mall",
+  "file": "assets/world/landmarks/mall.glb",
+  "bytes": 23916,
+  "triangles": 340,
+  "materials": 8
+ },
+ "hotel": {
+  "id": "hotel",
+  "file": "assets/world/landmarks/hotel.glb",
+  "bytes": 38836,
+  "triangles": 608,
+  "materials": 9
+ },
+ "church": {
+  "id": "church",
+  "file": "assets/world/landmarks/church.glb",
+  "bytes": 14108,
+  "triangles": 188,
+  "materials": 5
+ },
+ "bukom": {
+  "id": "bukom",
+  "file": "assets/world/landmarks/bukom.glb",
+  "bytes": 12012,
+  "triangles": 156,
+  "materials": 5
+ }
+}

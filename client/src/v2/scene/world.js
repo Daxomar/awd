@@ -9,6 +9,8 @@ import { propertyRoomSpec } from './property-room.js';
 import { fitRoom } from './frame.js';
 import { Avatar } from './avatars.js';
 import { Ambient, ambientBudget } from './ambient.js';
+import { actionFor, PropHolder, ROAM } from './actions.js';
+import { StreetBoards } from './street-boards.js';
 import { TIERS } from './quality.js';
 import { G, accraNow } from '../store.js';
 import { streetSpec, extraVenue } from './neighbourhood.js';
@@ -35,6 +37,7 @@ export class World {
   clear() {
     this.clearSelection();this.hideGem();
     this.ambient?.dispose(true); this.ambient = null; this.frontage = [];
+    this.streetBoards?.dispose(); this.streetBoards = null;
     if (this.room) { for (const id of [...this.room.people.keys()]) this.room.removePerson(id); this.room.dispose(); }
     this.room = null; this.others.clear(); this.tagsEl.innerHTML = ''; this.bubbles = []; this.gemObj = null; this.npcs = [];
   }
@@ -87,6 +90,7 @@ export class World {
     me.yaw = Math.PI;
     for (const e of msg.people || []) this.addOther(e);
     if (msg.gem) this.showGem(msg.gem);
+    this.refreshBoards();
     return room;
   }
   // Third-person: enclose interiors, collide the camera with this room, start behind the player.
@@ -112,12 +116,14 @@ export class World {
     this.room.addPerson(id, av, x, z, { name: e.n, pid: e.id }); this.others.set(e.id, e); this.tag(id, e.n);
     if (fresh) { const [fi, fj] = this.room.nearestFree(sp.x * 0.5 + (Math.random() - 0.5) * 2, sp.z * 0.5 + (Math.random() - 0.5) * 2); this.room.walkTo(id, (fi + 0.5) * 0.25 - spec.w / 2, (fj + 0.5) * 0.25 - spec.d / 2); }
     else if (e.it != null && this.room.items[e.it]) { const u = this.room.usePoint(this.room.items[e.it], e.u || 0); this.room.placeAt(id, u.x, u.z, u.yaw, u.pose, u.y); }
-    this.setStatus(id, e.st);
+    this.setStatus(id, e.st); this.setAction(id, e.act, e.st);
   }
   restyle(pid, lk, fit) { const p = this.room && this.room.people.get(pid === 'me' ? 'me' : 'p' + pid); if (!p) return; if (lk) p.av.baseLook = lk; if (fit !== undefined) p.av.fit = fit; p.av.setLook(fitLook(p.av.baseLook || p.av.look, p.av.fit)); }
   removeOther(pid) { const id = 'p' + pid; const p = this.room && this.room.people.get(id); if (!p) return; p.tagEl && p.tagEl.remove(); this.room.removePerson(id); this.others.delete(pid); }
   moveOther(m) {
     const id = 'p' + m.id; if (!this.room || !this.room.people.has(id) || m.x == null) return;
+    // Other players jog to catch up when their updates are far ahead (they ran or tapped far away).
+    const other = this.room.people.get(id), gap = Math.hypot(m.x - other.x, m.z - other.z); other.speed = gap > 3.5 ? 3.0 : gap > 1.8 ? 2.0 : 1.45;
     if (m.it != null && this.room.items[m.it]) { const u = this.room.usePoint(this.room.items[m.it], m.u || 0); this.room.walkTo(id, u.x, u.z, null, u); }
     else this.room.walkTo(id, m.x, m.z);
   }
@@ -205,6 +211,65 @@ export class World {
     r.spec.zones=r.spec.zones.filter(z=>!z.estateOwner);
     m.owners.forEach((owner,i)=>{const {x,z,rot}=r.spec.ownerPlots[i];const rec=r.addItem({kind:'street_building:6,4',x,z,rot,label:'@'+owner.name,owner,family:r.spec.environment?.family,style:r.spec.environment?.style,color:['#f0e6d4','#e0d2bf','#d6e1d7'][i%3]});if(owner.mine&&owner.home===G.state.home)r.spec.zones.push({id:'owner-home',label:'Go indoors',icon:'ph-house',item:r.items.indexOf(rec),acts:[],route:'home',estateOwner:true});});r.buildNav();this.itemZone=new Map(r.spec.zones.map(z=>[z.item,z]));this.estate=m;
   }
+  // Roadside billboards on outdoor streets (scene/street-boards.js), on the far edges from the camera.
+  refreshBoards() {
+    const spec = this.spec; this.streetBoards?.dispose(); this.streetBoards = null;
+    if (!this.room || !spec || !(spec.neighbourhood || spec.outdoor) || spec.w < 16) return;
+    const place = G.state.place || '', home = place.startsWith('n:') ? G.cat.homes?.[place.slice(2)] : null;
+    const loc = home || G.cat.locs?.find((l) => l.id === place);
+    if (!loc || !Number.isFinite(loc.x)) return;
+    this.streetBoards = new StreetBoards(this.room, this.stage.renderer);
+    this.streetBoards.set(G.billboards || [], loc, [{ x: -spec.w * 0.12, z: -spec.d / 2 + 1.0 }, { x: -spec.w / 2 + 1.0, z: spec.d * 0.08 }]);
+  }
+  // Activity presentation (scene/actions.js): what the person visibly does while busy.
+  setAction(id, act, icon) {
+    const p = this.room?.people.get(id); if (!p) return;
+    const a = act ? actionFor(act, icon) : null;
+    if ((p.action?.action || null) === (a?.action || null) && (p.roam || null) === (ROAM[act] || null)) return;
+    if (p.action && p.anim === p.action.clip) p.anim = null;
+    p.action = a; p.roam = act && ROAM[act] ? ROAM[act] : null; p.roamHome = p.roam ? { x: p.x, z: p.z } : null;
+    p.props ||= new PropHolder(p.av);
+    if (!a) p.props.attach([]);
+  }
+  updateActions() {
+    for (const p of this.room.people.values()) {
+      if (p.roam && p.id === 'me' && !p.path.length && !p.steer && p.pose === 'stand') this.roamStep(p);
+      const a = p.action; if (!a) continue;
+      const moving = p.path.length || p.steer;
+      if (!moving && p.pose !== 'lie') { if (p.anim !== a.clip && p.anim !== 'dance') p.anim = a.clip; }
+      // Loads carried on the head stay on while walking; everything else is put away.
+      p.props.attach(!moving || a.action === 'carry' ? a.props : []);
+    }
+  }
+  // Strolls and jogs: keep walking short loops around where the activity started.
+  roamStep(p) {
+    const home = p.roamHome || { x: p.x, z: p.z }, nav = this.room.nav; if (!nav) return;
+    for (let k = 0; k < 12; k++) {
+      const a = Math.random() * Math.PI * 2, r = 2.5 + Math.random() * 4.5;
+      const [i, j] = this.room.cellOf(home.x + Math.cos(a) * r, home.z + Math.sin(a) * r);
+      if (!this.room.free(i, j)) continue;
+      const x = (i + 0.5) * 0.25 - this.spec.w / 2, z = (j + 0.5) * 0.25 - this.spec.d / 2;
+      this.walkMe(x, z); p.speed = p.roam; this.onRoam?.(x, z); return;
+    }
+  }
+  // Tap-to-walk destination: a ring that pulses where the player is heading and fades on arrival.
+  markTarget(x, z) {
+    if (!this.room) return;
+    if (!this.marker) {
+      const ring = new THREE.Mesh(new THREE.RingGeometry(0.22, 0.3, 40), new THREE.MeshBasicMaterial({ color: 0xffd44d, transparent: true, depthWrite: false }));
+      const dot = new THREE.Mesh(new THREE.CircleGeometry(0.08, 24), ring.material);
+      ring.add(dot); ring.rotation.x = -Math.PI / 2; ring.renderOrder = 2; ring.name = 'walk-target'; this.marker = ring;
+    }
+    const m = this.marker; this.room.group.add(m); m.position.set(x, 0.06, z); m.userData.t = 0; m.userData.x = x; m.userData.z = z; m.visible = true;
+  }
+  updateMarker(dt) {
+    const m = this.marker; if (!m?.visible) return; const me = this.me; m.userData.t += dt;
+    const near = !me || Math.hypot(me.x - m.userData.x, me.z - m.userData.z) < 0.25 || (!me.path.length && !me.steer);
+    m.userData.fade = near ? (m.userData.fade || 0) + dt * 3 : 0;
+    const pulse = 1 + Math.sin(m.userData.t * 7) * 0.12; m.scale.setScalar(pulse);
+    m.material.opacity = Math.max(0, 0.95 - (m.userData.fade || 0));
+    if (m.material.opacity <= 0 || m.parent !== this.room.group) m.visible = false;
+  }
   update(dt) {
     const selected=this.room?.people.get(this.selectionPerson);if(selected&&this.selection){this.selection.position.x=selected.x;this.selection.position.z=selected.z;}
     if (!this.room) return; this.elapsed+=dt;const hour=new Date(accraNow()).getUTCHours();const isAvailable=open=>!open||(open[1]>24?hour>=open[0]||hour<open[1]-24:hour>=open[0]&&hour<open[1]);
@@ -218,7 +283,10 @@ export class World {
       if(low&&f.pitch<0.8)f.pitch+=(0.8-f.pitch)*k;   // look down on a seated or lying player
       f.target.x+=(me.x-f.target.x)*k;f.target.y+=(y-f.target.y)*k;f.target.z+=(me.z-f.target.z)*k;
       this.stage.applyView();this.room.fadeOccluders(this.stage.camera);
-    }else if(this.spec.neighbourhood&&this.me&&this.me.path.length){this.stage.view.target.x+=(this.me.x-this.stage.view.target.x)*Math.min(1,dt*3);this.stage.view.target.z+=(this.me.z-this.stage.view.target.z)*Math.min(1,dt*3);this.stage.applyView();}
+    }else if((this.spec.neighbourhood||this.spec.outdoor)&&this.me&&(this.me.path.length||this.me.steer||this.me.vel>0.05)){this.stage.view.target.x+=(this.me.x-this.stage.view.target.x)*Math.min(1,dt*3);this.stage.view.target.z+=(this.me.z-this.stage.view.target.z)*Math.min(1,dt*3);this.stage.applyView();}
+    this.updateMarker(dt);
+    this.streetBoards?.update(this.stage.camera);
+    this.updateActions();
     if (this.gemObj) { this.gemObj.rotation.y += dt * 2; this.gemObj.position.y = 0.55 + Math.sin(performance.now() / 300) * 0.08; }
     for (const p of this.room.people.values()) {
       if (!p.tagEl) continue; const y = p.pose === 'lie' ? 0.9 : p.pose && p.pose.startsWith('sit') ? 1.55 : 2.0; const [sx, sy] = this.screenOf(p.x, y + (p.poseY || 0) * (p.pose === 'stand' ? 0 : 1), p.z);

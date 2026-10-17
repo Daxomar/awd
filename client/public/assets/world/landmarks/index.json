@@ -1,0 +1,20 @@
+{
+ "source": "world/scripts/build_landmarks.py (Blender 5.2, original)",
+ "ids": [
+  "airport",
+  "blackstar",
+  "bukom",
+  "castle",
+  "church",
+  "circle",
+  "hotel",
+  "kantamanto",
+  "lighthouse",
+  "makola",
+  "mall",
+  "memorial",
+  "mosque",
+  "stadium",
+  "ug"
+ ]
+}

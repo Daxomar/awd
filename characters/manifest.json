@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-10-16",
+  "generated": "2026-10-17",
   "pipeline": {
     "build": "characters/scripts/build_prototype.py",
     "capture": "characters/tools/capture_lab.py",
@@ -103,17 +103,17 @@
       "base": {
         "0": {
           "asset": "client/public/assets/characters/prototype/awd_male_base_lod0.glb",
-          "bytes": 2583416,
+          "bytes": 3382708,
           "triangles": 28588
         },
         "1": {
           "asset": "client/public/assets/characters/prototype/awd_male_base_lod1.glb",
-          "bytes": 1134800,
+          "bytes": 1931124,
           "triangles": 12092
         },
         "2": {
           "asset": "client/public/assets/characters/prototype/awd_male_base_lod2.glb",
-          "bytes": 695544,
+          "bytes": 1491760,
           "triangles": 4230
         }
       },
@@ -138,19 +138,19 @@
       "lods": {
         "0": {
           "asset": "client/public/assets/characters/prototype/awd_male_prototype_lod0.glb",
-          "bytes": 2690492,
+          "bytes": 3490172,
           "triangles": 28000,
           "meshes": 11
         },
         "1": {
           "asset": "client/public/assets/characters/prototype/awd_male_prototype_lod1.glb",
-          "bytes": 1459632,
+          "bytes": 2258924,
           "triangles": 12462,
           "meshes": 8
         },
         "2": {
           "asset": "client/public/assets/characters/prototype/awd_male_prototype_lod2.glb",
-          "bytes": 1042536,
+          "bytes": 1839784,
           "triangles": 4354,
           "meshes": 8
         }
@@ -162,17 +162,17 @@
       "base": {
         "0": {
           "asset": "client/public/assets/characters/prototype/awd_female_base_lod0.glb",
-          "bytes": 2574112,
+          "bytes": 3366356,
           "triangles": 28588
         },
         "1": {
           "asset": "client/public/assets/characters/prototype/awd_female_base_lod1.glb",
-          "bytes": 1131628,
+          "bytes": 1920812,
           "triangles": 12092
         },
         "2": {
           "asset": "client/public/assets/characters/prototype/awd_female_base_lod2.glb",
-          "bytes": 695820,
+          "bytes": 1484956,
           "triangles": 4230
         }
       },
@@ -197,19 +197,19 @@
       "lods": {
         "0": {
           "asset": "client/public/assets/characters/prototype/awd_female_prototype_lod0.glb",
-          "bytes": 2668960,
+          "bytes": 3461596,
           "triangles": 28064,
           "meshes": 11
         },
         "1": {
           "asset": "client/public/assets/characters/prototype/awd_female_prototype_lod1.glb",
-          "bytes": 1434604,
+          "bytes": 2226844,
           "triangles": 12486,
           "meshes": 8
         },
         "2": {
           "asset": "client/public/assets/characters/prototype/awd_female_prototype_lod2.glb",
-          "bytes": 1019628,
+          "bytes": 1809876,
           "triangles": 4365,
           "meshes": 8
         }
@@ -410,17 +410,17 @@
         "assets": {
           "m": {
             "asset": "client/public/assets/characters/prototype/parts/top_tee_male.glb",
-            "bytes": 347448,
+            "bytes": 348064,
             "triangles": 4064,
             "lod1": "client/public/assets/characters/prototype/parts/top_tee_male_lod1.glb",
-            "lod1Triangles": 2032
+            "lod1Triangles": 2031
           },
           "f": {
             "asset": "client/public/assets/characters/prototype/parts/top_tee_female.glb",
-            "bytes": 335180,
+            "bytes": 337680,
             "triangles": 3928,
             "lod1": "client/public/assets/characters/prototype/parts/top_tee_female_lod1.glb",
-            "lod1Triangles": 1964
+            "lod1Triangles": 1963
           }
         }
       },
@@ -439,14 +439,14 @@
         "assets": {
           "m": {
             "asset": "client/public/assets/characters/prototype/parts/top_flagtee_male.glb",
-            "bytes": 356500,
+            "bytes": 357112,
             "triangles": 4096,
             "lod1": "client/public/assets/characters/prototype/parts/top_flagtee_male_lod1.glb",
             "lod1Triangles": 2048
           },
           "f": {
             "asset": "client/public/assets/characters/prototype/parts/top_flagtee_female.glb",
-            "bytes": 344232,
+            "bytes": 346816,
             "triangles": 3960,
             "lod1": "client/public/assets/characters/prototype/parts/top_flagtee_female_lod1.glb",
             "lod1Triangles": 1980
@@ -475,10 +475,10 @@
         "assets": {
           "m": {
             "asset": "client/public/assets/characters/prototype/parts/top_singlet_male.glb",
-            "bytes": 298680,
+            "bytes": 299264,
             "triangles": 3196,
             "lod1": "client/public/assets/characters/prototype/parts/top_singlet_male_lod1.glb",
-            "lod1Triangles": 1598
+            "lod1Triangles": 1597
           }
         }
       },
@@ -504,7 +504,7 @@
         "assets": {
           "f": {
             "asset": "client/public/assets/characters/prototype/parts/top_crop_female.glb",
-            "bytes": 302856,
+            "bytes": 304264,
             "triangles": 3352,
             "lod1": "client/public/assets/characters/prototype/parts/top_crop_female_lod1.glb",
             "lod1Triangles": 1675
@@ -534,14 +534,14 @@
         "assets": {
           "m": {
             "asset": "client/public/assets/characters/prototype/parts/top_polo_male.glb",
-            "bytes": 336936,
+            "bytes": 337480,
             "triangles": 3876,
             "lod1": "client/public/assets/characters/prototype/parts/top_polo_male_lod1.glb",
             "lod1Triangles": 1937
           },
           "f": {
             "asset": "client/public/assets/characters/prototype/parts/top_polo_female.glb",
-            "bytes": 325272,
+            "bytes": 327284,
             "triangles": 3736,
             "lod1": "client/public/assets/characters/prototype/parts/top_polo_female_lod1.glb",
             "lod1Triangles": 1868
@@ -571,17 +571,17 @@
         "assets": {
           "m": {
             "asset": "client/public/assets/characters/prototype/parts/top_hoodie_male.glb",
-            "bytes": 489128,
+            "bytes": 490236,
             "triangles": 6144,
             "lod1": "client/public/assets/characters/prototype/parts/top_hoodie_male_lod1.glb",
             "lod1Triangles": 3071
           },
           "f": {
             "asset": "client/public/assets/characters/prototype/parts/top_hoodie_female.glb",
-            "bytes": 476360,
+            "bytes": 479088,
             "triangles": 6032,
             "lod1": "client/public/assets/characters/prototype/parts/top_hoodie_female_lod1.glb",
-            "lod1Triangles": 3016
+            "lod1Triangles": 3015
           }
         }
       },
@@ -599,17 +599,17 @@
         "assets": {
           "m": {
             "asset": "client/public/assets/characters/prototype/parts/top_jersey_male.glb",
-            "bytes": 361528,
-            "triangles": 4128,
+            "bytes": 899320,
+            "triangles": 4096,
             "lod1": "client/public/assets/characters/prototype/parts/top_jersey_male_lod1.glb",
-            "lod1Triangles": 2064
+            "lod1Triangles": 2048
           },
           "f": {
             "asset": "client/public/assets/characters/prototype/parts/top_jersey_female.glb",
-            "bytes": 347820,
-            "triangles": 3976,
+            "bytes": 889544,
+            "triangles": 3944,
             "lod1": "client/public/assets/characters/prototype/parts/top_jersey_female_lod1.glb",
-            "lod1Triangles": 1988
+            "lod1Triangles": 1972
           }
         }
       },
@@ -627,17 +627,17 @@
         "assets": {
           "m": {
             "asset": "client/public/assets/characters/prototype/parts/top_jerseyaway_male.glb",
-            "bytes": 361548,
-            "triangles": 4128,
+            "bytes": 793808,
+            "triangles": 4096,
             "lod1": "client/public/assets/characters/prototype/parts/top_jerseyaway_male_lod1.glb",
-            "lod1Triangles": 2064
+            "lod1Triangles": 2048
           },
           "f": {
             "asset": "client/public/assets/characters/prototype/parts/top_jerseyaway_female.glb",
-            "bytes": 347836,
-            "triangles": 3976,
+            "bytes": 784032,
+            "triangles": 3944,
             "lod1": "client/public/assets/characters/prototype/parts/top_jerseyaway_female_lod1.glb",
-            "lod1Triangles": 1988
+            "lod1Triangles": 1972
           }
         }
       },
@@ -660,17 +660,17 @@
         "assets": {
           "m": {
             "asset": "client/public/assets/characters/prototype/parts/top_ankara_male.glb",
-            "bytes": 295472,
+            "bytes": 289104,
             "triangles": 3876,
             "lod1": "client/public/assets/characters/prototype/parts/top_ankara_male_lod1.glb",
             "lod1Triangles": 1937
           },
           "f": {
             "asset": "client/public/assets/characters/prototype/parts/top_ankara_female.glb",
-            "bytes": 283820,
+            "bytes": 278824,
             "triangles": 3736,
             "lod1": "client/public/assets/characters/prototype/parts/top_ankara_female_lod1.glb",
-            "lod1Triangles": 1868
+            "lod1Triangles": 1867
           }
         }
       },
@@ -691,17 +691,17 @@
         "assets": {
           "m": {
             "asset": "client/public/assets/characters/prototype/parts/top_kenteshirt_male.glb",
-            "bytes": 333740,
+            "bytes": 420980,
             "triangles": 3876,
             "lod1": "client/public/assets/characters/prototype/parts/top_kenteshirt_male_lod1.glb",
             "lod1Triangles": 1937
           },
           "f": {
             "asset": "client/public/assets/characters/prototype/parts/top_kenteshirt_female.glb",
-            "bytes": 322084,
+            "bytes": 410700,
             "triangles": 3736,
             "lod1": "client/public/assets/characters/prototype/parts/top_kenteshirt_female_lod1.glb",
-            "lod1Triangles": 1868
+            "lod1Triangles": 1867
           }
         }
       },
@@ -721,7 +721,7 @@
         "assets": {
           "m": {
             "asset": "client/public/assets/characters/prototype/parts/top_fugu_male.glb",
-            "bytes": 405588,
+            "bytes": 405804,
             "triangles": 4892,
             "lod1": "client/public/assets/characters/prototype/parts/top_fugu_male_lod1.glb",
             "lod1Triangles": 2446
@@ -745,17 +745,17 @@
         "assets": {
           "m": {
             "asset": "client/public/assets/characters/prototype/parts/top_office_male.glb",
-            "bytes": 404168,
+            "bytes": 404676,
             "triangles": 5252,
             "lod1": "client/public/assets/characters/prototype/parts/top_office_male_lod1.glb",
-            "lod1Triangles": 2626
+            "lod1Triangles": 2625
           },
           "f": {
             "asset": "client/public/assets/characters/prototype/parts/top_office_female.glb",
-            "bytes": 394360,
+            "bytes": 395616,
             "triangles": 5136,
             "lod1": "client/public/assets/characters/prototype/parts/top_office_female_lod1.glb",
-            "lod1Triangles": 2567
+            "lod1Triangles": 2568
           }
         }
       },
@@ -777,7 +777,7 @@
         "assets": {
           "m": {
             "asset": "client/public/assets/characters/prototype/parts/top_kaftan_male.glb",
-            "bytes": 450064,
+            "bytes": 450308,
             "triangles": 6016,
             "lod1": "client/public/assets/characters/prototype/parts/top_kaftan_male_lod1.glb",
             "lod1Triangles": 3008
@@ -803,17 +803,17 @@
         "assets": {
           "m": {
             "asset": "client/public/assets/characters/prototype/parts/top_suit_male.glb",
-            "bytes": 797520,
+            "bytes": 798124,
             "triangles": 10652,
             "lod1": "client/public/assets/characters/prototype/parts/top_suit_male_lod1.glb",
-            "lod1Triangles": 5326
+            "lod1Triangles": 5325
           },
           "f": {
             "asset": "client/public/assets/characters/prototype/parts/top_suit_female.glb",
-            "bytes": 776780,
+            "bytes": 779756,
             "triangles": 10412,
             "lod1": "client/public/assets/characters/prototype/parts/top_suit_female_lod1.glb",
-            "lod1Triangles": 5206
+            "lod1Triangles": 5205
           }
         }
       },
@@ -835,7 +835,7 @@
         "assets": {
           "f": {
             "asset": "client/public/assets/characters/prototype/parts/top_kaba_female.glb",
-            "bytes": 288272,
+            "bytes": 283240,
             "triangles": 3684,
             "lod1": "client/public/assets/characters/prototype/parts/top_kaba_female_lod1.glb",
             "lod1Triangles": 1841
@@ -858,10 +858,10 @@
         "assets": {
           "f": {
             "asset": "client/public/assets/characters/prototype/parts/top_blouse_female.glb",
-            "bytes": 320652,
+            "bytes": 322420,
             "triangles": 3736,
             "lod1": "client/public/assets/characters/prototype/parts/top_blouse_female_lod1.glb",
-            "lod1Triangles": 1868
+            "lod1Triangles": 1867
           }
         }
       }
@@ -885,17 +885,17 @@
         "assets": {
           "m": {
             "asset": "client/public/assets/characters/prototype/parts/bottom_jeans_male.glb",
-            "bytes": 272604,
+            "bytes": 272656,
             "triangles": 2748,
             "lod1": "client/public/assets/characters/prototype/parts/bottom_jeans_male_lod1.glb",
             "lod1Triangles": 1374
           },
           "f": {
             "asset": "client/public/assets/characters/prototype/parts/bottom_jeans_female.glb",
-            "bytes": 275524,
+            "bytes": 275388,
             "triangles": 2800,
             "lod1": "client/public/assets/characters/prototype/parts/bottom_jeans_female_lod1.glb",
-            "lod1Triangles": 1400
+            "lod1Triangles": 1399
           }
         }
       },
@@ -919,17 +919,17 @@
         "assets": {
           "m": {
             "asset": "client/public/assets/characters/prototype/parts/bottom_shorts_male.glb",
-            "bytes": 189844,
+            "bytes": 189872,
             "triangles": 1588,
             "lod1": "client/public/assets/characters/prototype/parts/bottom_shorts_male_lod1.glb",
             "lod1Triangles": 794
           },
           "f": {
             "asset": "client/public/assets/characters/prototype/parts/bottom_shorts_female.glb",
-            "bytes": 183980,
+            "bytes": 183948,
             "triangles": 1464,
             "lod1": "client/public/assets/characters/prototype/parts/bottom_shorts_female_lod1.glb",
-            "lod1Triangles": 732
+            "lod1Triangles": 731
           }
         }
       },
@@ -950,14 +950,14 @@
         "assets": {
           "m": {
             "asset": "client/public/assets/characters/prototype/parts/bottom_joggers_male.glb",
-            "bytes": 249700,
+            "bytes": 249812,
             "triangles": 2692,
             "lod1": "client/public/assets/characters/prototype/parts/bottom_joggers_male_lod1.glb",
             "lod1Triangles": 1346
           },
           "f": {
             "asset": "client/public/assets/characters/prototype/parts/bottom_joggers_female.glb",
-            "bytes": 251544,
+            "bytes": 251428,
             "triangles": 2720,
             "lod1": "client/public/assets/characters/prototype/parts/bottom_joggers_female_lod1.glb",
             "lod1Triangles": 1360
@@ -983,17 +983,17 @@
         "assets": {
           "m": {
             "asset": "client/public/assets/characters/prototype/parts/bottom_chinos_male.glb",
-            "bytes": 247900,
+            "bytes": 247928,
             "triangles": 2748,
             "lod1": "client/public/assets/characters/prototype/parts/bottom_chinos_male_lod1.glb",
             "lod1Triangles": 1374
           },
           "f": {
             "asset": "client/public/assets/characters/prototype/parts/bottom_chinos_female.glb",
-            "bytes": 250796,
+            "bytes": 250680,
             "triangles": 2800,
             "lod1": "client/public/assets/characters/prototype/parts/bottom_chinos_female_lod1.glb",
-            "lod1Triangles": 1400
+            "lod1Triangles": 1399
           }
         }
       },
@@ -1014,14 +1014,14 @@
         "assets": {
           "m": {
             "asset": "client/public/assets/characters/prototype/parts/bottom_suitpants_male.glb",
-            "bytes": 247892,
+            "bytes": 247944,
             "triangles": 2748,
             "lod1": "client/public/assets/characters/prototype/parts/bottom_suitpants_male_lod1.glb",
-            "lod1Triangles": 1373
+            "lod1Triangles": 1374
           },
           "f": {
             "asset": "client/public/assets/characters/prototype/parts/bottom_suitpants_female.glb",
-            "bytes": 250772,
+            "bytes": 250700,
             "triangles": 2800,
             "lod1": "client/public/assets/characters/prototype/parts/bottom_suitpants_female_lod1.glb",
             "lod1Triangles": 1400
@@ -1047,14 +1047,14 @@
         "assets": {
           "m": {
             "asset": "client/public/assets/characters/prototype/parts/bottom_ankarapants_male.glb",
-            "bytes": 207536,
+            "bytes": 200696,
             "triangles": 2748,
             "lod1": "client/public/assets/characters/prototype/parts/bottom_ankarapants_male_lod1.glb",
-            "lod1Triangles": 1373
+            "lod1Triangles": 1374
           },
           "f": {
             "asset": "client/public/assets/characters/prototype/parts/bottom_ankarapants_female.glb",
-            "bytes": 210424,
+            "bytes": 203476,
             "triangles": 2800,
             "lod1": "client/public/assets/characters/prototype/parts/bottom_ankarapants_female_lod1.glb",
             "lod1Triangles": 1400
@@ -1079,7 +1079,7 @@
         "assets": {
           "f": {
             "asset": "client/public/assets/characters/prototype/parts/bottom_slit_female.glb",
-            "bytes": 85880,
+            "bytes": 79004,
             "triangles": 500,
             "lod1": "client/public/assets/characters/prototype/parts/bottom_slit_female_lod1.glb",
             "lod1Triangles": 250
@@ -1154,7 +1154,7 @@
         "assets": {
           "f": {
             "asset": "client/public/assets/characters/prototype/parts/bottom_kenteskirt_female.glb",
-            "bytes": 126548,
+            "bytes": 213296,
             "triangles": 560,
             "lod1": "client/public/assets/characters/prototype/parts/bottom_kenteskirt_female_lod1.glb",
             "lod1Triangles": 280
@@ -1185,7 +1185,7 @@
         "assets": {
           "f": {
             "asset": "client/public/assets/characters/prototype/parts/full_sundress_female.glb",
-            "bytes": 315752,
+            "bytes": 315812,
             "triangles": 3528,
             "lod1": "client/public/assets/characters/prototype/parts/full_sundress_female_lod1.glb",
             "lod1Triangles": 1764
@@ -1210,10 +1210,10 @@
         "assets": {
           "f": {
             "asset": "client/public/assets/characters/prototype/parts/full_ankaradress_female.glb",
-            "bytes": 326264,
+            "bytes": 321312,
             "triangles": 4376,
             "lod1": "client/public/assets/characters/prototype/parts/full_ankaradress_female_lod1.glb",
-            "lod1Triangles": 2187
+            "lod1Triangles": 2188
           }
         }
       },
@@ -1233,7 +1233,7 @@
         "assets": {
           "f": {
             "asset": "client/public/assets/characters/prototype/parts/full_kentedress_female.glb",
-            "bytes": 321088,
+            "bytes": 407888,
             "triangles": 3640,
             "lod1": "client/public/assets/characters/prototype/parts/full_kentedress_female_lod1.glb",
             "lod1Triangles": 1820
@@ -1257,7 +1257,7 @@
         "assets": {
           "f": {
             "asset": "client/public/assets/characters/prototype/parts/full_bodycon_female.glb",
-            "bytes": 316192,
+            "bytes": 316504,
             "triangles": 3528,
             "lod1": "client/public/assets/characters/prototype/parts/full_bodycon_female_lod1.glb",
             "lod1Triangles": 1764
@@ -1280,10 +1280,10 @@
         "assets": {
           "m": {
             "asset": "client/public/assets/characters/prototype/parts/full_kentecloth_male.glb",
-            "bytes": 330320,
+            "bytes": 417580,
             "triangles": 3830,
             "lod1": "client/public/assets/characters/prototype/parts/full_kentecloth_male_lod1.glb",
-            "lod1Triangles": 1915
+            "lod1Triangles": 1914
           }
         }
       }
@@ -2099,14 +2099,14 @@
         "assets": {
           "m": {
             "asset": "client/public/assets/characters/prototype/parts/neck_stole_male.glb",
-            "bytes": 98516,
+            "bytes": 185272,
             "triangles": 40,
             "lod1": "client/public/assets/characters/prototype/parts/neck_stole_male_lod1.glb",
             "lod1Triangles": 20
           },
           "f": {
             "asset": "client/public/assets/characters/prototype/parts/neck_stole_female.glb",
-            "bytes": 98568,
+            "bytes": 185320,
             "triangles": 40,
             "lod1": "client/public/assets/characters/prototype/parts/neck_stole_female_lod1.glb",
             "lod1Triangles": 20

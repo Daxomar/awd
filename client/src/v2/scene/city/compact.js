@@ -3,6 +3,13 @@ import {CITY_NEIGHBOURHOODS,CITY_LINKS,worldLocations} from '../../../../../shar
 import {CityKit,disposeBatch} from './kit.js';
 import {SCALE,seeded} from './geography.js';
 import {buildLandmarks} from './landmarks.js';
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
+
+// Blender landmark models (world/scripts/build_landmarks.py). index.json lists the ids that exist;
+// each model replaces its procedural stand-in once loaded, at the same place and scale.
+const LANDMARK_URL='/assets/world/landmarks/';
+let landmarkIndex=null;
+const landmarkIds=()=>landmarkIndex||=fetch(LANDMARK_URL+'index.json').then(r=>r.ok?r.json():{ids:[]}).then(j=>new Set(j.ids||[])).catch(()=>new Set());
 
 const SPECIAL=new Set(['blackstar','memorial','lighthouse','circle','makola','kantamanto','stadium','ug','airport','mall','castle']);
 const PALETTES={historic:['#c59b7c','#d3b994','#ab715c'],compound:['#d4b794','#c7b08f','#b78665'],
@@ -94,6 +101,7 @@ export class CompactCity {
       }
       for(const l of locations){if(!SPECIAL.has(l.id))continue;
         const group=buildLandmarks(this.kit,[{id:l.id,x:l.playable.x/(SCALE*4),z:l.playable.z/(SCALE*4)}]);group.scale.setScalar(4);this.group.add(group);
+        this.upgradeLandmark(l.id,l.playable.x/(SCALE*4),l.playable.z/(SCALE*4),group);
         this.targets.set(l.id,{w:l.id==='airport'?3.2:2.6,d:2.2,h:1.4});
       }
     }
@@ -101,7 +109,17 @@ export class CompactCity {
     this.districts=CITY_NEIGHBOURHOODS.map(n=>({...n,x:n.x/SCALE,z:n.z/SCALE,radius:900,secondary:n.family,provenance:'Authored schematic presentation; original geographic map retained'}));
     this.readyMs=performance.now()-start;
   }
-  dispose(){if(this.disposed)return;this.disposed=true;for(const group of [...this.group.children])disposeBatch(group);this.group.removeFromParent();this.group.clear();this.kit.dispose();}
+  async upgradeLandmark(id,x,z,stand){
+    if(!(await landmarkIds()).has(id)||this.disposed)return;
+    try{
+      const gltf=await new GLTFLoader().loadAsync(LANDMARK_URL+id+'.glb');if(this.disposed||!stand.parent)return;
+      const model=new THREE.Group();model.scale.setScalar(4*SCALE);model.userData.glb=true;model.name='landmark-'+id;   // metres, scaled like the kit batch
+      gltf.scene.position.set(x,0,z);gltf.scene.scale.setScalar(1.8);   // landmarks read larger than the houses round them
+      gltf.scene.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});model.add(gltf.scene);
+      stand.removeFromParent();disposeBatch(stand);this.group.add(model);
+    }catch{/* keep the procedural stand-in */}
+  }
+  dispose(){if(this.disposed)return;this.disposed=true;for(const group of [...this.group.children]){if(group.userData.glb){group.traverse(o=>{if(o.isMesh){o.geometry.dispose();for(const m of [o.material].flat())m.dispose();}});group.removeFromParent();}else disposeBatch(group);}this.group.removeFromParent();this.group.clear();this.kit.dispose();}
   pick(ray){
     const hit=new THREE.Vector3(),bounds=new THREE.Box3();let nearest=null,distance=Infinity;
     for(const place of this.locations){

@@ -1,5 +1,9 @@
 import * as THREE from 'three';
 import { display } from './geography.js';
+import { buildBoard, setArtwork, prepareTexture, houseAdTexture } from '../billboard-face.js';
+
+// Boards keep at least this share of their size on screen as the map zooms out (visibility for advertisers).
+const NEAR = 14, MAX_GROW = 3.2;
 
 export class CityAds {
   constructor(parent) { this.parent = parent; this.boards = []; this.textures = new Map(); this.loader = new THREE.TextureLoader(); this.ray = new THREE.Raycaster(); this.disposed = false; }
@@ -7,21 +11,18 @@ export class CityAds {
     if (this.disposed) return;
     const keep = new Set(slots.map(s => s.id));
     for (const b of [...this.boards]) if (!keep.has(b.slot.id)) { this.release(b); this.boards.splice(this.boards.indexOf(b), 1); }
-    if (slots.length && !this.house) this.house = houseAd();
+    if (slots.length && !this.house) this.house = houseAdTexture();
     // Remove ground panels under billboards for now; show only prominent standing billboards
     slots = slots.filter(s => s.type !== 'ground');
     for (const slot of slots) {
       let b = this.boards.find(b => b.slot.id === slot.id);
       if (!b) {
-        const root = new THREE.Group(), steel = new THREE.MeshStandardMaterial({ color: '#536c64', roughness: .7, metalness: .2 });
-        const width = slot.tier === 'MEGA' ? .72 : .58, height = width / 2;
-        const frame = new THREE.Mesh(new THREE.BoxGeometry(width + .028, height + .028, .028), steel); frame.position.y = .38; root.add(frame);
-        const face = new THREE.Mesh(new THREE.PlaneGeometry(width, height), new THREE.MeshStandardMaterial({ map: this.house, emissive: '#ffffff', emissiveMap: this.house, emissiveIntensity: .95, roughness: .5, metalness: 0.05, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
-        face.position.set(0, .38, .018);
-        const pole = new THREE.Mesh(new THREE.BoxGeometry(.032, .38, .032), steel); pole.position.y = .19; root.add(pole);
-        root.add(face);
+        const root = new THREE.Group(), steel = new THREE.MeshStandardMaterial({ color: '#3b4a45', roughness: .6, metalness: .4 });
+        const width = slot.tier === 'MEGA' ? 1.05 : .82, height = width / 2, poleH = .62;
+        const board = buildBoard(width, height, { depth: .03 }); board.group.position.y = poleH + height / 2; root.add(board.group);
+        for (const x of [-width * .28, width * .28]) { const pole = new THREE.Mesh(new THREE.BoxGeometry(.03, poleH, .03), steel); pole.position.set(x, poleH / 2, -.01); root.add(pole); }
         const [x, z] = display(slot.x, slot.z), offset = slot.offset || [-.18, -.18]; root.position.set(x + offset[0], .006, z + offset[1]); root.rotation.y = slot.yaw || 0;
-        b = { root, face, cur: null, seed: [...slot.id].reduce((n, c) => n + c.charCodeAt(0), 0) }; this.parent.add(root); this.boards.push(b);
+        b = { root, board, face: board.face, cur: null, seed: [...slot.id].reduce((n, c) => n + c.charCodeAt(0), 0) }; this.parent.add(root); this.boards.push(b);
       }
       b.slot = slot; b.ads = slot.live || []; b.cur = null;
     }
@@ -31,7 +32,7 @@ export class CityAds {
     if (this.disposed) return;
     const now = Date.now();
     for (const b of this.boards) {
-      if(camera&&b.slot.type!=='ground')b.root.rotation.y=Math.atan2(camera.position.x-b.root.position.x,camera.position.z-b.root.position.z);
+      if(camera&&b.slot.type!=='ground'){b.root.rotation.y=Math.atan2(camera.position.x-b.root.position.x,camera.position.z-b.root.position.z);b.root.scale.setScalar(Math.min(MAX_GROW,Math.max(1,camera.position.distanceTo(b.root.position)/NEAR)));}
       const live=b.ads.filter(a=>+a.ends>now);
       const ad = live.length ? live[(Math.floor(now / ((b.slot.rotate || 15) * 1000)) + b.seed) % live.length] : null;
       if(b.previewMode)continue;
@@ -41,16 +42,16 @@ export class CityAds {
         if (!this.textures.has(key)) {
           const t = this.loader.load(ad.img, loaded => {
             if (this.disposed || !this.textures.has(key)) { loaded.dispose(); return; }
-            if (b.cur === key) { b.face.material.map = loaded; b.face.material.emissiveMap = loaded; b.face.material.needsUpdate = true; }
+            if (b.cur === key) setArtwork(b.board, loaded);
           }, undefined, () => {
             this.textures.delete(key);
-            if (b.cur === key) { b.face.material.map = this.house; b.face.material.emissiveMap = this.house; b.face.material.needsUpdate = true; }
+            if (b.cur === key) setArtwork(b.board, this.house);
           });
-          t.colorSpace = THREE.SRGBColorSpace; this.textures.set(key, t);
+          prepareTexture(t); this.textures.set(key, t);
         }
         texture = this.textures.get(key); this.textures.delete(key); this.textures.set(key, texture);
       }
-      b.face.material.map = texture; b.face.material.emissiveMap = texture; b.face.material.needsUpdate = true;
+      setArtwork(b.board, texture);
     }
     const active = new Set(this.boards.map(b => b.cur));
     while (this.textures.size > Math.max(24, this.boards.length)) {
@@ -61,8 +62,8 @@ export class CityAds {
   preview(id,image){
     this.clearPreview();const b=this.boards.find(b=>b.slot.id===id);if(!b)return false;
     b.previewMode=true;this.previewing=true;
-    if(image){const t=this.loader.load(image);t.colorSpace=THREE.SRGBColorSpace;b.preview=t;b.face.material.map=t;b.face.material.emissiveMap=t;}
-    b.face.material.needsUpdate=true;return true;
+    if(image){const t=prepareTexture(this.loader.load(image,(loaded)=>{if(b.preview===loaded)setArtwork(b.board,loaded);}));b.preview=t;setArtwork(b.board,t);}
+    return true;
   }
   clearPreview(){this.previewing=false;for(const b of this.boards)if(b.previewMode){b.preview?.dispose();b.preview=null;b.previewMode=false;b.cur=null;}this.update();}
   sample(stage){
@@ -120,13 +121,4 @@ export class CityAds {
   }
   release(b) { b.preview?.dispose();const materials = new Set(); b.root.traverse(o => { if (o.isMesh) { o.geometry.dispose(); materials.add(o.material); } }); for (const m of materials) m.dispose(); b.root.removeFromParent(); }
   dispose() { if (this.disposed) return;this.clearPreview(); this.disposed = true; for (const b of this.boards) this.release(b); this.boards = []; for (const t of this.textures.values()) t.dispose(); this.textures.clear(); this.house?.dispose(); }
-}
-function houseAd() {
-  const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 256; const ctx = canvas.getContext('2d');
-  ctx.fillStyle = '#0f382c'; ctx.fillRect(0, 0, 512, 256);
-  ctx.lineWidth = 14; ctx.strokeStyle = '#fcd116'; ctx.strokeRect(7, 7, 498, 242);
-  ctx.fillStyle = '#fcd116'; ctx.font = '900 46px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('ADVERTISE HERE', 256, 110);
-  ctx.fillStyle = '#fcfaf2'; ctx.font = '700 26px system-ui, sans-serif'; ctx.fillText('Book online · /advertise', 256, 160);
-  ctx.fillStyle = '#e0bd65'; ctx.font = '600 20px system-ui, sans-serif'; ctx.fillText('accrawedey.world', 256, 205);
-  const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; return texture;
 }

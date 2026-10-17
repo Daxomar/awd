@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { B, mat, T, makeItem, trimKitCaches } from './kit.js';
 import { EnvironmentResources, EnvironmentCache } from './environment-resources.js';
 import { streetGraph, activeStreetSegments } from '../../../../shared/local-streets.js';
+import { buildStreetKit, disposeStreetKit } from './street-kit.js';
 
 const add=(root,b)=>{const group=b.done([0,0],[]).obj;root.add(group);return group;};
 const surfaces=new EnvironmentCache(2);
@@ -11,9 +12,9 @@ function surfaceMaterial(graph,art){
   const key=graph.id+'|'+art.ground;const cached=surfaces.get(key);if(cached)return cached;
   // Paint the union on one owned plane. Overlapping road/cap meshes caused
   // coplanar seams at intersections; this also reduces the resident triangle cost.
-  const canvas=document.createElement('canvas');canvas.width=canvas.height=1024;
-  const ctx=canvas.getContext('2d');ctx.scale(1024/graph.w,1024/graph.d);ctx.translate(graph.w/2,graph.d/2);
-  ctx.fillStyle=art.ground;ctx.fillRect(-5.5,-5.5,11,11);ctx.lineCap='round';
+  const size=2048,canvas=document.createElement('canvas');canvas.width=canvas.height=size;
+  const ctx=canvas.getContext('2d');ctx.scale(size/graph.w,size/graph.d);ctx.translate(graph.w/2,graph.d/2);
+  const c=graph.court;ctx.fillStyle=art.ground;ctx.fillRect(c.x-c.w/2,c.z-c.d/2,c.w,c.d);ctx.lineCap='round';
   for(const [extra,color]of [[2.5,art.id==='jtown'?'#c9b896':'#c5c0ad'],[0,'#6e7470']]){
     ctx.strokeStyle=color;
     for(const s of graph.segments){ctx.lineWidth=s.width+extra;ctx.beginPath();ctx.moveTo(...s.from);ctx.lineTo(...s.to);ctx.stroke();}
@@ -36,6 +37,7 @@ function baseGeometry(graph,art){
   root.add(surface(graph,art));
   for(const lot of graph.lots){
     const p=lot.approach;b.box(1.3,.012,1.3,'#cbbda3',p.x,.083,p.z,.008);
+    if(lot.role==='scenery')continue;   // scenery frontages come from the street kit (scene/street-kit.js)
     const preview=new B();preview.bc(lot.w,2.2,lot.d,art.wall,lot.x,1.1,lot.z,0,lot.rot,0,.025);
     const group=add(root,preview);group.userData.segment=lot.segment;
   }
@@ -43,10 +45,6 @@ function baseGeometry(graph,art){
 }
 function segmentGeometry(graph,seg,art){
   const root=new THREE.Group(),b=new B();root.name=seg.id;
-  for(const lot of graph.lots.filter(l=>l.segment===seg.id&&l.role==='scenery')){
-    const item=makeItem('street_building:5,4',{style:art.style,color:art.wall,label:'COMPOUND'}).obj;
-    item.position.set(lot.x,0,lot.z);item.rotation.y=lot.rot;root.add(item);
-  }
   // One restrained frontage sign per segment, using existing small text atlases.
   const x=(seg.from[0]+seg.to[0])/2,z=(seg.from[1]+seg.to[1])/2;
   const dx=seg.to[0]-seg.from[0],dz=seg.to[1]-seg.from[1],length=Math.hypot(dx,dz),nx=-dz/length,nz=dx/length;
@@ -55,7 +53,7 @@ function segmentGeometry(graph,seg,art){
   b.plane(1.5,.23,mat('#fff',{map:T.text(seg.label,art.accent,'#f5efdc',256,64)}),sx,1.8,sz+.035);
   for(const side of [-1,1]){
     const tx=x+nx*(seg.width/2+2.1)*side,tz=z+nz*(seg.width/2+2.1)*side;
-    if(Math.abs(tx)>18||Math.abs(tz)>18||Math.hypot(tx,tz)<7||graph.lots.some(l=>Math.hypot(l.x-tx,l.z-tz)<4))continue;
+    if(Math.abs(tx)>graph.w/2-2||Math.abs(tz)>graph.d/2-2||Math.hypot(tx,tz)<graph.court.w/2+1||graph.lots.some(l=>Math.hypot(l.x-tx,l.z-tz)<4))continue;
     b.box(.6,.18,.6,'#ad9d80',tx,0,tz,.03);b.cyl(.065,.08,1.7,'#84684b',tx,.18,tz,7);
     b.sph(.65,art.style==='coastal'?'#68875b':'#61805c',tx,2,tz,1,.8,1,8,5);
   }
@@ -65,6 +63,10 @@ export class StreetStream {
   constructor(room){
     this.room=room;this.graph=streetGraph(room.spec.localNetwork);this.active=new Map();this.builds=0;this.disposals=0;
     this.base=baseGeometry(this.graph,room.spec.environment);this.baseResources=new EnvironmentResources().capture(this.base);room.group.add(this.base);
+    // The rest of the neighbourhood: Blender street kit, instanced (loads once, then builds instantly).
+    buildStreetKit(this.graph,room.spec.environment?.style,{shadows:room.stage?.renderer?.shadowMap?.enabled!==false}).then(group=>{
+      if(this.disposed){disposeStreetKit(group);return;}this.kit=group;room.group.add(group);
+    }).catch(()=>{});
     surfaces.trim();
     this.update(room.spawn.x,room.spawn.z);
   }
@@ -85,6 +87,7 @@ export class StreetStream {
   }
   stats(){return {active:this.active.size,ids:[...this.active.keys()],builds:this.builds,disposals:this.disposals};}
   dispose(){
+    this.disposed=true;if(this.kit){disposeStreetKit(this.kit);this.kit=null;}
     for(const rec of this.room.items)this.room.dehydrateItem(rec);
     for(const {group,resources}of this.active.values()){group.removeFromParent();resources.dispose();group.clear();}
     this.active.clear();this.base.removeFromParent();this.baseResources.dispose();this.base.clear();surfaces.trim();trimKitCaches();

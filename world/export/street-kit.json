@@ -1,0 +1,108 @@
+{
+ "assets": {
+  "compound": {
+   "meshes": [
+    "kit_compound__tint",
+    "kit_compound__concrete",
+    "kit_compound__gate",
+    "kit_compound__dark",
+    "kit_compound__glass",
+    "kit_compound__roof",
+    "kit_compound__tank"
+   ],
+   "triangles": 504
+  },
+  "storey": {
+   "meshes": [
+    "kit_storey__tint",
+    "kit_storey__concrete",
+    "kit_storey__shutter",
+    "kit_storey__metal",
+    "kit_storey__dark",
+    "kit_storey__sign",
+    "kit_storey__accent",
+    "kit_storey__glass",
+    "kit_storey__tank",
+    "kit_storey__white"
+   ],
+   "triangles": 664
+  },
+  "container": {
+   "meshes": [
+    "kit_container__tint",
+    "kit_container__dark",
+    "kit_container__wood",
+    "kit_container__awning",
+    "kit_container__sign",
+    "kit_container__concrete"
+   ],
+   "triangles": 276
+  },
+  "kiosk": {
+   "meshes": [
+    "kit_kiosk__tint",
+    "kit_kiosk__dark",
+    "kit_kiosk__wood",
+    "kit_kiosk__roof",
+    "kit_kiosk__yellow"
+   ],
+   "triangles": 108
+  },
+  "chopbar": {
+   "meshes": [
+    "kit_chopbar__wood",
+    "kit_chopbar__rust",
+    "kit_chopbar__tint",
+    "kit_chopbar__bench",
+    "kit_chopbar__dark",
+    "kit_chopbar__sign"
+   ],
+   "triangles": 216
+  },
+  "neem": {
+   "meshes": [
+    "kit_neem__trunk",
+    "kit_neem__leaf"
+   ],
+   "triangles": 428
+  },
+  "palm": {
+   "meshes": [
+    "kit_palm__trunk",
+    "kit_palm__palm"
+   ],
+   "triangles": 332
+  },
+  "pole": {
+   "meshes": [
+    "kit_pole__wood",
+    "kit_pole__white",
+    "kit_pole__metal"
+   ],
+   "triangles": 112
+  },
+  "umbrella": {
+   "meshes": [
+    "kit_umbrella__metal",
+    "kit_umbrella__yellow",
+    "kit_umbrella__red",
+    "kit_umbrella__wood",
+    "kit_umbrella__blue",
+    "kit_umbrella__accent"
+   ],
+   "triangles": 176
+  },
+  "trotro": {
+   "meshes": [
+    "kit_trotro__white",
+    "kit_trotro__glass",
+    "kit_trotro__yellow",
+    "kit_trotro__red",
+    "kit_trotro__dark",
+    "kit_trotro__metal"
+   ],
+   "triangles": 260
+  }
+ },
+ "bytes": 206360
+}

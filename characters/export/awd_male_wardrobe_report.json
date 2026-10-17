@@ -1,6 +1,6 @@
 {
   "top_tee_male.glb": {
-    "bytes": 347448,
+    "bytes": 348064,
     "meshes": 1,
     "triangles": 4064,
     "materials": [
@@ -22,9 +22,9 @@
     "images": 1
   },
   "top_tee_male_lod1.glb": {
-    "bytes": 223304,
+    "bytes": 223324,
     "meshes": 1,
-    "triangles": 2032,
+    "triangles": 2031,
     "materials": [
       "AWD_Fabric_jersey_tee"
     ],
@@ -44,7 +44,7 @@
     "images": 1
   },
   "top_flagtee_male.glb": {
-    "bytes": 356500,
+    "bytes": 357112,
     "meshes": 1,
     "triangles": 4096,
     "materials": [
@@ -67,7 +67,7 @@
     "images": 2
   },
   "top_flagtee_male_lod1.glb": {
-    "bytes": 230284,
+    "bytes": 231428,
     "meshes": 1,
     "triangles": 2048,
     "materials": [
@@ -90,7 +90,7 @@
     "images": 2
   },
   "top_singlet_male.glb": {
-    "bytes": 298680,
+    "bytes": 299264,
     "meshes": 1,
     "triangles": 3196,
     "materials": [
@@ -112,9 +112,9 @@
     "images": 1
   },
   "top_singlet_male_lod1.glb": {
-    "bytes": 201752,
+    "bytes": 201512,
     "meshes": 1,
-    "triangles": 1598,
+    "triangles": 1597,
     "materials": [
       "AWD_Fabric_jersey_singlet"
     ],
@@ -134,7 +134,7 @@
     "images": 1
   },
   "top_polo_male.glb": {
-    "bytes": 336936,
+    "bytes": 337480,
     "meshes": 1,
     "triangles": 3876,
     "materials": [
@@ -156,7 +156,7 @@
     "images": 1
   },
   "top_polo_male_lod1.glb": {
-    "bytes": 218860,
+    "bytes": 219464,
     "meshes": 1,
     "triangles": 1937,
     "materials": [
@@ -178,7 +178,7 @@
     "images": 1
   },
   "top_hoodie_male.glb": {
-    "bytes": 489128,
+    "bytes": 490236,
     "meshes": 1,
     "triangles": 6144,
     "materials": [
@@ -200,7 +200,7 @@
     "images": 1
   },
   "top_hoodie_male_lod1.glb": {
-    "bytes": 299452,
+    "bytes": 300608,
     "meshes": 1,
     "triangles": 3071,
     "materials": [
@@ -222,13 +222,12 @@
     "images": 1
   },
   "top_jersey_male.glb": {
-    "bytes": 361528,
+    "bytes": 899320,
     "meshes": 1,
-    "triangles": 4128,
+    "triangles": 4096,
     "materials": [
-      "AWD_Fabric_mesh_jersey",
-      "AWD_Print_tricolour",
-      "AWD_Print_star"
+      "AWD_Print_jersey",
+      "AWD_Print_tricolour"
     ],
     "animations": [],
     "joints": 67,
@@ -243,16 +242,15 @@
       "shoulders",
       "waist"
     ],
-    "images": 3
+    "images": 2
   },
   "top_jersey_male_lod1.glb": {
-    "bytes": 234504,
+    "bytes": 771312,
     "meshes": 1,
-    "triangles": 2064,
+    "triangles": 2048,
     "materials": [
-      "AWD_Fabric_mesh_jersey",
-      "AWD_Print_tricolour",
-      "AWD_Print_star"
+      "AWD_Print_jersey",
+      "AWD_Print_tricolour"
     ],
     "animations": [],
     "joints": 67,
@@ -267,16 +265,15 @@
       "shoulders",
       "waist"
     ],
-    "images": 3
+    "images": 2
   },
   "top_jerseyaway_male.glb": {
-    "bytes": 361548,
+    "bytes": 793808,
     "meshes": 1,
-    "triangles": 4128,
+    "triangles": 4096,
     "materials": [
-      "AWD_Fabric_mesh_jerseyaway",
-      "AWD_Print_tricolour",
-      "AWD_Print_star"
+      "AWD_Print_jerseyaway",
+      "AWD_Print_redtrim"
     ],
     "animations": [],
     "joints": 67,
@@ -291,16 +288,15 @@
       "shoulders",
       "waist"
     ],
-    "images": 3
+    "images": 1
   },
   "top_jerseyaway_male_lod1.glb": {
-    "bytes": 234520,
+    "bytes": 665800,
     "meshes": 1,
-    "triangles": 2064,
+    "triangles": 2048,
     "materials": [
-      "AWD_Fabric_mesh_jerseyaway",
-      "AWD_Print_tricolour",
-      "AWD_Print_star"
+      "AWD_Print_jerseyaway",
+      "AWD_Print_redtrim"
     ],
     "animations": [],
     "joints": 67,
@@ -315,14 +311,14 @@
       "shoulders",
       "waist"
     ],
-    "images": 3
+    "images": 1
   },
   "top_ankara_male.glb": {
-    "bytes": 295472,
+    "bytes": 289104,
     "meshes": 1,
     "triangles": 3876,
     "materials": [
-      "AWD_Fabric_ankara_ankara"
+      "AWD_Ankara_ankara"
     ],
     "animations": [],
     "joints": 67,
@@ -340,11 +336,11 @@
     "images": 1
   },
   "top_ankara_male_lod1.glb": {
-    "bytes": 177560,
+    "bytes": 171228,
     "meshes": 1,
     "triangles": 1937,
     "materials": [
-      "AWD_Fabric_ankara_ankara"
+      "AWD_Ankara_ankara"
     ],
     "animations": [],
     "joints": 67,
@@ -362,11 +358,11 @@
     "images": 1
   },
   "top_kenteshirt_male.glb": {
-    "bytes": 333740,
+    "bytes": 420980,
     "meshes": 1,
     "triangles": 3876,
     "materials": [
-      "AWD_Fabric_kente_kenteshirt"
+      "AWD_Kente_kenteshirt"
     ],
     "animations": [],
     "joints": 67,
@@ -384,11 +380,11 @@
     "images": 1
   },
   "top_kenteshirt_male_lod1.glb": {
-    "bytes": 215828,
+    "bytes": 303108,
     "meshes": 1,
     "triangles": 1937,
     "materials": [
-      "AWD_Fabric_kente_kenteshirt"
+      "AWD_Kente_kenteshirt"
     ],
     "animations": [],
     "joints": 67,
@@ -406,7 +402,7 @@
     "images": 1
   },
   "top_fugu_male.glb": {
-    "bytes": 405588,
+    "bytes": 405804,
     "meshes": 1,
     "triangles": 4892,
     "materials": [
@@ -428,7 +424,7 @@
     "images": 1
   },
   "top_fugu_male_lod1.glb": {
-    "bytes": 257120,
+    "bytes": 256856,
     "meshes": 1,
     "triangles": 2446,
     "materials": [
@@ -450,7 +446,7 @@
     "images": 1
   },
   "top_office_male.glb": {
-    "bytes": 404168,
+    "bytes": 404676,
     "meshes": 1,
     "triangles": 5252,
     "materials": [
@@ -473,9 +469,9 @@
     "images": 1
   },
   "top_office_male_lod1.glb": {
-    "bytes": 249520,
+    "bytes": 250272,
     "meshes": 1,
-    "triangles": 2626,
+    "triangles": 2625,
     "materials": [
       "AWD_Fabric_cotton_office",
       "AWD_Print_tie"
@@ -496,7 +492,7 @@
     "images": 1
   },
   "top_kaftan_male.glb": {
-    "bytes": 450064,
+    "bytes": 450308,
     "meshes": 1,
     "triangles": 6016,
     "materials": [
@@ -518,7 +514,7 @@
     "images": 1
   },
   "top_kaftan_male_lod1.glb": {
-    "bytes": 272604,
+    "bytes": 272132,
     "meshes": 1,
     "triangles": 3008,
     "materials": [
@@ -540,7 +536,7 @@
     "images": 1
   },
   "top_suit_male.glb": {
-    "bytes": 797520,
+    "bytes": 798124,
     "meshes": 1,
     "triangles": 10652,
     "materials": [
@@ -564,9 +560,9 @@
     "images": 2
   },
   "top_suit_male_lod1.glb": {
-    "bytes": 483864,
+    "bytes": 485144,
     "meshes": 1,
-    "triangles": 5326,
+    "triangles": 5325,
     "materials": [
       "AWD_Fabric_twill_suit",
       "AWD_Fabric_cotton_suitshirt",
@@ -588,7 +584,7 @@
     "images": 2
   },
   "bottom_jeans_male.glb": {
-    "bytes": 272604,
+    "bytes": 272656,
     "meshes": 1,
     "triangles": 2748,
     "materials": [
@@ -610,7 +606,7 @@
     "images": 1
   },
   "bottom_jeans_male_lod1.glb": {
-    "bytes": 199220,
+    "bytes": 198048,
     "meshes": 1,
     "triangles": 1374,
     "materials": [
@@ -632,7 +628,7 @@
     "images": 1
   },
   "bottom_shorts_male.glb": {
-    "bytes": 189844,
+    "bytes": 189872,
     "meshes": 1,
     "triangles": 1588,
     "materials": [
@@ -654,7 +650,7 @@
     "images": 1
   },
   "bottom_shorts_male_lod1.glb": {
-    "bytes": 144756,
+    "bytes": 144908,
     "meshes": 1,
     "triangles": 794,
     "materials": [
@@ -676,7 +672,7 @@
     "images": 1
   },
   "bottom_joggers_male.glb": {
-    "bytes": 249700,
+    "bytes": 249812,
     "meshes": 1,
     "triangles": 2692,
     "materials": [
@@ -698,7 +694,7 @@
     "images": 1
   },
   "bottom_joggers_male_lod1.glb": {
-    "bytes": 176936,
+    "bytes": 176328,
     "meshes": 1,
     "triangles": 1346,
     "materials": [
@@ -720,7 +716,7 @@
     "images": 1
   },
   "bottom_chinos_male.glb": {
-    "bytes": 247900,
+    "bytes": 247928,
     "meshes": 1,
     "triangles": 2748,
     "materials": [
@@ -742,7 +738,7 @@
     "images": 1
   },
   "bottom_chinos_male_lod1.glb": {
-    "bytes": 174316,
+    "bytes": 173368,
     "meshes": 1,
     "triangles": 1374,
     "materials": [
@@ -764,7 +760,7 @@
     "images": 1
   },
   "bottom_suitpants_male.glb": {
-    "bytes": 247892,
+    "bytes": 247944,
     "meshes": 1,
     "triangles": 2748,
     "materials": [
@@ -786,9 +782,9 @@
     "images": 1
   },
   "bottom_suitpants_male_lod1.glb": {
-    "bytes": 174408,
+    "bytes": 173372,
     "meshes": 1,
-    "triangles": 1373,
+    "triangles": 1374,
     "materials": [
       "AWD_Fabric_twill_suitpants"
     ],
@@ -808,11 +804,11 @@
     "images": 1
   },
   "bottom_ankarapants_male.glb": {
-    "bytes": 207536,
+    "bytes": 200696,
     "meshes": 1,
     "triangles": 2748,
     "materials": [
-      "AWD_Fabric_ankara_ankarapants"
+      "AWD_Ankara_ankarapants"
     ],
     "animations": [],
     "joints": 67,
@@ -830,11 +826,11 @@
     "images": 1
   },
   "bottom_ankarapants_male_lod1.glb": {
-    "bytes": 133896,
+    "bytes": 126136,
     "meshes": 1,
-    "triangles": 1373,
+    "triangles": 1374,
     "materials": [
-      "AWD_Fabric_ankara_ankarapants"
+      "AWD_Ankara_ankarapants"
     ],
     "animations": [],
     "joints": 67,
@@ -1390,11 +1386,11 @@
     "images": 1
   },
   "neck_stole_male.glb": {
-    "bytes": 98516,
+    "bytes": 185272,
     "meshes": 1,
     "triangles": 40,
     "materials": [
-      "AWD_Fabric_kente_stole"
+      "AWD_Kente_stole"
     ],
     "animations": [],
     "joints": 67,
@@ -1412,11 +1408,11 @@
     "images": 1
   },
   "neck_stole_male_lod1.glb": {
-    "bytes": 96268,
+    "bytes": 183020,
     "meshes": 1,
     "triangles": 20,
     "materials": [
-      "AWD_Fabric_kente_stole"
+      "AWD_Kente_stole"
     ],
     "animations": [],
     "joints": 67,
@@ -1434,11 +1430,11 @@
     "images": 1
   },
   "full_kentecloth_male.glb": {
-    "bytes": 330320,
+    "bytes": 417580,
     "meshes": 1,
     "triangles": 3830,
     "materials": [
-      "AWD_Fabric_kente_kentecloth"
+      "AWD_Kente_kentecloth"
     ],
     "animations": [],
     "joints": 67,
@@ -1456,11 +1452,11 @@
     "images": 1
   },
   "full_kentecloth_male_lod1.glb": {
-    "bytes": 214984,
+    "bytes": 301780,
     "meshes": 1,
-    "triangles": 1915,
+    "triangles": 1914,
     "materials": [
-      "AWD_Fabric_kente_kentecloth"
+      "AWD_Kente_kentecloth"
     ],
     "animations": [],
     "joints": 67,
