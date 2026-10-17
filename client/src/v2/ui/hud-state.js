@@ -35,3 +35,17 @@ export function activityView(state,now){
 export function walletValue(s){return (Number.isFinite(s?.cash)?s.cash:0)+(Number.isFinite(s?.momo)?s.momo:0);}
 export function moodView(s){const m=Number.isFinite(s?.mood)?s.mood:0;return {value:m,label:m>15?'Feeling good':m> -15?'Taking it easy':'Needs attention',icon:m>15?'smiley':m> -15?'smiley-meh':'smiley-sad'};}
 export function zoneActions(z,actions){return (z.acts||[]).map(id=>actions.find(a=>a.id===id)).filter(Boolean);}
+
+// Stage 6 Which objectives the HUD guides: the first-session path (plus First Friend while it is open),
+// then the next unclaimed long-term goal once the introduction is done.
+export function hudRows(rows){
+  const all=rows||[],first=all.filter(d=>d.first).sort((a,b)=>a.first-b.first);
+  const friend=all.find(d=>d.id==='first_friend');
+  const path=friend?[...first,friend]:first;
+  if(path.some(d=>!d.claimed))return {label:'Getting started',rows:path};
+  const next=all.find(d=>!d.claimed);
+  return {label:'Next goal',rows:next?[next]:[]};
+}
+export function currentObjective(view){
+  return view.rows.find(d=>d.completed&&!d.claimed)||view.rows.find(d=>!d.completed)||null;
+}

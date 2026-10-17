@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {needView,locationView,activityView,walletValue,moodView,zoneActions,confirmRoomArrival} from '../src/v2/ui/hud-state.js';
+import {needView,locationView,activityView,walletValue,moodView,zoneActions,confirmRoomArrival,hudRows,currentObjective} from '../src/v2/ui/hud-state.js';
 import {ActivityRequests} from '../src/v2/ui/activity-requests.js';
 test('authoritative room arrival unlocks interaction before the next player-state update',()=>{
  const state={place:null,cash:120,busy:{id:'travel',travel:{from:'oxford',to:'n:osu'},end:99999}};
@@ -40,4 +40,16 @@ test('rejections, connection loss, duplicate taps and timeouts recover without d
  const disconnected=q.request({id:'nap'});n.emit('connection',{connected:false});await assert.rejects(disconnected,/Connection lost/);await assert.rejects(q.request({id:'nap'}),/not confirmed/);
  n.connected=false;await assert.rejects(q.request({id:'bath'}),/Reconnecting/);n.connected=true;n.send=()=>false;await assert.rejects(q.request({id:'bath'}),/Could not send/);
  assert.equal(Object.values(n.h).reduce((s,a)=>s+a.length,0),count);q.dispose();assert.ok(Object.values(n.h).every(a=>a.length===0));
+});
+test('HUD objectives follow the first-session path, prefer a claim, then hand over to long-term goals',()=>{
+ const row=(id,first,o={})=>({id,first,title:id,xp:10,completed:false,claimed:false,...o});
+ const rows=[row('first_meal',0),row('needs_check',7),row('first_home',1,{completed:true,claimed:true}),row('first_street',2,{completed:true}),row('first_friend',0),row('career_five',0,{category:'long'})];
+ let v=hudRows(rows);
+ assert.equal(v.label,'Getting started');assert.deepEqual(v.rows.map(d=>d.id),['first_home','first_street','needs_check','first_friend']);
+ assert.equal(currentObjective(v).id,'first_street','a completed, unclaimed objective is offered for claiming first');
+ rows[3].claimed=true;v=hudRows(rows);assert.equal(currentObjective(v).id,'needs_check','then the next open objective, without forcing order');
+ for(const d of rows)if(d.first||d.id==='first_friend')Object.assign(d,{completed:true,claimed:true});
+ v=hudRows(rows);assert.equal(v.label,'Next goal');assert.deepEqual(v.rows.map(d=>d.id),['first_meal']);
+ assert.equal(currentObjective(hudRows([])),null,'no rows hides the HUD objective');
+ assert.equal(hudRows([row('needs_check',7)]).rows.length,1,'first-week First Friend absent: the path still works');
 });

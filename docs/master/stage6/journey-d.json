@@ -1,0 +1,69 @@
+{
+ "checks": [
+  {
+   "ok": true,
+   "check": "first-session objectives are on the main HUD with progress: Getting started \u00b7 1/9Ready to claim: Establish your first homeClaim"
+  },
+  {
+   "ok": true,
+   "check": "collapsed objective sits in the top HUD, clear of the bottom controls"
+  },
+  {
+   "ok": true,
+   "check": "expanded panel lists 9 first-session objectives with actions"
+  },
+  {
+   "ok": true,
+   "check": "following an objective completes it on the server and the HUD claim awards XP once"
+  },
+  {
+   "ok": true,
+   "check": "empty server: honest message, retry and other objectives"
+  },
+  {
+   "ok": true,
+   "check": "Discover is empty rather than invented"
+  },
+  {
+   "ok": true,
+   "check": "a suggested objective continues play when nobody is available"
+  },
+  {
+   "ok": true,
+   "check": "the second player explicitly opts into Discover"
+  },
+  {
+   "ok": true,
+   "check": "Discover lists the opted-in real player, without any location"
+  },
+  {
+   "ok": true,
+   "check": "introduction sent to the chosen player "
+  },
+  {
+   "ok": true,
+   "check": "nothing is delivered before the recipient consents"
+  },
+  {
+   "ok": true,
+   "check": "accepting opens the existing private conversation"
+  },
+  {
+   "ok": true,
+   "check": "the initiator is told and their conversation opens"
+  },
+  {
+   "ok": true,
+   "check": "a genuine reply completes First Friend"
+  },
+  {
+   "ok": true,
+   "check": "First Friend objective shows complete on the HUD"
+  },
+  {
+   "ok": true,
+   "check": "no page errors "
+  }
+ ],
+ "scope": "Loopback disposable fixtures; two fresh accounts; SwiftShader; real server and DB."
+}

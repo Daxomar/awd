@@ -128,11 +128,21 @@
     {
       "id": "stage6",
       "owner": "claude",
-      "state": "ready",
+      "state": "merged",
       "scope": [
         "HUD objectives, First Friend discovery redesign, empty-server behaviour"
       ],
-      "gate": "HUD objectives, consent-based introduction, empty-server continuation"
+      "gate": "90 server tests, First Friend integration 14/14, journey D 16/16",
+      "evidence": "docs/master/stage6/checkpoint.md"
+    },
+    {
+      "id": "stage7",
+      "owner": "claude",
+      "state": "ready",
+      "scope": [
+        "public profiles, house visits, live community events"
+      ],
+      "gate": "opt-in profile, consent visits, scheduled events"
     }
   ]
 }

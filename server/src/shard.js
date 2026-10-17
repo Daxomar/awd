@@ -194,7 +194,9 @@ export class Shard {
       case 'settings': { const f = p.state.flags; if (typeof msg.flirtOff === 'boolean') f.flirtOff = msg.flirtOff; if (typeof msg.dmFriends === 'boolean') f.dmFriends = msg.dmFriends; p.dirty = true; return this.send(p, { t: 'settings', flirtOff: !!f.flirtOff, dmFriends: !!f.dmFriends }); }
     }
     if (msg.t.startsWith('gist_')) return this.gist(p, msg);
-    if(['objective_status','objective_claim'].includes(msg.t)){if(Date.now()-(p.objectiveAt||0)<1500)return this.send(p,{t:'objective_error',error:'Please wait a moment before refreshing milestones.'});p.objectiveAt=Date.now();return this.async(p,msg);}
+    // A 'seen' marker (Stage 6 guidance screens) has its own throttle so a routine refresh cannot swallow it.
+    if(['objective_status','objective_claim'].includes(msg.t)){const key=msg.seen?'objectiveSeenAt':'objectiveAt';if(Date.now()-(p[key]||0)<1500)return this.send(p,{t:'objective_error',error:'Please wait a moment before refreshing milestones.'});p[key]=Date.now();return this.async(p,msg);}
+    if(msg.t==='intro_people')return this.async(p,msg);
     if(['intro_status','intro_request','intro_answer','intro_preferences'].includes(msg.t)){if(Date.now()-(p.introMessageAt||0)<1000)return this.send(p,{t:'intro_result',error:'Please wait a moment.'});p.introMessageAt=Date.now();return this.async(p,msg);}
     if (['estate_list','ballot','game_list','game_create','game_answer','game_move','game_resign'].includes(msg.t)) return this.async(p,msg);
     if (['send', 'dm', 'dm_answer','dm_threads', 'dm_thread', 'block', 'find', 'profile', 'forbes', 'momo_hist', 'topup'].includes(msg.t)) return this.async(p, msg);
@@ -248,12 +250,13 @@ export class Shard {
           // A status refresh must not make the next deliberate phone action fail.
           if(p.moneyTask)await p.moneyTask.catch(()=>{});
           if(!p.gone)r=await Life.handle(this,p,msg);break;
-        case 'objective_status':r=await Objectives.list(p);break;
+        case 'objective_status':r=await Objectives.list(p,msg.seen);break;
         case 'objective_claim':r=await Objectives.claim(p,msg.id);break;
         case 'intro_status':r=await FirstFriend.status(p);break;
         case 'intro_request':r=await FirstFriend.request(this,p,msg);break;
         case 'intro_answer':r=await FirstFriend.answer(this,p,msg);break;
         case 'intro_preferences':r=await FirstFriend.preferences(p,msg);break;
+        case 'intro_people':if(Date.now()-(p.peopleAt||0)<2000){r={t:'intro_result',error:'Refreshing too quickly. Try again in a moment.'};break;}p.peopleAt=Date.now();r=await FirstFriend.people(this,p);break;
         case 'estate_list': {
           const area=String(msg.area||'');if(!Object.hasOwn(D.HOMES,area)||p.state.place!=='e:'+area){r={t:'toast',k:'bad',m:'Enter the estate first.'};break;}
           const page=Math.max(0,Math.min(100000,Number.isInteger(msg.page)?msg.page:0));

@@ -36,7 +36,7 @@ flowchart LR
 | 3 | Complete locally (CI pending); [checkpoint](stage3/checkpoint.md) | Existing vehicle compatibility, inspection/cosmetics, secure transfer/cancellation and two-player reload proof |
 | 4 | Complete locally (CI pending); [checkpoint](stage4/checkpoint.md) | Camera preference/toggle, collision, mobile controls, doors and remote movement in actual rooms |
 | 5 | Complete locally (CI pending; salary proposal awaits approval); [checkpoint](stage5/checkpoint.md) | All 19 career requirements, real courses/assessments, short work, shift uniqueness, bounded auto-work; gated balance proposal |
-| 6 | Not started | Visible nonblocking HUD guidance; real consenting discovery; empty-server, block and reward replay tests |
+| 6 | Complete locally (CI pending); [checkpoint](stage6/checkpoint.md) | Visible nonblocking HUD guidance; real consenting discovery; empty-server, block and reward replay tests |
 | 7 | Not started | Privacy-controlled identity, authorized gatherings, moderated scheduling and durable real attendance |
 | 8 | Not started | Curated contextual events, bounded authoritative choices, fair neutral expiry, replay/disconnect tests |
 | 9 | Not started | Bounded ambient schedules/pooling/LOD, distinguish NPCs from real players, actual business frontage |

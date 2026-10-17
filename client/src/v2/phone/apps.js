@@ -173,6 +173,7 @@ export function makeApps(act) {
   // ------------------------------------------------------------------ Jobs
   const jobs = { id: 'jobs', name: 'Jobs', icon: 'briefcase', bg: grad('#ff9f0a', '#e8590c'), dock: true,
     open(win) {
+      if (G.objectives?.some(d => d.id === 'career_look' && !d.completed)) net.send({ t: 'objective_status', seen: 'careers' });
       win.page('Jobs', () => {
         const s = G.state; const C = G.cat.careers; const out = h('div');
         if (s.job) { const c = C[s.job.id]; const j = s.job; const pay = c.ranks[j.rank][1]; const atWork = s.place === c.at; const today = Math.floor(accraNow() / 864e5) === j.lastDay;

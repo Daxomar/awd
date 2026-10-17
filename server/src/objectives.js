@@ -27,8 +27,17 @@ export const DEFINITIONS=[
   {id:'shared_five',category:'long',title:'Make time for people',description:'Complete five consented shared venue activities.',xp:25,badge:'Good company',action:'relationships'},
   {id:'home_ownership',category:'long',title:'A home of your own',description:'Buy a home through the existing property system.',xp:25,action:'houses'},
   {id:'own_vehicle',category:'long',title:'Your own vehicle',description:'Own a vehicle from the existing catalogue.',xp:20,action:'cars'},
+  {id:'first_home',title:'Establish your first home',description:'Rent or buy a place to live in the Houses app.',xp:15,action:'houses'},
+  {id:'useful_place',title:'Use a local place',description:'Finish any activity at a venue, such as a meal, a game or a service.',xp:10,action:'interact'},
+  {id:'meet_try',title:'Say hello to someone',description:'Send an introduction, a message or a greeting to another player. Trying counts, even when nobody is online.',xp:10,action:'meet'},
+  {id:'first_earning',title:'Earn your first cedis',description:'Finish a paid work session or a local hustle or gig.',xp:15,action:'jobs'},
+  {id:'career_look',title:'Explore careers',description:'Open Jobs and look at what each career needs.',xp:10,action:'jobs'},
+  {id:'needs_check',title:'Check how you dey',description:'Open your character status and review your needs.',xp:10,action:'status'},
 ];
-export function progressOf(s,id,friend=false){
+// The first-session path shown on the main HUD. Any order works; the HUD suggests the first open one.
+export const FIRST_SESSION=['first_home','first_street','useful_place','meet_try','career_look','first_earning','needs_check','social_hub'];
+export const SEEN=['careers','needs'];
+export function progressOf(s,id,friend=false,tried=false){
   const visits=Object.keys(s.discovery?.visited||{}),count=s.cnt||{};
   switch(id){
     case 'first_street':return visits.some(id=>id.startsWith('n:'));
@@ -55,6 +64,12 @@ export function progressOf(s,id,friend=false){
     case 'shared_five':return (s.life?.shared||0)>=5;
     case 'home_ownership':return Object.values(s.owned).some(v=>v===true);
     case 'own_vehicle':return !!s.car;
+    case 'first_home':return !!s.home||Object.values(s.owned||{}).some(v=>v===true);
+    case 'useful_place':return Object.entries(count).some(([k,v])=>k.startsWith('act:')&&v>0)||s.stats.meals>0;
+    case 'meet_try':return tried||friend||count.social>0||count.dm>0;
+    case 'first_earning':return s.stats.shifts>0||s.stats.gigs>0;
+    case 'career_look':return !!s.flags?.seen?.careers||!!s.job;
+    case 'needs_check':return !!s.flags?.seen?.needs;
     default:return false;
   }
 }
@@ -65,20 +80,22 @@ export async function migrateObjectives(){
   for(const d of DEFINITIONS)await pool.query('insert into objective_definitions(id,spec) values($1,$2) on conflict(id) do update set spec=excluded.spec',[d.id,JSON.stringify(d)]);
 }
 async function sync(db,acct,state){
-  const intro=(await db.query('select exists(select 1 from intro_completions where acct=$1) as completed,coalesce((select opted_out from intro_profiles where acct=$1),false) as paused',[acct])).rows[0];
+  const intro=(await db.query('select exists(select 1 from intro_completions where acct=$1) as completed,coalesce((select opted_out from intro_profiles where acct=$1),false) as paused,exists(select 1 from intro_profiles where acct=$1 and requested_at is not null) or exists(select 1 from intro_matches where initiator=$1) as tried',[acct])).rows[0];
   const friend=intro.completed;
   const defs=DEFINITIONS.filter(d=>d.eligibility!=='first_week'||newPlayerEligible(state)&&!intro.paused||friend);
-  for(const d of defs){const progress=progressOf(state,d.id,friend)?1:0;
+  for(const d of defs){const progress=progressOf(state,d.id,friend,intro.tried)?1:0;
     await db.query(`insert into player_objectives(acct,objective,progress,completed_at) values($1,$2,$3,case when $3=1 then now() end)
       on conflict(acct,objective) do update set progress=greatest(player_objectives.progress,excluded.progress),completed_at=coalesce(player_objectives.completed_at,excluded.completed_at)`,[acct,d.id,progress]);
   }
   const records=(await db.query('select objective,progress,completed_at,claimed_at from player_objectives where acct=$1',[acct])).rows;
-  return defs.map(d=>{const r=records.find(r=>r.objective===d.id);return {...d,eligible:true,progress:r.progress,target:1,completed:!!r.completed_at,claimed:!!r.claimed_at,reward:{xp:d.xp,cash:0,badge:d.badge||null}};});
+  return defs.map(d=>{const r=records.find(r=>r.objective===d.id);return {...d,first:FIRST_SESSION.includes(d.id)?FIRST_SESSION.indexOf(d.id)+1:0,eligible:true,progress:r.progress,target:1,completed:!!r.completed_at,claimed:!!r.claimed_at,reward:{xp:d.xp,cash:0,badge:d.badge||null}};});
 }
-export async function list(p){
+export async function list(p,seen){
   if(!p.state.onboarded)return {t:'objectives',rows:[]};
-  const rows=await withMoney(p,(db,state)=>sync(db,p.acct,state));
-  return {t:'objectives',rows:rows||[]};
+  // 'seen' only records that a guidance screen was opened (one-time, bounded XP on claim).
+  const mark=SEEN.includes(seen)&&!p.state.flags?.seen?.[seen]?seen:null;
+  const rows=await withMoney(p,(db,state)=>{if(mark)state.flags.seen={...(state.flags.seen||{}),[mark]:true};return sync(db,p.acct,state);});
+  return {t:'objectives',rows:rows||[],...(mark?{state:Game.view(p.state)}:{})};
 }
 export async function claim(p,id){
   if(typeof id!=='string'||!DEFINITIONS.some(d=>d.id===id)||!p.state.onboarded)return {t:'objective_error',error:'Choose an available milestone.'};

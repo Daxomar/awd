@@ -26,6 +26,8 @@ import { showTutorial } from './ui/tutorial.js';
 import { buildHud } from './ui/hud.js';
 import { confirmRoomArrival } from './ui/hud-state.js';
 import { renderZones, openZone, actsFor } from './ui/venue.js';
+import { openMeet } from './ui/meet.js';
+import { goObjective } from './ui/objectives-hud.js';
 import { openPlace, rideScreen } from './ui/travel.js';
 import { Ride } from './scene/ride.js';
 import { cityAudio } from './audio.js';
@@ -167,6 +169,7 @@ const act = (window.__act = {
   zoneFocus(z){world.focusTarget({item:z.item});},clearFocus(){world.clearSelection();},
   sound(){cityAudio.controls();},
   interact(){if(ride.active||G.state.busy?.travel){hud.setNav('home');return toast('You can interact with places after you arrive.');}if(view==='map'){hud.setNav('map');return toast('Enter a place to interact with its surroundings.');}closeSheets();sheet(h('div.sheet-body',null,h('p.context-hint',null,'Tap an object in the world, or choose what is nearby.'),hud.zones,h('h3.panel-heading',null,'Players here'),world.others.size?h('div',null,...[...world.others.values()].map(p=>h('button.world-row',{onclick:()=>openPerson(p.id,p.n,act)},ic('user'),h('span',null,'@'+p.n),ic('caret-right')))):h('p.context-hint',null,'No other players in this room. City chat reaches everyone online.')),{title:'Around you',sub:G.placeName,onclose:()=>hud.setNav(view==='map'?'map':'home')});},
+  status(){hud.openStatus();}, meet(){closeSheets();phone.close();openMeet(act,{onObjective:d=>goObjective(d,act)});},
   map() { act.nav('map'); }, phone(app, arg) { closeAdPreview?.();phone.show(app, arg); }, app(id) { closeAdPreview?.();phone.show(id); }, closePhone() { phone.close(); },
   previewAd(slot,image){
     if(!map.ready)return toast('The city map is still loading. Try the preview again shortly.');
@@ -417,11 +420,14 @@ function bindNet() {
   net.on('money_in', (m) => { G.state.momo = m.momo; phone.notify({ app: 'momo', title: m.kind === 'topup' ? 'Top-up received' : `You received ${cedi(m.amount)}`, body: m.kind === 'topup' ? `${cedi(m.amount)} added to your wallet.` : `From @${m.from}${m.note ? ` · “${m.note}”` : ''}. New balance ${cedi(m.momo)}.` }); world.floater(`+${cedi(m.amount)}`); vibrate([20, 40, 20]); refresh(); });
   net.on('dm_in', (m) => { G.unreadDm = (G.unreadDm || 0) + 1; phone.notify({ app: 'messages', title: '@' + m.from, body: m.m.kind === 'req' ? ` Requested ${cedi(m.m.amount)} · ${m.m.text}` : m.m.text, arg: { dm: m.from } }); refresh(); });
   net.on('dm_unread', (m) => { G.unreadDm = m.n; refresh(); }); net.on('dm_thread', () => { G.unreadDm = 0; refresh(); });
-  net.on('intro_offer',()=>phone.notify({app:'meet',title:'Someone new wants to say hello',body:'Accept or decline an optional introduction in Meet.'}));
-  net.on('intro_update',m=>{toast(m.status==='accepted'?'Your introduction was accepted. Open Meet or Messages.':'The player declined. You can try another introduction later.');});
+  net.on('intro_offer',m=>{phone.notify({app:'meet',title:`@${m.from} wants to say hello`,body:'Accept or decline in Meet. Nothing is shared until you accept.'});toast(`@${m.from} wants to say hello. Open Meet to accept or decline.`);});
+  net.on('intro_update',m=>{toast(m.status==='accepted'?`@${m.from} accepted your hello. Your conversation is open in Messages.`:'The player declined. You can say hello to someone else later.',m.status==='accepted'?'good':'');if(m.status==='accepted'&&!document.querySelector('.meet-body'))act.message(m.from);});
   net.on('intro_complete',()=>{toast('Your first conversation is complete.','good');});
   net.on('intro',m=>{if(G.introPaused!==m.optedOut){G.introPaused=m.optedOut;setTimeout(()=>net.send({t:'objective_status'}),2000);}});
-  net.on('objectives',m=>{G.objectives=m.rows;if(m.state)G.state=m.state;hud.objective(m.rows);refresh();});
+  // A refresh that lands while the account is saving is retried a few times, so HUD progress never sticks.
+  let objectiveRetries=0;
+  net.on('objectives',m=>{objectiveRetries=0;G.objectives=m.rows;if(m.state)G.state=m.state;hud.objective(m.rows);refresh();});
+  net.on('objective_error',m=>{if(/saving|wait a moment|in progress/i.test(m.error||'')&&objectiveRetries<4){objectiveRetries++;setTimeout(()=>net.send({t:'objective_status'}),2500*objectiveRetries);}});
   let objectiveTimer;
   for(const event of ['arrived','done','shiftDone','bought','dm_sent','intro_complete','life_result','life_notice'])net.on(event,m=>{if(m.error)return;clearTimeout(objectiveTimer);objectiveTimer=setTimeout(()=>net.send({t:'objective_status'}),2000);});
   // Oware

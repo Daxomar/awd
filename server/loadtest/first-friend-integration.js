@@ -12,15 +12,17 @@ async function player(suffix){
   await pool.query('insert into players(id,state) values($1,$2)',[acct,JSON.stringify(state)]);
   const p={acct,name:state.name,state,bot:false,gone:false};players.set(acct,p);return p;
 }
+const findable=p=>Intro.preferences(p,{discoverable:true});
 const resetRate=async p=>pool.query("update intro_profiles set requested_at=now()-interval '1 minute' where acct=$1",[p.acct]);
 try{
   await migrate();await Social.migrateSocial();await Intro.migrateFirstFriend();Social.observeMessages(Intro.reply);
   const a=await player('a');let r=await Intro.request(shard,a,{text:'Hello, I am new to this city.'});assert.equal(r.waiting,true);checks.push('no eligible player offers honest waiting fallback, no fake match');
-  const b=await player('b');await resetRate(a);r=await Intro.request(shard,a,{text:'Hello, I am new to this city.'});assert.ok(r.id);assert.ok(messages.some(m=>m.t==='intro_offer'&&m.acct===b.acct));
+  const b=await player('b');await resetRate(a);r=await Intro.request(shard,a,{text:'Hello, I am new to this city.'});assert.equal(r.waiting,true);checks.push('players who neither share the room nor opted into discovery are never matched');
+  await findable(b);await resetRate(a);r=await Intro.request(shard,a,{text:'Hello, I am new to this city.'});assert.ok(r.id);assert.ok(messages.some(m=>m.t==='intro_offer'&&m.acct===b.acct));
   assert.equal((await pool.query('select count(*) n from dms where from_id=$1',[a.acct])).rows[0].n,'0');
   await Intro.answer(shard,b,{id:r.id,yes:false});assert.equal((await pool.query('select count(*) n from dms where from_id=$1',[a.acct])).rows[0].n,'0');checks.push('consent required; declined introduction sends no DM');
   await resetRate(a);r=await Intro.request(shard,a,{text:'Hello, I am new to this city.'});assert.equal(r.waiting,true);checks.push('declined pair is never re-offered');
-  const c=await player('c');await resetRate(a);r=await Intro.request(shard,a,{text:'Hello, I am new to this city.'});assert.ok(r.id);
+  const c=await player('c');await findable(c);await resetRate(a);r=await Intro.request(shard,a,{text:'Hello, I am new to this city.'});assert.ok(r.id);
   players.delete(c.acct);assert.equal((await Intro.status(c)).rows[0].status,'pending');players.set(c.acct,c);checks.push('pending consent persists through disconnect/reconnect');
   await Intro.answer(shard,c,{id:r.id,yes:true});assert.ok((await Intro.answer(shard,c,{id:r.id,yes:true})).error);
   assert.equal((await pool.query('select count(*) n from dms where from_id=$1',[a.acct])).rows[0].n,'1');checks.push('safe rematch, acceptance and existing DM delivery once');
@@ -37,7 +39,21 @@ try{
   assert.equal((await pool.query("select sum(amount) n from intro_rewards where acct=$1 and role='recipient'",[c.acct])).rows[0].n,'500');checks.push('recipient daily reward cap blocks manufactured repeated welcomes');
   const e=await player('e');players.clear();players.set(e.acct,e);players.set(b.acct,b);await Intro.preferences(b,{out:true});
   assert.equal((await Intro.request(shard,e,{text:'Hello there, new player here.'})).waiting,true);checks.push('opt-out respected, self matching excluded');
-  const f=await player('f');players.clear();players.set(e.acct,e);players.set(f.acct,f);await resetRate(e);r=await Intro.request(shard,e,{text:'Hello, would you like to chat?'});
+  const f=await player('f');await findable(f);players.clear();players.set(e.acct,e);players.set(f.acct,f);await resetRate(e);r=await Intro.request(shard,e,{text:'Hello, would you like to chat?'});
   await pool.query("update intro_matches set expires_at=now()-interval '1 minute' where id=$1",[r.id]);assert.ok((await Intro.answer(shard,f,{id:r.id,yes:true})).error);checks.push('expired request cannot be accepted');
+  // Stage 6: choosing a specific person, room-sharing vs discovery, and the discovery lists.
+  const g=await player('g'),hh=await player('h');players.clear();players.set(g.acct,g);players.set(hh.acct,hh);
+  assert.ok((await Intro.request(shard,g,{to:hh.acct,text:'Hello, nice to meet you here.'})).error);
+  assert.ok((await Intro.request(shard,g,{to:'1',text:'Hello, nice to meet you here.'})).error);
+  const room={};g.room=room;hh.room=room;await resetRate(g);r=await Intro.request(shard,g,{to:hh.acct,text:'Hello, nice to meet you here.'});
+  assert.ok(r.id);assert.ok(messages.some(m=>m.t==='intro_offer'&&m.acct===hh.acct&&m.id===r.id));checks.push('a chosen player must share the room or be discoverable; consent is still required');
+  const i=await player('i'),j=await player('j'),k=await player('k'),l=await player('l'),m=await player('m');players.clear();
+  for(const x of [i,j,k,l,m])players.set(x.acct,x);await findable(j);await findable(l);await Intro.preferences(l,{out:true});await findable(m);
+  const near={};i.room=near;k.room=near;i.state.flags.blocked=[m.acct];
+  let list=await Intro.people(shard,i);
+  assert.deepEqual(list.nearby.map(x=>x.acct),[k.acct]);assert.deepEqual(list.discover.map(x=>x.acct),[j.acct]);assert.equal(list.canIntroduce,true);
+  for(const x of [...list.nearby,...list.discover])assert.deepEqual(Object.keys(x).sort(),['acct','job','look','name','newcomer']);
+  checks.push('Nearby is this room only, Discover is opt-in only, opted-out and blocked players are hidden, no location exposed');
+  list=await Intro.people(shard,a);assert.ok(list.friends.some(x=>x.acct===c.acct));assert.equal(list.canIntroduce,false);checks.push('Friends lists accepted contacts; a completed first friend cannot introduce again');
   console.log(JSON.stringify({passed:checks.length,checks},null,2));
 }finally{await pool.end();}
