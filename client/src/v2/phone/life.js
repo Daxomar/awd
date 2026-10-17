@@ -49,12 +49,12 @@ export function lifeScreen(win,act,section,arg={}){
 
   function businessUI(root){
     const {models,rows}=data.business;
-    root.append(paragraph('Operate a small business with game money. Sales are simulated and are not guaranteed. Keep stock and operating cash available. Your existing investments are in Invest.'));
+    root.append(paragraph('Operate a small business with game money. Your signboard appears at its location for other players to see. Sales are simulated and are not guaranteed. Keep stock and operating cash available. Your existing investments are in Invest.'));
     for(const b of rows){
       const m=models[b.type],st=b.statement;
       root.append(card(`${m.name} · ${loc(b.location)?.name||b.location}`,
         paragraph(`${b.operating?'Open':'Closed'} · stock ${b.stock}/${m.capacity*(b.level?2:1)} · price ${cedi(b.price)} · till ${cedi(b.till)}`),
-        paragraph(`Revenue ${cedi(st.revenue)} · cost of goods sold ${cedi(st.cogs)} · gross profit ${cedi(st.gross_profit)}`),
+        paragraph(`Simulated customers (game demand model, not real players): revenue ${cedi(st.revenue)} · cost of goods sold ${cedi(st.cogs)} · gross profit ${cedi(st.gross_profit)}`),
         paragraph(`Expenses ${cedi(st.expenses)} · net profit ${cedi(st.net_profit)} · operating profit ${cedi(st.operating_profit)}`),
         paragraph(`Inventory purchased ${cedi(st.inventory_purchases)}. Net profit includes startup/expansion. Unsold stock is inventory, not a sale.`),
         button('Manage business',()=>{draft.business=b.id;draft.price=String(b.price);draft.operating=b.operating;win.refresh();})));

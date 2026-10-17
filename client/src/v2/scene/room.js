@@ -165,7 +165,10 @@ export class Room {
         else { const st = Math.min(dist, p.speed * dt); p.x += (dx / dist) * st; p.z += (dz / dist) * st; const want = Math.atan2(dx, dz); let dy = want - p.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); p.yaw += dy * Math.min(1, dt * 12); moving = true; }
       }
       const r = p.av.root; r.position.set(p.x, p.pose === 'stand' ? 0 : p.poseY || 0, p.z); r.rotation.set(0, p.yaw, 0);
-      p.av.play(moving ? locomotion(p.speed, this.spec?.outdoor || this.spec?.neighbourhood) : p.anim || 'idle'); p.av.update(dt, moving ? p.speed : 0);
+      // Animation LOD: hidden people skip skinning; distant ambient people animate every Nth frame with the accumulated time.
+      if (!r.visible) continue;
+      let adt = dt; if (p.lodStep) { p.lodAcc = (p.lodAcc || 0) + dt; p.lodTick = (p.lodTick || 0) + 1; if (p.lodTick % p.lodStep) continue; adt = p.lodAcc; p.lodAcc = 0; }
+      p.av.play(moving ? locomotion(p.speed, this.spec?.outdoor || this.spec?.neighbourhood) : p.anim || 'idle'); p.av.update(adt, moving ? p.speed : 0);
       applyPose(p.av, moving ? 'stand' : p.pose);
     }
   }

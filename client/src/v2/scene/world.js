@@ -8,6 +8,7 @@ import { homeSpec } from './homes.js';
 import { propertyRoomSpec } from './property-room.js';
 import { fitRoom } from './frame.js';
 import { Avatar } from './avatars.js';
+import { Ambient } from './ambient.js';
 import { G, accraNow } from '../store.js';
 import { streetSpec, extraVenue } from './neighbourhood.js';
 import { fitLook } from '../fits.js';
@@ -32,6 +33,7 @@ export class World {
   get spec() { return this.room && this.room.spec; }
   clear() {
     this.clearSelection();this.hideGem();
+    this.ambient?.dispose(true); this.ambient = null; this.frontage = [];
     if (this.room) { for (const id of [...this.room.people.keys()]) this.room.removePerson(id); this.room.dispose(); }
     this.room = null; this.others.clear(); this.tagsEl.innerHTML = ''; this.bubbles = []; this.gemObj = null; this.npcs = [];
   }
@@ -71,6 +73,8 @@ export class World {
     // NPCs (staff and locals)
     this.npcs = [];
     (spec.npcs || []).forEach((n, i) => { const id = 'npc' + i; const P = placeNpc(room, n); room.addPerson(id, new Avatar(n.look), P.x, P.z, { label: n.label, npc: true }); room.placeAt(id, P.x, P.z, P.yaw, P.pose, P.y); this.npcs.push(id); const person=room.people.get(id);person.schedule=n;person.nextMove=2+i*2;person.patrolIndex=1;this.tag(id, n.label, 'npc'); });
+    // Stage 9: pooled ambient residents and traffic on neighbourhood streets (never in homes, estates or custody).
+    if (spec.neighbourhood && !spec.estate && !this.custody) this.ambient = new Ambient(room, { hour: Number.isInteger(globalThis.__AWD_QA_HOUR__) ? globalThis.__AWD_QA_HOUR__ : new Date(accraNow()).getUTCHours(), seed: spec.area || msg.place });   // QA may pin the hour
     // me: enter at the door and walk a few steps in
     const sp = this.custody?spec.spawn:room.spawn; const meAv = new Avatar(meLook || {}); meAv.baseLook = meLook; const me = room.addPerson('me', meAv, sp.x, sp.z, { label: meName });
     this.tag('me', meName, 'me');
@@ -172,8 +176,17 @@ export class World {
     if (hit.type === 'person') { const p = this.room.people.get(hit.id); if (hit.id === 'me') return null; return { ...hit, type: hit.id.startsWith('npc') ? 'npc' : 'person', pid: p?.info.pid, name: p?.info.name || p?.info.label }; }
     return hit;
   }
+  // Stage 9: signboards for real players' businesses at this venue (owner, open/closed). Display only.
+  setFrontage(m){
+    if(!this.room||m.place!==G.state?.place)return;
+    for(const rec of this.frontage||[])if(this.room.items.includes(rec))this.room.removeItem(rec);this.frontage=[];
+    const {w,d}=this.room.spec,spots=[[-w/2+1.6,d/2-2],[w/2-1.6,d/2-2],[-w/2+1.6,0]];   // by the entrance side, where arriving players look
+    (m.rows||[]).slice(0,3).forEach((row,i)=>{const [ci,cj]=this.room.nearestFree(...spots[i]);const C=.25;
+      const label=`${row.name.split(' ')[0].toUpperCase()} · ${row.open?'OPEN':'CLOSED'}`.slice(0,22);
+      this.frontage.push(this.room.addItem({kind:'sign_post',label,color:row.open?'#1d6f42':'#5b5b5b',x:(ci+.5)*C-w/2,z:(cj+.5)*C-d/2,rot:0,frontage:row}));});
+  }
   zoneForNpc(id) {
-    const p = this.room.people.get(id); if (!p) return null;
+    const p = this.room.people.get(id); if (!p || p.info.ambient) return null;
     if(this.spec.neighbourhood&&p.info.label?.startsWith('Neighbour'))return null;
     const staff=p.info.label?.includes('Aboki')?'khebab':p.info.label?.includes('FanYogo')?'fanyogo':null;
     const zones=(this.spec.zones||[]).filter(z=>!z.route&&z.acts?.length&&this.room.items[z.item]&&(!staff||z.acts.includes(staff)));
@@ -196,6 +209,7 @@ export class World {
     if (!this.room) return; this.elapsed+=dt;const hour=new Date(accraNow()).getUTCHours();const isAvailable=open=>!open||(open[1]>24?hour>=open[0]||hour<open[1]-24:hour>=open[0]&&hour<open[1]);
     for(const id of this.npcs){const p=this.room.people.get(id),n=p.schedule;const on=isAvailable(n.open);p.av.root.visible=on;if(p.tagEl)p.tagEl.hidden=!on;if(!on)continue;if(this.elapsed>p.nextMove){p.nextMove=this.elapsed+5+(id.length%3);if(n.patrol&&!p.path.length){const target=n.patrol[p.patrolIndex++%n.patrol.length];this.room.walkTo(id,...target);}else p.av.gesture(n.gesture||'agree');}}
     for(const r of this.room.items)if(r.spec.open)r.obj.visible=isAvailable(r.spec.open);
+    this.ambient?.update(dt,this.me?{x:this.me.x,z:this.me.z}:null);
     this.room.update(dt);
     if(this.me)this.room.streetStream?.update(this.me.x,this.me.z);
     if(this.stage.mode==='follow'&&this.me){

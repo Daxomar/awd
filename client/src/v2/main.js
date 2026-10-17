@@ -152,6 +152,14 @@ const phoneBadge = () => { const s = G.state; return (s && s.story ? s.story.inb
 // ---------------------------------------------------------------- actions (called by UI modules)
 const OPENS = { loans: 'bank', deposit: 'bank', 'shop:home': 'shop', 'shop:gadgets': 'shop', cars: 'cars', rentCar:'cars', ballot:'civic', police:'police', games:'games', momo: 'momo' };
 const STYLE_OPENS = { wardrobe: 'boutique', 'shop:fashion': 'boutique', boutique: 'boutique' };
+// Stage 9: a player business signboard. Customers are simulated by the game's demand model; nothing here is a fake sale.
+function openFrontage(b){
+  sheet(h('div.sheet-body',null,h('p',null,`Run by @${b.owner}${b.mine?' (you)':''}.`),
+    h('p.context-hint',null,b.open?'Open now.':!b.operating?'Closed by the owner.':!b.stocked?'Out of stock right now.':'Closed at this hour.'),
+    h('p.muted',null,'Sales here come from simulated customers in the game’s demand model. They are not purchases by real players.'),
+    b.mine?h('button.btn.primary.wide',{onclick:()=>{closeSheets();act.phone('enterprise');}},'Manage your business'):h('button.btn.wide',{onclick:()=>{closeSheets();act.message(b.owner);}},`Message @${b.owner}`)),
+  {title:b.name,sub:'A player-run business'});
+}
 const act = (window.__act = {
   toast, refresh: () => refresh(), nav(id) {
     closeAdPreview?.();
@@ -311,9 +319,9 @@ function tap(x, y) {
   const hit = world.pick(x, y); if (!hit) return;
   if (hit.type === 'gem') { if (G.gem) net.send({ t: 'gem', id: G.gem.id }); return; }
   if (hit.type === 'person') return openPerson(hit.pid, hit.name, act);
-  if (hit.type === 'npc') { const z = world.zoneForNpc(hit.id); if (z) return openZone(z, G.state.place, act); world.focusTarget({person:hit.id});return sheet(h('div.sheet-body',null,h('p.context-hint',null,'A local resident. Chat connects you with online players.'),h('button.btn.primary.wide',{onclick:()=>{closeSheets();act.nav('chat');}},'Open city chat')),{title:hit.name,onclose:()=>world.clearSelection()}); }
+  if (hit.type === 'npc') { const z = world.zoneForNpc(hit.id); if (z) return openZone(z, G.state.place, act); world.focusTarget({person:hit.id});return sheet(h('div.sheet-body',null,h('p.context-hint',null,'A local resident — a scripted character, not a real player. City chat and Meet connect you with real players online.'),h('button.btn.primary.wide',{onclick:()=>{closeSheets();act.nav('chat');}},'Open city chat')),{title:hit.name,onclose:()=>world.clearSelection()}); }
   if (hit.type === 'item') {
-    world.focusTarget({item:hit.index});const rec = hit.item;if(rec.spec.owner){const owner=rec.spec.owner;return sheet(h('div.sheet-body',null,h('p',null,`A purchased home belonging to @${owner.name}.`),!owner.mine?h('button.btn.primary.wide',{onclick:()=>{closeSheets();act.message(owner.name);}},'Message owner'):null,owner.mine?h('button.btn.wide',{onclick:()=>{closeSheets();net.send({t:'buy',kind:'home',id:owner.home});}},'Move into this home'):h('button.btn.wide',{onclick:()=>{net.send({t:'visit',name:owner.name,mode:'walk'});closeSheets();}},'Visit acquaintance at home')),{title:'@'+owner.name,sub:G.cat.homes[owner.home].area,onclose:()=>world.clearSelection()});} const usable = rec.use.some((u) => u.pose && u.pose !== 'stand');
+    world.focusTarget({item:hit.index});const rec = hit.item;if(rec.spec.frontage)return openFrontage(rec.spec.frontage);if(rec.spec.owner){const owner=rec.spec.owner;return sheet(h('div.sheet-body',null,h('p',null,`A purchased home belonging to @${owner.name}.`),!owner.mine?h('button.btn.primary.wide',{onclick:()=>{closeSheets();act.message(owner.name);}},'Message owner'):null,owner.mine?h('button.btn.wide',{onclick:()=>{closeSheets();net.send({t:'buy',kind:'home',id:owner.home});}},'Move into this home'):h('button.btn.wide',{onclick:()=>{net.send({t:'visit',name:owner.name,mode:'walk'});closeSheets();}},'Visit acquaintance at home')),{title:'@'+owner.name,sub:G.cat.homes[owner.home].area,onclose:()=>world.clearSelection()});} const usable = rec.use.some((u) => u.pose && u.pose !== 'stand');
     return sheet(h('div.sheet-body', null, h('p.muted', null, usable ? 'Take a seat or rest here. Tap the ground to get up.' : 'Part of this place. Choose an activity below to use nearby facilities.'), usable ? h('button.btn.primary.wide', { onclick: () => { if (G.state.busy) return toast('Finish your current activity first.'); const u = world.useZone({ item: hit.index }); if (u) net.send({ t: 'rmv', ...u, zn: null }); closeSheets(); } }, 'Use ' + (rec.label || 'seat')) : null), { title: rec.label || rec.spec.kind.replace(/_/g, ' '),onclose:()=>world.clearSelection() });
   }
   if (hit.type === 'zone') return openZone(hit.zone, G.state.place, act);
@@ -424,6 +432,8 @@ function bindNet() {
   net.on('intro_offer',m=>{phone.notify({app:'meet',title:`@${m.from} wants to say hello`,body:'Accept or decline in Meet. Nothing is shared until you accept.'});toast(`@${m.from} wants to say hello. Open Meet to accept or decline.`);});
   net.on('intro_update',m=>{toast(m.status==='accepted'?`@${m.from} accepted your hello. Your conversation is open in Messages.`:'The player declined. You can say hello to someone else later.',m.status==='accepted'?'good':'');if(m.status==='accepted'&&!document.querySelector('.meet-body'))act.message(m.from);});
   net.on('intro_complete',()=>{toast('Your first conversation is complete.','good');});
+  // Stage 9: real player businesses shown at their venue.
+  net.on('frontage',m=>world?.setFrontage?.(m));
   // Stage 8: personal life events are offered and resolved by the server.
   net.on('life_event',m=>{if(m.event&&G.state){G.state.lifeEvents={...(G.state.lifeEvents||{}),active:m.event};}refresh();if(!ride.active&&!phone.open)setTimeout(openLifeEvent,400);else toast(`${m.event?.title||'Something happened'} — tap the reminder at the top.`);});
   net.on('life_event_result',m=>{if(m.state)G.state=m.state;refresh();showLifeResult(m);});

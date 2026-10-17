@@ -53,3 +53,13 @@ test('HUD objectives follow the first-session path, prefer a claim, then hand ov
  assert.equal(currentObjective(hudRows([])),null,'no rows hides the HUD objective');
  assert.equal(hudRows([row('needs_check',7)]).rows.length,1,'first-week First Friend absent: the path still works');
 });
+test('ambient street life is budgeted, varies by time of day and is deterministic per street',async()=>{
+ const {ambientBudget,populationFor,rng,residentLook}=await import('../src/v2/scene/ambient.js');
+ const low=ambientBudget({deviceMemory:2,hardwareConcurrency:4}),high=ambientBudget({deviceMemory:8,hardwareConcurrency:8});
+ assert.ok(low.walkers<high.walkers&&low.parked<high.parked,'low-end devices get fewer residents and cars');
+ for(const b of [low,high])assert.ok(b.walkers+b.talkers<=8&&b.moving<=1,'hard population caps; at most one moving vehicle');
+ const day=populationFor(12,high),late=populationFor(2,high),evening=populationFor(20,high);
+ assert.ok(late.walkers<evening.walkers&&evening.walkers<=day.walkers);assert.equal(late.talkers,0);assert.equal(late.moving,0);
+ const a=rng(42),b=rng(42);assert.deepEqual([a(),a(),a()],[b(),b(),b()]);
+ const look=residentLook(rng(7));assert.ok(['m','f'].includes(look.body)&&look.top&&look.bottom&&!('name' in look),'residents carry no player identity');
+});

@@ -1,0 +1,54 @@
+{
+ "checks": [
+  {
+   "ok": true,
+   "check": "by day the street has residents, a conversation, parked cars and one slow vehicle"
+  },
+  {
+   "ok": true,
+   "check": "residents are not counted as players (online stays 1; 4 tags for 1 real people and named staff)"
+  },
+  {
+   "ok": true,
+   "check": "residents walk between points and traffic moves (2 walking, car -3.4\u2192-3.4)"
+  },
+  {
+   "ok": true,
+   "check": "ambient cost is bounded (update 0.08 ms/frame, +21 draw calls, +29884 triangles)"
+  },
+  {
+   "ok": true,
+   "check": "a resident never opens a venue menu (tap shows the scripted-character card)"
+  },
+  {
+   "ok": true,
+   "check": "late at night the street is quieter: one walker, no chatting, no traffic"
+  },
+  {
+   "ok": true,
+   "check": "the player business is sent as frontage at its venue"
+  },
+  {
+   "ok": true,
+   "check": "a signboard for the business stands in the venue"
+  },
+  {
+   "ok": true,
+   "check": "no page errors "
+  }
+ ],
+ "metrics": {
+  "day": {
+   "on": {
+    "calls": 72,
+    "tri": 61980,
+    "updateMs": 0.08
+   },
+   "off": {
+    "calls": 51,
+    "tri": 32096
+   }
+  }
+ },
+ "scope": "Loopback disposable fixtures; QA-pinned hour; SwiftShader (not phone FPS)."
+}

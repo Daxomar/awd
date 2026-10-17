@@ -158,11 +158,21 @@
     {
       "id": "stage9",
       "owner": "claude",
-      "state": "ready",
+      "state": "merged",
       "scope": [
         "ambient city life and business frontage"
       ],
-      "gate": "performance-bounded ambient life"
+      "gate": "client 90, server 100, journey G 10/10",
+      "evidence": "docs/master/stage9/checkpoint.md"
+    },
+    {
+      "id": "stage10",
+      "owner": "claude",
+      "state": "ready",
+      "scope": [
+        "advertising, music promotion, standalone checkout"
+      ],
+      "gate": "verified payment return and auto-activation (test mode only)"
     }
   ]
 }

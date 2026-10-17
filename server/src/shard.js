@@ -15,6 +15,7 @@ import { localRoomInfo, saveLocalMove } from './street-world.js';
 import * as FirstFriend from './first-friend.js';
 import * as Events from './events.js';
 import * as HomeAccess from './game/home-access.js';
+import {MODELS as BUSINESS_MODELS} from './game/business-model.js';
 import * as Objectives from './objectives.js';
 import * as Life from './life-service.js';
 import {durableActions,durableTick,gameTransaction} from './life-game.js';
@@ -162,6 +163,17 @@ export class Shard {
     const gem = this.gem && this.gem.place === p.state.place ? this.gemInfo() : null;
     this.send(p, { t: 'room', key: room.key, place: p.state.place, custody, name: home?.property ? home.name : Game.placeName(p.state, p.state.place) || (home && `${home.owner}'s place`), people, home, gem,street,streetReturn:p.state.streetReturn||null });
     this.toRoom(room, { t: 'rjoin', e: this.info(p) }, p);
+    if (this.phase8Ready && Game.LOC[p.state.place]) this.frontage(p, p.state.place).catch((e) => console.error('[frontage]', e.code || e.message));
+  }
+  // Stage 9: real player businesses at this venue (owner, open/closed). Cached briefly; display only.
+  async frontage(p, place) {
+    const now = Date.now(); this.frontCache ||= new Map(); let c = this.frontCache.get(place);
+    if (!c || now - c.at > 20000) { const rows = (await pool.query('select b.id,b.type,b.operating,b.stock,a.username from life_businesses b join accounts a on a.id=b.owner where b.location=$1 and not a.banned order by b.operating desc, b.id desc limit 12', [place])).rows; c = { at: now, rows }; if (rows.length) this.frontCache.set(place, c); else this.frontCache.delete(place); }   // a new business shows on the next visit
+    if (p.gone || p.state.place !== place || !c.rows.length) return;
+    const open = Game.isOpen(Game.LOC[place], now);
+    // The viewer's own business first, then open ones; at most three signboards per venue.
+    const rows = [...c.rows].sort((a, b) => (b.username === p.name) - (a.username === p.name)).slice(0, 3);
+    this.send(p, { t: 'frontage', place, rows: rows.map((b) => ({ id: +b.id, type: b.type, name: BUSINESS_MODELS[b.type]?.name || b.type, owner: b.username, mine: b.username === p.name, operating: b.operating, stocked: b.stock > 0, open: b.operating && b.stock > 0 && open })) });
   }
   leaveRoom(p) { const r = p.room; if (!r) return;p.roomSerial=(p.roomSerial||0)+1; r.members.delete(p); p.room = null; this.toRoom(r, { t: 'rleave', id: p.id }); if (!r.members.size) { this.rooms.delete(r.key); this.stats.rooms = this.rooms.size; } }
   toRoom(room, msg, except) { if (!room) return; const s = JSON.stringify(msg); for (const o of room.members) if (o !== except) { try { o.ws.send(s, false); this.stats.outBytes += s.length; } catch {} } }
@@ -258,7 +270,7 @@ export class Shard {
           // The bounded account queue waits for an already reserved transaction.
           // A status refresh must not make the next deliberate phone action fail.
           if(p.moneyTask)await p.moneyTask.catch(()=>{});
-          if(!p.gone)r=await Life.handle(this,p,msg);break;
+          if(!p.gone)r=await Life.handle(this,p,msg);if(String(msg.op||'').startsWith('business_'))this.frontCache?.clear();break;
         case 'objective_status':r=await Objectives.list(p,msg.seen);break;
         case 'objective_claim':r=await Objectives.claim(p,msg.id);break;
         case 'intro_status':r=await FirstFriend.status(p);break;
