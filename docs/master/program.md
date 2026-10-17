@@ -40,7 +40,7 @@ flowchart LR
 | 7 | Complete locally (CI pending; event XP crediting awaits approval); [checkpoint](stage7/checkpoint.md) | Privacy-controlled identity, authorized gatherings, moderated scheduling and durable real attendance |
 | 8 | Complete locally (CI pending); [checkpoint](stage8/checkpoint.md) | Curated contextual events, bounded authoritative choices, fair neutral expiry, replay/disconnect tests |
 | 9 | Complete locally (CI pending; no phone FPS measured); [checkpoint](stage9/checkpoint.md) | Bounded ambient schedules/pooling/LOD, distinguish NPCs from real players, actual business frontage |
-| 10 | Not started | Real standalone booking/management, safe media, verified payment return, eligible auto-activation and suspension |
+| 10 | Complete locally with simulated Paystack (live key not enabled); [checkpoint](stage10/checkpoint.md) | Real standalone booking/management, safe media, verified payment return, eligible auto-activation and suspension |
 | 11 | Not started | Separate secure UI, server-enforced roles, audit, actual metrics, restricted moderation/payment/world controls |
 | 12 | Not started | Journeys A–O, final economy simulations, exploit tests, mobile diagnostics, Docker, policies/release gates |
 

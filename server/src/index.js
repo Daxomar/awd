@@ -138,6 +138,21 @@ app.post('/api/ads', (res, req) => { if(!mutationAllowed(res,req))return; const 
     if(adsActive>=2)return json(res,isAborted,{error:'Artwork processing is busy. Try again shortly.'},'503 Service Unavailable');
     adsActive++;
     try { const a=await authenticate(token);if(!a)return json(res,isAborted,{error:'Sign in to the game before booking an advertisement.'},'401 Unauthorized');json(res, isAborted, await Ads.createOrder(b,a.id)); } catch (e) { console.error('[ads]', e.code||'request failed'); json(res, isAborted, { error: 'Server error' }, '500 Internal Server Error'); }finally{adsActive--;} }, 6 * 1024 * 1024); });
+// Stage 10: activations reach players without a reload (bounded propagation; the client also refreshes every 5 minutes).
+Ads.onActivated(slot=>shard.broadcast({t:'ads_changed',slot}));
+// Local QA only (PAYSTACK_MOCK=1 on a loopback origin, no real key): a simulated checkout that sends a signed webhook
+// through the same verification and fulfilment path as Paystack. Never registered on a public origin.
+if(Payments.MOCK){
+  console.warn('[payments] MOCK checkout enabled for local QA only');
+  app.get('/mock-checkout',(res,req)=>{const ref=qs(req).get('ref')||'',tx=Payments.mockTransaction(ref);let ab=false;res.onAborted(()=>{ab=true;});
+    const esc=v=>String(v).replace(/[^a-zA-Z0-9_@. -]/g,'');
+    const body=`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Test checkout</title><style>body{font:16px system-ui;margin:0;background:#f4f6f8;color:#14212b}main{max-width:420px;margin:40px auto;background:#fff;border-radius:16px;padding:24px;box-shadow:0 8px 30px #0002}button{width:100%;min-height:48px;margin-top:12px;border:0;border-radius:10px;font:inherit;font-weight:700;background:#0aa06e;color:#fff}button.c{background:#e8ecef;color:#14212b}</style></head><body><main><h1>Test checkout</h1><p>Local QA simulation of Paystack. No real money moves.</p><p>Reference <b>${esc(ref)}</b><br>Amount GH₵${tx?(tx.amount/100).toFixed(2):'—'}<br>Receipt ${esc(tx?.email||'')}</p><button id="pay">Pay with test MoMo</button><button class="c" id="cancel">Cancel payment</button><p id="s" role="status"></p></main><script>const go=o=>fetch('/mock-checkout/pay',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({ref:${JSON.stringify(ref)},outcome:o})}).then(r=>r.json()).then(r=>{if(r.callback)location.assign(r.callback);else document.getElementById('s').textContent=r.error||'Unknown reference';});document.getElementById('pay').onclick=()=>go('success');document.getElementById('cancel').onclick=()=>go('cancel');</script></body></html>`;
+    if(!ab)res.cork(()=>{securityHeaders(res.writeStatus(tx?'200 OK':'404 Not Found').writeHeader('content-type','text/html; charset=utf-8'),{html:true,scriptHashes:inlineScriptHashes(body)}).end(body);});});
+  app.post('/mock-checkout/pay',(res,req)=>{if(!mutationAllowed(res,req))return;readJson(res,async(b,ab)=>{
+    const m=Payments.mockCharge(String(b.ref||''),b.outcome==='success'?'success':'cancel');if(!m)return json(res,ab,{error:'Unknown reference.'},'404 Not Found');
+    if(m.signature)await Ads.webhook(m.raw,m.signature).catch(e=>console.error('[mock webhook]',e.message));
+    json(res,ab,{callback:m.callback});});});
+}
 limitedRead('/api/ads/verify',req=>{const ref=qs(req).get('ref');return()=>Ads.verify(ref);},10,60,'payment-verify');
 app.post('/api/paystack/webhook', (res, req) => { const sig = req.getHeader('x-paystack-signature'); let buf = Buffer.alloc(0), ab = false; res.onAborted(() => (ab = true));
   res.onData((c, last) => { if(ab)return; if(buf.length+c.byteLength>65536){ab=true;buf=null;res.cork(()=>securityHeaders(res.writeStatus('413 Payload Too Large')).end());return;} buf=Buffer.concat([buf,Buffer.from(c)]); if(last) Ads.webhook(buf,sig).then(ok=>{if(!ab)res.cork(()=>securityHeaders(res.writeStatus(ok?'200 OK':'401 Unauthorized')).end());}).catch(()=>{if(!ab)res.cork(()=>res.writeStatus('503 Service Unavailable').end());}); }); });

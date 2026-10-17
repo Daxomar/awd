@@ -128,7 +128,8 @@ function game() {
   showTutorial(ui);
   resumePayment(phone,toast);
   setTimeout(()=>net.send({t:'objective_status'}),2000);
-  if(new URLSearchParams(location.search).get('openAds')==='1')phone.show('ads');
+  // Stage 10: advertising lives on its own page; signing in from there returns the player to it.
+  if(new URLSearchParams(location.search).get('openAds')==='1')sheet(h('div.sheet-body',null,h('p',null,'You are signed in. Bookings, payments and campaign reports are on the advertising page.'),h('a.btn.primary.wide',{href:'/advertise.html'},'Back to advertising')),{title:'Advertising'});
   const tu = new URLSearchParams(location.search).get('topup'); if (tu) fetch('/api/topup/verify?ref=' + encodeURIComponent(tu)).then((r) => r.json()).then((r) => toast(r.status === 'paid' ? 'Top-up received! It will land in your MoMo.' : 'Payment still processing…', r.status === 'paid' ? 'good' : '')).catch(() => {});
 }
 let phoneSig = '',workZoneSig='',closeAdPreview=null;
@@ -185,7 +186,7 @@ const act = (window.__act = {
     closeAdPreview?.();phone.close();setView('map');map.ads.preview(slot.id,image);const b=map.ads.boards.find(b=>b.slot.id===slot.id);
     const limits=map.limits,min=stage.zoomMin;map.limits={...limits,min:.85};stage.zoomMin=.85;
     if(b)map.focus(b.root.position.x,b.root.position.z,.9);
-    const back=h('button.btn.primary',{style:{position:'fixed',bottom:'100px',left:'16px',right:'16px',zIndex:50},onclick:()=>{closeAdPreview?.();phone.show('ads',{slot:slot.id});}},'Preview only · return to booking');ui.append(back);
+    const back=h('button.btn.primary',{style:{position:'fixed',bottom:'100px',left:'16px',right:'16px',zIndex:50},onclick:()=>{closeAdPreview?.();window.open('/advertise.html?placement='+encodeURIComponent(slot.id),'_blank','noopener');}},'Preview only · book on the advertising page');ui.append(back);
     closeAdPreview=()=>{map.ads.clearPreview();map.limits=limits;stage.zoomMin=min;stage.view.zoom=Math.max(min,stage.view.zoom);stage.applyView();back.remove();closeAdPreview=null;};
   },
   adInventory(slots){map.setBillboards(slots);},
@@ -336,7 +337,7 @@ function tap(x, y) {
 function adSheet(b) {
   if(b.ad)fetch('/api/ads/exposure',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({campaign:b.ad.id,placement:b.slot.id,kind:'click'})}).catch(()=>{});
   const ad = b.ad; sheet(h('div.sheet-body', null, ad ? h('div', null, h('img', { src: ad.img, style: { width: '100%', borderRadius: '16px', display: 'block', marginBottom: '12px' } }), ad.url ? h('a.btn.primary.wide', { href: ad.url, target: '_blank', rel: 'noopener nofollow' }, 'Visit sponsor') : null)
-    : h('div', null, h('p', null, `${b.slot.onAir}/${b.slot.cap} campaigns active. From GH₵${b.slot.price} per week. ${b.slot.exclusive?'Exclusive advertising rental.':'Shared rotation every 15 seconds.'}`), h('button.btn.gold.wide', { onclick:()=>{closeSheets();phone.show('ads',{slot:b.slot.id});} }, 'Advertise here'))), { title: b.slot.name, sub: b.slot.type==='ground'?'Ground advertising rental':`${b.slot.tier} billboard` });
+    : h('div', null, h('p', null, `${b.slot.onAir}/${b.slot.cap} campaigns active. From GH₵${b.slot.price} per week. ${b.slot.exclusive?'Exclusive advertising rental.':'Shared rotation every 15 seconds.'}`), h('a.btn.gold.wide', { href:'/advertise.html?placement='+encodeURIComponent(b.slot.id), target:'_blank', rel:'noopener' }, 'Advertise here'))), { title: b.slot.name, sub: b.slot.type==='ground'?'Ground advertising rental':`${b.slot.tier} billboard` });
 }
 // fitting room in the game: your wardrobe (what you own) or the boutique (try on and buy)
 function openStylist(mode) {
@@ -432,6 +433,8 @@ function bindNet() {
   net.on('intro_offer',m=>{phone.notify({app:'meet',title:`@${m.from} wants to say hello`,body:'Accept or decline in Meet. Nothing is shared until you accept.'});toast(`@${m.from} wants to say hello. Open Meet to accept or decline.`);});
   net.on('intro_update',m=>{toast(m.status==='accepted'?`@${m.from} accepted your hello. Your conversation is open in Messages.`:'The player declined. You can say hello to someone else later.',m.status==='accepted'?'good':'');if(m.status==='accepted'&&!document.querySelector('.meet-body'))act.message(m.from);});
   net.on('intro_complete',()=>{toast('Your first conversation is complete.','good');});
+  // Stage 10: a campaign activated after verified payment appears without a reload.
+  let adsRefresh;net.on('ads_changed',()=>{clearTimeout(adsRefresh);adsRefresh=setTimeout(()=>fetch('/api/billboards').then(r=>r.json()).then(j=>map.setBillboards(j.slots||[])).catch(()=>{}),1000);});
   // Stage 9: real player businesses shown at their venue.
   net.on('frontage',m=>world?.setFrontage?.(m));
   // Stage 8: personal life events are offered and resolved by the server.

@@ -116,7 +116,7 @@ function houseAd() {
   ctx.fillStyle = '#0f382c'; ctx.fillRect(0, 0, 512, 256);
   ctx.lineWidth = 14; ctx.strokeStyle = '#fcd116'; ctx.strokeRect(7, 7, 498, 242);
   ctx.fillStyle = '#fcd116'; ctx.font = '900 46px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('ADVERTISE HERE', 256, 110);
-  ctx.fillStyle = '#fcfaf2'; ctx.font = '700 26px system-ui, sans-serif'; ctx.fillText('Phone · My Ads', 256, 160);
+  ctx.fillStyle = '#fcfaf2'; ctx.font = '700 26px system-ui, sans-serif'; ctx.fillText('Book online · /advertise', 256, 160);
   ctx.fillStyle = '#e0bd65'; ctx.font = '600 20px system-ui, sans-serif'; ctx.fillText('accrawedey.world', 256, 205);
   const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; return texture;
 }

@@ -1,0 +1,61 @@
+{
+ "checks": [
+  {
+   "ok": true,
+   "check": "the standalone page lists 22 billboards and 3 ground panels with prices and availability"
+  },
+  {
+   "ok": true,
+   "check": "booking requires a signed-in game account"
+  },
+  {
+   "ok": true,
+   "check": "a shortened destination link is refused before checkout"
+  },
+  {
+   "ok": true,
+   "check": "text on gold controls meets WCAG AA contrast "
+  },
+  {
+   "ok": true,
+   "check": "checkout starts with the provider (simulated Paystack page)"
+  },
+  {
+   "ok": true,
+   "check": "the payer returns to the advertising page and sees verified payment status"
+  },
+  {
+   "ok": true,
+   "check": "the campaign is live immediately, with no manual approval"
+  },
+  {
+   "ok": true,
+   "check": "the placement serves the new campaign to the world (dansoman)"
+  },
+  {
+   "ok": true,
+   "check": "a player already in the game is told to refresh that board (no reload)"
+  },
+  {
+   "ok": true,
+   "check": "fulfilment came from a signed webhook verified server-to-server, recorded in PostgreSQL"
+  },
+  {
+   "ok": true,
+   "check": "a campaign the checks cannot clear waits in a disclosed review, with the reason shown"
+  },
+  {
+   "ok": true,
+   "check": "a cancelled checkout returns as not paid; nothing activates"
+  },
+  {
+   "ok": true,
+   "check": "the phone app is a shortcut to the standalone page"
+  },
+  {
+   "ok": true,
+   "check": "no page errors "
+  }
+ ],
+ "scope": "Loopback QA server with PAYSTACK_MOCK=1 (simulated provider, signed webhook, server verification); disposable accounts; no real money."
+}

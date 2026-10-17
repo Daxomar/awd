@@ -1,2 +1,205 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Advertising · Accra We Dey</title><style>body{margin:0;background:#f7f3e8;color:#183d32;font:16px system-ui;line-height:1.6}main{max-width:540px;margin:48px auto;padding:24px}h1{line-height:1.15}a{display:block;padding:14px;background:#184e3b;color:white;text-align:center;border-radius:12px;text-decoration:none}small{display:block;margin:20px 0}</style></head><body><main><h1>Put your business in Accra</h1><p>Browse approved billboards and ground panels, preview artwork in the city map, and manage your campaigns from your in-game phone.</p><p>Sign in to keep your bookings and payment history linked to your account. Choose Phone → My Ads.</p><a href="/?openAds=1">Open My Ads in the game</a><small>PNG, JPEG or WebP, up to 4 MB and 10 megapixels. Campaigns require payment verification and artwork approval. Performance is estimated from measured exposure; impressions are not guaranteed.</small><p id="status" role="status"></p></main><script>const ref=new URLSearchParams(location.search).get('ref');if(ref)fetch('/api/ads/verify?ref='+encodeURIComponent(ref)).then(r=>r.json()).then(r=>{document.getElementById('status').textContent=r.status==='fulfilled'?'Payment verified. Artwork approval and scheduling are separate.':'Your payment is still being checked. Keep your reference.';}).catch(()=>{document.getElementById('status').textContent='Unable to check payment. Please retry later.';});</script></body></html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Advertise in Accra We Dey</title>
+<meta name="description" content="Rent billboards and ground panels inside the Accra We Dey game. Pay with MoMo or card; eligible campaigns go live automatically after verified payment.">
+<style>
+:root{--bg:#0e0d0b;--card:#1a1714;--card2:#211d19;--line:#2f2a24;--tx:#f6f1e9;--mut:#b9b0a3;--gold:#f6c343;--red:#e2312d;--grn:#1fa463;--radius:14px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(1200px 500px at 80% -10%,#3a2a10 0,transparent 60%),var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+.w{max-width:880px;margin:0 auto;padding:20px 16px 72px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{font-weight:900;letter-spacing:.08em;font-size:13px}.brand span{color:var(--gold)}
+.acct{font-size:14px;color:var(--mut)}.acct a{color:var(--gold)}
+h1{font-size:clamp(28px,6.5vw,44px);line-height:1.08;margin:26px 0 10px;letter-spacing:-.03em;max-width:700px}h1 em{font-style:normal;color:var(--gold);text-decoration:underline;text-decoration-color:var(--red);text-decoration-thickness:4px;text-underline-offset:6px}
+.lead{color:var(--mut);margin:0 0 18px;max-width:640px}
+h2{font-size:20px;margin:38px 0 10px;display:flex;align-items:baseline;gap:8px}h2 b{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--gold);color:#1b1206;font-size:14px}h2 small{font-size:13px;color:var(--mut);font-weight:500}
+.tabs{display:flex;gap:8px;margin:6px 0 12px}.tabs button{flex:1;min-height:44px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--tx);font:inherit;font-weight:700;cursor:pointer}.tabs button[aria-pressed=true]{background:var(--gold);color:#1b1206;border-color:var(--gold)}
+.tabs button:focus-visible,.slot:focus-visible,.btn:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.slot{background:var(--card);border:2px solid var(--line);border-radius:var(--radius);padding:12px;text-align:left;color:inherit;font:inherit;cursor:pointer;min-height:44px;transition:transform .15s,border-color .15s}.slot:hover:not([disabled]){transform:translateY(-2px);border-color:#5a4a2a}.slot[aria-pressed=true]{border-color:var(--gold);background:var(--card2)}.slot[disabled]{opacity:.55;cursor:not-allowed}
+.slot b{display:block;margin:2px 0}.slot small{color:var(--mut);display:block}.tier{font-size:11px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.06em}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-top:10px}
+label{display:block;font-size:13px;color:var(--mut);font-weight:700;margin:14px 0 5px}
+input,select{width:100%;min-height:46px;padding:11px 12px;border-radius:11px;border:1px solid var(--line);background:#14120f;color:var(--tx);font:inherit}
+input[type=checkbox]{width:22px;min-height:22px;height:22px;flex:none;margin:2px 0 0}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--tx);font-weight:500}
+.hint{font-size:13px;color:var(--mut);margin:6px 0 0}
+.previews{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}@media(max-width:560px){.previews{grid-template-columns:1fr}}
+.scene{position:relative;border-radius:16px;overflow:hidden;aspect-ratio:4/3;background:linear-gradient(#6aa9d6 0,#cfe6f2 55%,#a9a08a 55%,#857c68 100%);transition:opacity .2s}
+.scene .cap{position:absolute;left:10px;top:8px;font-size:12px;font-weight:800;color:#183d32;background:#fffc;border-radius:8px;padding:2px 8px;z-index:2}
+.bb{position:absolute;left:12%;right:12%;top:16%;aspect-ratio:2/1;background:#111 center/cover no-repeat;border:6px solid #2d2d2d;border-radius:4px;box-shadow:0 10px 24px #0006;display:grid;place-items:center;color:#888;font-size:13px}
+.bb::before,.bb::after{content:"";position:absolute;bottom:-62%;width:6%;height:60%;background:#4a4f55}.bb::before{left:18%}.bb::after{right:18%}
+.ground{position:absolute;left:8%;right:8%;bottom:6%;aspect-ratio:2/1;background:#333 center/cover no-repeat;transform:perspective(420px) rotateX(58deg);transform-origin:bottom;border:4px solid #e9dfc8;display:grid;place-items:center;color:#aaa;font-size:13px}
+.scene.dim{opacity:.45}
+.tot{display:flex;justify-content:space-between;align-items:baseline;margin-top:16px;font-weight:800;font-size:22px}
+.btn{display:block;width:100%;margin-top:16px;padding:15px;min-height:52px;border:0;border-radius:13px;font:inherit;font-weight:800;font-size:16px;background:linear-gradient(135deg,#f6c343,#e7932b);color:#1b1206;cursor:pointer;text-align:center;text-decoration:none}.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--tx)}
+.msg{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--card2);border:1px solid var(--line)}.msg.err{border-color:#7a2a22;color:#ffb3a8}.msg.ok{border-color:#1f6b47;color:#a9f0c6}.msg.info{border-color:#2c4f6b;color:#cfe8ff}
+.camp{display:grid;grid-template-columns:160px 1fr;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px;margin-top:10px}@media(max-width:560px){.camp{grid-template-columns:1fr}}
+.camp img{width:100%;aspect-ratio:2/1;object-fit:cover;border-radius:8px;background:#111}
+.st{display:inline-block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;border-radius:8px;padding:2px 8px;background:#333;margin:4px 0}
+.st.active{background:#1f6b47}.st.scheduled{background:#2c4f6b}.st.in_review,.st.review{background:#7a5a12}.st.pending_payment,.st.pending{background:#4a3f2a}.st.suspended,.st.rejected,.st.cancelled,.st.expired{background:#5b2a24}
+.camp small{color:var(--mut);display:block}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.row .btn{width:auto;flex:1;margin-top:0;padding:10px 12px;min-height:44px;font-size:14px}
+.rules{font-size:13px;color:var(--mut);background:var(--card);border-radius:var(--radius);padding:12px 16px;margin-top:28px}.rules li{margin:4px 0}
+a{color:var(--gold)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style></head><body><div class="w">
+<header><div class="brand">ACCRA <span>WE DEY</span> · ADVERTISING</div><div class="acct" id="acct">Checking your account…</div></header>
+<main>
+<h1>Your brand on the streets of <em>Accra We Dey</em></h1>
+<p class="lead">Rent a billboard at a real Accra junction or a ground panel on a commercial plaza inside the game. Pay with MoMo or card through Paystack. Campaigns that pass our automated checks go live by themselves as soon as the payment is verified.</p>
+<div id="ret"></div>
+
+<section aria-labelledby="step1"><h2 id="step1"><b>1</b> Choose a placement <small id="slotNote"></small></h2>
+<div class="tabs" role="group" aria-label="Placement type"><button type="button" data-type="billboard" aria-pressed="true">Billboards</button><button type="button" data-type="ground" aria-pressed="false">Ground panels</button></div>
+<div class="grid" id="slots">Loading placements…</div></section>
+
+<section aria-labelledby="step2"><h2 id="step2"><b>2</b> Your campaign</h2>
+<div class="panel">
+<label for="category">Campaign type</label><select id="category"></select>
+<label for="title">Campaign or business name</label><input id="title" maxlength="60" placeholder="e.g. Auntie Esi Waakye · New single out now" autocomplete="organization">
+<label for="img">Artwork (landscape 2:1; we crop to 1024 × 512)</label><input id="img" type="file" accept="image/png,image/jpeg,image/webp">
+<p class="hint">PNG, JPEG or WebP · at least 600 × 300 px · up to 4 MB and 10 megapixels. The server decodes and re-encodes every image.</p>
+<label for="url">Destination link (optional, opened when players tap the board)</label><input id="url" inputmode="url" placeholder="https://open.spotify.com/…  or  https://wa.me/233…">
+<p class="hint">https links only, no link shorteners. Links on our allowlist (streaming, social, WhatsApp, events and maps) can go live automatically; other websites are checked by a moderator first.</p>
+<label for="phone">Ghana phone number (for contact; entering it does not authorise any charge)</label><input id="phone" inputmode="tel" autocomplete="tel" placeholder="024 000 0000">
+<label for="email">Email for your Paystack receipt</label><input id="email" type="email" autocomplete="email" placeholder="you@business.com">
+<label for="weeks">Duration</label><select id="weeks"></select>
+</div></section>
+
+<section aria-labelledby="step3"><h2 id="step3"><b>3</b> Preview</h2>
+<div class="previews"><div class="scene" id="sceneBB"><span class="cap">Billboard</span><div class="bb" id="pvBB">Your artwork</div></div><div class="scene dim" id="sceneGround"><span class="cap">Ground panel</span><div class="ground" id="pvGround">Your artwork</div></div></div>
+<p class="hint">Previews are approximate. In the game, boards are lit at night and seen from the street and from the city map.</p></section>
+
+<section aria-labelledby="step4"><h2 id="step4"><b>4</b> Review and pay</h2>
+<div class="panel">
+<div id="summary" class="hint">Choose a placement and add your artwork.</div>
+<div class="tot"><span>Total</span><span id="tot">—</span></div>
+<label class="check"><input type="checkbox" id="rights"><span>I own or have permission to use this artwork, name and link. The game does not host or stream music; links open outside the game.</span></label>
+<button class="btn" id="go" type="button">Continue to secure payment</button>
+<div id="out" role="status" aria-live="polite"></div>
+</div></section>
+
+<section aria-labelledby="mine"><h2 id="mine">Your campaigns</h2>
+<div id="camps" class="hint">Sign in to see your campaigns.</div>
+<button class="btn ghost" id="refresh" type="button">Refresh campaigns</button></section>
+
+<div class="rules"><b>How it works</b><ul>
+<li>Payment is confirmed by our server with Paystack. Returning to this page is not treated as proof of payment.</li>
+<li>Automatic activation: when the artwork decodes safely, the name passes our filter, the link is on the allowlist and the placement is still reserved for you, your campaign goes live right after verified payment. Exclusive boards start when the current booking ends.</li>
+<li>Automated checks cannot judge every image or claim. Campaigns they cannot clear wait for a moderator, and moderators can suspend any campaign that breaks the rules: no scams, gambling, adult content, weapons, hate or misleading claims.</li>
+<li>Ground panels rent an in-game promotional surface only. They do not transfer ownership of any real or in-game land or property.</li>
+<li>Impressions and clicks are estimates from measured in-game visibility, counted at most once per player every 15 minutes. Real-world reach is not guaranteed.</li>
+<li>Late payments after a reservation expires, duplicate charges and refunds go to review; your reference is always shown here.</li>
+</ul></div>
+</main>
+</div>
+<script>
+const $ = (id) => document.getElementById(id);
+const cedi = (n) => 'GH₵' + Number(n || 0).toLocaleString('en-GH');
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const post = (url, body = {}) => fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }).then(async (r) => ({ status: r.status, ...(await r.json().catch(() => ({}))) }));
+let slots = [], pick = null, img = null, type = 'billboard', signedIn = false, categories = { business: 'Business', music: 'Music release', album: 'Album', event: 'Event', fashion: 'Fashion', creator: 'Creator', community: 'Community gathering' };
+const draftKey = () => { const k = 'awd-ad-draft:' + (pick?.id || ''); let v = null; try { v = sessionStorage.getItem(k); if (!v) { v = 'ad' + crypto.getRandomValues(new Uint32Array(3)).join('').slice(0, 24); sessionStorage.setItem(k, v); } } catch { v = 'ad' + Date.now(); } return v; };
+for (let w = 1; w <= 12; w++) $('weeks').append(new Option(w + (w > 1 ? ' weeks' : ' week'), w));
+function fillCategories() { $('category').textContent = ''; for (const [k, v] of Object.entries(categories)) $('category').append(new Option(v, k)); }
+fillCategories();
+function summary() {
+  $('tot').textContent = pick ? cedi(pick.price * +$('weeks').value) : '—';
+  $('summary').textContent = pick ? `${pick.name} · ${pick.type === 'ground' ? 'ground panel' : 'billboard'} ${pick.width} × ${pick.height} m · ${cedi(pick.price)} per 7 days · ${$('weeks').value} week(s)${pick.exclusive ? ' · exclusive: yours alone' : ' · shared rotation, 15 s per ad'}` : 'Choose a placement and add your artwork.';
+  $('sceneBB').classList.toggle('dim', pick?.type === 'ground'); $('sceneGround').classList.toggle('dim', pick ? pick.type !== 'ground' : true);
+}
+function availability(s) {
+  if (s.availability === 'reserved' || s.nextFree > Date.now() + 6e4) return { ok: false, text: 'Booked until ' + new Date(s.nextFree).toLocaleDateString() };
+  return { ok: true, text: s.exclusive ? 'Available · yours alone' : `${s.onAir}/${s.cap} on air · available` };
+}
+function drawSlots() {
+  const box = $('slots'); box.textContent = '';
+  const list = slots.filter((s) => (s.type || 'billboard') === type);
+  if (!list.length) { box.textContent = 'No placements of this type right now.'; return; }
+  for (const s of list) {
+    const a = availability(s), b = el('button', 'slot'); b.type = 'button'; b.dataset.id = s.id; b.setAttribute('aria-pressed', String(pick?.id === s.id)); b.disabled = !a.ok;
+    b.append(el('span', 'tier', s.tier), el('b', null, s.name), el('small', null, `${cedi(s.price)} / 7 days · ${s.width} × ${s.height} m`), el('small', null, a.text));
+    b.onclick = () => { pick = s; drawSlots(); summary(); };
+    box.append(b);
+  }
+}
+document.querySelectorAll('.tabs button').forEach((b) => b.onclick = () => { type = b.dataset.type; document.querySelectorAll('.tabs button').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); drawSlots(); });
+$('weeks').onchange = summary;
+$('img').onchange = async () => {
+  const f = $('img').files[0]; img = null; if (!f) return;
+  const fail = (m) => { $('out').replaceChildren(el('div', 'msg err', m)); $('img').value = ''; };
+  if (!['image/png', 'image/jpeg', 'image/webp'].includes(f.type)) return fail('Use a PNG, JPEG or WebP image.');
+  if (f.size > 4 * 1024 * 1024) return fail('Artwork must be 4 MB or smaller.');
+  try { const bmp = await createImageBitmap(f); const { width, height } = bmp; bmp.close(); if (width * height > 1e7) return fail('Artwork must be 10 megapixels or smaller.'); if (width < 600 || height < 300) return fail('Artwork must be at least 600 × 300 pixels.'); }
+  catch { return fail('That image could not be read.'); }
+  const r = new FileReader(); r.onload = () => { img = r.result; for (const id of ['pvBB', 'pvGround']) { $(id).style.backgroundImage = `url("${img}")`; $(id).textContent = ''; } $('out').textContent = ''; }; r.readAsDataURL(f);
+};
+$('go').onclick = async () => {
+  const out = $('out'), say = (m, k = 'err') => out.replaceChildren(el('div', 'msg ' + k, m));
+  if (!signedIn) return say('Sign in to the game first so your booking and payments stay linked to your account.');
+  if (!pick) return say('Choose a placement first.'); if (!img) return say('Add your artwork.'); if (!$('rights').checked) return say('Confirm you have the rights to this artwork and link.');
+  $('go').disabled = true; say('Checking your campaign and reserving the placement…', 'info');
+  try {
+    const r = await post('/api/ads', { slot: pick.id, weeks: +$('weeks').value, title: $('title').value, url: $('url').value, contact: $('phone').value, email: $('email').value, category: $('category').value, image: img, orderKey: draftKey() });
+    if (r.error) return say(r.error);
+    if (r.payUrl) { say('Opening secure checkout…', 'info'); location.assign(r.payUrl); return; }
+    say(r.manual ? `Booking #${r.id} saved (${cedi(r.amount)}). ${r.pay} Reference: ${r.ref}` : r.message || `Booking #${r.id} saved. Reference: ${r.ref}`, 'info'); loadMine();
+  } catch { say('Connection interrupted. Pressing the button again resumes the same booking.'); }
+  finally { $('go').disabled = false; }
+};
+const STATUS = { active: 'Live in the city', scheduled: 'Scheduled', in_review: 'Waiting for a moderator', paid: 'Paid · activating', pending_payment: 'Awaiting payment', review: 'Payment under review', suspended: 'Suspended', rejected: 'Not approved', cancelled: 'Cancelled', expired: 'Finished' };
+let mineRetry = 0;
+async function loadMine(highlight) {
+  const r = await post('/api/ads/mine').catch(() => ({ status: 0, error: 'offline' }));
+  // Only 401 means signed out; busy or offline responses retry a few times without losing the form.
+  if (r.status !== 401 && r.error) { $('camps').textContent = 'Campaigns are busy loading… retrying.'; if (mineRetry++ < 4) setTimeout(() => loadMine(highlight), 2500 * mineRetry); return; }
+  mineRetry = 0;
+  if (r.status === 401) { signedIn = false; $('acct').replaceChildren('Not signed in · ', Object.assign(el('a', null, 'Sign in through the game'), { href: '/?openAds=1' })); $('camps').textContent = 'Sign in to see your campaigns.'; return; }
+  signedIn = true; $('acct').textContent = 'Signed in · bookings are linked to your game account';
+  if (r.categories) { categories = r.categories; const cur = $('category').value; fillCategories(); if (cur) $('category').value = cur; }
+  const box = $('camps'); box.textContent = '';
+  if (!r.rows?.length) { box.textContent = 'No campaigns yet.'; return; }
+  for (const c of r.rows) {
+    const slot = slots.find((s) => s.id === c.slot), card = el('div', 'camp'); card.dataset.id = c.id; if (+highlight === c.id) card.style.borderColor = 'var(--gold)';
+    const im = el('img'); im.alt = c.title; im.src = c.img; im.loading = 'lazy';
+    const info = el('div'); const st = c.payment_status === 'review' ? 'review' : c.status;
+    info.append(el('b', null, c.title), el('div', 'st ' + st, STATUS[st] || st.replaceAll('_', ' ')), el('small', null, `${slot?.name || c.slot} · ${categories[c.category] || 'Business'} · ${c.weeks} week(s) · ${cedi(c.amount)}`));
+    if (c.starts) info.append(el('small', null, `${new Date(+c.starts).toLocaleString()} → ${new Date(+c.ends).toLocaleString()}`));
+    if (st === 'in_review' && c.review) info.append(el('small', null, 'Why: ' + c.review));
+    if (c.payment_status === 'review' && c.review_reason) info.append(el('small', null, 'Payment review: ' + c.review_reason + '. Keep your reference ' + (c.ref || '') + '.'));
+    if (c.note) info.append(el('small', null, c.note));
+    info.append(el('small', null, `Estimated ${Number(c.impressions)} impressions · ${Number(c.unique_viewers)} unique players (90 days) · ${Number(c.clicks)} clicks`));
+    const row = el('div', 'row');
+    if (c.checkout_url && c.payment_status === 'pending' && +c.expires > Date.now()) row.append(Object.assign(el('a', 'btn', 'Resume checkout'), { href: c.checkout_url }));
+    if (c.payment_status === 'failed') { const b = el('button', 'btn', 'Try payment again'); b.onclick = async () => { b.disabled = true; const x = await post('/api/ads/retry', { id: c.id }); if (x.payUrl) location.assign(x.payUrl); else { b.disabled = false; alert(x.error || 'Not available.'); } }; row.append(b); }
+    if (c.payment_status === 'pending') { const b = el('button', 'btn ghost', 'Cancel unpaid booking'); b.onclick = async () => { b.disabled = true; const x = await post('/api/ads/cancel', { id: c.id }); if (x.error) alert(x.error); loadMine(); }; row.append(b); }
+    if (row.children.length) info.append(row);
+    card.append(im, info); box.append(card);
+  }
+}
+$('refresh').onclick = () => loadMine();
+async function returned() {
+  const qs = new URLSearchParams(location.search), state = qs.get('payment'); if (!state) return null;
+  history.replaceState(null, '', location.pathname);
+  // A returned checkout closes that booking; the next booking on any placement gets a fresh purchase key.
+  try { for (const k of Object.keys(sessionStorage)) if (k.startsWith('awd-ad-draft:')) sessionStorage.removeItem(k); } catch {}
+  const box = $('ret'), say = (m, k) => box.replaceChildren(el('div', 'msg ' + k, m));
+  say('Checking your payment with Paystack…', 'info');
+  for (let i = 0; i < 10; i++) {
+    const r = await post('/api/payment/return', { state }).catch(() => ({ status: 0 }));
+    if (r.status === 429 || r.status === 0 || r.status >= 500) { await new Promise((f) => setTimeout(f, 4000)); continue; }   // busy: check again
+    if (r.error) { say(r.error, 'err'); return null; }
+    const id = r.context?.campaign;
+    if (r.status === 'fulfilled') { say(`Payment verified (reference ${r.ref}). Your campaign status is shown below.`, 'ok'); return id; }
+    if (r.status === 'review') { say(`Payment received but needs review (reference ${r.ref}). We will resolve it; no need to pay again.`, 'err'); return id; }
+    if (r.status === 'failed') { say('The payment was not completed. You can try again from Your campaigns.', 'err'); return id; }
+    await new Promise((f) => setTimeout(f, 2500));
+  }
+  say('Payment is still being confirmed. Keep this page open or refresh in a minute; do not pay twice.', 'info'); return null;
+}
+(async () => {
+  try { const j = await fetch('/api/billboards').then((r) => r.json()); slots = j.slots || []; drawSlots(); $('slotNote').textContent = `${slots.length} placements`; } catch { $('slots').textContent = 'Placements are unavailable right now.'; }
+  const want = new URLSearchParams(location.search).get('placement'); if (want) { const s = slots.find((x) => x.id === want); if (s) { type = s.type || 'billboard'; pick = s; document.querySelectorAll('.tabs button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.type === type))); drawSlots(); summary(); } }
+  const id = await returned(); await loadMine(id); if (id) $('mine').scrollIntoView();
+})();
+</script></body></html>

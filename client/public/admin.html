@@ -29,8 +29,8 @@ async function load() {
     const info = document.createElement('div');
     const line = (t) => { const p = document.createElement('div'); p.textContent = t; return p; };
     const st = document.createElement('div'); st.className = 's ' + o.status; st.textContent = `#${o.id} · ${o.status}${o.note ? ' · ' + o.note : ''}`;
-    info.append(st, line(`${o.title} → ${o.slot}, ${o.weeks} wk, GH₵${o.amount}`), line(`${o.contact} ${o.email || ''}`), line(o.url || ''), line(o.starts ? `Live ${new Date(+o.starts).toLocaleString()} → ${new Date(+o.ends).toLocaleString()}` : `ref ${o.ref}`));
-    for (const a of ['markpaid', 'approve', 'reject']) { const b = document.createElement('button'); b.textContent = a; b.onclick = async () => { const x = await fetch('/api/admin/ads', { method: 'POST', headers: { 'content-type': 'application/json', 'x-admin-key': k }, body: JSON.stringify({ id: o.id, action: a }) }).then((y) => y.json()); if (x.error) alert(x.error); load(); }; info.append(b, ' '); }
+    info.append(st, line(`${o.title} → ${o.slot}, ${o.weeks} wk, GH₵${o.amount}${o.category ? ' · ' + o.category : ''}`), line(o.review ? 'Review: ' + o.review : 'Automated checks passed'), line(`${o.contact} ${o.email || ''}`), line(o.url || ''), line(o.starts ? `Live ${new Date(+o.starts).toLocaleString()} → ${new Date(+o.ends).toLocaleString()}` : `ref ${o.ref}`));
+    for (const a of ['markpaid', 'approve', 'suspend', 'reject']) { const b = document.createElement('button'); b.textContent = a; b.onclick = async () => { const x = await fetch('/api/admin/ads', { method: 'POST', headers: { 'content-type': 'application/json', 'x-admin-key': k }, body: JSON.stringify({ id: o.id, action: a }) }).then((y) => y.json()); if (x.error) alert(x.error); load(); }; info.append(b, ' '); }
     d.append(im, info); L.append(d);
   }
 }

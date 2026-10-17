@@ -25,9 +25,10 @@ try{
   assert.equal((await Ads.campaigns(owner)).rows.length,1);assert.equal(await Ads.adImagePath(winner.id,'',owner===a?b:a),null);assert.ok(await Ads.adImagePath(winner.id,'',owner));passed.push('campaign and pending artwork ownership');
   const charge={reference:winner.ref,id:Date.now(),amount:100000,currency:'GHS',status:'success'};
   assert.equal((await Pay.finalize({...charge,status:'failed'})).status,'failed');assert.equal((await Ads.listSlots()).find(s=>s.id===slot).live.length,0);
-  assert.equal((await Pay.finalize(charge)).status,'fulfilled');assert.equal((await Ads.listSlots()).find(s=>s.id===slot).live.length,0);passed.push('verified payment requires moderation before activation');
-  assert.equal((await Ads.adminAct(process.env.ADMIN_KEY,{id:winner.id,action:'approve'})).ok,true);
-  assert.equal((await Ads.listSlots()).find(s=>s.id===slot).live.length,1);assert.ok((await Ads.adminAct(process.env.ADMIN_KEY,{id:winner.id,action:'approve'})).error);passed.push('activation once; no duplicate extension');
+  // Stage 10 (owner request): a campaign that passes every automated check activates on verified payment.
+  assert.equal((await Pay.finalize(charge)).status,'fulfilled');assert.equal((await Ads.listSlots()).find(s=>s.id===slot).live.length,1);passed.push('verified payment activates an eligible campaign automatically');
+  assert.equal((await Pay.finalize(charge)).status,'fulfilled');assert.ok((await Ads.adminAct(process.env.ADMIN_KEY,{id:winner.id,action:'approve'})).error);
+  assert.equal((await Ads.listSlots()).find(s=>s.id===slot).live.length,1);passed.push('activation once; repeated verification or approval cannot extend it');
   const signal={campaign:winner.id,placement:slot,seconds:3,pixels:900};
   assert.ok((await Ads.exposure(a,{...signal,seconds:0})).error);assert.equal((await Ads.exposure(a,signal)).counted,true);assert.equal((await Ads.exposure(a,signal)).counted,false);
   assert.equal((await Ads.exposure(a,{...signal,kind:'click'})).counted,true);assert.equal((await Ads.exposure(a,{...signal,kind:'click'})).counted,false);
@@ -40,5 +41,14 @@ try{
   assert.ok((await Ads.retryOrder(a,late.id)).error,'Expired inventory must be rejected before opening another checkout');
   assert.equal((await Pay.finalize({...charge,reference:late.ref,id:charge.id+1})).status,'review');passed.push('late charge after reservation expiry cannot activate');
   await Ads.cancelOrder(a,late.id);await Ads.migrateAds();await Pay.migratePayments();assert.equal((await pool.query('select status from ad_orders where id=$1',[winner.id])).rows[0].status,'approved');passed.push('additive migration preserves existing orders');
+  const held=await Ads.createOrder({...form,slot:'jamestown',url:'https://waakye.example',orderKey:crypto.randomUUID()},b);assert.ok(held.ok,held.error);
+  assert.equal((await Pay.finalize({...charge,reference:held.ref,id:charge.id+5,amount:50000})).status,'fulfilled');
+  let row=(await pool.query('select status,review from ad_orders where id=$1',[held.id])).rows[0];assert.equal(row.status,'paid');assert.match(row.review,/allowlist/);
+  assert.equal((await Ads.campaigns(b)).rows.find(c=>c.id===held.id).status,'in_review');assert.ok(!(await Ads.listSlots()).find(s=>s.id==='jamestown').live.some(l=>l.id===held.id));
+  assert.ok((await Ads.adminAct(process.env.ADMIN_KEY,{id:held.id,action:'approve'})).ok);assert.ok((await Ads.listSlots()).find(s=>s.id==='jamestown').live.some(l=>l.id===held.id));
+  assert.ok((await Ads.adminAct(process.env.ADMIN_KEY,{id:held.id,action:'suspend'})).ok);row=(await pool.query('select status from ad_orders where id=$1',[held.id])).rows[0];assert.equal(row.status,'suspended');
+  assert.ok(!(await Ads.listSlots()).find(s=>s.id==='jamestown').live.some(l=>l.id===held.id));assert.ok((await Ads.exposure(a,{campaign:held.id,placement:'jamestown',seconds:3,pixels:900})).error);
+  passed.push('a campaign the checks cannot clear waits in a disclosed review; a moderator approves it and can later suspend it');
+  assert.ok((await Ads.createOrder({...form,slot:'jamestown',url:'https://bit.ly/x',orderKey:crypto.randomUUID()},b)).error);assert.ok((await Ads.createOrder({...form,slot:'jamestown',url:'http://x.com',orderKey:crypto.randomUUID()},b)).error);passed.push('shortened or insecure destination links are refused');
   console.log(JSON.stringify({passed:passed.length,checks:passed},null,2));
 }finally{await pool.end();}

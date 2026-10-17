@@ -36,7 +36,8 @@ export function securityHeaders(res, { html = false, scriptHashes = [] } = {}) {
 }
 export function inlineScriptHashes(html) {
   return [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
-    .filter(m => m[1].trim()).map(m => `'sha256-${crypto.createHash('sha256').update(m[1]).digest('base64')}'`);
+    // Browsers hash script text after HTML newline normalisation (CRLF/CR → LF); match it so CRLF files keep working.
+    .filter(m => m[1].trim()).map(m => `'sha256-${crypto.createHash('sha256').update(m[1].replace(/\r\n?/g, '\n')).digest('base64')}'`);
 }
 export function staticPath(root, url) {
   try {

@@ -6,9 +6,12 @@ import { secret } from './secrets.js';
 import { safeEqual } from './security.js';
 import { CFG } from './config.js';
 
-const KEY = secret('PAYSTACK_SECRET');
-const RETURN_KEY = CFG.secret;
 const PUBLIC = CFG.publicOrigin || 'http://localhost:8080';
+// Local QA only: a simulated Paystack (checkout page, signed webhook, verification API) that can never run on a
+// public origin. It exercises the same callback, webhook and independent-verification code as the real provider.
+export const MOCK = process.env.PAYSTACK_MOCK === '1' && ['localhost', '127.0.0.1'].includes(new URL(PUBLIC).hostname) && !secret('PAYSTACK_SECRET');
+const KEY = secret('PAYSTACK_SECRET') || (MOCK ? 'mock-paystack-local-only' : '');
+const RETURN_KEY = CFG.secret;
 export const live = !!KEY;
 const handlers = new Map();
 export function registerPayment(type, fulfill) { handlers.set(type, fulfill); }
@@ -82,8 +85,23 @@ export async function migratePayments() {
       on conflict(ref) do nothing;
   `);
 }
+const mockTx = new Map();
+export function mockCharge(ref, outcome = 'success') {
+  const tx = MOCK && mockTx.get(ref); if (!tx) return null;
+  tx.status = outcome === 'success' ? 'success' : 'abandoned';
+  const raw = Buffer.from(JSON.stringify({ event: 'charge.success', data: { reference: ref, id: tx.id, amount: tx.amount, currency: 'GHS', status: tx.status } }));
+  return { callback: tx.callback, raw, signature: tx.status === 'success' ? crypto.createHmac('sha512', KEY).update(raw).digest('hex') : null };
+}
+export const mockTransaction = (ref) => (MOCK ? mockTx.get(ref) || null : null);
+function mockProvider(url, body) {
+  if (url === 'transaction/initialize') { mockTx.set(body.reference, { id: Date.now() * 100 + crypto.randomInt(100), amount: body.amount, email: body.email, status: 'pending', callback: body.callback_url });
+    return { status: true, data: { reference: body.reference, authorization_url: `${new URL(PUBLIC).origin}/mock-checkout?ref=${encodeURIComponent(body.reference)}` } }; }
+  const m = /^transaction\/verify\/(.+)$/.exec(url), tx = m && mockTx.get(decodeURIComponent(m[1]));
+  return tx ? { status: true, data: { reference: decodeURIComponent(m[1]), id: tx.id, amount: tx.amount, currency: 'GHS', status: tx.status } } : { status: false };
+}
 async function provider(url, body) {
   if (!KEY) return null;
+  if (MOCK) return mockProvider(url, body);
   try {
     const r = await fetch(`https://api.paystack.co/${url}`, { method: body ? 'POST' : 'GET', signal: AbortSignal.timeout(10000),
       headers: { authorization: `Bearer ${KEY}`, 'content-type': 'application/json' }, ...(body ? { body: JSON.stringify(body) } : {}) });
@@ -126,12 +144,13 @@ export async function startPayment({ acct, type, key, amount, context, email, ph
     await db.query('commit');
     committed=true;db.release();released=true;
     if (claim) {
-      const token = returnToken(row.ref);
+      // Server-controlled return: advertising returns to the standalone advertising page, top-ups to the game.
+      const token = returnToken(row.ref), back = `${new URL(PUBLIC).origin}${type === 'ad' ? '/advertise.html' : '/'}?payment=${encodeURIComponent(token)}`;
       const response = await provider('transaction/initialize', { email: receipt, amount, currency: 'GHS', reference: row.ref,
-        callback_url: `${new URL(PUBLIC).origin}/?payment=${encodeURIComponent(token)}`, channels: ['mobile_money', 'card'],
-        metadata: { payment_order: row.id, purchase_type: type, cancel_action: `${new URL(PUBLIC).origin}/?payment=${encodeURIComponent(token)}` } });
+        callback_url: back, channels: ['mobile_money', 'card'],
+        metadata: { payment_order: row.id, purchase_type: type, cancel_action: back } });
       const url = response?.status && response.data?.reference === row.ref && response.data?.authorization_url;
-      let safe = false; try { const u = new URL(url); safe = u.protocol === 'https:' && u.hostname === 'checkout.paystack.com'; } catch {}
+      let safe = false; try { const u = new URL(url); safe = (u.protocol === 'https:' && u.hostname === 'checkout.paystack.com') || (MOCK && u.origin === new URL(PUBLIC).origin && u.pathname === '/mock-checkout'); } catch {}
       if (safe) {
         await pool.query("update payment_attempts set checkout_url=$2,status='pending',failure=null where ref=$1 and fulfilled_at is null", [row.ref, url]); row.checkout_url = url;
       } else await pool.query("update payment_attempts set status='initialization_unknown',failure='Initialization uncertain; reconcile this reference before retrying' where ref=$1 and fulfilled_at is null", [row.ref]);

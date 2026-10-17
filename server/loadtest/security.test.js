@@ -62,3 +62,9 @@ test('production refuses default secrets, development bypasses and public HTTP',
   const valid={SESSION_SECRET:crypto.randomBytes(32).toString('hex'),BIRTH_SEED:crypto.randomBytes(32).toString('hex'),DATABASE_URL:'postgres://localhost/test',REDIS_URL:'redis://localhost'};
   assert.notEqual(run({...valid,DEV:'1'}).status,0);assert.notEqual(run({...valid,PUBLIC_URL:'http://game.example'}).status,0);assert.equal(run(valid).status,0);
 });
+test('inline script CSP hashes match browsers for files saved with Windows line endings', async () => {
+  const { inlineScriptHashes } = await import('../src/security.js');
+  const lf = inlineScriptHashes('<script>const a=1;\nconst b=2;</script>'), crlf = inlineScriptHashes('<script>const a=1;\r\nconst b=2;</script>');
+  assert.deepEqual(crlf, lf);
+  assert.equal(lf[0], `'sha256-${crypto.createHash('sha256').update('const a=1;\nconst b=2;').digest('base64')}'`);
+});

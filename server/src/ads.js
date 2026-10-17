@@ -1,5 +1,6 @@
 // Paid billboards: real businesses rent in-game billboards at real Accra junctions.
-// Flow: advertiser submits artwork + weeks → Paystack checkout (GHS, MoMo or card) → paid → owner approves → live in game.
+// Flow (Stage 10): standalone /advertise.html → automated checks → Paystack checkout (GHS, MoMo or card) → verified payment →
+// automatic activation when every automated check passed; otherwise a disclosed moderator-review state. Admins can suspend.
 // Without PAYSTACK_SECRET the flow falls back to manual payment (owner marks paid in /admin).
 import fs from 'node:fs';
 import path from 'node:path';
@@ -9,6 +10,7 @@ import { secret } from './secrets.js';
 import { safeEqual } from './security.js';
 import * as Payments from './payments.js';
 import {createHash} from 'node:crypto';
+import {moderate} from './filter.js';
 
 // ROTATION model (what makes billboards pay): every rotating board carries up to CAP ads, each on screen 15 s in turn,
 // priced per ad per week. Exclusive boards (airport) carry one advertiser at a time at a premium.
@@ -27,7 +29,9 @@ export async function migrateAds() {
     id bigserial primary key, slot text not null, title text not null, url text, contact text not null, email text,
     weeks int not null check (weeks between 1 and 12), amount int not null, status text not null default 'pending_payment',
     ref text unique, starts bigint, ends bigint, note text, created_at timestamptz default now());
-  create index if not exists ad_orders_slot on ad_orders (slot, ends);`);
+  create index if not exists ad_orders_slot on ad_orders (slot, ends);
+  alter table ad_orders add column if not exists category text;
+  alter table ad_orders add column if not exists review text;`);
   await pool.query(`create table if not exists ad_placements(id text primary key,spec jsonb not null,updated_at timestamptz default now());
     create table if not exists ad_reservations(order_id bigint primary key references ad_orders(id),placement text not null references ad_placements(id),
       seat int not null,status text not null,expires bigint not null,created_at timestamptz default now());
@@ -38,7 +42,34 @@ export async function migrateAds() {
   for(const s of SLOTS)await pool.query('insert into ad_placements(id,spec) values($1,$2) on conflict(id) do update set spec=excluded.spec,updated_at=now()',[s.id,JSON.stringify(s)]);
 }
 const clean = (s, n) => String(s || '').replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, n);
-const okUrl = (u) => { if (!u) return ''; try { const x = new URL(u); return x.protocol === 'https:' || x.protocol === 'http:' ? x.href.slice(0, 300) : ''; } catch { return ''; } };
+// Stage 10 automated checks. They cannot judge every image or claim: anything they cannot clear goes to a disclosed
+// moderator review instead of activating, and admins can suspend any campaign after activation.
+export const CATEGORIES = { business: 'Business', music: 'Music release', album: 'Album', event: 'Event', fashion: 'Fashion', creator: 'Creator', community: 'Community gathering' };
+const SHORTENERS = new Set(['bit.ly', 'tinyurl.com', 't.co', 'goo.gl', 'ow.ly', 'is.gd', 'cutt.ly', 'rebrand.ly', 'shorturl.at', 'tiny.cc', 'rb.gy', 's.id']);
+export const LINK_ALLOWLIST = ['open.spotify.com', 'music.apple.com', 'audiomack.com', 'boomplay.com', 'youtube.com', 'music.youtube.com', 'youtu.be', 'soundcloud.com', 'deezer.com', 'tidal.com',
+  'instagram.com', 'tiktok.com', 'facebook.com', 'x.com', 'twitter.com', 'wa.me', 'whatsapp.com', 'linktr.ee', 'eventbrite.com', 'google.com', 'maps.google.com', 'jumia.com.gh', 'tonaton.com', 'meqasa.com'];
+const SENSITIVE = /\b(bet|betting|casino|gambl\w*|lotto|forex|crypto|bitcoin|investment returns?|double your money|loan app|weed|marijuana|vape|adult|xxx|sexy|escort|gun|weapon|pharma|slimming|herbal cure)\b/i;
+export function vetLink(u) {
+  if (!u) return { url: '' };
+  let x; try { x = new URL(String(u).trim()); } catch { return { error: 'Enter a full link starting with https://' }; }
+  if (x.protocol !== 'https:') return { error: 'Destination links must use https://' };
+  if (x.username || x.password || x.port) return { error: 'That link is not allowed (no logins or custom ports).' };
+  const host = x.hostname.toLowerCase().replace(/^www\./, '');
+  if (/^[\d.]+$/.test(host) || host.includes(':') || !host.includes('.')) return { error: 'Use a named website, not a raw address.' };
+  if (SHORTENERS.has(host)) return { error: 'Use the full destination link, not a link shortener.' };
+  const url = x.href.slice(0, 300), allowed = LINK_ALLOWLIST.some(d => host === d || host.endsWith('.' + d));
+  return allowed ? { url } : { url, review: `Destination ${host} is not on the automatic allowlist; a moderator checks it before activation.` };
+}
+export function vetCampaign({ title, url, category }) {
+  if (!Object.hasOwn(CATEGORIES, category || 'business')) return { error: 'Choose a campaign type.' };
+  const t = moderate(title, 60); if (t.blocked) return { error: 'Keep the campaign name respectful.' };
+  const link = vetLink(url); if (link.error) return link;
+  const review = SENSITIVE.test(title) ? 'This campaign mentions a sensitive category; a moderator checks it before activation.' : link.review || null;
+  return { url: link.url, review, category: category || 'business' };
+}
+const activated = new Set();
+export const onActivated = (fn) => activated.add(fn);
+const announce = (slot) => setTimeout(() => { for (const fn of activated) try { fn(slot); } catch {} }, 1500);
 
 // public: slots with what's live now and when each is next free
 export async function listSlots() {
@@ -59,12 +90,17 @@ export async function createOrder(b, acct) {
   const s = Object.hasOwn(SLOT,b.slot) && SLOT[b.slot]; if (!s) return { error: 'Pick a billboard.' };
   const weeks = Math.max(1, Math.min(12, b.weeks | 0)); const title = clean(b.title, 60); const contact = clean(b.contact, 80); const email = clean(b.email, 120).toLowerCase();
   if (title.length < 2) return { error: 'Add your business name.' }; if (contact.length < 7) return { error: 'Add a phone number we can reach.' };
+  const vet = vetCampaign({ title, url: b.url, category: b.category }); if (vet.error) return { error: vet.error };
+  const unpaid = +(await pool.query("select count(*) n from payment_orders where acct=$1 and type='ad' and status='pending' and purchase_key<>$2 and created_at>now()-interval '1 day'", [acct, String(b.orderKey || '')])).rows[0].n;
+  if (unpaid >= 3) return { error: 'You have three unpaid bookings. Pay or cancel one in Your campaigns first.' };
   if (PAYSTACK && !/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/.test(email)) return { error: 'A valid email is needed for the payment receipt.' };
   const m = /^data:image\/(png|jpeg|webp);base64,(.+)$/.exec(b.image || ''); if (!m) return { error: 'Upload a PNG, JPG or WebP image.' };
   const raw = Buffer.from(m[2], 'base64'); if (raw.length > 4 * 1024 * 1024) return { error: 'Image too large (max 4 MB).' };
-  let img; try { img = await sharp(raw, { limitInputPixels: 10e6 }).rotate().resize(1024, 512, { fit: 'cover', position: 'attention' }).jpeg({ quality: 82, mozjpeg: true }).toBuffer(); } catch { return { error: 'That image could not be read (maximum 10 megapixels).' }; }
+  // Safe decode and re-encode: the stored file is always a fresh 1024×512 JPEG produced by the server.
+  let img; try { const meta = await sharp(raw, { limitInputPixels: 10e6 }).metadata(); if (!['png', 'jpeg', 'webp'].includes(meta.format)) return { error: 'Upload a PNG, JPG or WebP image.' }; if ((meta.width || 0) < 600 || (meta.height || 0) < 300) return { error: 'Artwork must be at least 600 × 300 pixels.' };
+    img = await sharp(raw, { limitInputPixels: 10e6 }).rotate().resize(1024, 512, { fit: 'cover', position: 'attention' }).jpeg({ quality: 82, mozjpeg: true }).toBuffer(); } catch { return { error: 'That image could not be read (maximum 10 megapixels).' }; }
   const amount = s.price * weeks;
-  const artwork=createHash('sha256').update(img).update(JSON.stringify({title,url:okUrl(b.url),weeks,email,contact})).digest('hex');
+  const artwork=createHash('sha256').update(img).update(JSON.stringify({title,url:vet.url,weeks,email,contact,category:vet.category})).digest('hex');
   return Payments.startPayment({acct,type:'ad',key:b.orderKey,amount:amount*100,email,phone:contact,context:{screen:'ads',placement:s.id,weeks,artwork}},async(db,ref)=>{
     await db.query('select id from ad_placements where id=$1 for update',[s.id]);
     await expireReservations(db,s.id);
@@ -73,7 +109,7 @@ export async function createOrder(b, acct) {
     const cap=s.exclusive?1:CAP,used=new Set(reservations.map(r=>r.seat));
     if(reservations.length+(+legacy.n)>=cap)throw Object.assign(new Error('This placement is reserved. Choose another or try after it expires.'),{public:true});
     let seat=0;while(used.has(seat))seat++;
-    const r=await db.query(`insert into ad_orders(slot,title,url,contact,email,weeks,amount,ref) values($1,$2,$3,$4,$5,$6,$7,$8) returning id`,[s.id,title,okUrl(b.url),contact,email,weeks,amount,ref]);
+    const r=await db.query(`insert into ad_orders(slot,title,url,contact,email,weeks,amount,ref,category,review) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) returning id`,[s.id,title,vet.url,contact,email,weeks,amount,ref,vet.category,vet.review]);
     const id=+r.rows[0].id;await fs.promises.writeFile(path.join(DIR,`${id}.jpg`),img);
     await db.query("insert into ad_reservations(order_id,placement,seat,status,expires) values($1,$2,$3,'payment_pending',$4)",[id,s.id,seat,Date.now()+30*60000]);return id;
   });
@@ -86,16 +122,26 @@ export async function fulfillPayment(db,order){
   if(o.status==='pending_payment')await db.query("update ad_orders set status='paid' where id=$1",[o.id]);
   else if(!['paid','approved'].includes(o.status))return {review:'Advertising order closed; refund/review required'};
   if(reservation)await db.query("update ad_reservations set status='reserved',expires=$2 where order_id=$1",[o.id,Date.now()+o.weeks*WEEK]);
+  // Stage 10: verified payment + every automated check passed → live now (or right after the current exclusive booking).
+  if(!o.review){const r=await scheduleIn(db,o.id);if(r.ok)announce(o.slot);}
 }
 // put an order on air: rotation boards start now while they have room (else when the earliest ad ends); exclusive boards queue
 async function schedule(o) {
   const db=await pool.connect();
   try{
-    await db.query('begin');await db.query('select id from ad_placements where id=$1 for update',[o.slot]);
+    await db.query('begin');const r=await scheduleIn(db,o.id);if(!r.ok){await db.query('rollback');return r;}
+    await db.query('commit');announce(o.slot);return r;
+  }catch(e){await db.query('rollback');throw e;}finally{db.release();}
+}
+// Runs inside the caller's transaction (payment fulfilment or admin approval).
+async function scheduleIn(db,id) {
+  {
+    let o=(await db.query('select * from ad_orders where id=$1',[id])).rows[0];if(!o)return {error:'Order not found.'};
+    await db.query('select id from ad_placements where id=$1 for update',[o.slot]);
     o=(await db.query('select * from ad_orders where id=$1 for update',[o.id])).rows[0];
-    if(o.status!=='paid'){await db.query('rollback');return {error:'This order is not awaiting approval.'};}
+    if(o.status!=='paid')return {error:'This order is not awaiting activation.'};
     const reservation=(await db.query('select * from ad_reservations where order_id=$1 for update',[o.id])).rows[0];
-    if(reservation&&(!['reserved','payment_pending'].includes(reservation.status)||+reservation.expires<Date.now())){await db.query('rollback');return {error:'Reservation expired. Review payment/refund before approval.'};}
+    if(reservation&&(!['reserved','payment_pending'].includes(reservation.status)||+reservation.expires<Date.now()))return {error:'Reservation expired. Review payment/refund before approval.'};
     const S=SLOT[o.slot],now=Date.now();let starts=now;
     const live=await db.query("select starts,ends from ad_orders where slot=$1 and status='approved' and ends>$2 order by ends",[o.slot,now]);
     if(S?.exclusive)starts=live.rows.reduce((t,a)=>Math.max(t,+a.ends),now);
@@ -103,8 +149,8 @@ async function schedule(o) {
     const ends=starts+o.weeks*WEEK;
     await db.query("update ad_orders set status='approved',starts=$2,ends=$3 where id=$1",[o.id,starts,ends]);
     if(reservation)await db.query("update ad_reservations set status='active',expires=$2 where order_id=$1",[o.id,ends]);
-    await db.query('commit');return {ok:true,starts};
-  }catch(e){await db.query('rollback');throw e;}finally{db.release();}
+    return {ok:true,starts};
+  }
 }
 // browser comes back from checkout: verify server-to-server (never trust the redirect alone)
 export async function verify(ref) {
@@ -123,6 +169,8 @@ export async function adminAct(key, { id, action }) {
   if (action === 'markpaid' && o.status === 'pending_payment') return Payments.manualAdPayment(o.ref);
   else if (action === 'approve' && (o.status === 'paid')) {
     const r2 = await schedule(o); if (r2.error) return r2;
+  } else if (action === 'suspend' && ['approved', 'paid'].includes(o.status)) {
+    await pool.query("update ad_orders set status='suspended', note=$2, ends=least(coalesce(ends, $3), $3) where id=$1", [o.id, 'Suspended by moderators', Date.now()]); await pool.query("update ad_reservations set status='cancelled' where order_id=$1", [o.id]); announce(o.slot);
   } else if (action === 'reject' || action === 'takedown') {await pool.query(`update ad_orders set status='rejected', ends=least(coalesce(ends, $2), $2) where id=$1`, [o.id, Date.now()]);await pool.query("update ad_reservations set status='cancelled' where order_id=$1",[o.id]);}
   else return { error: `cannot ${action} an order that is ${o.status}` };
   return { ok: true };
@@ -139,7 +187,7 @@ export async function expireReservations(db=pool,slot=null){
   await db.query("update ad_reservations set status='expired' where expires<$1 and status in ('reserved','payment_pending','active') and ($2::text is null or placement=$2)",[Date.now(),slot]);
 }
 export async function campaigns(acct){
-  const rows=await pool.query(`select a.id,a.slot,a.title,a.url,a.amount,a.weeks,a.status,a.starts,a.ends,a.note,r.status as reservation,r.expires,
+  const rows=await pool.query(`select a.id,a.slot,a.title,a.url,a.amount,a.weeks,a.status,a.starts,a.ends,a.note,a.category,a.review,r.status as reservation,r.expires,
     p.status as payment_status,p.review_reason,attempt.checkout_url,attempt.ref,
     coalesce((select sum(impressions) from ad_metrics_daily where campaign=a.id),0) as impressions,
     coalesce((select sum(clicks) from ad_metrics_daily where campaign=a.id),0) as clicks,
@@ -147,7 +195,7 @@ export async function campaigns(acct){
     from ad_orders a join payment_orders p on p.type='ad' and p.legacy_id=a.id
     left join ad_reservations r on r.order_id=a.id left join lateral(select checkout_url,ref from payment_attempts where order_id=p.id order by id desc limit 1) attempt on true
     where p.acct=$1 order by a.id desc limit 100`,[acct]);
-  return {rows:rows.rows.map(o=>({...o,id:+o.id,img:`/ads/${o.id}.jpg`,status:o.ends&&+o.ends<Date.now()&&o.status==='approved'?'expired':o.status})),estimates:true,uniqueViewerWindowDays:90};
+  return {rows:rows.rows.map(o=>({...o,id:+o.id,img:`/ads/${o.id}.jpg`,status:o.ends&&+o.ends<Date.now()&&o.status==='approved'?'expired':o.status==='approved'&&+o.starts>Date.now()?'scheduled':o.status==='approved'?'active':o.status==='paid'&&o.review?'in_review':o.status})),estimates:true,uniqueViewerWindowDays:90,categories:CATEGORIES};
 }
 export async function cancelOrder(acct,id){
   if(!Number.isSafeInteger(id)||id<1)return {error:'Invalid campaign.'};

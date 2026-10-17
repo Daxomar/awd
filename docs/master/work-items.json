@@ -168,11 +168,21 @@
     {
       "id": "stage10",
       "owner": "claude",
-      "state": "ready",
+      "state": "merged",
       "scope": [
         "advertising, music promotion, standalone checkout"
       ],
-      "gate": "verified payment return and auto-activation (test mode only)"
+      "gate": "server 104, client 90, ads integration 11/11, journey H 14/14",
+      "evidence": "docs/master/stage10/checkpoint.md"
+    },
+    {
+      "id": "stage11",
+      "owner": "claude",
+      "state": "ready",
+      "scope": [
+        "secure admin dashboard"
+      ],
+      "gate": "roles, audit, real metrics"
     }
   ]
 }
