@@ -252,6 +252,12 @@ export class World {
       this.walkMe(x, z); p.speed = p.roam; this.onRoam?.(x, z); return;
     }
   }
+  // Walk up to a tapped object (its use point), showing the destination ring. Returns the target.
+  approachItem(index) {
+    const rec = this.room?.items[index]; if (!rec || !this.me) return null;
+    const u = this.room.usePoint(rec, 0); this.walkMe(u.x, u.z); this.markTarget(u.x, u.z);
+    return u;
+  }
   // Tap-to-walk destination: a ring that pulses where the player is heading and fades on arrival.
   markTarget(x, z) {
     if (!this.room) return;
@@ -277,6 +283,7 @@ export class World {
     for(const r of this.room.items)if(r.spec.open)r.obj.visible=isAvailable(r.spec.open);
     this.ambient?.update(dt,this.me?{x:this.me.x,z:this.me.z}:null);
     this.room.update(dt);
+    if(this.stage.mode!=='follow')this.room.cutaway(this.stage.camera,dt);
     if(this.me)this.room.streetStream?.update(this.me.x,this.me.z);
     if(this.stage.mode==='follow'&&this.me){
       const f=this.stage.follow,me=this.me,low=me.pose==='lie'||me.pose?.startsWith('sit'),y=me.pose==='lie'?0.9:low?1.15:1.45,k=this.room.motion?.matches?1:Math.min(1,dt*8);

@@ -15,6 +15,7 @@ import { streetGraph, isStreetPoint } from '../../../../shared/local-streets.js'
 import { StreetStream } from './street-stream.js';
 
 const CELL = 0.25;
+const WALL_HUNG = /picture|mirror|shelf|^ac$|clock|dado|wall_tv|poster|curtain/;
 export class Room {
   constructor(stage) { this.stage = stage; this.group = new THREE.Group(); stage.scene.add(this.group); this.resources=new EnvironmentResources();this.lamps=[];this.glows=[];this.motion=globalThis.matchMedia?.('(prefers-reduced-motion: reduce)');this.people = new Map(); this.items = []; this.screens=[]; this.elapsed=0; this.ray = new THREE.Raycaster(); }
   dispose() {
@@ -54,9 +55,9 @@ export class Room {
       const back = wall(w, 'back'); back.position.set(0, 0, -d / 2 - 0.07); back.userData.wallSide = 'back'; G.add(back);
       const left = wall(d, 'left'); left.rotation.y = Math.PI / 2; left.position.set(-w / 2 - 0.07, 0, 0); left.userData.wallSide = 'left'; G.add(left);
       const cap = new THREE.MeshStandardMaterial({ color: '#2f3237', roughness: 0.8 });
-      const c1 = new THREE.Mesh(new THREE.BoxGeometry(w + 0.28, 0.06, 0.28), cap); c1.position.set(0.0, H, -d / 2 - 0.07); G.add(c1);
-      const c2 = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.06, d + 0.28), cap); c2.position.set(-w / 2 - 0.07, H, 0); G.add(c2);
-      if (spec.sign) G.add(signBoard(spec.sign, w, d, H));
+      const c1 = new THREE.Mesh(new THREE.BoxGeometry(w + 0.28, 0.06, 0.28), cap); c1.position.set(0.0, H, -d / 2 - 0.07); c1.userData.capFor = 'back'; G.add(c1);
+      const c2 = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.06, d + 0.28), cap); c2.position.set(-w / 2 - 0.07, H, 0); c2.userData.capFor = 'left'; G.add(c2);
+      if (spec.sign) { const sb = signBoard(spec.sign, w, d, H); sb.userData.capFor = 'back'; G.add(sb); }
     }
     this.art=buildEnvironmentArt(spec);G.add(this.art);this.water=[];this.art.traverse(o=>{if(o.userData.water)this.water.push(o);});
     this.resources.capture(G);
@@ -172,6 +173,8 @@ export class Room {
   }
   // ---------- picking ----------
   pick(ndc) {
+    // clearDistance() shortens this raycaster for camera collision every frame; taps need the full range.
+    this.ray.near = 0; this.ray.far = Infinity;
     this.ray.setFromCamera(ndc, this.stage.camera);
     const hits = this.ray.intersectObjects(this.group.children, true);
     for (const h of hits) {
@@ -180,6 +183,7 @@ export class Room {
         if (!ancestor.visible) { visible = false; break; }
       }
       if (!visible) continue;
+      if (h.object.userData.wallSide || h.object.parent?.userData.wallSide || (h.object.material?.opacity ?? 1) < 0.5) continue;   // cut, faded or see-through walls never catch a tap
       let o = h.object; while (o && !o.userData.itemRef && !o.userData.personId && o !== this.group) o = o.parent;
       if (o && o.userData.personId != null) return { type: 'person', id: o.userData.personId, point: h.point };
       if (o?.userData.itemRef && o.visible && !o.userData.decorative && !o.userData.itemRef.spec.decorative) return { type: 'item', item: o.userData.itemRef, point: h.point };
@@ -189,16 +193,47 @@ export class Room {
   }
   // screen position of a world point (for name tags / bubbles)
   screen(x, y, z) { const v = new THREE.Vector3(x, y, z).applyMatrix4(this.group.matrixWorld).project(this.stage.camera); if (v.z > 1) return [-9999, -9999]; return [(v.x * 0.5 + 0.5) * innerWidth, (-v.y * 0.5 + 0.5) * innerHeight]; }
-  // Third-person support: close the cutaway's open sides and fade any wall between camera and player.
-  enclose(on) {
-    const spec = this.spec; if (!spec || spec.outdoor || spec.neighbourhood) return;
-    if (!on) { for (const w of this.extraWalls || []) { this.group.remove(w); w.geometry.dispose(); w.material.dispose(); } this.extraWalls = []; for (const m of this.fadeMats || []) { m.opacity = 1; m.transparent = false; m.depthWrite = true; } return; }
-    if (this.extraWalls?.length) return;
+  // Every indoor room has four walls. Overhead, the two walls between the camera and the room drop to a
+  // low stub (a Sims-style cutaway) whichever way the view is turned, with their caps, sign and wall-hung
+  // things; behind-you view (enclose(true)) raises them all and fades whatever is between camera and player.
+  ensureWalls() {
+    const spec = this.spec; if (!spec || spec.outdoor || spec.neighbourhood || this.extraWalls?.length) return;
     const H = spec.wallH || 2.7, mat = new THREE.MeshStandardMaterial({ color: spec.wallColor || '#eee7d9', roughness: 0.9 });
     const front = new THREE.Mesh(new THREE.BoxGeometry(spec.w + 0.28, H, 0.14), mat); front.position.set(0, H / 2, spec.d / 2 + 0.07); front.userData.wallSide = 'front';
     const right = new THREE.Mesh(new THREE.BoxGeometry(0.14, H, spec.d + 0.28), mat.clone()); right.position.set(spec.w / 2 + 0.07, H / 2, 0); right.userData.wallSide = 'right';
-    for (const w of [front, right]) { w.receiveShadow = true; this.group.add(w); }
+    for (const w of [front, right]) { w.receiveShadow = true; w.castShadow = true; w.userData.extra = true; this.group.add(w); }
     this.extraWalls = [front, right];
+  }
+  enclose(on) {
+    const spec = this.spec; if (!spec || spec.outdoor || spec.neighbourhood) return;
+    this.ensureWalls(); this.followView = !!on;
+    if (on) this.setCut(() => false, 1);
+    else for (const m of this.fadeMats || []) { m.opacity = 1; m.transparent = false; m.depthWrite = true; }
+  }
+  // Which walls stand between the camera and the room (room-local camera position).
+  nearWalls(camera) {
+    const spec = this.spec, local = this.group.worldToLocal(camera.position.clone()), hx = spec.w / 2, hz = spec.d / 2;
+    return (side) => side === 'front' ? local.z > hz : side === 'back' ? local.z < -hz : side === 'right' ? local.x > hx : local.x < -hx;
+  }
+  setCut(near, k) {
+    const spec = this.spec, hx = spec.w / 2, hz = spec.d / 2, cut = new Set();
+    for (const w of this.group.children) {
+      const side = w.userData.wallSide || w.userData.capFor; if (!side) continue;
+      const low = near(side); if (low) cut.add(side);
+      if (w.userData.wallSide) { const t = low ? 0.12 : 1; w.scale.y += (t - w.scale.y) * k; if (w.userData.extra) w.position.y = (spec.wallH || 2.7) * w.scale.y / 2; }
+      else w.visible = !low;
+    }
+    // Pictures, shelves, mirrors and air conditioners hang on a wall: hide them with their wall.
+    for (const rec of this.items) {
+      if (!WALL_HUNG.test(rec.spec.kind)) continue;
+      const x = rec.obj.position.x, z = rec.obj.position.z;
+      const on = (cut.has('back') && z < -hz + 0.6) || (cut.has('front') && z > hz - 0.6) || (cut.has('left') && x < -hx + 0.6) || (cut.has('right') && x > hx - 0.6);
+      rec.obj.visible = !on && !rec.hiddenBySchedule;
+    }
+  }
+  cutaway(camera, dt = 1) {
+    const spec = this.spec; if (!spec || spec.outdoor || spec.neighbourhood || this.followView) return;
+    this.ensureWalls(); this.setCut(this.nearWalls(camera), Math.min(1, dt * 10));
   }
   // Distance from `from` towards `to` that is clear of walls and large furniture (camera collision).
   clearDistance(from, to) {

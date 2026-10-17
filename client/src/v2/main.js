@@ -20,12 +20,12 @@ import { fitLook, myFit } from './fits.js';
 import { CityMap } from './scene/map.js';
 import { net } from './net.js';
 import { resumePayment } from './payments.js';
-import { G, money, loc, accraNow, accraClock, isOpen } from './store.js';
+import { G, money, loc, accraNow, accraClock, isOpen, actBlock } from './store.js';
 import { h, ic, toast, sheet, closeSheets, celebrate, cedi, vibrate, confirmBox } from './ui/dom.js';
 import { buildChat } from './ui/chat.js';
 import { showTutorial } from './ui/tutorial.js';
 import { buildHud } from './ui/hud.js';
-import { confirmRoomArrival } from './ui/hud-state.js';
+import { confirmRoomArrival, zoneActions } from './ui/hud-state.js';
 import { renderZones, openZone, actsFor } from './ui/venue.js';
 import { openMeet } from './ui/meet.js';
 import { openLifeEvent, showLifeResult } from './ui/life-event.js';
@@ -344,6 +344,19 @@ function bindInput() {
   cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', (e) => pts.delete(e.pointerId));
   cv.addEventListener('wheel', (e) => { e.preventDefault();if(worldBlocked(ui))return; if(view==='map')map.transition=null; stage.zoomBy(e.deltaY > 0 ? 1.1 : 0.9); }, { passive: false });
 }
+// Tapping a thing you can use: free one-action things start at once (TV, guitar, a stroll); anything that
+// costs money, needs a choice or carries a risk opens its sheet (costs shown first) while you walk over.
+function useDirect(z) {
+  if (z.route || z.work) return openZone(z, G.state.place, act);
+  const place = G.state.place, list = zoneActions(z, actsFor(place)), l = place === 'home' ? null : loc(place);
+  const one = list.length === 1 ? list[0] : null;
+  if (one && !one.cost && !one.crime && !one.mg && !actBlock(one, l) && !(G.state.busy || G.state.shift)) {
+    act.start(one, z).catch((e) => toast(e.message || 'That is not available right now.', 'bad'));
+    return;
+  }
+  if (!(G.state.busy && !G.state.busy.travel) && Number.isInteger(z.item)) { const u = world.approachItem(z.item); if (u) net.send({ t: 'rmv', x: u.x, z: u.z, it: null, zn: null }); }
+  return openZone(z, place, act);
+}
 function tap(x, y) {
   if(studio.open||ride.active||worldBlocked(ui))return;
   if (view === 'map') { const b = map.pickBoard(x, y); if (b) return adSheet(b); const id=map.pickDestination(x,y);if(id)map.select(loc(id));return; }
@@ -352,10 +365,17 @@ function tap(x, y) {
   if (hit.type === 'person') return openPerson(hit.pid, hit.name, act);
   if (hit.type === 'npc') { const z = world.zoneForNpc(hit.id); if (z) return openZone(z, G.state.place, act); world.focusTarget({person:hit.id});return sheet(h('div.sheet-body',null,h('p.context-hint',null,'A local resident — a scripted character, not a real player. City chat and Meet connect you with real players online.'),h('button.btn.primary.wide',{onclick:()=>{closeSheets();act.nav('chat');}},'Open city chat')),{title:hit.name,onclose:()=>world.clearSelection()}); }
   if (hit.type === 'item') {
-    world.focusTarget({item:hit.index});const rec = hit.item;if(rec.spec.frontage)return openFrontage(rec.spec.frontage);if(rec.spec.owner){const owner=rec.spec.owner;return sheet(h('div.sheet-body',null,h('p',null,`A purchased home belonging to @${owner.name}.`),!owner.mine?h('button.btn.primary.wide',{onclick:()=>{closeSheets();act.message(owner.name);}},'Message owner'):null,owner.mine?h('button.btn.wide',{onclick:()=>{closeSheets();net.send({t:'buy',kind:'home',id:owner.home});}},'Move into this home'):h('button.btn.wide',{onclick:()=>{net.send({t:'visit',name:owner.name,mode:'walk'});closeSheets();}},'Visit acquaintance at home')),{title:'@'+owner.name,sub:G.cat.homes[owner.home].area,onclose:()=>world.clearSelection()});} const usable = rec.use.some((u) => u.pose && u.pose !== 'stand');
+    world.focusTarget({item:hit.index});const rec = hit.item;
+    // Seats, beds and mats: tapping one sits (or lies) there straight away; tap the ground to get up.
+    if (!rec.spec.frontage && !rec.spec.owner && rec.use.some((u) => u.pose && u.pose !== 'stand')) {
+      if (G.state.busy && !G.state.busy.travel) { world.clearSelection(); return toast('Finish your current activity first.'); }
+      const u = world.useZone({ item: hit.index }, () => world.clearSelection()); if (u) net.send({ t: 'rmv', ...u, zn: null }); return;
+    }
+    // Anything else in the room: walk up to it (and still say what it is).
+    if (!rec.spec.frontage && !rec.spec.owner) { const u = world.approachItem(hit.index); if (u) net.send({ t: 'rmv', x: u.x, z: u.z, it: null, zn: null }); }if(rec.spec.frontage)return openFrontage(rec.spec.frontage);if(rec.spec.owner){const owner=rec.spec.owner;return sheet(h('div.sheet-body',null,h('p',null,`A purchased home belonging to @${owner.name}.`),!owner.mine?h('button.btn.primary.wide',{onclick:()=>{closeSheets();act.message(owner.name);}},'Message owner'):null,owner.mine?h('button.btn.wide',{onclick:()=>{closeSheets();net.send({t:'buy',kind:'home',id:owner.home});}},'Move into this home'):h('button.btn.wide',{onclick:()=>{net.send({t:'visit',name:owner.name,mode:'walk'});closeSheets();}},'Visit acquaintance at home')),{title:'@'+owner.name,sub:G.cat.homes[owner.home].area,onclose:()=>world.clearSelection()});} const usable = rec.use.some((u) => u.pose && u.pose !== 'stand');
     return sheet(h('div.sheet-body', null, h('p.muted', null, usable ? 'Take a seat or rest here. Tap the ground to get up.' : 'Part of this place. Choose an activity below to use nearby facilities.'), usable ? h('button.btn.primary.wide', { onclick: () => { if (G.state.busy) return toast('Finish your current activity first.'); const u = world.useZone({ item: hit.index }); if (u) net.send({ t: 'rmv', ...u, zn: null }); closeSheets(); } }, 'Use ' + (rec.label || 'seat')) : null), { title: rec.label || rec.spec.kind.replace(/_/g, ' '),onclose:()=>world.clearSelection() });
   }
-  if (hit.type === 'zone') return openZone(hit.zone, G.state.place, act);
+  if (hit.type === 'zone') return useDirect(hit.zone);
   if (hit.type === 'floor') {
     if (G.state.busy && !G.state.busy.travel) return toast('Stop what you’re doing first.', '');
     let {x,z}=hit;
