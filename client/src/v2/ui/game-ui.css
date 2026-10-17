@@ -121,3 +121,13 @@
 .meet-empty{display:grid;gap:8px;padding:6px 0}
 .meet-toggle{display:flex;align-items:center;gap:10px;min-height:44px;font-size:14px}
 .meet-toggle input{width:20px;height:20px;flex:none}
+
+/* Stage 8 personal life events */
+.life-event-cat{display:flex;align-items:center;gap:6px;font:600 12px var(--body,system-ui);color:#7a5615;text-transform:uppercase;letter-spacing:.04em;margin:0 0 6px}
+.life-event-choices{display:grid;gap:8px;margin:12px 0}
+.game-ui .life-event-choices .btn,.life-event-choices .btn{display:grid;gap:2px;justify-items:start;text-align:left;min-height:52px;padding:8px 14px}
+.life-event-choices .btn small{font-weight:400;color:#6b7a72;font-size:12px}
+.life-event-note{font-size:12px;margin-top:10px}
+.life-event-effects{margin:8px 0 14px;padding-left:18px;display:grid;gap:4px;font-size:14px}
+.life-chip{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;padding:4px 12px;border:0;border-top:1px solid #234f3d18;background:#fff3d6;color:#5c3d06;font:600 12.5px var(--body,system-ui);text-align:left;cursor:pointer}
+.life-chip[hidden]{display:none}.life-chip span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.life-chip small{flex:none;padding:4px 10px;border-radius:14px;background:#c58a1c;color:#fff;font-size:11px}

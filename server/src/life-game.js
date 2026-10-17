@@ -4,14 +4,14 @@ import crypto from 'node:crypto';
 import {validRequest} from './life-journal.js';
 import {isUnitPlace,prepareProperty} from './property-context.js';
 
-export const durableActions=new Set(['act','work','apply','buy','bank','phone','travel','donate','jail','rentcar','bet','mgResult','bizcheck','course','autowork','profile_set','homeaccess']);
+export const durableActions=new Set(['act','work','apply','buy','bank','phone','travel','donate','jail','rentcar','bet','mgResult','bizcheck','course','autowork','profile_set','homeaccess','lifeevent']);
 export function durableTick(s,now){
   const c=Game.clock(now),wk=Math.floor((now/86400000+3)/7);
   return !!(s.onboarded&&(
     s.busy&&!s.busy.mg&&now>=s.busy.end||s.shift&&(now-s.shift.start>=3600000||s.shift.activeTask?.readyAt<=now)||
     c.h>=18&&s.lastDaily!==c.day||s.lastWeekly!==wk||s.rentPaidUntil&&s.home&&!s.owned[s.home]&&now>=s.rentPaidUntil||
     s.loan&&now>=s.loan.next||s.flags.matchBets?.some(b=>!b.settled&&now>=b.end)||
-    Game.aspirationDue(s,now)||Game.needsEmergency(s,now)||Game.autoworkDue(s,now)||
+    Game.aspirationDue(s,now)||Game.needsEmergency(s,now)||Game.autoworkDue(s,now)||Game.lifeEventDue(s,now)||
     s.shift&&(s.shift.completedTasks?.length||0)>=3));
 }
 export async function gameTransaction(shard,p,msg=null,now=Date.now(),queued=false){

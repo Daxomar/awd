@@ -148,11 +148,21 @@
     {
       "id": "stage8",
       "owner": "claude",
-      "state": "ready",
+      "state": "merged",
       "scope": [
         "personal life events and consequences"
       ],
-      "gate": "bounded, consented, recoverable life events"
+      "gate": "100 server tests, journey F 10/10",
+      "evidence": "docs/master/stage8/checkpoint.md"
+    },
+    {
+      "id": "stage9",
+      "owner": "claude",
+      "state": "ready",
+      "scope": [
+        "ambient city life and business frontage"
+      ],
+      "gate": "performance-bounded ambient life"
     }
   ]
 }

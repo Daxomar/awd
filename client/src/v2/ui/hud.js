@@ -5,6 +5,7 @@ import {G,accraClock,accraNow} from '../store.js';
 import {NEEDS,needView,locationView,activityView,walletValue,moodView,zoneActions} from './hud-state.js';
 import {buildObjectives} from './objectives-hud.js';
 import {net} from '../net.js';
+import {activeLifeEvent} from './life-event.js';
 import './game-ui.css';
 
 export function buildHud(ui,act){
@@ -19,6 +20,7 @@ export function buildHud(ui,act){
  const streetName=h('span'),entrance=h('button.street-entrance',{hidden:true,onclick:()=>{if(nearbyZone)act.openZone(nearbyZone);}});
  const streetRow=h('div.street-context',{hidden:true},streetName,entrance);top.querySelector('.hud-surface').append(streetRow);
  const objectives=buildObjectives(act);top.querySelector('.hud-surface').append(objectives.el);
+ const lifeChip=h('button.life-chip',{hidden:true,onclick:()=>act.lifeEvent()});top.querySelector('.hud-surface').append(lifeChip);
  let nearbyZone=null,streetKey='';
  const busy=h('div.busy.activity-hud',{hidden:true}),zones=h('div.zones.interaction-options'),chips=h('div.status-extras');
  const navBtn=(id,icon,label)=>h('button',{'data-nav':id,'aria-label':label,onclick:()=>act.nav(id)},ic(icon),h('span',null,label),h('span.badge',{hidden:true}));
@@ -71,7 +73,8 @@ export function buildHud(ui,act){
    if(busy.dataset.id!==a.id){busy.dataset.id=a.id;busy.replaceChildren(ic(a.travel?'bus':a.shift?'briefcase':'hourglass-medium'),h('div.grow',null,h('strong.bl',null,a.label),h('div.activity-meta'),h('div.bar',{role:'progressbar','aria-label':a.label,'aria-valuemin':'0','aria-valuemax':'100'},h('i'))),a.canCancel?h('button.bx',{'aria-label':'Stop activity',onclick:()=>act.cancel()},ic('x')):a.shift?h('button.bx',{'aria-label':'View shift',onclick:()=>act.work()},ic('briefcase')):null);}
    patch(busy.querySelector('.activity-meta'),a.remaining?(a.remaining>60?`${Math.ceil(a.remaining/60)} min remaining`:`${a.remaining}s remaining`):'Finishing…');busy.querySelector('.bar i').style.width=(a.progress*100).toFixed(1)+'%';busy.querySelector('.bar').setAttribute('aria-valuenow',String(Math.round(a.progress*100)));
   },
-  quests(){const s=G.state;if(!s)return;const sig=JSON.stringify([G.gem,s.job,s.shift,s.sick,s.home,s.daily,s.dumsor]);if(sig===extrasSig)return;extrasSig=sig;chips.replaceChildren();
+  quests(){const s=G.state;if(!s)return;const sig=JSON.stringify([G.gem,s.job,s.shift,s.sick,s.home,s.daily,s.dumsor,activeLifeEvent()?.at]);if(sig===extrasSig)return;extrasSig=sig;chips.replaceChildren();
+   const ev=activeLifeEvent();lifeChip.hidden=!ev;if(ev)lifeChip.replaceChildren(ic('lightning'),h('span',null,ev.title),h('small',null,'Decide'));
    if(G.gem)chips.append(actionLink('diamond',`Gem hunt · ${cedi(G.gem.prize)}`,()=>act.gem()));
    if(s.daily?.list?.length)chips.append(actionLink('target',`Today ${s.daily.list.filter(x=>x.done).length}/${s.daily.list.length}`,()=>act.goals()));
    if(s.sick)chips.append(actionLink('first-aid',s.sick.kind||'See health details',()=>act.needs()));

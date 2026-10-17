@@ -15,6 +15,7 @@ import * as Life from './life-progression.js';
 import * as Career from './careers.js';
 import * as Profile from './profile.js';
 import * as HomeAccess from './home-access.js';
+import * as LE from './life-events.js';
 export const WARD = W;
 export const DATA = D;
 
@@ -501,9 +502,11 @@ export function tick(p, now, shard) {
   // weekly & daily economy (real Accra calendar)
   const c = clock(now);
   if (c.h >= 18 && s.lastDaily !== c.day) { s.lastDaily = c.day; let tot = 0; const notes = [];
+    // Stage 8: a supplier deal or setback adjusts exactly one daily settlement, then expires.
+    const bizMod = (s.flags.bizBoost?.until > now ? s.flags.bizBoost.m : 1) * (s.flags.bizDip?.until > now ? s.flags.bizDip.m : 1); delete s.flags.bizBoost; delete s.flags.bizDip;
     for (const k in s.biz) { const B = D.BUSINESSES[k], st = s.biz[k]; const idle = (now - (st.seen || st.at)) / 86400000; let m = 0.6 + Math.random() * 0.75; if (idle > 3) m *= 0.35; // absentee owner: the manager "chops" the money
       const r = Math.random(); if (r < 0.04) { m = 0; notes.push(`${B.name}: ${['AMA task force seized goods', 'thieves broke in at night', 'no light all day (dumsor)', 'staff didn’t show up'][Math.floor(Math.random() * 4)]}. No profit today.`); } else if (r < 0.07) { m *= 1.8; notes.push(`${B.name}: busy day, profit up!`); }
-      tot += B.pay * m; }
+      tot += B.pay * m * bizMod; }
     if (tot) { const got = earn(s, tot, 'Business profit'); bump(s, 'bizIncome', got); out.push({ t: 'income', amt: got, notes }); } else if (notes.length) out.push(toast(notes[0], 'bad'));
     if (s.items.phone !== false) spend(s, 8, 'Data bundle'); }
   if (s.rentPaidUntil && now >= s.rentPaidUntil && s.home && !s.owned[s.home]) {
@@ -514,6 +517,7 @@ export function tick(p, now, shard) {
   const wk = Math.floor((now / 86400000 + 3) / 7);
   if (s.lastWeekly !== wk) { if (s.lastWeekly) { let inc = s.wk.inc, tax = 0; for (const [w, r] of D.TAX_BANDS) { const part = Math.min(inc, w); tax += part * Math.max(0, r - (shard.policy === 'tax' && r ? 0.05 : 0)); inc -= part; if (inc <= 0) break; } tax = Math.round(tax); if (tax) { pay(s, Math.min(tax, s.cash + s.momo),'Weekly income tax'); out.push(toast(`GRA weekly tax: GH₵${tax}.`)); } for (const k in s.land) { const l = s.land[k]; l.value = Math.round(l.value * (1 + D.LANDS[k].g * (0.6 + Math.random() * 0.8))); if (!l.reg && Math.random() < D.LANDS[k].risk) { l.value = Math.round(l.value * 0.75); out.push(toast(`Landguards hit your ${D.LANDS[k].name}! Value −25%. Register it.`, 'bad')); } } } s.lastWeekly = wk; s.wk = { inc: 0 }; }
   aspirationTick(p, now, out);
+  lifeEventTick(p, now, out);
   if (s.loan && now >= s.loan.next) { const due = Math.min(s.loan.weekly, s.loan.owed); if (pay(s, due,'Loan repayment')) { s.loan.owed -= due; s.loan.next += 7 * 86400000; if (s.loan.owed <= 0) s.loan = null; out.push(toast(`Loan repayment GH₵${due}.`)); } else { s.loan.owed = Math.round(s.loan.owed * 1.1); s.loan.next += 86400000; out.push(toast('Loan repayment failed: 10% penalty added.', 'bad')); } }
   if (!out.length) return null;
   return out.length === 1 ? out[0] : { t: 'multi', list: out };
@@ -584,6 +588,7 @@ export function onMsg(p, msg, shard, now) {
     case 'work': if(msg.op==='beginTask'){const c=D.CAREERS[s.job?.id];if(!s.shift||!c)return toast('Start your shift at work first.','bad');const error=beginTask(p,msg,c,now);return error?toast(error,'bad'):{t:'worktask',shift:{...s.shift,assignment:taskView(s)}};}return msg.op === 'start' ? startShift(p, now) : msg.op === 'task' && s.shift ? toast('Work performance is calculated by the server.') : msg.op === 'quit' ? ((s.job = null), (s.shift = null), { t: 'st', state: view(s) }) : msg.op === 'end' && s.shift ? ((s.shift = null), { t: 'st', state: view(s) }) : null;
     case 'apply': return apply(p, String(msg.id), now);
     case 'course': return takeCourse(p, msg, now);
+    case 'lifeevent': { const r = LE.decide(s, lifeCtx(p, now), String(msg.choice || '')); if (r.error) return toast(r.error, 'bad'); const effects = applyLifeOutcome(p, r.out, r.active, now); return { t: 'life_event_result', id: r.active.id, title: r.active.title, text: r.out.text, effects, state: view(s) }; }
     case 'profile_set': { s.profile = Profile.cleanProfile(msg, s); return { t: 'st', state: view(s), profileSaved: true }; }
     case 'homeaccess': { s.homeAccess = HomeAccess.cleanAccess(msg, s); return { t: 'st', state: view(s), homeAccess: s.homeAccess }; }
     case 'autowork': return setAutowork(p, msg, now);
@@ -615,6 +620,37 @@ function ctx(p, now) {
   return { now, h: c.h, wd: c.wd, day: c.day, dom: new Date(now).getUTCDate(), ageH: (now - (s.flags.bornAt || s.created)) / 3600000, ageD: (now - (s.flags.bornAt || s.created)) / 86400000, at,
     worth: netWorth(s), dumsor: dumsorNow(now, CUR.shard && CUR.shard.policy), cnt: (k) => s.cnt[k] || 0, dcnt: (k) => (s.dc.day === c.day && s.dc.cnt[k]) || 0, dvisits: s.dc.day === c.day ? s.dc.visits.length : 0, rnd: 0 };
 }
+// ---------- Stage 8 personal life events (engine in life-events.js) ----------
+function lifeCtx(p, now) {
+  const s = p.state, c = clock(now), pl = s.place || '', L = LOC[pl];
+  const idle = !!(s.onboarded && pl && !s.busy && !s.shift && !(s.flags.jailUntil > now) && !s.sick);
+  const friends = Object.entries(s.friends || {}).filter(([, f]) => f && f.accepted).map(([acct, f]) => ({ acct: +acct, name: f.n || 'a friend' }));
+  return { now, h: c.h, day: c.day, place: pl, street: pl.startsWith('n:'), public: !!L && !L.estate, idle, friends };
+}
+function lifeEventTick(p, now, out) {
+  const s = p.state, r = LE.settle(s, now);
+  for (const n of r.notes) out.push(toast(n));
+  for (const d of r.paid) { const got = earn(s, d.amount, d.label); if (got) out.push(toast(`${d.label}: +GH₵${got}.`, 'good')); }
+  const a = LE.offer(s, lifeCtx(p, now)); if (a) out.push({ t: 'life_event', event: a });
+}
+function applyLifeOutcome(p, o, active, now) {
+  const s = p.state, fx = [];
+  if (o.cash < 0) { const lost = Math.min(s.cash, -o.cash); if (lost > 0) { s.cash -= lost; s.ledger.push([now, -lost, active.title]); Life.moneyEvent(s, -lost, active.title); fx.push(`−GH₵${lost} cash`); } }
+  if (o.cash > 0) { const got = earn(s, o.cash, active.title, false); if (got) fx.push(`+GH₵${got} cash`); }
+  if (o.earn) { const got = earn(s, o.earn, active.title); if (got) fx.push(`+GH₵${got} MoMo`); }
+  if (o.pay && pay(s, o.pay, active.title)) fx.push(`−GH₵${o.pay}`);
+  for (const [k, v] of Object.entries(o.needs || {})) if (k in s.n) { s.n[k] = clamp(s.n[k] + v); fx.push(`${k} ${v > 0 ? '+' : ''}${v}`); }
+  if (o.mood) { moodlet(s, 'ev_' + o.mood.id, o.mood.v, o.mood.h, o.mood.label); fx.push(o.mood.label); }
+  if (o.skill) addSkill(s, o.skill[0], o.skill[1]);
+  if (o.rep) { s.rep = Math.max(0, (s.rep || 0) + o.rep); fx.push(`reputation ${o.rep > 0 ? '+' : ''}${o.rep}`); }
+  if (o.heat) s.heat = Math.min(200, (s.heat || 0) + o.heat);
+  if (o.perf && s.job) { s.job.perf = Math.min(100, (s.job.perf || 0) + o.perf); fx.push(`work performance +${o.perf}`); }
+  if (o.friend && s.friends[o.friend[0]]) { s.friends[o.friend[0]].pts = (s.friends[o.friend[0]].pts || 0) + o.friend[1]; fx.push(`friendship +${o.friend[1]}`); }
+  if (o.flag) { s.flags[o.flag[0]] = { m: o.flag[1], until: now + o.flag[2] * 3600000 }; fx.push(o.flag[0] === 'bizBoost' ? 'next business takings boosted' : 'next business takings lower'); }
+  bump(s, 'lifeevent'); Life.event(s, 'life_event', { id: active.id, category: active.cat, cash: (o.cash || 0) + (o.earn || 0) - (o.pay || 0) }, now);
+  return fx;
+}
+export const lifeEventDue = (s, now) => LE.due(s, now);
 function aspirationTick(p, now, out) {
   const s = p.state; if (now - (s.story.at || 0) < 12000) return; s.story.at = now;
   const c = ctx(p, now);

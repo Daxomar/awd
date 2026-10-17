@@ -38,7 +38,7 @@ flowchart LR
 | 5 | Complete locally (CI pending; salary proposal awaits approval); [checkpoint](stage5/checkpoint.md) | All 19 career requirements, real courses/assessments, short work, shift uniqueness, bounded auto-work; gated balance proposal |
 | 6 | Complete locally (CI pending); [checkpoint](stage6/checkpoint.md) | Visible nonblocking HUD guidance; real consenting discovery; empty-server, block and reward replay tests |
 | 7 | Complete locally (CI pending; event XP crediting awaits approval); [checkpoint](stage7/checkpoint.md) | Privacy-controlled identity, authorized gatherings, moderated scheduling and durable real attendance |
-| 8 | Not started | Curated contextual events, bounded authoritative choices, fair neutral expiry, replay/disconnect tests |
+| 8 | Complete locally (CI pending); [checkpoint](stage8/checkpoint.md) | Curated contextual events, bounded authoritative choices, fair neutral expiry, replay/disconnect tests |
 | 9 | Not started | Bounded ambient schedules/pooling/LOD, distinguish NPCs from real players, actual business frontage |
 | 10 | Not started | Real standalone booking/management, safe media, verified payment return, eligible auto-activation and suspension |
 | 11 | Not started | Separate secure UI, server-enforced roles, audit, actual metrics, restricted moderation/payment/world controls |

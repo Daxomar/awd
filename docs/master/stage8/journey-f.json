@@ -1,0 +1,45 @@
+{
+ "checks": [
+  {
+   "ok": true,
+   "check": "an event that opened before the disconnect waits on the HUD after reconnecting"
+  },
+  {
+   "ok": true,
+   "check": "the sheet explains the fair-play rules"
+  },
+  {
+   "ok": true,
+   "check": "only pocket cash changed, within the cap (cash 300\u2192210, MoMo unchanged)"
+  },
+  {
+   "ok": true,
+   "check": "the decision is saved in the life history"
+  },
+  {
+   "ok": true,
+   "check": "a calm period follows the loss"
+  },
+  {
+   "ok": true,
+   "check": "an expired event is not shown as a pending decision"
+  },
+  {
+   "ok": true,
+   "check": "an event left unanswered while offline ends neutrally with no loss"
+  },
+  {
+   "ok": true,
+   "check": "My Life lists recent life events"
+  },
+  {
+   "ok": true,
+   "check": "the loan moved GH\u20b550 once and the repayment is scheduled and saved"
+  },
+  {
+   "ok": true,
+   "check": "no page errors "
+  }
+ ],
+ "scope": "Loopback disposable fixtures; open events placed in the disposable DB while offline; real server; SwiftShader."
+}
