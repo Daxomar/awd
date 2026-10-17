@@ -77,11 +77,25 @@ export class World {
     const [fi, fj] = room.nearestFree(sp.x * 0.55 + (Math.random() - 0.5) * 2.4, sp.z * 0.55 + (Math.random() - 0.5) * 2.4); const CELL = 0.25;
     this.entry = { x: (fi + 0.5) * CELL - spec.w / 2, z: (fj + 0.5) * CELL - spec.d / 2 }; room.walkTo('me', this.entry.x, this.entry.z);
     if(this.custody){this.entry={x:sp.x,z:sp.z};room.placeAt('me',sp.x,sp.z,0,'stand');}
+    this.prepareFollow();
     if(msg.street){this.entry={x:sp.x,z:sp.z};room.placeAt('me',sp.x,sp.z,0,'stand');}
     me.yaw = Math.PI;
     for (const e of msg.people || []) this.addOther(e);
     if (msg.gem) this.showGem(msg.gem);
     return room;
+  }
+  // Third-person: enclose interiors, collide the camera with this room, start behind the player.
+  prepareFollow() {
+    const st = this.stage; if (!this.room) return;
+    st.collide = (a, b) => this.room ? this.room.clearDistance(a, b) : a.distanceTo(b);
+    if (st.mode !== 'follow') return;
+    this.room.enclose(true);
+    const me = this.me; if (!me) return;
+    // Streets: higher and farther so surrounding buildings read. Interiors: wider lens, steeper angle.
+    const outdoor = !!(this.spec.outdoor || this.spec.neighbourhood), f = st.follow;
+    Object.assign(f, outdoor ? { dist: 5.6, pitch: 0.46, min: 2.2, max: 10 } : { dist: 3.0, pitch: 0.58, min: 1.5, max: 5 });
+    f.basePitch = f.pitch; st.persp.fov = outdoor ? 56 : 70; st.persp.updateProjectionMatrix();
+    f.target.set(me.x, 1.45, me.z); f.yaw = me.yaw + Math.PI; st.applyView();
   }
   tag(id, name, kind = '') { const t = h('tag ' + kind); t.append(h('st'), h('nm', name || '')); t.querySelector('.st').hidden = true; this.tagsEl.append(t); const p = this.room.people.get(id); if (p) p.tagEl = t; }
   setStatus(id, ic) { const p = this.room && this.room.people.get(id); if (!p || !p.tagEl) return; const st = p.tagEl.querySelector('.st'); st.textContent = ic || ''; st.hidden = !ic; }
@@ -184,7 +198,12 @@ export class World {
     for(const r of this.room.items)if(r.spec.open)r.obj.visible=isAvailable(r.spec.open);
     this.room.update(dt);
     if(this.me)this.room.streetStream?.update(this.me.x,this.me.z);
-    if(this.spec.neighbourhood&&this.me&&this.me.path.length){this.stage.view.target.x+=(this.me.x-this.stage.view.target.x)*Math.min(1,dt*3);this.stage.view.target.z+=(this.me.z-this.stage.view.target.z)*Math.min(1,dt*3);this.stage.applyView();}
+    if(this.stage.mode==='follow'&&this.me){
+      const f=this.stage.follow,me=this.me,low=me.pose==='lie'||me.pose?.startsWith('sit'),y=me.pose==='lie'?0.9:low?1.15:1.45,k=this.room.motion?.matches?1:Math.min(1,dt*8);
+      if(low&&f.pitch<0.8)f.pitch+=(0.8-f.pitch)*k;   // look down on a seated or lying player
+      f.target.x+=(me.x-f.target.x)*k;f.target.y+=(y-f.target.y)*k;f.target.z+=(me.z-f.target.z)*k;
+      this.stage.applyView();this.room.fadeOccluders(this.stage.camera);
+    }else if(this.spec.neighbourhood&&this.me&&this.me.path.length){this.stage.view.target.x+=(this.me.x-this.stage.view.target.x)*Math.min(1,dt*3);this.stage.view.target.z+=(this.me.z-this.stage.view.target.z)*Math.min(1,dt*3);this.stage.applyView();}
     if (this.gemObj) { this.gemObj.rotation.y += dt * 2; this.gemObj.position.y = 0.55 + Math.sin(performance.now() / 300) * 0.08; }
     for (const p of this.room.people.values()) {
       if (!p.tagEl) continue; const y = p.pose === 'lie' ? 0.9 : p.pose && p.pose.startsWith('sit') ? 1.55 : 2.0; const [sx, sy] = this.screenOf(p.x, y + (p.poseY || 0) * (p.pose === 'stand' ? 0 : 1), p.z);

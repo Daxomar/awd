@@ -108,11 +108,21 @@
     {
       "id": "stage4",
       "owner": "claude",
-      "state": "ready",
+      "state": "merged",
       "scope": [
         "Camera modes, third-person follow, collision, movement, character integration contract"
       ],
-      "gate": "authenticated above-view and third-person movement in homes and neighbourhoods with multiplayer visibility"
+      "gate": "88 client + 85 server tests, build, 18/18 journey H, five viewports",
+      "evidence": "docs/master/stage4/checkpoint.md"
+    },
+    {
+      "id": "stage5",
+      "owner": "claude",
+      "state": "ready",
+      "scope": [
+        "Career qualifications, courses, short active work, bounded auto-work, gated salary proposal"
+      ],
+      "gate": "train, qualify, work actively, earn, progress, bounded auto-work"
     }
   ]
 }

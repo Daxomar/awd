@@ -4,6 +4,7 @@
 //   sign:{text, bg, fg}, items:[{kind, x, z, rot, acts?, zone?, color?}], lights?:[{x,z,color,intensity}] }
 // Room local coords: x in [-w/2, w/2], z in [-d/2, d/2]; back wall at z=-d/2, left wall at x=-w/2.
 import * as THREE from 'three';
+import { locomotion } from './movement.js';
 import { makeItem, floorMaterial, trimKitCaches } from './kit.js';
 import { EnvironmentResources } from './environment-resources.js';
 import { buildEnvironmentArt } from './environment-art.js';
@@ -19,6 +20,7 @@ export class Room {
     if(this.disposed)return;this.disposed=true;
     this.streetStream?.dispose();this.streetStream=null;
     for(const id of [...this.people.keys()])this.removePerson(id);
+    this.enclose(false);for(const m of this.fadeMats||[])m.dispose();this.fadeMats=[];
     for(const rec of this.items)rec.resources.dispose();
     this.items=[];this.screens=[];this.resources.dispose();
     this.stage.scene.remove(this.group);this.group.clear();
@@ -48,8 +50,8 @@ export class Room {
         const sk = new THREE.Mesh(new THREE.BoxGeometry(len, 0.12, T + 0.02), skirt); sk.position.y = 0.06; g.add(sk);
         return g;
       };
-      const back = wall(w, 'back'); back.position.set(0, 0, -d / 2 - 0.07); G.add(back);
-      const left = wall(d, 'left'); left.rotation.y = Math.PI / 2; left.position.set(-w / 2 - 0.07, 0, 0); G.add(left);
+      const back = wall(w, 'back'); back.position.set(0, 0, -d / 2 - 0.07); back.userData.wallSide = 'back'; G.add(back);
+      const left = wall(d, 'left'); left.rotation.y = Math.PI / 2; left.position.set(-w / 2 - 0.07, 0, 0); left.userData.wallSide = 'left'; G.add(left);
       const cap = new THREE.MeshStandardMaterial({ color: '#2f3237', roughness: 0.8 });
       const c1 = new THREE.Mesh(new THREE.BoxGeometry(w + 0.28, 0.06, 0.28), cap); c1.position.set(0.0, H, -d / 2 - 0.07); G.add(c1);
       const c2 = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.06, d + 0.28), cap); c2.position.set(-w / 2 - 0.07, H, 0); G.add(c2);
@@ -160,7 +162,7 @@ export class Room {
         else { const st = Math.min(dist, p.speed * dt); p.x += (dx / dist) * st; p.z += (dz / dist) * st; const want = Math.atan2(dx, dz); let dy = want - p.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); p.yaw += dy * Math.min(1, dt * 12); moving = true; }
       }
       const r = p.av.root; r.position.set(p.x, p.pose === 'stand' ? 0 : p.poseY || 0, p.z); r.rotation.set(0, p.yaw, 0);
-      p.av.play(moving ? 'walk' : p.anim || 'idle'); p.av.update(dt, moving ? p.speed : 0);
+      p.av.play(moving ? locomotion(p.speed, this.spec?.outdoor || this.spec?.neighbourhood) : p.anim || 'idle'); p.av.update(dt, moving ? p.speed : 0);
       applyPose(p.av, moving ? 'stand' : p.pose);
     }
   }
@@ -182,7 +184,36 @@ export class Room {
     return null;
   }
   // screen position of a world point (for name tags / bubbles)
-  screen(x, y, z) { const v = new THREE.Vector3(x, y, z).applyMatrix4(this.group.matrixWorld).project(this.stage.camera); return [(v.x * 0.5 + 0.5) * innerWidth, (-v.y * 0.5 + 0.5) * innerHeight]; }
+  screen(x, y, z) { const v = new THREE.Vector3(x, y, z).applyMatrix4(this.group.matrixWorld).project(this.stage.camera); if (v.z > 1) return [-9999, -9999]; return [(v.x * 0.5 + 0.5) * innerWidth, (-v.y * 0.5 + 0.5) * innerHeight]; }
+  // Third-person support: close the cutaway's open sides and fade any wall between camera and player.
+  enclose(on) {
+    const spec = this.spec; if (!spec || spec.outdoor || spec.neighbourhood) return;
+    if (!on) { for (const w of this.extraWalls || []) { this.group.remove(w); w.geometry.dispose(); w.material.dispose(); } this.extraWalls = []; for (const m of this.fadeMats || []) { m.opacity = 1; m.transparent = false; m.depthWrite = true; } return; }
+    if (this.extraWalls?.length) return;
+    const H = spec.wallH || 2.7, mat = new THREE.MeshStandardMaterial({ color: spec.wallColor || '#eee7d9', roughness: 0.9 });
+    const front = new THREE.Mesh(new THREE.BoxGeometry(spec.w + 0.28, H, 0.14), mat); front.position.set(0, H / 2, spec.d / 2 + 0.07); front.userData.wallSide = 'front';
+    const right = new THREE.Mesh(new THREE.BoxGeometry(0.14, H, spec.d + 0.28), mat.clone()); right.position.set(spec.w / 2 + 0.07, H / 2, 0); right.userData.wallSide = 'right';
+    for (const w of [front, right]) { w.receiveShadow = true; this.group.add(w); }
+    this.extraWalls = [front, right];
+  }
+  // Distance from `from` towards `to` that is clear of walls and large furniture (camera collision).
+  clearDistance(from, to) {
+    const dir = to.clone().sub(from), len = dir.length(); if (len < 1e-3) return len; dir.divideScalar(len);
+    this.ray.set(from, dir); this.ray.far = len;
+    const hits = this.ray.intersectObjects(this.group.children, true).filter((hit) => { let o = hit.object; while (o && o !== this.group) { if (o.userData.personId || o.userData.wallSide) return false; o = o.parent; } return hit.object.isMesh && !hit.object.userData.floor && !(hit.face && Math.abs(hit.face.normal.clone().transformDirection(hit.object.matrixWorld).y) > 0.7); });   // ground, roads and roofs never block
+    return hits.length ? Math.max(0.45, hits[0].distance - 0.22) : len;
+  }
+  // Fade walls on the camera side so the character stays visible.
+  fadeOccluders(camera) {
+    const spec = this.spec; if (!spec || spec.outdoor || spec.neighbourhood) return;
+    this.fadeMats ||= [];
+    const local = this.group.worldToLocal(camera.position.clone()), hx = spec.w / 2, hz = spec.d / 2;
+    for (const w of this.group.children.filter((c) => c.userData.wallSide)) {
+      const side = w.userData.wallSide;
+      const near = side === 'front' ? local.z > hz - 1.4 : side === 'right' ? local.x > hx - 1.4 : side === 'back' ? local.z < -hz + 1.4 : local.x < -hx + 1.4;
+      w.traverse((o) => { if (!o.isMesh || !o.material || Array.isArray(o.material)) return; if (!o.userData.fadeOwned) { o.material = o.material.clone(); o.userData.fadeOwned = true; this.fadeMats.push(o.material); } o.material.transparent = true; o.material.opacity += ((near ? 0.16 : 1) - o.material.opacity) * 0.35; o.material.depthWrite = o.material.opacity > 0.9; });
+    }
+  }
 }
 function signBoard(sign, w, d, H) {
   const c = document.createElement('canvas'); c.width = 1024; c.height = 192; const x = c.getContext('2d');

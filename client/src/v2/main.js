@@ -40,6 +40,7 @@ import { Phone } from './phone/phone.js';
 import { makeApps } from './phone/apps.js';
 import {ActivityRequests} from './ui/activity-requests.js';
 import {worldBlocked,gameplayViewport} from './ui/overlays.js';
+import {savedCameraMode,saveCameraMode,followSupported,joystickSpeed} from './scene/movement.js';
 
 const ui = document.getElementById('ui');
 const activityRequests=new ActivityRequests(net);
@@ -60,7 +61,7 @@ async function boot() {
   const loop = (time) => { requestAnimationFrame(loop); if (document.hidden || time - lastFrame < frameMs - 1) return; lastFrame = time; const dt = Math.min(0.05, clock.getDelta()); tAcc += dt;
     if (backdrop) backdrop(dt); studio.update(dt); if (ride.active) ride.update(dt); else if (world && view === 'room' && !studio.open) world.update(dt); if (map && view === 'map') map.update(dt);
     hud?.streetHint(view==='room'&&!ride.active&&!studio.open?world?.localHint():null);
-    if (hud && tAcc > 0.25) { tAcc = 0; hud.progress(); if (joy) joy.hidden = view !== 'room' || ride.active || studio.open || !world || !world.room || worldBlocked(ui); }
+    if (hud && tAcc > 0.25) { tAcc = 0; hud.progress(); applyCamera(); if (joy) joy.hidden = view !== 'room' || ride.active || studio.open || !world || !world.room || worldBlocked(ui); }
     cityAudio.update(G.state?.place,view==='room'&&!!world?.me?.path.length,!studio.open&&!ride.active);stage.render(); };
   if(stage)requestAnimationFrame(loop);
   await av;
@@ -120,7 +121,7 @@ function game() {
   setInterval(() => { hud.clock(); if (studio.open) return; const hh = accraClock().h; stage.setTime(hh); }, 5000); hud.clock();
   setInterval(() => { hud.quests(); }, 15000);
   net.on('connection',m=>{hud.connection(m);hud.clock();}); G.connected = net.connected;
-  bindInput(); joy = bindJoystick(); bindNet(); chat = buildChat(ui, n => hud.badge('chat', n)); net.release();if(G.state.busy?.travel&&!ride.active)net.emit('busy',{busy:G.state.busy});
+  bindInput(); joy = bindJoystick(); bindCamera(); bindNet(); chat = buildChat(ui, n => hud.badge('chat', n)); net.release();if(G.state.busy?.travel&&!ride.active)net.emit('busy',{busy:G.state.busy});
   showTutorial(ui);
   resumePayment(phone,toast);
   setTimeout(()=>net.send({t:'objective_status'}),2000);
@@ -233,12 +234,14 @@ function setView(v, focusPlace, forGem) {
   closeAdPreview?.();
   if(v==='map'&&ride.active)return toast('Your journey is in progress. The map reopens on arrival.');
   view = v; hud.setNav(v === 'map' ? 'map' : 'home');
+  if (v === 'map' && stage.mode === 'follow') { stage.setMode('iso'); world.room?.enclose(false); }
   const inMap = v === 'map'; ui.classList.toggle('map-view', inMap); map.show(inMap); hud.chips.hidden = inMap; if (world.room) world.room.group.visible = !inMap; world.tagsEl.hidden = inMap; hud.zones.hidden = inMap;
   if (inMap) {
     const hh = accraClock().h; stage.setTime(hh); drawPins();
     const id = focusPlace || G.state.place; const L = id === 'home' && G.state.home ? G.cat.homes[G.state.home] : loc(id) || loc('circle'); const [x, z] = map.slotOf(id === 'home' ? 'h:' + G.state.home : id) || map.toMap(L.x, L.z); map.currentId = G.state.place === 'home' ? 'h:' + G.state.home : G.state.place; map.current = map.slotOf(map.currentId) || map.toMap(L.x, L.z); map.focus(x, z, map.mode==='compact'?map.normalZoom:focusPlace?5:9);
     if (focusPlace) setTimeout(() => openPlace(focusPlace, act), forGem ? 50 : 250);
-  } else if (world.room) { fitRoom(stage, world.spec);if(world.spec.neighbourhood&&world.me)stage.view.target.set(world.me.x,.8,world.me.z); stage.view.zoom = world.baseZoom; stage.applyView(); const r = Math.max(world.spec.w, world.spec.d) * 0.75 + 2; const sc = stage.key.shadow.camera; sc.left = -r; sc.right = r; sc.top = r; sc.bottom = -r; sc.far = 80; sc.updateProjectionMatrix(); stage.bounds = [-world.spec.w / 2, world.spec.w / 2, -world.spec.d / 2, world.spec.d / 2]; stage.zoomMin = world.baseZoom * 0.45; stage.zoomMax = world.spec.neighbourhood?90:world.baseZoom * 1.35; }
+  } else if (world.room && stage.mode === 'follow') { stage.bounds = [-world.spec.w / 2, world.spec.w / 2, -world.spec.d / 2, world.spec.d / 2]; world.prepareFollow(); }
+  else if (world.room) { fitRoom(stage, world.spec);if(world.spec.neighbourhood&&world.me)stage.view.target.set(world.me.x,.8,world.me.z); stage.view.zoom = world.baseZoom; stage.applyView(); const r = Math.max(world.spec.w, world.spec.d) * 0.75 + 2; const sc = stage.key.shadow.camera; sc.left = -r; sc.right = r; sc.top = r; sc.bottom = -r; sc.far = 80; sc.updateProjectionMatrix(); stage.bounds = [-world.spec.w / 2, world.spec.w / 2, -world.spec.d / 2, world.spec.d / 2]; stage.zoomMin = world.baseZoom * 0.45; stage.zoomMax = world.spec.neighbourhood?90:world.baseZoom * 1.35; }
 }
 function drawPins() {
   const s = G.state; const list = []; const f = map.filter;
@@ -263,7 +266,8 @@ function bindJoystick() {
   };
   const step = () => { const me = world.me; if(!world.room||!me||worldBlocked(ui))return; const m = Math.min(1, Math.hypot(vx, vy)); if (m < 0.15) return;
     const yaw = stage.view.yaw; const dx = Math.cos(yaw) * vx - Math.sin(yaw) * -vy, dz = -Math.sin(yaw) * vx - Math.cos(yaw) * -vy; const L = Math.hypot(dx, dz) || 1;
-    const [x, z] = clampXZ(me.x + (dx / L) * 1.1 * m, me.z + (dz / L) * 1.1 * m); world.walkMe(x, z); me.speed = 1.2 + m * 0.8;
+    const outdoor = !!(world.spec.outdoor || world.spec.neighbourhood), speed = joystickSpeed(m, outdoor), reach = Math.max(1.1 * m, speed * 0.55);
+    const [x, z] = clampXZ(me.x + (dx / L) * reach, me.z + (dz / L) * reach); world.walkMe(x, z); me.speed = speed;
     const now = performance.now(); if (now - lastSend > 400) { lastSend = now; net.send({ t: 'rmv', x, z, it: null, zn: null }); } };
   const move = (e) => { let dx = (e.clientX - ox) / 42, dy = (e.clientY - oy) / 42; const m = Math.hypot(dx, dy); if (m > 1) { dx /= m; dy /= m; } vx = dx; vy = dy; knob.style.transform = `translate(${dx * 30}px, ${dy * 30}px)`; };
   pad.addEventListener('pointerdown', (e) => { e.stopPropagation();if(worldBlocked(ui))return; if (G.state.busy && !G.state.busy.travel) { net.send({ t: 'cancel' }); } pid = e.pointerId; try { pad.setPointerCapture(pid); } catch {} const r = pad.getBoundingClientRect(); ox = r.left + r.width / 2; oy = r.top + r.height / 2; pad.classList.add('on'); move(e); step(); timer = setInterval(step, 110); });
@@ -271,6 +275,18 @@ function bindJoystick() {
   const end = () => { if (pid == null) return; pid = null; clearInterval(timer); vx = vy = 0; knob.style.transform = ''; pad.classList.remove('on'); const me = world.me; if (me) { me.speed = 1.45; const p = me.path && me.path.length ? me.path[me.path.length - 1] : [me.x, me.z]; net.send({ t: 'rmv', x: p[0], z: p[1], it: null, zn: null }); } };
   pad.addEventListener('pointerup', end); pad.addEventListener('pointercancel', end);
   return pad;
+}
+// ---------------------------------------------------------------- camera: overhead or third person (Stage 4)
+let cameraPref = savedCameraMode(), cameraBtn = null;
+function cameraContext() { return { spec: world?.spec, custody: world?.custody, studio: studio?.open, ride: ride?.active, view }; }
+function applyCamera() {
+  const want = cameraPref === 'follow' && followSupported(cameraContext()) ? 'follow' : 'iso';
+  if (stage.mode !== want) { stage.setMode(want); world.room?.enclose(want === 'follow'); if (want === 'follow') world.prepareFollow(); else if (world.room) setView('room'); }
+  if (cameraBtn) { const on = stage.mode === 'follow'; cameraBtn.setAttribute('aria-pressed', String(on)); cameraBtn.setAttribute('aria-label', on ? 'Camera: behind you. Switch to overhead view' : 'Camera: overhead. Switch to behind-you view'); cameraBtn.querySelector('i').className = 'ph-fill ' + (on ? 'ph-person-simple-walk' : 'ph-cube'); cameraBtn.hidden = view !== 'room' || ride.active || !world.room; }
+}
+function bindCamera() {
+  cameraBtn = h('button.camera-toggle', { type: 'button', onclick: (e) => { e.stopPropagation(); cameraPref = stage.mode === 'follow' ? 'iso' : 'follow'; saveCameraMode(cameraPref); if (cameraPref === 'follow' && !followSupported(cameraContext())) toast('Behind-you view is not available here.'); applyCamera(); } }, h('i', { class: 'ph-fill ph-cube' }));
+  cameraBtn.addEventListener('pointerdown', (e) => e.stopPropagation()); ui.append(cameraBtn); applyCamera();
 }
 // ---------------------------------------------------------------- input: tap / drag / pinch
 function bindInput() {

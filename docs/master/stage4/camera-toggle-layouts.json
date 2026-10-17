@@ -1,0 +1,47 @@
+[
+ {
+  "viewport": "375x812",
+  "size": [
+   48,
+   48
+  ],
+  "overlaps": [],
+  "onscreen": true
+ },
+ {
+  "viewport": "390x844",
+  "size": [
+   48,
+   48
+  ],
+  "overlaps": [],
+  "onscreen": true
+ },
+ {
+  "viewport": "430x932",
+  "size": [
+   48,
+   48
+  ],
+  "overlaps": [],
+  "onscreen": true
+ },
+ {
+  "viewport": "390x530",
+  "size": [
+   44,
+   44
+  ],
+  "overlaps": [],
+  "onscreen": true
+ },
+ {
+  "viewport": "844x390",
+  "size": [
+   44,
+   44
+  ],
+  "overlaps": [],
+  "onscreen": true
+ }
+]

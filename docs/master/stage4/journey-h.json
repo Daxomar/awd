@@ -1,0 +1,73 @@
+{
+ "checks": [
+  {
+   "ok": true,
+   "check": "both players are in the same Nima street room"
+  },
+  {
+   "ok": true,
+   "check": "overhead camera is the default"
+  },
+  {
+   "ok": true,
+   "check": "toggle switches to the third-person camera and saves the preference"
+  },
+  {
+   "ok": true,
+   "check": "joystick moves the player forward relative to the camera and the camera follows"
+  },
+  {
+   "ok": true,
+   "check": "the second player sees the first player at the new position"
+  },
+  {
+   "ok": true,
+   "check": "the street offers the home entrance"
+  },
+  {
+   "ok": true,
+   "check": "home keeps third person, encloses the cutaway and keeps the camera inside the room"
+  },
+  {
+   "ok": true,
+   "check": "camera stays inside the room at yaw 0.00 (requested 6.5 m, used 6.50 m)"
+  },
+  {
+   "ok": true,
+   "check": "camera stays inside the room at yaw 1.57 (requested 6.5 m, used 6.50 m)"
+  },
+  {
+   "ok": true,
+   "check": "camera stays inside the room at yaw 3.14 (requested 6.5 m, used 6.50 m)"
+  },
+  {
+   "ok": true,
+   "check": "camera stays inside the room at yaw -1.57 (requested 6.5 m, used 6.50 m)"
+  },
+  {
+   "ok": true,
+   "check": "walls on the camera side fade so the player stays visible"
+  },
+  {
+   "ok": true,
+   "check": "player walks to furniture and sits in third person"
+  },
+  {
+   "ok": true,
+   "check": "doorway transition to the street keeps third person"
+  },
+  {
+   "ok": true,
+   "check": "toggle returns to the overhead camera"
+  },
+  {
+   "ok": true,
+   "check": "the city map always uses the overhead camera"
+  },
+  {
+   "ok": true,
+   "check": "no page errors "
+  }
+ ],
+ "scope": "Loopback disposable server and fixtures; SwiftShader; real timers. No phone FPS claim."
+}
