@@ -8,7 +8,7 @@ import { CFG } from './config.js';
 
 const KEY = secret('PAYSTACK_SECRET');
 const RETURN_KEY = CFG.secret;
-const PUBLIC = process.env.PUBLIC_URL || 'http://localhost:8080';
+const PUBLIC = CFG.publicOrigin || 'http://localhost:8080';
 export const live = !!KEY;
 const handlers = new Map();
 export function registerPayment(type, fulfill) { handlers.set(type, fulfill); }

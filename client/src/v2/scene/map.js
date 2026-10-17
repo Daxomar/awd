@@ -72,7 +72,7 @@ export class CityMap {
   }
   positionBoards(){for(const b of this.ads.boards){const s=b.slot;if(this.mode==='compact'){
     const point=playableAnchor(this.compact.locations,s.x,s.z),place=this.compact.locations.find(l=>l.playable.x===point[0]&&l.playable.z===point[1]),node=CITY_NEIGHBOURHOODS.find(n=>n.id===place?.neighbourhood);
-    b.root.position.set(point[0]+(Math.sign(point[0]-(node?.x||0))||1)*1.05,.006,point[1]+(Math.sign(point[1]-(node?.z||0))||1)*1.1);b.root.scale.setScalar(3);
+    b.root.position.set(point[0]+(Math.sign(point[0]-(node?.x||0))||1)*1.05,.006,point[1]+(Math.sign(point[1]-(node?.z||0))||1)*1.1);b.root.scale.setScalar(4.5);
   }else{const [x,z]=display(s.x,s.z),offset=s.offset||[-.18,-.18];b.root.position.set(x+offset[0],.006,z+offset[1]);b.root.scale.setScalar(1);}}}
   async load() {
     if(this.kit)this.releaseCity();

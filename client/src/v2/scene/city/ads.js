@@ -12,10 +12,10 @@ export class CityAds {
       let b = this.boards.find(b => b.slot.id === slot.id);
       if (!b) {
         const root = new THREE.Group(), steel = new THREE.MeshStandardMaterial({ color: '#536c64', roughness: .8 });
-        const ground=slot.type==='ground',width=ground ? .21 : slot.tier==='MEGA' ? .32 : .28,height=width/2;
-        const frame = new THREE.Mesh(new THREE.BoxGeometry(width+(ground ? .014 : .024),ground ? .004 : height+.024,ground ? height+.014 : .025), steel);frame.position.y=ground ? .002 : .2;root.add(frame);
-        const face = new THREE.Mesh(new THREE.PlaneGeometry(width,height), new THREE.MeshStandardMaterial({ map: this.house, emissive: '#ffffff', emissiveMap: this.house, emissiveIntensity:ground ? .24 : .48,roughness:.65,metalness:0,polygonOffset:ground,polygonOffsetFactor:-2,polygonOffsetUnits:-2 }));
-        if(ground){face.rotation.x=-Math.PI/2;face.position.y=.0045;}else{face.position.set(0,.2,.014);const pole=new THREE.Mesh(new THREE.BoxGeometry(.018,.15,.018),steel);pole.position.y=.075;root.add(pole);}
+        const ground=slot.type==='ground',width=ground ? .34 : slot.tier==='MEGA' ? .52 : .44,height=width/2;
+        const frame = new THREE.Mesh(new THREE.BoxGeometry(width+(ground ? .014 : .024),ground ? .004 : height+.024,ground ? height+.014 : .025), steel);frame.position.y=ground ? .002 : .26;root.add(frame);
+        const face = new THREE.Mesh(new THREE.PlaneGeometry(width,height), new THREE.MeshStandardMaterial({ map: this.house, emissive: '#ffffff', emissiveMap: this.house, emissiveIntensity:ground ? .3 : .65,roughness:.65,metalness:0,polygonOffset:ground,polygonOffsetFactor:-2,polygonOffsetUnits:-2 }));
+        if(ground){face.rotation.x=-Math.PI/2;face.position.y=.0045;}else{face.position.set(0,.26,.014);const pole=new THREE.Mesh(new THREE.BoxGeometry(.022,.2,.022),steel);pole.position.y=.1;root.add(pole);}
         root.add(face);
         const [x, z] = display(slot.x, slot.z),offset=slot.offset||[-.18,-.18];root.position.set(x+offset[0],.006,z+offset[1]);root.rotation.y=slot.yaw||0;
         b = { root, face, cur: null, seed: [...slot.id].reduce((n, c) => n + c.charCodeAt(0), 0) }; this.parent.add(root); this.boards.push(b);
@@ -112,5 +112,11 @@ export class CityAds {
   dispose() { if (this.disposed) return;this.clearPreview(); this.disposed = true; for (const b of this.boards) this.release(b); this.boards = []; for (const t of this.textures.values()) t.dispose(); this.textures.clear(); this.house?.dispose(); }
 }
 function houseAd() {
-  const canvas = document.createElement('canvas'); canvas.width = 256; canvas.height = 128; const ctx = canvas.getContext('2d'); ctx.fillStyle = '#234f3d'; ctx.fillRect(0, 0, 256, 128); ctx.fillStyle = '#e0bd65'; ctx.font = 'bold 24px system-ui'; ctx.textAlign = 'center'; ctx.fillText('YOUR AD HERE', 128, 59); ctx.fillStyle = '#fcfaf2'; ctx.font = '14px system-ui'; ctx.fillText('Phone · My Ads', 128, 87); const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; return texture;
+  const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 256; const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#0f382c'; ctx.fillRect(0, 0, 512, 256);
+  ctx.lineWidth = 14; ctx.strokeStyle = '#fcd116'; ctx.strokeRect(7, 7, 498, 242);
+  ctx.fillStyle = '#fcd116'; ctx.font = '900 46px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('ADVERTISE HERE', 256, 110);
+  ctx.fillStyle = '#fcfaf2'; ctx.font = '700 26px system-ui, sans-serif'; ctx.fillText('Phone · My Ads', 256, 160);
+  ctx.fillStyle = '#e0bd65'; ctx.font = '600 20px system-ui, sans-serif'; ctx.fillText('accrawedey.world', 256, 205);
+  const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; return texture;
 }

@@ -1,6 +1,11 @@
 import { secret } from './secrets.js';
 const production = process.env.NODE_ENV === 'production';
-const publicUrl = new URL(process.env.PUBLIC_URL || 'http://localhost:8080');
+function resolvePublicUrl() {
+  const raw = process.env.PUBLIC_URL || (production ? 'https://accrawedey.world' : 'http://localhost:8080');
+  if (/^https?:\/\/[\w-]+\.onrender\.com/i.test(raw)) return 'https://accrawedey.world';
+  return raw;
+}
+const publicUrl = new URL(resolvePublicUrl());
 const loopback = ['localhost', '127.0.0.1', '[::1]'].includes(publicUrl.hostname);
 const sessionSecret = secret('SESSION_SECRET', production ? '' : 'dev-secret-change-me');
 const birthSeed = secret('BIRTH_SEED', production ? '' : sessionSecret);

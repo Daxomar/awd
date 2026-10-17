@@ -10,7 +10,7 @@ import {SpatialIndex} from '../src/v2/scene/city/geography.js';
 const read=p=>JSON.parse(fs.readFileSync(new URL(p,import.meta.url),'utf8'));
 test('legacy billboard IDs/prices remain while only approved new inventory is exposed',()=>{
   const legacy={circle:1200,oxford:1200,airportcity:1200,accramall:1000,makola:800,kaneshie:800,labadi:800,legon:800,stadium:800,jamestown:500,kotoka_arr:3500,kotoka_dep:3500};
-  assert.equal(AD_PLACEMENTS.length,17);assert.equal(new Set(AD_PLACEMENTS.map(s=>s.id)).size,17);
+  assert.equal(AD_PLACEMENTS.length,25);assert.equal(new Set(AD_PLACEMENTS.map(s=>s.id)).size,25);
   for(const [id,price]of Object.entries(legacy))assert.equal(AD_PLACEMENTS.find(s=>s.id===id).price,price);
   for(const s of AD_PLACEMENTS){assert.ok(s.width>0&&s.height>0);assert.ok(Number.isFinite(s.x)&&Number.isFinite(s.z));assert.equal(s.visibility.estimated,true);}
 });

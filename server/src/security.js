@@ -11,6 +11,7 @@ export function safeEqual(a, b) {
 const EXTRA_ORIGINS = new Set([
   'https://accrawedey.world',
   'https://www.accrawedey.world',
+  'https://awd-e6je.onrender.com',
 ]);
 export function allowedOrigin(origin, required = false) {
   if (!origin) return !required && CFG.dev;

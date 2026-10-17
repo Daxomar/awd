@@ -19,4 +19,12 @@ export const AD_PLACEMENTS = [
   { id:'ground_mall',name:'Accra Mall · designated plaza panel',ll:[5.6184830430300075,-0.17301371551221617],price:800,tier:'Ground rental',type:'ground',exclusive:true,width:6,height:3,yaw:0,surface:'commercial paved forecourt',offset:[0,0] },
   { id:'ground_osu',name:'Oxford Street · commercial courtyard panel',ll:[5.555370223747891,-0.1843085283239743],price:1200,tier:'Ground rental',type:'ground',exclusive:true,width:6,height:3,yaw:0,surface:'commercial courtyard',offset:[0,0] },
   { id:'ground_hotel',name:'Airport hotel · event forecourt panel',ll:[5.604510499755819,-0.17900665628140966],price:1000,tier:'Ground rental',type:'ground',exclusive:true,width:6,height:3,yaw:0,surface:'designated paved event forecourt',offset:[0,0] },
+  { id:'spintex',name:'Spintex Road, Manet junction',ll:[5.6335,-0.1198],price:800,tier:'Standard',yaw:2.2 },
+  { id:'achimota',name:'Achimota Overpass',ll:[5.6105,-0.2365],price:800,tier:'Standard',yaw:1.4 },
+  { id:'dome',name:'Dome Pillar 2 / Kwabenya road',ll:[5.6480,-0.2280],price:800,tier:'Standard',yaw:0.6 },
+  { id:'lapaz',name:'Lapaz N1 junction',ll:[5.6070,-0.2520],price:1000,tier:'MEGA',yaw:2.8 },
+  { id:'dansoman',name:'Dansoman High Street',ll:[5.5370,-0.2560],price:500,tier:'Community',yaw:1.0 },
+  { id:'nungua',name:'Nungua Barrier, Teshie road',ll:[5.5810,-0.0730],price:500,tier:'Community',yaw:3.8 },
+  { id:'adenta',name:'Adenta Barrier',ll:[5.6730,-0.1380],price:800,tier:'Standard',yaw:1.6 },
+  { id:'kasoa',name:'Kasoa Toll Booth, Cape Coast road',ll:[5.5310,-0.4180],price:500,tier:'Community',yaw:0.4 },
 ].map((s) => { const [x, z] = proj(...s.ll); return { type:'billboard',width:s.tier==='MEGA'?12:9,height:s.tier==='MEGA'?6:4.5,visibility:{minSeconds:2,minPixels:400,estimated:true}, ...s, x, z }; });
