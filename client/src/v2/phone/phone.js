@@ -91,7 +91,31 @@ export class AppWin {
     const wrap = h('div', { style: { display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, animation: this.stack.length ? 'fadeup .2s' : '' } }, nb, body, tab);
     view.wrap = wrap; this.el.append(wrap); this.stack.push(view); this.cur = view; this.draw(); return view;
   }
-  draw() { const v = this.cur; if (!v) return; const st = v.body.scrollTop; v.body.innerHTML = ''; const c = v.render(v); if (c) v.body.append(c); v.body.scrollTop = st; }
+  draw() {
+    const v = this.cur; if (!v) return;
+    const active = document.activeElement;
+    const isInputFocused = !!(active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA') && v.wrap?.contains(active));
+    if (isInputFocused && typeof v.onPartialRefresh === 'function') {
+      v.onPartialRefresh();
+      return;
+    }
+    const st = v.body.scrollTop;
+    let selStart = null, selEnd = null, activeInput = null;
+    if (isInputFocused) {
+      activeInput = active;
+      try { selStart = active.selectionStart; selEnd = active.selectionEnd; } catch {}
+    }
+    v.body.innerHTML = '';
+    const c = v.render(v);
+    if (c) v.body.append(c);
+    v.body.scrollTop = st;
+    if (activeInput && activeInput.isConnected) {
+      try {
+        activeInput.focus({ preventScroll: true });
+        if (selStart !== null) activeInput.setSelectionRange(selStart, selEnd);
+      } catch {}
+    }
+  }
   pop() { const v = this.stack.pop(); v.wrap.remove(); this.cur = this.stack[this.stack.length - 1]; if (this.cur) { this.el.append(this.cur.wrap); this.draw(); } else this.phone.closeApp(); }
   refresh() { if (!this.closed) this.draw(); }
 }

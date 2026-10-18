@@ -18,6 +18,7 @@ import {eventsApp,profileSettings,homeGuests} from './social-life.js';
 import {PREFS,TIERS,savedQuality} from '../scene/quality.js';
 import { openStoryEncounter, openAspirationModal } from '../ui/story-dialog.js';
 import { goObjective } from '../ui/objectives-hud.js';
+import { getRecentChatSenders } from '../ui/chat.js';
 
 const grad = (a, b) => `linear-gradient(160deg, ${a}, ${b})`;
 const cell = (o) => h('button.cell' + (o.ic ? '' : '.noic'), { onclick: o.onclick }, o.ic instanceof Node ? o.ic : o.ic ? h('div.ci', { style: { background: o.icbg || '#8e8e93' } }, typeof o.ic === 'string' && o.ic.length <= 3 && !/^[a-z]/.test(o.ic) ? o.ic : icf(o.ic)) : null, h('div.cm', null, h('div.c1', null, o.t), o.s ? h('div.c2', null, o.s) : null), o.r != null ? h('div.cr', null, o.r) : null, o.onclick && o.chev !== false ? ic('caret-right', 'chev') : null);
@@ -59,8 +60,8 @@ export function makeApps(act) {
         const rows = [];
         for (const t of threads || []) rows.push({ at: t.at, el: h('button.cell', { onclick: () => dmThread(win, t.with) }, portrait(t.look,t.with), h('div.cm', null, h('div.c1', { style: { fontWeight: 600 } }, '@' + t.with + (t.request?' · Request':'')), h('div.c2', null, t.kind === 'req' ? ` Money request · ${cedi(t.amount)}` : t.kind === 'paid' ? ` Sent ${cedi(t.amount)}` : (t.mine ? 'You: ' : '') + t.text)), h('div.cr', { style: { flexDirection: 'column', alignItems: 'flex-end', fontSize: '13px' } }, ago(t.at), t.unread ? h('span', { style: { minWidth: '20px', height: '20px', borderRadius: '10px', background: '#0a84ff', color: '#fff', fontSize: '12px', fontWeight: 700, display: 'grid', placeItems: 'center' } }, t.unread) : null)) });
         rows.sort((a, b) => b.at - a.at);
-        return h('div', null, h('div.search', { onclick: () => act.phone('contacts') }, ic('magnifying-glass'), h('span', null, 'New message to a player…')), rows.length ? h('div.group', null, ...rows.map((r) => r.el)) : h('div.empty', null, ic('chat-circle-dots'), 'No messages yet'));
-      }, { action: ['New', () => act.phone('contacts')] });
+        return h('div', null, h('div.search', { onclick: () => pickPerson(win, 'New Message', (n) => dmThread(win, n)) }, ic('magnifying-glass'), h('span', null, 'New message to a player…')), rows.length ? h('div.group', null, ...rows.map((r) => r.el)) : h('div.empty', null, ic('chat-circle-dots'), 'No messages yet'));
+      }, { action: ['New', () => pickPerson(win, 'New Message', (n) => dmThread(win, n))] });
       if (arg && arg.dm) dmThread(win, arg.dm);
     } };
   function dmThread(win, name) {
@@ -121,13 +122,147 @@ export function makeApps(act) {
     amountPage(win, `From @${name}`, () => 'They’ll get a request in Messages', 0, (n, note) => { net.send({ t: 'dm', to: name, req: true, amount: n, text: note || 'Please send me money' }); act.toast(`Request sent to @${name}`, 'good'); win.stack.splice(1); win.pop(); });
   }
   function pickPerson(win, title, onPick) {
-    let q = '', rows = []; const off = net.on('find', (m) => { rows = m.rows; win.refresh(); });
-    const input = h('input', { placeholder: 'Username', autocapitalize: 'off', oninput: (e) => { q = e.target.value; if (q.length >= 2) net.send({ t: 'find', q }); else { rows = []; win.refresh(); } } });
-    const friends = Object.values(G.state.friends || {}).sort((a, b) => b.pts - a.pts);
-    const v = win.page(title, () => h('div', null, h('div.search', null, ic('magnifying-glass'), input),
-      rows.length ? group('Players', ...rows.map((r) => cell({ ic: portrait(r.look,r.name), icbg: r.online ? '#34c759' : '#8e8e93', t: '@' + r.name, s: [r.job, r.online ? 'Online' : null].filter(Boolean).join(' · '), onclick: () => { off(); onPick(r.name); } }))) : null,
-      friends.length ? group('Friends', ...friends.slice(0, 30).map((f) => cell({ ic: portrait(f.look,f.n), icbg: '#ff9f0a', t: '@' + f.n, s: level(f.pts), onclick: () => { off(); onPick(f.n); } }))) : h('div.empty', null, ic('users'), 'Search a username')), { small: true });
-    setTimeout(() => input.focus(), 50); return v;
+    let q = '', rows = [];
+    const roomPeople = () => (act.roomPeople?.() || []).filter(p => p.n && p.n.toLowerCase() !== G.state?.name?.toLowerCase());
+    const chatSenders = () => (getRecentChatSenders?.() || []).filter(c => c.name && c.name.toLowerCase() !== G.state?.name?.toLowerCase());
+    const friendsList = () => Object.values(G.state.friends || {}).filter(f => f.n && f.n.toLowerCase() !== G.state?.name?.toLowerCase()).sort((a, b) => b.pts - a.pts);
+
+    const listEl = h('div.pick-person-list');
+    const input = h('input', {
+      placeholder: 'Search player username…',
+      autocapitalize: 'off',
+      autocomplete: 'off',
+      spellcheck: false,
+      oninput: (e) => {
+        q = e.target.value;
+        if (q.trim().length >= 2) {
+          net.send({ t: 'find', q: q.trim() });
+        } else {
+          rows = [];
+        }
+        renderResults();
+      }
+    });
+    const searchBox = h('div.search', null, ic('magnifying-glass'), input);
+
+    const off = net.on('find', (m) => {
+      rows = m.rows || [];
+      renderResults();
+    });
+    const prevClose = win.onclose;
+    win.onclose = () => { off(); prevClose && prevClose(); };
+
+    function choose(name) {
+      off();
+      onPick(name);
+    }
+
+    function renderResults() {
+      const query = q.trim().toLowerCase();
+      const children = [];
+      const friends = friendsList();
+      const room = roomPeople();
+      const chat = chatSenders();
+
+      if (query) {
+        const seen = new Set();
+        const matched = [];
+        for (const r of rows) {
+          if (!r || !r.name) continue;
+          const k = r.name.toLowerCase();
+          if (k === G.state?.name?.toLowerCase()) continue;
+          seen.add(k);
+          matched.push(r);
+        }
+        for (const f of friends) {
+          if (f.n.toLowerCase().includes(query) && !seen.has(f.n.toLowerCase())) {
+            seen.add(f.n.toLowerCase());
+            matched.push({ name: f.n, look: f.look, job: `Friend · ${level(f.pts)}`, online: true });
+          }
+        }
+        for (const p of room) {
+          if (p.n.toLowerCase().includes(query) && !seen.has(p.n.toLowerCase())) {
+            seen.add(p.n.toLowerCase());
+            matched.push({ name: p.n, look: p.look, job: `Nearby in ${G.placeName || 'room'}`, online: true });
+          }
+        }
+        for (const c of chat) {
+          if (c.name.toLowerCase().includes(query) && !seen.has(c.name.toLowerCase())) {
+            seen.add(c.name.toLowerCase());
+            matched.push({ name: c.name, job: `Recently in chat · ${ago(c.at)}`, online: true });
+          }
+        }
+
+        if (matched.length) {
+          children.push(group('Matching Players', ...matched.map(r => cell({
+            ic: portrait(r.look, r.name),
+            icbg: r.online ? '#34c759' : '#8e8e93',
+            t: '@' + r.name,
+            s: [r.job, r.online ? 'Online' : null].filter(Boolean).join(' · '),
+            onclick: () => choose(r.name)
+          }))));
+        } else {
+          children.push(h('div.empty', { style: { padding: '24px 16px', textAlign: 'center' } },
+            ic('magnifying-glass'),
+            h('div', { style: { fontWeight: 600, marginTop: '6px' } }, `No players found matching “${q}”`),
+            h('p', { style: { fontSize: '13px', color: '#8e8e93', margin: '4px 0 0' } }, 'Check the spelling or try searching another name.')
+          ));
+        }
+      } else {
+        const seen = new Set();
+        const nearby = room.filter(p => !seen.has(p.n.toLowerCase()));
+        if (nearby.length) {
+          for (const p of nearby) seen.add(p.n.toLowerCase());
+          children.push(group(`Nearby in ${G.placeName || 'this room'} (${nearby.length})`, ...nearby.map(p => cell({
+            ic: portrait(p.look, p.n),
+            icbg: '#34c759',
+            t: '@' + p.n,
+            s: 'Here right now · Online',
+            onclick: () => choose(p.n)
+          }))));
+        }
+
+        const recentChat = chat.filter(c => !seen.has(c.name.toLowerCase()));
+        if (recentChat.length) {
+          for (const c of recentChat) seen.add(c.name.toLowerCase());
+          children.push(group('Recently in World Chat', ...recentChat.slice(0, 8).map(c => cell({
+            ic: 'chat-circle',
+            icbg: '#0a84ff',
+            t: '@' + c.name,
+            s: `Active in city chat · ${ago(c.at)}`,
+            onclick: () => choose(c.name)
+          }))));
+        }
+
+        const friendList = friends.filter(f => !seen.has(f.n.toLowerCase()));
+        if (friendList.length) {
+          for (const f of friendList) seen.add(f.n.toLowerCase());
+          children.push(group(`Friends (${friendList.length})`, ...friendList.slice(0, 20).map(f => cell({
+            ic: portrait(f.look, f.n),
+            icbg: '#ff9f0a',
+            t: '@' + f.n,
+            s: `${level(f.pts)} · ${f.pts} pts`,
+            onclick: () => choose(f.n)
+          }))));
+        }
+
+        if (!children.length) {
+          children.push(h('div.empty', { style: { padding: '24px 16px', textAlign: 'center' } },
+            ic('users'),
+            h('div', { style: { fontWeight: 600, marginTop: '6px' } }, 'Find players across Accra'),
+            h('p', { style: { fontSize: '13px', color: '#8e8e93', margin: '4px 0 0' } }, 'Type any username above to search. You can also meet players at popular spots around Accra.')
+          ));
+        }
+      }
+
+      listEl.replaceChildren(...children);
+    }
+
+    renderResults();
+    const v = win.page(title, () => h('div', null, searchBox, listEl), { small: true });
+    v.onPartialRefresh = () => renderResults();
+    setTimeout(() => input.focus(), 50);
+    return v;
   }
   const momo = { id: 'momo', name: 'MoMo', icon: 'wallet', bg: grad('#ffd84d', '#f5a700'), dock: true,
     open(win, arg) {
@@ -447,13 +582,139 @@ export function makeApps(act) {
   const contacts = { id: 'contacts', name: 'Contacts', icon: 'address-book', bg: grad('#a1a1a6', '#636366'),
     open(win, arg) { pickPersonContacts(win); if (arg) profilePage(win, arg); } };
   function pickPersonContacts(win) {
-    let q = '', rows = []; const off = net.on('find', (m) => { rows = m.rows; win.refresh(); }); win.onclose = off;
-    const input = h('input', { placeholder: 'Find a player by username', autocapitalize: 'off', oninput: (e) => { q = e.target.value; if (q.length >= 2) net.send({ t: 'find', q }); else { rows = []; win.refresh(); } } });
-    win.page('Contacts', () => { const friends = Object.values(G.state.friends || {}).sort((a, b) => b.pts - a.pts); const C = G.cat.contacts;
-      return h('div', null, h('div.search', null, ic('magnifying-glass'), input),
-        rows.length ? group('Players', ...rows.map((r) => cell({ ic: portrait(r.look,r.name), icbg: r.online ? '#34c759' : '#8e8e93', t: '@' + r.name, s: [r.job, r.online ? 'Online now' : null].filter(Boolean).join(' · '), onclick: () => profilePage(win, r.name) }))) : null,
-        friends.length ? group(`Friends (${friends.length})`, ...friends.map((f) => cell({ ic: portrait(f.look,f.n), icbg: '#ff9f0a', t: '@' + f.n, s: `${level(f.pts)} · ${f.pts} pts`, onclick: () => profilePage(win, f.n) }))) : h('div', { style: { color: '#8e8e93', fontSize: '14px', margin: '8px 4px' } }, 'Meet people at places around Accra. Tap them to chat, joke, dance — friendship grows.'));
+    let q = '', rows = [];
+    const roomPeople = () => (act.roomPeople?.() || []).filter(p => p.n && p.n.toLowerCase() !== G.state?.name?.toLowerCase());
+    const chatSenders = () => (getRecentChatSenders?.() || []).filter(c => c.name && c.name.toLowerCase() !== G.state?.name?.toLowerCase());
+    const friendsList = () => Object.values(G.state.friends || {}).filter(f => f.n && f.n.toLowerCase() !== G.state?.name?.toLowerCase()).sort((a, b) => b.pts - a.pts);
+
+    const listEl = h('div.pick-person-list');
+    const input = h('input', {
+      placeholder: 'Find a player by username',
+      autocapitalize: 'off',
+      autocomplete: 'off',
+      spellcheck: false,
+      oninput: (e) => {
+        q = e.target.value;
+        if (q.trim().length >= 2) {
+          net.send({ t: 'find', q: q.trim() });
+        } else {
+          rows = [];
+        }
+        renderResults();
+      }
     });
+    const searchBox = h('div.search', null, ic('magnifying-glass'), input);
+
+    const off = net.on('find', (m) => {
+      rows = m.rows || [];
+      renderResults();
+    });
+    const prevClose = win.onclose;
+    win.onclose = () => { off(); prevClose && prevClose(); };
+
+    function renderResults() {
+      const query = q.trim().toLowerCase();
+      const children = [];
+      const friends = friendsList();
+      const room = roomPeople();
+      const chat = chatSenders();
+
+      if (query) {
+        const seen = new Set();
+        const matched = [];
+        for (const r of rows) {
+          if (!r || !r.name) continue;
+          const k = r.name.toLowerCase();
+          if (k === G.state?.name?.toLowerCase()) continue;
+          seen.add(k);
+          matched.push(r);
+        }
+        for (const f of friends) {
+          if (f.n.toLowerCase().includes(query) && !seen.has(f.n.toLowerCase())) {
+            seen.add(f.n.toLowerCase());
+            matched.push({ name: f.n, look: f.look, job: `Friend · ${level(f.pts)}`, online: true });
+          }
+        }
+        for (const p of room) {
+          if (p.n.toLowerCase().includes(query) && !seen.has(p.n.toLowerCase())) {
+            seen.add(p.n.toLowerCase());
+            matched.push({ name: p.n, look: p.look, job: `Nearby in ${G.placeName || 'room'}`, online: true });
+          }
+        }
+        for (const c of chat) {
+          if (c.name.toLowerCase().includes(query) && !seen.has(c.name.toLowerCase())) {
+            seen.add(c.name.toLowerCase());
+            matched.push({ name: c.name, job: `Recently in chat · ${ago(c.at)}`, online: true });
+          }
+        }
+
+        if (matched.length) {
+          children.push(group('Matching Players', ...matched.map(r => cell({
+            ic: portrait(r.look, r.name),
+            icbg: r.online ? '#34c759' : '#8e8e93',
+            t: '@' + r.name,
+            s: [r.job, r.online ? 'Online now' : null].filter(Boolean).join(' · '),
+            onclick: () => profilePage(win, r.name)
+          }))));
+        } else {
+          children.push(h('div.empty', { style: { padding: '24px 16px', textAlign: 'center' } },
+            ic('magnifying-glass'),
+            h('div', { style: { fontWeight: 600, marginTop: '6px' } }, `No players found matching “${q}”`),
+            h('p', { style: { fontSize: '13px', color: '#8e8e93', margin: '4px 0 0' } }, 'Check the spelling or try searching another name.')
+          ));
+        }
+      } else {
+        const seen = new Set();
+        const nearby = room.filter(p => !seen.has(p.n.toLowerCase()));
+        if (nearby.length) {
+          for (const p of nearby) seen.add(p.n.toLowerCase());
+          children.push(group(`Nearby in ${G.placeName || 'this room'} (${nearby.length})`, ...nearby.map(p => cell({
+            ic: portrait(p.look, p.n),
+            icbg: '#34c759',
+            t: '@' + p.n,
+            s: 'Here right now · Online',
+            onclick: () => profilePage(win, p.n)
+          }))));
+        }
+
+        const recentChat = chat.filter(c => !seen.has(c.name.toLowerCase()));
+        if (recentChat.length) {
+          for (const c of recentChat) seen.add(c.name.toLowerCase());
+          children.push(group('Recently in World Chat', ...recentChat.slice(0, 8).map(c => cell({
+            ic: 'chat-circle',
+            icbg: '#0a84ff',
+            t: '@' + c.name,
+            s: `Active in city chat · ${ago(c.at)}`,
+            onclick: () => profilePage(win, c.name)
+          }))));
+        }
+
+        const friendList = friends.filter(f => !seen.has(f.n.toLowerCase()));
+        if (friendList.length) {
+          for (const f of friendList) seen.add(f.n.toLowerCase());
+          children.push(group(`Friends (${friendList.length})`, ...friendList.slice(0, 30).map(f => cell({
+            ic: portrait(f.look, f.n),
+            icbg: '#ff9f0a',
+            t: '@' + f.n,
+            s: `${level(f.pts)} · ${f.pts} pts`,
+            onclick: () => profilePage(win, f.n)
+          }))));
+        }
+
+        if (!children.length) {
+          children.push(h('div', { style: { color: '#8e8e93', fontSize: '14px', margin: '14px 4px', textAlign: 'center' } },
+            'Meet people at places around Accra. Tap them to chat, joke, dance — friendship grows.'
+          ));
+        }
+      }
+
+      listEl.replaceChildren(...children);
+    }
+
+    renderResults();
+    const v = win.page('Contacts', () => h('div', null, searchBox, listEl));
+    v.onPartialRefresh = () => renderResults();
+    return v;
   }
   function profilePage(win, name) {
     let p = null; const off = net.on('profile', (m) => { if (m.p.name.toLowerCase() === name.toLowerCase()) { p = m.p; win.refresh(); } }); net.send({ t: 'profile', name });

@@ -347,7 +347,7 @@ function startShift(p, now) {
   if (j.cooldownUntil && now < j.cooldownUntil) { const waitSec = Math.max(1, Math.ceil((j.cooldownUntil - now) / 1000)); return toast(`Shift cooldown active. Rest for ${waitSec}s before your next shift.`, 'bad'); }
   if (s.sick && s.sick.level === 'serious') return toast('Too sick to work.', 'bad');
   workDay(s, now).mins += 480;
-  s.shift = { start: now, worked: 0, last: now, perf0: j.perf, tasks: 0, wins: 0, tone: 'normal', maxDuration: 5 * 60000 };
+  s.shift = { start: now, worked: 0, last: now, perf0: j.perf, tasks: 0, wins: 0, tone: 'normal', maxDuration: 3 * 60000 };
   return { t: 'shift', shift: {...s.shift,assignment:taskView(s)}, title: c.ranks[j.rank][0], pay: shiftPay(s, now) };
 }
 function shiftPay(s, now, policy) { const j = s.job, c = D.CAREERS[j.id]; return Math.round(c.ranks[j.rank][1] * (1 + 0.05 * j.grade) * (policy === 'wages' ? 1.1 : 1)); }

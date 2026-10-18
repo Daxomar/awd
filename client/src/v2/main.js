@@ -294,6 +294,7 @@ const act = (window.__act = {
   place(id) { setView('map', id); },
   travel(to, mode, name) { net.send({ t: 'travel', to, mode }); act._rideTo = name; },
   cancel() { net.send({ t: 'cancel' }); },
+  rushWork() { net.send({ t: 'work', op: 'rush' }); },
   say(text, ch = 'city') { return net.send({ t: 'chat', text, ch }); },
   tutorial() { closeSheets(); phone.close(); showTutorial(ui, true); },
   gem() { if (G.gem) { if (G.state.place === G.gem.place) toast('It’s here somewhere! Look for the purple gem.', 'gold'); else setView('map', G.gem.place, true); } },

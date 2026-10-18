@@ -75,7 +75,21 @@ export function buildHud(ui,act){
   },
   clock(){if(!G.state)return;const c=accraClock(),l=locationView(G.state,G.cat,G.placeName);patch(location,l.name+(l.area&&!l.name.toLowerCase().includes(l.area.toLowerCase())?' · '+l.area:''));place.title=location.textContent;patch(time,`${String(c.hh).padStart(2,'0')}:${String(c.mm).padStart(2,'0')}`);patch(online,G.connected===false?'Offline':Number.isSafeInteger(G.online)?`${G.online.toLocaleString('en-GH')} player${G.online===1?'':'s'} online${Number.isSafeInteger(G.today)&&G.today>G.online?` · ${G.today.toLocaleString('en-GH')} today`:''}`:'Online · checking players…');population.dataset.connected=String(G.connected!==false);population.title=population.textContent;offline.hidden=G.connected!==false;},
   progress(){const a=activityView(G.state,accraNow());nav.querySelector('[data-nav="map"]').setAttribute('aria-disabled',String(!!a?.travel));if(!a||a.travel){busy.hidden=true;busy.dataset.id='';return;}busy.hidden=false;
-   if(busy.dataset.id!==a.id){busy.dataset.id=a.id;busy.replaceChildren(ic(a.travel?'bus':a.shift?'briefcase':'hourglass-medium'),h('div.grow',null,h('strong.bl',null,a.label),h('div.activity-meta'),h('div.bar',{role:'progressbar','aria-label':a.label,'aria-valuemin':'0','aria-valuemax':'100'},h('i'))),a.canCancel?h('button.bx',{'aria-label':'Stop activity',onclick:()=>act.cancel()},ic('x')):a.shift?h('button.bx',{'aria-label':'View shift',onclick:()=>act.work()},ic('briefcase')):null);}
+   if(busy.dataset.id!==a.id){
+      busy.dataset.id=a.id;
+      const hasXp=(G.state?.xp||0)>=30;
+      busy.replaceChildren(
+        ic(a.travel?'bus':a.shift?'briefcase':'hourglass-medium'),
+        h('div.grow',null,h('strong.bl',null,a.label),h('div.activity-meta'),h('div.bar',{role:'progressbar','aria-label':a.label,'aria-valuemin':'0','aria-valuemax':'100'},h('i'))),
+        a.canCancel?h('button.bx',{'aria-label':'Stop activity',onclick:()=>act.cancel()},ic('x')):
+        a.shift?[
+          h('button.bx.rush-btn',{'aria-label':'Rush finish (30 XP)',title:hasXp?'⚡ Rush finish shift (30 XP)':'Need 30 XP to rush finish',disabled:!hasXp,onclick:()=>act.rushWork?.()},ic('lightning')),
+          h('button.bx',{'aria-label':'View shift',onclick:()=>act.work()},ic('briefcase'))
+        ]:null
+      );
+    }
+    const rushBtn=busy.querySelector('.rush-btn');
+    if(rushBtn){const hasXp=(G.state?.xp||0)>=30;rushBtn.disabled=!hasXp;rushBtn.title=hasXp?'⚡ Rush finish shift (30 XP)':`Need 30 XP to rush finish (you have ${G.state?.xp||0} XP)`;}
    patch(busy.querySelector('.activity-meta'),a.remaining?(a.remaining>60?`${Math.ceil(a.remaining/60)} min remaining`:`${a.remaining}s remaining`):'Finishing…');busy.querySelector('.bar i').style.width=(a.progress*100).toFixed(1)+'%';busy.querySelector('.bar').setAttribute('aria-valuenow',String(Math.round(a.progress*100)));
   },
   quests(){const s=G.state;if(!s)return;objectives.refresh?.();const sig=JSON.stringify([G.gem,s.job,s.shift,s.sick,s.home,s.daily,s.dumsor,activeLifeEvent()?.at]);if(sig===extrasSig)return;extrasSig=sig;chips.replaceChildren();
