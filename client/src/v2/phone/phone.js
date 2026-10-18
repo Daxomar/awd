@@ -61,10 +61,10 @@ export class Phone {
     if (fromEl) { const r = fromEl.getBoundingClientRect(), R = this.screen.getBoundingClientRect(); el.style.setProperty('--ox', `${r.left + r.width / 2 - R.left}px`); el.style.setProperty('--oy', `${r.top + r.height / 2 - R.top}px`); }
     this.screen.insertBefore(el, this.status); this.home.classList.add('behind');
     const win = (this.win = new AppWin(this, el, a)); try { a.open(win, arg); } catch (e) { console.error(e); win.page(a.name, () => h('div.empty', null, 'Something went wrong.')); }
-    this.tickStatus(); vibrate(6);
+    this.tickStatus(); vibrate(6); this.onchange?.();
   }
   cancelAlerts(){for(const alert of this.back.querySelectorAll('.ios-alert'))alert.dispatchEvent(new Event('cancel'));}
-  closeApp() { this.cancelAlerts();const w = this.win; if (!w) return; this.win = null; w.closed = true; w.el.classList.add('closing'); this.home.classList.remove('behind'); setTimeout(() => w.el.remove(), 240); this.renderHome(); this.tickStatus(); w.onclose && w.onclose(); }
+  closeApp() { this.cancelAlerts();const w = this.win; if (!w) return; this.win = null; w.closed = true; w.el.classList.add('closing'); this.home.classList.remove('behind'); setTimeout(() => w.el.remove(), 240); this.renderHome(); this.tickStatus(); w.onclose && w.onclose(); this.onchange?.(); }
   refresh() { if (this.win && this.win.refresh) this.win.refresh(); else if (this.open && !this.win) this.renderHome(); }
   // iOS-style banner; tap → open the app
   notify({ app, title, body, icon, bg, arg }) {

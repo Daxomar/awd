@@ -128,12 +128,12 @@ function game() {
   setInterval(() => fetch('/api/billboards').then((r) => r.json()).then((j) => applyBoards(j.slots || [])).catch(() => {}), 5 * 60000);
   const filters = h('div.map-filters', null, ...[['all', 'All'], ['open', 'Open now'], ['spicy', '🌶️ Nightlife'], ['crime', '⚠️ High-Risk'], ['people', '🔥 Hotspots'], ['eat', 'Food'], ['gig', 'Work'], ['fun', 'Fun'], ['homes', 'Estates'], ['streets', 'Streets']].map(([k, l]) => h('button' + (k === 'all' ? '.on' : ''), { onclick: (e) => { map.filter = k; filters.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b === e.currentTarget)); drawPins(); } }, l)));
   filters.append(h('label.map-names',null,h('input',{type:'checkbox',onchange:e=>{map.showNames=e.target.checked;} }),'Names'));mapUi.append(filters);
-  hud = buildHud(ui, act);window.__hud=hud;window.__audio=cityAudio;phone=new Phone(ui,makeApps(act));window.__phone=phone;phone.onchange=()=>{if(phone.open){chat?.close();closeSheets();}hud.setNav(phone.open?'phone':view==='map'?'map':'home');};
+  hud = buildHud(ui, act);window.__hud=hud;window.__audio=cityAudio;phone=new Phone(ui,makeApps(act));window.__phone=phone;phone.onchange=()=>{if(phone.open){chat?.close();closeSheets();}hud.setNav(phone.open?(phone.win?.app?.id==='messages'?'chat':'phone'):view==='map'?'map':'home');};
   hud.setNav('home'); refresh();
   setInterval(() => { hud.clock(); if (studio.open) return; const hh = accraClock().h; stage.setTime(hh); }, 5000); hud.clock();
   setInterval(() => { hud.quests(); }, 15000);
   net.on('connection',m=>{hud.connection(m);hud.clock();}); G.connected = net.connected;
-  bindInput(); joy = bindJoystick(); bindCamera(); bindNet(); world.onRoam = (x, z) => net.send({ t: 'rmv', x, z, it: null, zn: null }); chat = buildChat(ui, n => hud.badge('chat', n)); net.release();if(G.state.busy?.travel&&!ride.active)net.emit('busy',{busy:G.state.busy});
+  bindInput(); joy = bindJoystick(); bindCamera(); bindNet(); world.onRoam = (x, z) => net.send({ t: 'rmv', x, z, it: null, zn: null }); chat = buildChat(ui); net.release();if(G.state.busy?.travel&&!ride.active)net.emit('busy',{busy:G.state.busy});
   showTutorial(ui);
   const focusBillboardOnMap = async (slotId) => {
     if (!slotId) return;
@@ -171,7 +171,7 @@ function game() {
 let phoneSig = '',workZoneSig='',closeAdPreview=null;
 function refresh() {
   if (!hud) return; if(world&&G.state)world.custody=(G.state.jail??G.state.flags?.jailUntil??0)>accraNow(); if (world && world.me && G.state) { const f = myFit(); const lk = G.state.look; const key = JSON.stringify(lk) + f; if (key !== world.me.av.styleKey) { world.me.av.styleKey = key; world.me.av.baseLook = lk; world.restyle('me', lk, f); } }
-  hud.stats(); hud.quests(); hud.clock(); hud.progress(); hud.badge('phone', phoneBadge()); hud.refreshObjectives?.();
+  hud.stats(); hud.quests(); hud.clock(); hud.progress(); hud.badge('phone', phoneBadge()); hud.badge('chat', G.unreadDm || 0); hud.refreshObjectives?.();
   // the phone only redraws when something it shows actually changed (keeps taps and scroll stable)
   const s = G.state; const sig = JSON.stringify([s.cash, s.momo, s.job&&[s.job.id,s.job.rank,s.job.grade,Math.round(s.job.perf),s.job.shifts,s.job.satisfaction,s.job.lastDay], s.shift && [Math.floor(s.shift.worked),s.shift.tasks,s.shift.assignment?.id,s.shift.assignment?.stage], s.items, s.home, s.car, s.loan, s.story && s.story.inbox.map((m) => m.id + ':' + m.ans), s.story && s.story.goals.length, s.daily, Object.keys(s.biz || {}), Object.keys(s.land || {}), Object.keys(s.friends || {}).length, G.unreadDm, s.dream, s.dreamTier, s.place, s.flags && s.flags.flirtOff]);
   const workKey=[world?.place,s.job?.id,!!s.shift].join(':');
@@ -200,15 +200,16 @@ function openFrontage(b){
 const act = (window.__act = {
   toast, refresh: () => refresh(), nav(id) {
     closeAdPreview?.();
-    closeSheets(); if(id!=='chat')chat?.close();hud.setNav(id);
-    if(id==='phone')return phone.open?phone.close():phone.show();
+    closeSheets(); chat?.close();
+    if (id === 'phone') return phone.open ? (phone.win ? phone.closeApp() : phone.close()) : phone.show();
+    if (id === 'chat') return (phone.open && phone.win?.app?.id === 'messages') ? phone.close() : phone.show('messages');
     phone.close();
-    if(id==='interact')return act.interact();
-    if (id === 'chat') { hud.setNav(view === 'map' ? 'map' : 'home'); return chat.toggle(); }
+    if (id === 'interact') return act.interact();
     if (id === 'shop') { hud.setNav(view === 'map' ? 'map' : 'home'); return phone.show('shop'); }
     if (id === 'map') return setView('map');
     if (id === 'home') { if (view !== 'room') return setView('room'); if (G.state.place !== 'home') return act.place('home'); }
   },
+  cityChat() { closeSheets(); chat?.toggle(); },
   context(){if(ride.active||G.state.busy?.travel||view==='map')return null;return {spec:world?.spec,actions:actsFor(G.state.place)};},
   openZone(z){return openZone(z,G.state.place,act);},
   focusPerson(pid){world.focusTarget({person:'p'+pid});},
@@ -390,7 +391,7 @@ function tap(x, y) {
   const hit = world.pick(x, y); if (!hit) return;
   if (hit.type === 'gem') { if (G.gem) net.send({ t: 'gem', id: G.gem.id }); return; }
   if (hit.type === 'person') return openPerson(hit.pid, hit.name, act);
-  if (hit.type === 'npc') { const z = world.zoneForNpc(hit.id); if (z) return openZone(z, G.state.place, act); world.focusTarget({person:hit.id});return sheet(h('div.sheet-body',null,h('p.context-hint',null,'A local resident — a scripted character, not a real player. City chat and Meet connect you with real players online.'),h('button.btn.primary.wide',{onclick:()=>{closeSheets();act.nav('chat');}},'Open city chat')),{title:hit.name,onclose:()=>world.clearSelection()}); }
+  if (hit.type === 'npc') { const z = world.zoneForNpc(hit.id); if (z) return openZone(z, G.state.place, act); world.focusTarget({person:hit.id});return sheet(h('div.sheet-body',null,h('p.context-hint',null,'A local resident — a scripted character, not a real player. City chat and Meet connect you with real players online.'),h('button.btn.primary.wide',{onclick:()=>{closeSheets();act.cityChat();}},'Open city chat')),{title:hit.name,onclose:()=>world.clearSelection()}); }
   if (hit.type === 'item') {
     world.focusTarget({item:hit.index});const rec = hit.item;
     // Seats, beds and mats: tapping one sits (or lies) there straight away; tap the ground to get up.
