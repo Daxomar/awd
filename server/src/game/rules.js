@@ -384,18 +384,62 @@ function endShift(p, now, policy, session = false) {
   Life.shiftCompleted(s,sh.worked,got,out.promoted,now);
   return out;
 }
-function apply(p, id, now) {
+function apply(p, id, now, reqRank = null) {
   const s = p.state, c = D.CAREERS[id]; if (!c) return toast('Unknown job.', 'bad'); const loc = LOC[c.at];
   if (s.busy || s.shift) return toast('Finish your current activity or shift before changing careers.', 'bad');
-  if (s.job?.id === id) return toast('You already hold this job. Your experience is retained.');
   const restriction = Life.employmentRestriction(s, id, now); if (restriction) return toast(restriction, 'bad');
   for (const k in c.req || {}) if (lvl(s, k) < c.req[k]) return toast(`Needs ${D.SKILLS[k]} ${c.req[k]}.`, 'bad');
-  const prior0 = Life.careerRecord(s, id)?.saved, missing = Career.missingFor(s, id, prior0?.rank || 0);
-  if (missing.length) return toast(`Qualify first: ${missing.map(m => m.label).join(', ')}. Open Jobs to find the course.`, 'bad');
-  Life.rememberCareer(s); const prior = Life.careerRecord(s, id)?.saved;
-  s.job = prior ? { ...prior, id } : { id, rank: 0, grade: 0, perf: 60, shifts: 0, since: now, lastDay: -1 };
-  Life.event(s, 'career_hired', { career: id, returning: !!prior }, now);
-  return { t: 'hired', job: s.job, title: c.ranks[s.job.rank][0], pay: c.ranks[s.job.rank][1], state: view(s) };
+
+  function rankOk(r) {
+    if (r < 0 || r >= c.ranks.length) return false;
+    for (let k = 0; k <= r; k++) {
+      if (Career.missingFor(s, id, k).length > 0) return false;
+    }
+    if (r > 0 && lvl(s, c.skill) < (D.PROMO_SKILL[r - 1] || 0)) return false;
+    return true;
+  }
+
+  let targetRank = 0;
+  if (reqRank != null && Number.isInteger(reqRank)) {
+    if (reqRank < 0 || reqRank >= c.ranks.length) return toast('Invalid role rank.', 'bad');
+    for (let k = 0; k <= reqRank; k++) {
+      const missing = Career.missingFor(s, id, k);
+      if (missing.length) return toast(`Qualify first: ${missing.map(m => m.label).join(', ')}. Open Jobs to find the course.`, 'bad');
+    }
+    if (reqRank > 0 && lvl(s, c.skill) < (D.PROMO_SKILL[reqRank - 1] || 0)) {
+      return toast(`Needs ${D.SKILLS[c.skill]} ${D.PROMO_SKILL[reqRank - 1]}.`, 'bad');
+    }
+    targetRank = reqRank;
+  } else {
+    const prior0 = Life.careerRecord(s, id)?.saved;
+    let maxQ = prior0?.rank || 0;
+    for (let r = 0; r < c.ranks.length; r++) {
+      if (rankOk(r)) maxQ = Math.max(maxQ, r); else break;
+    }
+    const missing = Career.missingFor(s, id, prior0?.rank || 0);
+    if (missing.length && maxQ === 0) return toast(`Qualify first: ${missing.map(m => m.label).join(', ')}. Open Jobs to find the course.`, 'bad');
+    targetRank = maxQ;
+  }
+
+  if (s.job?.id === id) {
+    if (s.job.rank === targetRank) return toast(`You already hold the ${c.ranks[targetRank][0]} role.`);
+    if (s.job.rank > targetRank) return toast('You already hold a higher role in this career.');
+    s.job.rank = targetRank;
+    s.job.grade = 0;
+    s.job.perf = 60;
+    s.stats.promos++;
+    moodlet(s, 'promoted', 30, 24, 'Promoted!');
+    s.rep += 5;
+    Life.event(s, 'career_promoted', { career: id, rank: targetRank }, now);
+    return { t: 'hired', job: s.job, title: c.ranks[targetRank][0], pay: c.ranks[targetRank][1], promoted: true, state: view(s) };
+  }
+
+  Life.rememberCareer(s);
+  const prior = Life.careerRecord(s, id)?.saved;
+  const finalRank = Math.max(prior?.rank || 0, targetRank);
+  s.job = prior ? { ...prior, id, rank: finalRank } : { id, rank: finalRank, grade: 0, perf: 60, shifts: 0, since: now, lastDay: -1 };
+  Life.event(s, 'career_hired', { career: id, returning: !!prior, rank: finalRank }, now);
+  return { t: 'hired', job: s.job, title: c.ranks[finalRank][0], pay: c.ranks[finalRank][1], state: view(s) };
 }
 
 // ---------- Stage 5: courses and auto-work ----------
@@ -637,7 +681,7 @@ export function onMsg(p, msg, shard, now) {
     case 'act': { if (msg.home && s.place?.startsWith('visit:')) return guestHomeAction(p, String(msg.id), now, shard); if (msg.home) return homeAction(p, String(msg.id), now); const loc = LOC[msg.loc]; const a = loc && loc.acts.find((x) => x.id === msg.id); if (!a) return toast('Not available.', 'bad'); return startAction(p, loc, a, now, shard.policy); }
     case 'mgResult': { const b = s.busy; if (!b || !b.mg) return null; s.busy = null; const secs = (now - b.start) / 1000; if (secs < 20) return toast('Too fast.', 'bad'); const stars = Math.max(0, Math.min(3, msg.stars | 0)); const skill = { trotro: 'hustle', waakye: 'cooking', bolu: 'driving', bughunt: 'coding', azonto: 'dance', boxing: 'fitness' }[b.mg]; let amt = (18 + stars * 22) * (1 + lvl(s, skill) * 0.07); amt *= hustleMult(s, b.id, now, skill); s.gd.earned += amt; const got = earn(s, amt, 'Gig'); addSkill(s, skill, 0.3 + stars * 0.25); s.gigRest[b.id] = now + 30 * 1000; s.stats.gigs++; return { t: 'done', id: b.id, earned: got, stars }; }
     case 'work': if(msg.op==='beginTask'){const c=D.CAREERS[s.job?.id];if(!s.shift||!c)return toast('Start your shift at work first.','bad');const error=beginTask(p,msg,c,now);return error?toast(error,'bad'):{t:'worktask',shift:{...s.shift,assignment:taskView(s)}};}if(msg.op==='rush'){const c=D.CAREERS[s.job?.id];if(!s.shift||!c)return toast('No active shift to finish.','bad');const cost=30;if((s.xp||0)<cost)return toast(`Needs ${cost} XP to rush finish your shift (you have ${s.xp||0} XP).`,'bad');s.xp-=cost;s.shift.completedTasks=['rush_1','rush_2','rush_3'];s.shift.wins=Math.max(s.shift.wins||0,3);s.shift.worked=Math.max(s.shift.worked||0,60);const r=endShift(p,now,shard.policy,true);return r;}return msg.op === 'start' ? startShift(p, now) : msg.op === 'task' && s.shift ? toast('Work performance is calculated by the server.') : msg.op === 'quit' ? ((s.job = null), (s.shift = null), { t: 'st', state: view(s) }) : msg.op === 'end' && s.shift ? ((s.shift = null), { t: 'st', state: view(s) }) : null;
-    case 'apply': return apply(p, String(msg.id), now);
+    case 'apply': return apply(p, String(msg.id), now, msg.rank != null ? Math.floor(Number(msg.rank)) : null);
     case 'course': return takeCourse(p, msg, now);
     case 'lifeevent': { const r = LE.decide(s, lifeCtx(p, now), String(msg.choice || '')); if (r.error) return toast(r.error, 'bad'); const effects = applyLifeOutcome(p, r.out, r.active, now); return { t: 'life_event_result', id: r.active.id, title: r.active.title, text: r.out.text, effects, state: view(s) }; }
     case 'profile_set': { s.profile = Profile.cleanProfile(msg, s); return { t: 'st', state: view(s), profileSaved: true }; }

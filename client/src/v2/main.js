@@ -547,7 +547,11 @@ function bindNet() {
   net.on('hired', (m) => {
     if (m.job) G.state.job = m.job;
     if (m.state) merge(m.state);
-    celebrate({ icon: 'icon:briefcase', title: 'You’re hired!', text: `${m.title} · ${cedi(m.pay)} per shift. A shift is three short assignments (about 3 minutes), once a day.` });
+    celebrate({
+      icon: m.promoted ? 'icon:confetti' : 'icon:briefcase',
+      title: m.promoted ? `Promoted: ${m.title}!` : 'You’re hired!',
+      text: `${m.title} · ${cedi(m.pay)} per shift. A shift is three short assignments (about 3 minutes), once a day.`
+    });
     refresh();
   });
   net.on('bought', (m) => { toast(`Bought: ${m.what}`, 'good'); if (G.state.place === 'home') setTimeout(() => net.send({ t: 'state' }), 200); });
