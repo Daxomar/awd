@@ -85,7 +85,7 @@ export function makeApps(act) {
       if (data.blocked) out.append(h('div.bub-time', null, 'You blocked this person'));
       setTimeout(() => { const b = win.cur && win.cur.body; if (b) b.scrollTop = b.scrollHeight; }, 0); return out;
     }, { small: true, action: ['Profile', () => profilePage(win, name)] });
-    const comp = h('form.composer', { onsubmit: (e) => { e.preventDefault(); send(); } }, h('button.plus', { type: 'button', onclick: () => win.phone.openApp('games',{with:name}) }, ic('game-controller')), input, (sendButton = h('button.send', { type: 'submit', 'aria-label': 'Send private message' }, ic('arrow-up'))));
+    const comp = h('form.composer', { onsubmit: (e) => { e.preventDefault(); send(); } }, h('button.plus', { type: 'button', 'aria-label': 'Open mini-games', title: 'Mini-games', onclick: () => win.phone.openApp('games',{with:name}) }, ic('game-controller')), input, (sendButton = h('button.send', { type: 'submit', 'aria-label': 'Send private message', title: 'Send message' }, ic('paper-plane-right'))));
     const close = win.onclose; win.onclose = () => { if(pending) clearTimeout(pending.timer); close(); };
     v.wrap.append(comp); v.nb.style.background = 'rgba(249,249,249,.94)';
   }
