@@ -2,11 +2,11 @@ import {h,cedi} from '../ui/dom.js';
 import {G,loc,accraNow} from '../store.js';
 import {net} from '../net.js';
 
-const card=(title,...children)=>h('div.group',{style:{padding:'14px 16px',marginBottom:'14px'}},h('div',{style:{fontWeight:700,fontSize:'15px',color:'#182820',marginBottom:'6px'}},title),...children);
-const paragraph=t=>h('p',{style:{fontSize:'13px',lineHeight:1.45,color:'#526659',margin:'4px 0 8px'}},t);
-const button=(text,fn,disabled=false)=>h('button.ibtn.wide',{style:{marginTop:'8px',minHeight:'42px'},onclick:fn,disabled},text);
-const field=(label,input)=>h('label',{style:{display:'flex',flexDirection:'column',gap:'4px',margin:'10px 0'}},h('span',{style:{fontSize:'12.5px',fontWeight:600,color:'#55695d'}},label),input);
-const input=(label,value,oninput,type='number')=>h('input',{'aria-label':label,type,value,min:0,step:1,style:{width:'100%',minHeight:'42px',padding:'8px 12px',borderRadius:'10px',border:'1px solid #cad5c9',background:'#fff',font:'inherit',fontSize:'14px'},oninput:e=>oninput(e.target.value)});
+const card=(title,...children)=>h('div.group',{style:{padding:'16px'}},h('strong',null,title),...children);
+const paragraph=t=>h('p',null,t);
+const button=(text,fn,disabled=false)=>h('button.ibtn.wide',{onclick:fn,disabled},text);
+const field=(label,input)=>h('label',{style:{display:'block',margin:'12px 0'}},h('span',null,label),input);
+const input=(label,value,oninput,type='number')=>h('input',{'aria-label':label,type,value,min:0,step:1,style:{width:'100%'},oninput:e=>oninput(e.target.value)});
 const TITLES={vehicles:'Car market',business:'Your businesses',market:'Phone marketplace',relationships:'People & shared activities',finance:'Your finances',career:'Career & development'};
 
 export function lifeScreen(win,act,section,arg={}){
@@ -145,25 +145,10 @@ export function lifeScreen(win,act,section,arg={}){
   }
   function financeUI(root){
     const f=data.finance,home=G.cat.homes[f.home];
-    const stat=(label,val,sub)=>h('div.stat-card',null,h('div.sl',null,label),h('div.sv',null,val),sub?h('div.ss',null,sub):null);
-    root.append(
-      card('Available money',
-        h('div.stat-grid',null,
-          stat('Cash',cedi(f.cash),'In hand'),
-          stat('MoMo',cedi(f.momo),'Mobile wallet'),
-          stat('Total',cedi(f.balance),'Combined'),
-          stat('Savings',cedi(f.savings),'Fixed deposit')
-        ),
-        paragraph('Business tills are separate; see Business.')
-      ),
-      card('Obligations',
-        paragraph(home?`${home.name} · ${f.owned?'Owned':`${cedi(home.rent)}/week · rent paid until ${new Date(f.rentPaidUntil).toUTCString()}`}`:'No current home.'),
-        paragraph(`Missed rent periods: ${f.arrears}. Existing advance and two-week arrears rules remain.`),
-        f.loan?paragraph(`${f.loan.lender}: ${cedi(f.loan.owed)} owed · next ${new Date(f.loan.next).toUTCString()}`):paragraph('No loan balance.')
-      ),
+    root.append(card('Available money',paragraph(`Cash ${cedi(f.cash)} · MoMo ${cedi(f.momo)} · total ${cedi(f.balance)}`),paragraph(`Fixed savings ${cedi(f.savings)}. Business tills are separate; see Business.`)),
+      card('Obligations',paragraph(home?`${home.name} · ${f.owned?'Owned':`${cedi(home.rent)}/week · rent paid until ${new Date(f.rentPaidUntil).toUTCString()}`}`:'No current home.'),paragraph(`Missed rent periods: ${f.arrears}. Existing advance and two-week arrears rules remain.`),f.loan?paragraph(`${f.loan.lender}: ${cedi(f.loan.owed)} owed · next ${new Date(f.loan.next).toUTCString()}`):paragraph('No loan balance.')),
       card('Recent saved transactions',...f.rows.map(r=>paragraph(`${new Date(r.at).toLocaleString()} · ${r.delta<0?'−':'+'}${cedi(Math.abs(r.delta))} · ${r.label} · balance ${cedi(r.balance)}`))),
-      card('Earlier history',paragraph('Older saves keep their original bounded ledger. New transactions are recorded durably.'),...f.legacy.map(([at,amount,label])=>paragraph(`${new Date(at).toLocaleString()} · ${cedi(amount)} · ${label}`)))
-    );
+      card('Earlier history',paragraph('Older saves keep their original bounded ledger. New transactions are recorded durably.'),...f.legacy.map(([at,amount,label])=>paragraph(`${new Date(at).toLocaleString()} · ${cedi(amount)} · ${label}`))));
   }
   function careerUI(root){
     const pr=data.progression,j=G.state.job,c=j&&G.cat.careers[j.id],h=j&&pr.careers[j.id];

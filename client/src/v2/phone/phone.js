@@ -61,10 +61,10 @@ export class Phone {
     if (fromEl) { const r = fromEl.getBoundingClientRect(), R = this.screen.getBoundingClientRect(); el.style.setProperty('--ox', `${r.left + r.width / 2 - R.left}px`); el.style.setProperty('--oy', `${r.top + r.height / 2 - R.top}px`); }
     this.screen.insertBefore(el, this.status); this.home.classList.add('behind');
     const win = (this.win = new AppWin(this, el, a)); try { a.open(win, arg); } catch (e) { console.error(e); win.page(a.name, () => h('div.empty', null, 'Something went wrong.')); }
-    this.tickStatus(); vibrate(6); this.onchange?.();
+    this.tickStatus(); vibrate(6);
   }
   cancelAlerts(){for(const alert of this.back.querySelectorAll('.ios-alert'))alert.dispatchEvent(new Event('cancel'));}
-  closeApp() { this.cancelAlerts();const w = this.win; if (!w) return; this.win = null; w.closed = true; w.el.classList.add('closing'); this.home.classList.remove('behind'); setTimeout(() => w.el.remove(), 240); this.renderHome(); this.tickStatus(); w.onclose && w.onclose(); this.onchange?.(); }
+  closeApp() { this.cancelAlerts();const w = this.win; if (!w) return; this.win = null; w.closed = true; w.el.classList.add('closing'); this.home.classList.remove('behind'); setTimeout(() => w.el.remove(), 240); this.renderHome(); this.tickStatus(); w.onclose && w.onclose(); }
   refresh() { if (this.win && this.win.refresh) this.win.refresh(); else if (this.open && !this.win) this.renderHome(); }
   // iOS-style banner; tap → open the app
   notify({ app, title, body, icon, bg, arg }) {
@@ -83,11 +83,8 @@ export class AppWin {
   page(title, render, opts = {}) {
     const nb = h('div.navbar'); const body = h('div.appbody'); const tab = opts.tabs ? h('div.tabbar') : null;
     const backLbl = this.stack.length ? this.stack[this.stack.length - 1].title : null;
-    const backBtn = backLbl ? h('button.back', { onclick: () => this.pop() }, ic('caret-left'), (opts.small ? backLbl.length > 8 : backLbl.length > 14) ? 'Back' : backLbl) : h('button.back', { onclick: () => this.phone.closeApp() }, ic('caret-left'), 'Home');
-    const actBtn = opts.action ? h('button.nb-act', { onclick: opts.action[1] }, opts.action[0]) : h('span.nb-spacer');
-    const midTitle = opts.small ? h('div.nb-mid', null, title) : null;
-    const row = h('div.nb-row' + (opts.small ? '.has-mid' : ''), null, backBtn, midTitle, actBtn);
-    nb.append(row, opts.small ? null : h('h1', null, title));
+    nb.append(h('div.nb-row', null, backLbl ? h('button.back', { onclick: () => this.pop() }, ic('caret-left'), (opts.small ? backLbl.length > 8 : backLbl.length > 14) ? 'Back' : backLbl) : h('button.back', { onclick: () => this.phone.closeApp() }, ic('caret-left'), 'Home'), opts.action ? h('button.nb-act', { onclick: opts.action[1] }, opts.action[0]) : h('span')),
+      opts.small ? h('div.nb-mid', null, title) : h('h1', null, title));
     if (opts.small) nb.style.paddingBottom = '10px';
     const view = { title, render, opts, nb, body, tab };
     if (this.cur) this.cur.wrap.remove();
