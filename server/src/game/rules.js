@@ -61,7 +61,7 @@ export function migrate(saved, acct) {
   out.birthOrigin = saved.birthOrigin || ({nepo: 'dbee', susu: 'hustler', lapo: 'hustler', dbee: 'dbee', hustler: 'hustler'}[saved.origin]) || birthOrigin(acct.id);
   if (out.origin === 'nepo') out.origin = 'dbee';
   if (out.origin === 'susu' || out.origin === 'lapo') out.origin = 'hustler';
-  for (const k of ['n', 'skills', 'stats', 'wk', 'flags', 'owned', 'items', 'biz', 'land', 'gigRest', 'rel', 'cnt', 'dc', 'story', 'daily', 'dreamProgress']) out[k] = { ...base[k], ...(saved[k] && typeof saved[k] === 'object' ? saved[k] : {}) };
+  for (const k of ['n', 'skills', 'stats', 'wk', 'flags', 'owned', 'items', 'biz', 'land', 'gigRest', 'rel', 'cnt', 'dc', 'story', 'daily', 'dreamProgress', 'storyProgress']) out[k] = { ...base[k], ...(saved[k] && typeof saved[k] === 'object' ? saved[k] : {}) };
   delete out.flags.daddyPays;
   for (const k of ['traits', 'moodlets', 'ledger', 'dreamsDone']) if (!Array.isArray(out[k])) out[k] = [];
   for (const k of ['inbox', 'goals']) if (!Array.isArray(out.story[k])) out.story[k] = []; out.story = { seen: {}, inbox: [], goals: [], at: 0 }; out.daily = { day: -1, list: [], streak: 0, lastFull: -1 };
@@ -705,14 +705,25 @@ export function aspirationDue(s,now){
 
 function pickDream(p, id) {
   const s = p.state;
-  if (id !== 'none' && !ST.DREAM_TIERS[id] && !ST.STORY_ARCS[id]) return toast('Unknown aspiration.', 'bad');
+  const isNone = !id || id === 'none' || id === 'null' || id === 'undefined';
+  if (!isNone && !ST.DREAM_TIERS[id] && !ST.STORY_ARCS[id]) return toast('Unknown aspiration.', 'bad');
   s.dreamProgress ||= {};
-  if (s.dream) s.dreamProgress[s.dream] = s.dreamTier || 0;
-  s.dream = id === 'none' ? null : id;
-  const tiers = ST.DREAM_TIERS[id] || [];
+  s.storyProgress ||= {};
+  if (s.dream) {
+    s.dreamProgress[s.dream] = s.dreamTier || 0;
+    if (s.story) s.storyProgress[s.dream] = structuredClone(s.story);
+  }
+  s.dream = isNone ? null : id;
+  const tiers = isNone ? [] : (ST.DREAM_TIERS[id] || []);
   s.dreamTier = s.dream ? Math.min(tiers.length, Math.max((s.dreamsDone || []).includes(id) ? tiers.length : 0, Number(s.dreamProgress[id]) || 0)) : 0;
-  if (s.dream && id !== 'none') {
-    ST.initStory(s, s.dream);
+  if (s.dream) {
+    if (s.storyProgress && s.storyProgress[s.dream]) {
+      s.story = s.storyProgress[s.dream];
+    } else {
+      ST.initStory(s, s.dream);
+    }
+  } else {
+    s.story = null;
   }
   return { t: 'st', state: view(s) };
 }

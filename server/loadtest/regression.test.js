@@ -182,6 +182,18 @@ test('story and aspiration engine provides multi-chapter progression, interactiv
   assert.equal(choiceRes.t, 'story_choice_result');
   assert.ok(choiceRes.note.includes('refused to pay'));
   assert.ok(p.state.story.completedEncounters.includes('enc_landlord_c1'));
+
+  // Test pause and re-selection: preserves progress and rejects duplicate reward exploit
+  Game.onMsg(p, { t: 'pickdream', id: null }, {}, Date.now());
+  assert.equal(p.state.dream, null);
+  Game.onMsg(p, { t: 'pickdream', id: 'landlord' }, {}, Date.now());
+  assert.equal(p.state.dream, 'landlord');
+  assert.equal(p.state.story.step, 2);
+  assert.equal(p.state.story.missionId, 'landlord_1_2');
+  const reclaim = Game.onMsg(p, { t: 'story_claim', id: 'landlord_1_1' }, {}, Date.now());
+  assert.equal(reclaim.t, 'toast');
+  assert.equal(reclaim.k, 'bad');
+  assert.ok(reclaim.m.includes('Not your active story mission') || reclaim.m.includes('already completed'));
 });
 
 test('Dbee origin players receive distinctive high-society story arcs, encounters and main mission tagging', () => {

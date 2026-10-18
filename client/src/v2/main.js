@@ -304,9 +304,19 @@ function drawPins() {
     if (f === 'crime' && !l.acts.some((a) => (a.tags || []).includes('crime'))) continue;
     if (['eat', 'gig'].includes(f) && !l.acts.some((a) => a.tags && a.tags.includes(f))) continue;
     if (f === 'fun' && !l.acts.some((a) => (a.tags || []).some((t) => ['party', 'nightlife', 'relax', 'sport', 'tour'].includes(t)))) continue;
-    list.push({ id: l.id, ic: l.ic, name: l.name, x: l.x, z: l.z, count: n, cls: [open ? '' : 'closed', s.place === l.id ? 'here' : '', G.gem && G.gem.place === l.id ? 'gem' : ''].join(' '), keep: s.place === l.id || (G.gem && G.gem.place === l.id) });
+    let cat = 'cat-general';
+    const allTags = (l.acts || []).flatMap(a => a.tags || []);
+    if (allTags.includes('crime')) cat = 'cat-crime';
+    else if (allTags.some(t => ['spicy', 'nightlife', 'party'].includes(t))) cat = 'cat-spicy';
+    else if (allTags.some(t => ['eat', 'chop', 'food'].includes(t))) cat = 'cat-food';
+    else if (allTags.some(t => ['gig', 'work', 'trade'].includes(t))) cat = 'cat-gig';
+    else if (allTags.some(t => ['shop', 'market', 'cloth', 'store'].includes(t))) cat = 'cat-shop';
+    else if (allTags.some(t => ['sport', 'gym', 'box'].includes(t))) cat = 'cat-sport';
+    else if (l.estate) cat = 'cat-estate';
+    else if (l.neighbourhood) cat = 'cat-neighbourhood';
+    list.push({ id: l.id, ic: l.ic, name: l.name, x: l.x, z: l.z, count: n, cls: [cat, open ? '' : 'closed', s.place === l.id ? 'here' : '', G.gem && G.gem.place === l.id ? 'gem' : ''].filter(Boolean).join(' '), keep: s.place === l.id || (G.gem && G.gem.place === l.id) });
   }
-  if (s.home) { const H = G.cat.homes[s.home]; list.push({ id: 'home',homeId:s.home, ic: 'icon:house', name: 'Home', x: H.x, z: H.z, xz: map.slotOf('h:' + s.home), cls: 'home' + (s.place === 'home' ? ' here' : ''), keep: true }); }
+  if (s.home) { const H = G.cat.homes[s.home]; list.push({ id: 'home',homeId:s.home, ic: 'icon:house', name: 'Home', x: H.x, z: H.z, xz: map.slotOf('h:' + s.home), cls: 'home cat-home' + (s.place === 'home' ? ' here' : ''), keep: true }); }
   map.setPins(list, (id) => openPlace(id, act));
 }
 

@@ -318,7 +318,7 @@ export const STORY_MISSIONS = {
     dialogue: { speaker: 'Producer Datbeat', text: 'You have melody oh! But your breath control needs discipline. Practise your scales!' },
     action: 'status', target: 'status', hint: 'Practise music skill or listen to tracks',
     reward: { cash: 100, xp: 25, badge: 'Bedroom Artist' },
-    check: (s) => (s.skills.music || 0) >= 1 || (s.stats.meals || 0) >= 1
+    check: (s) => (s.skills.music || 0) >= 1 || (s.cnt && (s.cnt['act:guitar'] || 0) >= 1)
   },
   star_1_2: {
     id: 'star_1_2', dream: 'star', chapter: 1, step: 2,
@@ -702,7 +702,7 @@ export const STORY_MISSIONS = {
     dialogue: { speaker: 'Co-founder Kwabena', text: 'The MoMo payment gateway documentation has three broken links. Drink your Milo and let\'s debug!' },
     action: 'status', target: 'status', hint: 'Train coding skill to level 2',
     reward: { cash: 100, xp: 20 },
-    check: (s) => (s.skills.coding || 0) >= 1 || (s.stats.meals || 0) >= 1
+    check: (s) => (s.skills.coding || 0) >= 1 || (s.cnt && (s.cnt['act:code'] || 0) >= 1)
   },
   unicorn_1_2: {
     id: 'unicorn_1_2', dream: 'unicorn', chapter: 1, step: 2,
@@ -1867,6 +1867,14 @@ export const STORY_ENCOUNTERS = {
 
 export function initStory(state, dream) {
   if (!STORY_ARCS[dream]) dream = 'landlord';
+  // If story already exists for this dream, preserve progress!
+  if (state.story && state.story.dream === dream && state.story.missionId) {
+    return state.story;
+  }
+  if (state.storyProgress && state.storyProgress[dream]) {
+    state.story = state.storyProgress[dream];
+    return state.story;
+  }
   const isDbee = state.origin === 'dbee' || state.birthOrigin === 'dbee';
   const firstDbee = `${dream}_dbee_1_1`;
   const firstMissionId = (isDbee && STORY_MISSIONS[firstDbee]) ? firstDbee : `${dream}_1_1`;
@@ -1880,6 +1888,7 @@ export function initStory(state, dream) {
     completedEncounters: state.story?.completedEncounters || [],
     activeEncounter: null,
     history: state.story?.history || [],
+    startedAt: Date.now(),
     at: Date.now()
   };
   return state.story;
@@ -1925,6 +1934,9 @@ export function activeStoryMission(state, ctx = {}) {
 export function claimStoryMission(state, id, now = Date.now()) {
   const story = state.story;
   if (!story || story.missionId !== id) return { error: 'Not your active story mission.' };
+  if ((story.completedMissions || []).includes(id)) {
+    return { error: 'Mission already completed and claimed.' };
+  }
   const m = STORY_MISSIONS[id];
   if (!m) return { error: 'Unknown story mission.' };
 
