@@ -10,8 +10,8 @@ export const level=pts=>LEVELS.filter(([t])=>pts>=t).pop()[1];
 export function openPerson(pid,name,act){
  closeSheets();let offProfile=()=>{},profileTimer,disposed=false,finishSocial;
  const body=h('div.sheet-body'),error=h('p.context-error',{role:'alert',hidden:true}),notice=h('p.context-state',{role:'status'});
- const sh=sheet(body,{title:'@'+name,sub:'In this place with you',onclose:()=>{disposed=true;offProfile();clearTimeout(profileTimer);finishSocial?.(false,Error('Menu closed.'));act.clearFocus?.();}});
- act.focusPerson?.(pid);
+ const sh=sheet(body,{title:'@'+name,sub:pid?'In this place with you':'Player in Accra',onclose:()=>{disposed=true;offProfile();clearTimeout(profileTimer);finishSocial?.(false,Error('Menu closed.'));act.clearFocus?.();}});
+ if (pid) act.focusPerson?.(pid);
  const fail=message=>{if(disposed)return;error.hidden=false;error.textContent=message;};
  function load(){
   offProfile();clearTimeout(profileTimer);body.replaceChildren(h('p.context-hint',null,'Getting this player’s profile…'),error);error.hidden=true;
@@ -21,6 +21,7 @@ export function openPerson(pid,name,act){
  }
  function showRetry(message){fail(message);body.replaceChildren(error,h('button.btn.primary.wide',{onclick:load},'Try again'));}
  function social(kind){
+  if(!pid)return Promise.reject(Error(`Find @${name} in the world to interact in person.`));
   if(!net.connected)return Promise.reject(Error('Reconnect before interacting.'));
   return new Promise((resolve,reject)=>{
    let timer;const offs=[];finishSocial=(ok,m)=>{offs.forEach(off=>off());clearTimeout(timer);finishSocial=null;ok?resolve(m):reject(m);};
@@ -36,7 +37,7 @@ export function openPerson(pid,name,act){
   const pts=p.friend||0;let pending=false;
   const card=h('div.pcard',null,portrait(p.look,name,'pav'),h('div.grow',null,h('strong',null,'@'+p.name),h('p.muted',null,[p.title,p.job,p.headline,p.badge&&'🏅 '+p.badge].filter(Boolean).join(' · ')),h('small',null,level(pts)+' · '+pts+' friendship')));
   const socs=h('div.socials',null,...SOCIALS.map(([kind,icon,label,min])=>h('button.soc'+(pts<min?'.locked':''),{'aria-disabled':String(pts<min),onclick:async()=>{
-   if(pending)return;if(pts<min){fail(`Reach ${min} friendship to ${label.toLowerCase()}.`);return;}
+   if(pending)return;if(!pid){fail(`Find @${name} in the world to ${label.toLowerCase()}.`);return;}if(pts<min){fail(`Reach ${min} friendship to ${label.toLowerCase()}.`);return;}
    pending=true;error.hidden=true;notice.textContent='Waiting for confirmation…';socs.querySelectorAll('button').forEach(b=>b.disabled=true);
    try{const result=await social(kind);if(!disposed){if(!result.pending)act.socialFx?.(pid,kind);sh.close();}}catch(e){fail(e.message);}finally{pending=false;notice.textContent='';socs.querySelectorAll('button').forEach(b=>b.disabled=false);}
   }},h('span.se',null,icon),label)));
@@ -47,11 +48,11 @@ export function openPerson(pid,name,act){
   const talk=h('button.btn.primary.wide',{onclick:()=>{sh.close();act.message(p.name);}},ic('chat-circle-text'),'Message @'+p.name);
   body.replaceChildren(card,talk,stranger?h('p.context-hint',null,'They get a message request first. When they accept, you two become acquaintances.'):null,
    h('h3.panel-heading',null,'Spend time together'),socs,notice,error,h('h3.panel-heading',null,'Keep in touch'),
-   button('Friendship & invitations','users',()=>act.phone('relationships',{name:p.name})),button('Send money','hand-coins',()=>act.sendMoney(p.username||p.name)),button('Challenge to Oware','squares-four',()=>act.oware(pid,p.name)),
+   button('Friendship & invitations','users',()=>act.phone('relationships',{name:p.name})),button('Send money','hand-coins',()=>act.sendMoney(p.username||p.name)),button('Challenge to Oware','squares-four',()=>pid?act.oware(pid,p.name):fail(`Find @${name} in the world to play Oware.`)),
    ...(G.state.place==='home'&&!p.me?[button('Invite to my home','house-line',()=>net.send({t:'home_invite',name:p.name}))]:[]),
    ...(p.visiting?[button('Ask to leave my home','door-open',()=>net.send({t:'home_remove',name:p.name}))]:[]),
    button('Full profile','user-circle',()=>act.phone('contacts',p.name)),
-   button('Report player','flag',()=>net.send({t:'report',id:pid,reason:'Reported from player card'})),button(p.blocked?'Unblock':'Block','prohibit',()=>net.send({t:'block',name:p.name,on:!p.blocked})));
+   button('Report player','flag',()=>net.send({t:'report',id:pid||0,reason:'Reported from player card'})),button(p.blocked?'Unblock':'Block','prohibit',()=>net.send({t:'block',name:p.name,on:!p.blocked})));
  }
  load();return sh;
 }

@@ -68,3 +68,7 @@
 .estate-panel{display:flex;align-items:center;gap:8px;background:#fffdf8e8;border-radius:12px;padding:8px 12px;font-size:12px;max-width:90vw;flex-wrap:wrap}
 .match-card{display:flex;flex-direction:column;gap:8px;border:1px solid var(--line,#ddd);border-radius:14px;padding:16px;margin:12px 0}.match-card p{margin:0}.match-card select{border:1px solid #c7cec7;border-radius:8px;padding:8px;background:#fffdf8}
 .sound-toggle{align-self:flex-end;width:36px;height:36px;border:1px solid #d2dbd0;background:#fffdf8e8;color:#264b3b;border-radius:50%;margin-top:6px;font-size:19px;pointer-events:auto}.sound-control{display:flex;align-items:center;justify-content:space-between;gap:20px;margin:20px 0}.sound-control input{width:60%;accent-color:#27684e}.birth-card{border:1px solid #d5dfd3;background:#f3f6ee;padding:22px;border-radius:18px;margin:20px 0}.birth-symbol{font-size:36px;color:#315b46}.birth-card li{margin:8px 0;line-height:1.5}.birth-card h3{font-size:26px;margin:12px 0}
+.chat-author { font:inherit; font-weight:700; color:var(--green); cursor:pointer; text-align:left; display:inline-flex; align-items:center; }
+.chat-author:hover,.chat-author:focus-visible { text-decoration:underline; }
+.chat-mention { font:inherit; font-weight:600; color:var(--green); background:rgba(36,92,72,0.12); padding:1px 5px; border-radius:6px; cursor:pointer; font-size:0.95em; vertical-align:baseline; }
+.chat-mention:hover,.chat-mention:focus-visible { background:rgba(36,92,72,0.22); text-decoration:underline; }

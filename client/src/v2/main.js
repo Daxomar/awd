@@ -133,7 +133,13 @@ function game() {
   setInterval(() => { hud.clock(); if (studio.open) return; const hh = accraClock().h; stage.setTime(hh); }, 5000); hud.clock();
   setInterval(() => { hud.quests(); }, 15000);
   net.on('connection',m=>{hud.connection(m);hud.clock();}); G.connected = net.connected;
-  bindInput(); joy = bindJoystick(); bindCamera(); bindNet(); world.onRoam = (x, z) => net.send({ t: 'rmv', x, z, it: null, zn: null }); chat = buildChat(ui, n => hud.badge('chat', n)); net.release();if(G.state.busy?.travel&&!ride.active)net.emit('busy',{busy:G.state.busy});
+  bindInput(); joy = bindJoystick(); bindCamera(); bindNet(); world.onRoam = (x, z) => net.send({ t: 'rmv', x, z, it: null, zn: null }); chat = buildChat(ui, n => hud.badge('chat', n), (name, id) => {
+    chat.close();
+    if (!name) return;
+    if (name.toLowerCase() === G.state?.name?.toLowerCase()) return act.status();
+    const peer = [...(world?.others?.values() || [])].find(p => p.n?.toLowerCase() === name.toLowerCase());
+    openPerson(peer ? peer.id : null, name, act);
+  }); net.release();if(G.state.busy?.travel&&!ride.active)net.emit('busy',{busy:G.state.busy});
   showTutorial(ui);
   const focusBillboardOnMap = async (slotId) => {
     if (!slotId) return;
