@@ -15,6 +15,13 @@ export const STORY_ARCS = {
       { num: 3, title: "Contractor Wahala", summary: "Procure blocks and cement at Makola, manage construction, and survive Dumsor blackouts." },
       { num: 4, title: "Commercial Property Empire", summary: "Lease out high-value retail stalls in Osu and screen profitable tenants." },
       { num: 5, title: "The Trasacco Kingdom", summary: "Own your multi-million cedi estate in Trasacco and rise as the undisputed Chairman." },
+    ],
+    dbeeChapters: [
+      { num: 1, title: "The Family Estate Trust", summary: "Audit family luxury serviced flats in Airport Residential and screen elite expat tenants." },
+      { num: 2, title: "Commercial Portfolio Expansion", summary: "Deploy family seed investment into high-yield retail plots in East Legon and Cantonments." },
+      { num: 3, title: "Contractor Wahala", summary: "Procure blocks and cement at Makola, manage construction, and survive Dumsor blackouts." },
+      { num: 4, title: "Commercial Property Empire", summary: "Lease out high-value retail stalls in Osu and screen profitable tenants." },
+      { num: 5, title: "The Trasacco Kingdom", summary: "Own your multi-million cedi estate in Trasacco and rise as the undisputed Chairman." },
     ]
   },
   star: {
@@ -27,6 +34,13 @@ export const STORY_ARCS = {
     chapters: [
       { num: 1, title: "The Bedroom Demo", summary: "Record your first raw voicenotes and test the crowd at Labadi Beach." },
       { num: 2, title: "The Street Sound Battle", summary: "Drop bars at Vibes Lounge and win high-stakes Azonto sound clashes." },
+      { num: 3, title: "Shady Record Deals & Indie Grind", summary: "Navigate predatory 360 label contracts and shoot your breakthrough video." },
+      { num: 4, title: "The Viral Hit & Club Residency", summary: "Take over radio frequencies, host VIP tables in Osu, and survive industry beef." },
+      { num: 5, title: "Detty December Headline", summary: "Sell out the 40,000-capacity festival stage and ride through Accra in celebrity luxury." },
+    ],
+    dbeeChapters: [
+      { num: 1, title: "The Silver Spoon Stigma", summary: "Produce studio masters with elite gear, then prove your lyrics have real street grit." },
+      { num: 2, title: "The Street Cypher Respect", summary: "Earn the respect of veteran producers and face down corrupt radio DJ payola." },
       { num: 3, title: "Shady Record Deals & Indie Grind", summary: "Navigate predatory 360 label contracts and shoot your breakthrough video." },
       { num: 4, title: "The Viral Hit & Club Residency", summary: "Take over radio frequencies, host VIP tables in Osu, and survive industry beef." },
       { num: 5, title: "Detty December Headline", summary: "Sell out the 40,000-capacity festival stage and ride through Accra in celebrity luxury." },
@@ -45,6 +59,13 @@ export const STORY_ARCS = {
       { num: 3, title: "The Circle Container Store", summary: "Open a 20ft container shop at Circle, launch MoMo merchant till, and beat tax audits." },
       { num: 4, title: "Tema Port Clearance", summary: "Import sea-freight electronics, navigate customs duties, and supply supermarkets." },
       { num: 5, title: "The Conglomerate Chairman", summary: "Acquire nightlife equity, build a multi-fleet empire, and chair the Chamber of Commerce." },
+    ],
+    dbeeChapters: [
+      { num: 1, title: "The Family Import Line", summary: "Clear high-value freight containers at Tema Port and supply upscale shopping malls." },
+      { num: 2, title: "Commercial Freight & Fleet", summary: "Expand the shipping and transport pipeline and outsmart monopolistic port cartels." },
+      { num: 3, title: "The Circle Container Store", summary: "Open a 20ft container shop at Circle, launch MoMo merchant till, and beat tax audits." },
+      { num: 4, title: "Tema Port Clearance", summary: "Import sea-freight electronics, navigate customs duties, and supply supermarkets." },
+      { num: 5, title: "The Conglomerate Chairman", summary: "Acquire nightlife equity, build a multi-fleet empire, and chair the Chamber of Commerce." },
     ]
   },
   unicorn: {
@@ -53,10 +74,17 @@ export const STORY_ARCS = {
     tagline: 'From Cafeteria Coding to Silicon Accra Unicorn',
     ic: 'laptop',
     accent: '#6366f1',
-    desc: 'Build tech products on iced Milo, raise venture capital in Airport Residential, survive Dumsor crashes, and hit a \$100M valuation.',
+    desc: 'Build tech products on iced Milo, raise venture capital in Airport Residential, survive Dumsor crashes, and hit a $100M valuation.',
     chapters: [
       { num: 1, title: "Late Night Commits", summary: "Master coding at the tech hub and ship a 100% working prototype MVP." },
       { num: 2, title: "The Seed Pitch Deck", summary: "Survive harsh angel investor grilling in Airport Residential and secure pre-seed capital." },
+      { num: 3, title: "Dumsor & Server Meltdown", summary: "Grid blackouts threaten user databases; install solar backups and counter dev poaching." },
+      { num: 4, title: "Scaling the FinTech Platform", summary: "Pass Bank of Ghana regulatory sandboxes and close multi-million cedi Series A." },
+      { num: 5, title: "The Accra Unicorn", summary: "Move into a Cantonments tech campus, hit unicorn valuation, and deliver Africa Tech Keynote." },
+    ],
+    dbeeChapters: [
+      { num: 1, title: "The Boardroom Defiance", summary: "Reject comfortable corporate nepotism to build an independent software startup." },
+      { num: 2, title: "The Angel Syndicate Round", summary: "Pitch high-net-worth family networks at the Polo Club and counter predatory term sheets." },
       { num: 3, title: "Dumsor & Server Meltdown", summary: "Grid blackouts threaten user databases; install solar backups and counter dev poaching." },
       { num: 4, title: "Scaling the FinTech Platform", summary: "Pass Bank of Ghana regulatory sandboxes and close multi-million cedi Series A." },
       { num: 5, title: "The Accra Unicorn", summary: "Move into a Cantonments tech campus, hit unicorn valuation, and deliver Africa Tech Keynote." },
@@ -72,6 +100,13 @@ export const STORY_ARCS = {
     chapters: [
       { num: 1, title: "Akwaaba Check-in", summary: "Survive airport protocol, cash out at the Forex bureau, and get bespoke tailored Kente." },
       { num: 2, title: "The Black Tax Council", summary: "Family emergency conclave in the family compound; balance filial piety with financial sanity." },
+      { num: 3, title: "The Prado & Highway Checkpoints", summary: "Acquire the legendary Land Cruiser V8, command respect at VIP valet, and build elite clout." },
+      { num: 4, title: "The Cantonments Charity Gala", summary: "Host exclusive fundraisers, donate to civic community development, and enter corporate governance." },
+      { num: 5, title: "The Untouchable Pillar", summary: "Attain legendary civic prestige, establish an enduring foundation, and reign as an elder statesman." },
+    ],
+    dbeeChapters: [
+      { num: 1, title: "The Dynastic Heir", summary: "Represent the family dynasty at diplomatic receptions and prove you are more than a nepo baby." },
+      { num: 2, title: "The Family Trust Succession", summary: "Consolidate executive control over the family trust and earn civic chieftaincy respect." },
       { num: 3, title: "The Prado & Highway Checkpoints", summary: "Acquire the legendary Land Cruiser V8, command respect at VIP valet, and build elite clout." },
       { num: 4, title: "The Cantonments Charity Gala", summary: "Host exclusive fundraisers, donate to civic community development, and enter corporate governance." },
       { num: 5, title: "The Untouchable Pillar", summary: "Attain legendary civic prestige, establish an enduring foundation, and reign as an elder statesman." },
@@ -1039,6 +1074,391 @@ export const STORY_MISSIONS = {
     action: 'story_event', hint: 'Receive your national honor',
     reward: { cash: 20000, xp: 2000, rep: 15, badge: 'Order of the Volta' },
     check: (s) => (s.story?.completedEncounters || []).includes('enc_bigman_c5')
+  },
+
+  // =========================================================================
+  // DBEE ORIGIN BRANCHES (Chapters 1 & 2 for High-Born Players)
+  // =========================================================================
+
+  // --- Landlord Dbee: Chapter 1 (The Family Estate Trust) ---
+  landlord_dbee_1_1: {
+    id: 'landlord_dbee_1_1', dream: 'landlord', chapter: 1, step: 1,
+    title: 'Audit the Airport Residential Estate',
+    desc: 'Your family has entrusted you with oversight of a luxury 4-unit serviced complex in Airport Residential. Inspect the property and review the maintenance log.',
+    dialogue: { speaker: 'Uncle Ekow (Trustee)', text: 'Don\'t think being born with a silver spoon means money manages itself. Go down to the Airport flats and audit every cedi!' },
+    action: 'home', target: 'home', hint: 'Visit your home or Airport Residential area to inspect property records',
+    reward: { cash: 200, xp: 25, badge: 'Estate Trustee' },
+    check: (s, c) => c.at === 'home' || s.place === 'home' || ['airres', 'osu', 'legon', 'trasacco'].includes(s.place) || (s.discovery?.visited && (s.discovery.visited.airres || s.discovery.visited.home))
+  },
+  landlord_dbee_1_2: {
+    id: 'landlord_dbee_1_2', dream: 'landlord', chapter: 1, step: 2,
+    title: 'Contractor Facility Negotiations',
+    desc: 'Head to Osu or East Legon to negotiate maintenance and solar contracts for the estate tenants.',
+    dialogue: { speaker: 'Solar Facility Manager', text: 'European tenants will not tolerate even 2 minutes of Dumsor. Let us quote a 15kVA lithium backup system.' },
+    action: 'explore', target: 'oxford', hint: 'Visit Osu or commercial center to consult contractors',
+    reward: { cash: 250, xp: 30 },
+    check: (s, c) => (s.discovery?.visited && (s.discovery.visited.oxford || s.discovery.visited.hub || s.discovery.visited.makola)) || ['oxford', 'hub'].includes(s.place)
+  },
+  landlord_dbee_1_3: {
+    id: 'landlord_dbee_1_3', dream: 'landlord', chapter: 1, step: 3,
+    title: 'The Escrow Reserve Sinking Fund',
+    desc: 'A real estate portfolio requires liquidity. Ensure your liquid reserves (cash, MoMo, or fixed deposit) exceed GH₵1,500.',
+    dialogue: { speaker: 'Private Banker Cynthia', text: 'Estate maintenance and tax clearance require liquid reserves. Never leave your escrow dry.' },
+    action: 'bank', target: 'bank', hint: 'Hold at least GH₵1,500 in total liquid assets (cash + MoMo)',
+    reward: { cash: 350, xp: 35, badge: 'Escrow Manager' },
+    check: (s) => (s.cash + s.momo >= 1500) || (s.flags.fixed?.amount || 0) >= 1000
+  },
+  landlord_dbee_1_4: {
+    id: 'landlord_dbee_1_4', dream: 'landlord', chapter: 1, step: 4, isClimax: true,
+    title: 'Climax: The Expat Diplomatic Tenant Dispute',
+    desc: 'An embassy attache leasing Unit 3 complains about an inverter dip and threatens diplomatic lease termination.',
+    encounterId: 'enc_dbee_landlord_c1',
+    action: 'story_event', hint: 'Resolve the diplomatic tenant dispute',
+    reward: { cash: 500, xp: 60, rep: 3, badge: 'Diplomatic Landlord' },
+    check: (s) => (s.story?.completedEncounters || []).includes('enc_dbee_landlord_c1')
+  },
+
+  // --- Landlord Dbee: Chapter 2 (Commercial Portfolio Expansion) ---
+  landlord_dbee_2_1: {
+    id: 'landlord_dbee_2_1', dream: 'landlord', chapter: 2, step: 1,
+    title: 'Scouting Cantonments & East Legon Parcels',
+    desc: 'Deploy your estate seed capital into prime real estate. Survey the elite corridors of Cantonments and East Legon.',
+    dialogue: { speaker: 'Senior Broker Addo', text: 'Cantonments is where diplomats and oil execs pay in hard dollars. Half an acre here out-earns a factory in Tema!' },
+    action: 'explore', target: 'oxford', hint: 'Travel through prime districts (Osu, Airport, Legon, Trasacco)',
+    reward: { cash: 400, xp: 45 },
+    check: (s, c) => (s.discovery?.visited && (s.discovery.visited.trasacco || s.discovery.visited.legon || s.discovery.visited.oxford)) || ['trasacco', 'legon', 'oxford'].includes(s.place)
+  },
+  landlord_dbee_2_2: {
+    id: 'landlord_dbee_2_2', dream: 'landlord', chapter: 2, step: 2,
+    title: 'Lands Commission Title Due Diligence',
+    desc: 'Check the official property deeds on your phone to review available luxury plots and titles.',
+    dialogue: { speaker: 'State Attorney Nana', text: 'Even in Cantonments, double-sold land happens. Always review the survey search before transferring funds.' },
+    action: 'houses', target: 'houses', hint: 'Open the Houses app on your phone and inspect real estate listings',
+    reward: { cash: 450, xp: 50 },
+    check: (s) => Boolean(s.flags?.seen?.houses) || Object.keys(s.land || {}).length > 0 || (s.cnt && (s.cnt['act:interact'] || 0) >= 3)
+  },
+  landlord_dbee_2_3: {
+    id: 'landlord_dbee_2_3', dream: 'landlord', chapter: 2, step: 3,
+    title: 'The Prime Parcel Acquisition',
+    desc: 'Acquire your own plot of land or reside in a prime residential property (Airport Res, Legon, Trasacco).',
+    dialogue: { speaker: 'Indenture Notary', text: 'Congratulations. The title deed is registered under your own name, not just the family trust.' },
+    action: 'houses', target: 'houses', hint: 'Own a plot of land or reside in an upscale home',
+    reward: { cash: 700, xp: 80, badge: 'Cantonments Landholder' },
+    check: (s) => Object.keys(s.land || {}).length > 0 || ['airres', 'legon', 'trasacco', 'osu'].includes(s.home)
+  },
+  landlord_dbee_2_4: {
+    id: 'landlord_dbee_2_4', dream: 'landlord', chapter: 2, step: 4, isClimax: true,
+    title: 'Climax: The Cantonments High-Stakes Auction',
+    desc: 'A rival dynasty tries to box you out of the final commercial half-acre off Cantonments Road.',
+    encounterId: 'enc_dbee_landlord_c2',
+    action: 'story_event', hint: 'Win the high-stakes land auction',
+    reward: { cash: 900, xp: 100, rep: 5, badge: 'Auction Master' },
+    check: (s) => (s.story?.completedEncounters || []).includes('enc_dbee_landlord_c2')
+  },
+
+  // --- Star Dbee: Chapter 1 (The Silver Spoon Stigma) ---
+  star_dbee_1_1: {
+    id: 'star_dbee_1_1', dream: 'star', chapter: 1, step: 1,
+    title: 'The Airport Res Home Studio Demo',
+    desc: 'Your bedroom is stacked with imported studio gear, but critics claim you are just making soulless sound. Record your first demo track.',
+    dialogue: { speaker: 'Sound Engineer Kobby', text: 'Gear is nice, but Accra streets want pain and melody. Let\'s record a raw vocal pass.' },
+    action: 'home', target: 'home', hint: 'Visit your home studio or listen to music',
+    reward: { cash: 150, xp: 20 },
+    check: (s, c) => c.at === 'home' || s.place === 'home' || (s.cnt && (s.cnt['act:guitar'] || 0) >= 1) || (s.skills?.music || 0) >= 1
+  },
+  star_dbee_1_2: {
+    id: 'star_dbee_1_2', dream: 'star', chapter: 1, step: 2,
+    title: 'The Jamestown Street Reality Check',
+    desc: 'Step out of your gated enclave. Travel to Jamestown or Labadi Beach to test your track in the real street sound clash.',
+    dialogue: { speaker: 'Jamestown DJ', text: 'Play your track here. If the fishermen and street dancers don\'t move their feet, go back to the drawing board.' },
+    action: 'explore', target: 'kenkey', hint: 'Travel to Jamestown or Labadi Beach',
+    reward: { cash: 200, xp: 25 },
+    check: (s, c) => (s.discovery?.visited && (s.discovery.visited.kenkey || s.discovery.visited.labadi || s.discovery.visited.lighthouse)) || ['kenkey', 'labadi', 'lighthouse'].includes(s.place)
+  },
+  star_dbee_1_3: {
+    id: 'star_dbee_1_3', dream: 'star', chapter: 1, step: 3,
+    title: 'Mastering Ga & Twi Cadence',
+    desc: 'You can\'t conquer Accra singing only English. Polish your local dialect flows and vocal rhythm.',
+    dialogue: { speaker: 'Vocal Coach Auntie Bea', text: 'Blend that sweet highlife cadence into your chorus. That is what moves Ghanaian souls!' },
+    action: 'status', target: 'status', hint: 'Improve Music skill or perform a creative activity',
+    reward: { cash: 300, xp: 35, badge: 'Cadence Master' },
+    check: (s) => (s.skills?.music || 0) >= 1 || (s.cnt && (s.cnt['act:guitar'] || 0) >= 2)
+  },
+  star_dbee_1_4: {
+    id: 'star_dbee_1_4', dream: 'star', chapter: 1, step: 4, isClimax: true,
+    title: 'Climax: The Jamestown Cypher Confrontation',
+    desc: 'The street cypher crew questions your authenticity because of your privileged background. Step into the circle.',
+    encounterId: 'enc_dbee_star_c1',
+    action: 'story_event', hint: 'Win over the street cypher',
+    reward: { cash: 400, xp: 50, rep: 3, badge: 'Street Tested' },
+    check: (s) => (s.story?.completedEncounters || []).includes('enc_dbee_star_c1')
+  },
+
+  // --- Star Dbee: Chapter 2 (The Street Cypher Respect) ---
+  star_dbee_2_1: {
+    id: 'star_dbee_2_1', dream: 'star', chapter: 2, step: 1,
+    title: 'Sound Engineering at Vibes Lounge',
+    desc: 'Head to Vibes Lounge in Osu to connect with resident DJs and test your mastered track on the club sound system.',
+    dialogue: { speaker: 'DJ Black Star', text: 'If the bass vibrates the cocktail glasses at 1 AM, the song is a smash.' },
+    action: 'explore', target: 'vibes', hint: 'Visit Vibes Lounge in Osu',
+    reward: { cash: 350, xp: 40 },
+    check: (s, c) => (s.discovery?.visited && s.discovery.visited.vibes) || s.place === 'vibes'
+  },
+  star_dbee_2_2: {
+    id: 'star_dbee_2_2', dream: 'star', chapter: 2, step: 2,
+    title: 'The Azonto Sound Clash',
+    desc: 'Engage in a live dance or beat showdown to build street credibility among Accra night owls.',
+    dialogue: { speaker: 'Hype MC', text: 'Let the rhythm talk! Show them this Dbee has rhythm in the veins!' },
+    action: 'explore', target: 'vibes', hint: 'Engage in a dance battle or activity at Vibes Lounge',
+    reward: { cash: 450, xp: 50 },
+    check: (s) => (s.cnt && (s.cnt['act:battle'] || s.cnt['act:party'] || 0) >= 1) || (s.skills?.dance || 0) >= 1
+  },
+  star_dbee_2_3: {
+    id: 'star_dbee_2_3', dream: 'star', chapter: 2, step: 3,
+    title: 'Independent Radio Traction',
+    desc: 'Advance your music craft to level 3+ to ensure your sound cuts through the national airwaves.',
+    dialogue: { speaker: 'Producer Hammer', text: 'Clean production, undeniable hook. The whole city is humming your melody!' },
+    action: 'status', target: 'status', hint: 'Reach Music skill 3+ or engage in musical gigs',
+    reward: { cash: 600, xp: 70, badge: 'Buzzing Talent' },
+    check: (s) => (s.skills?.music || 0) >= 3 || (s.cnt && (s.cnt['act:guitar'] || 0) >= 3)
+  },
+  star_dbee_2_4: {
+    id: 'star_dbee_2_4', dream: 'star', chapter: 2, step: 4, isClimax: true,
+    title: 'Climax: The Radio Gatekeeper\'s Extortion',
+    desc: 'An old-guard radio DJ tries to extort you with payola demands simply because your family is known to have wealth.',
+    encounterId: 'enc_dbee_star_c2',
+    action: 'story_event', hint: 'Defeat the crooked payola gatekeeper',
+    reward: { cash: 750, xp: 90, rep: 5, badge: 'Unstoppable Sound' },
+    check: (s) => (s.story?.completedEncounters || []).includes('enc_dbee_star_c2')
+  },
+
+  // --- Mogul Dbee: Chapter 1 (The Family Import Line) ---
+  mogul_dbee_1_1: {
+    id: 'mogul_dbee_1_1', dream: 'mogul', chapter: 1, step: 1,
+    title: 'The Tema Port Freight Manifest',
+    desc: 'Your family conglomerate is clearing a 40ft container of consumer electronics at Tema Port. Head to Makola or Circle commercial hub to review the cargo manifest.',
+    dialogue: { speaker: 'Logistics Manager Kwesi', text: 'Tema Port waits for no man. Clear the paperwork before container demurrage begins!' },
+    action: 'explore', target: 'makola', hint: 'Visit Makola Market or Circle trading hub',
+    reward: { cash: 200, xp: 25 },
+    check: (s, c) => (s.discovery?.visited && (s.discovery.visited.makola || s.discovery.visited.circle)) || ['makola', 'circle'].includes(s.place)
+  },
+  mogul_dbee_1_2: {
+    id: 'mogul_dbee_1_2', dream: 'mogul', chapter: 1, step: 2,
+    title: 'Upscale Retail Distribution',
+    desc: 'Visit Oxford Street in Osu or Accra Mall to pitch your imported goods to high-end boutique and electronics stores.',
+    dialogue: { speaker: 'Mall Retail Buyer', text: 'If your goods are certified and customs-cleared, we will put them on prime shelves across all branches.' },
+    action: 'explore', target: 'oxford', hint: 'Visit Oxford Street or Accra Mall',
+    reward: { cash: 300, xp: 35 },
+    check: (s, c) => (s.discovery?.visited && (s.discovery.visited.oxford || s.discovery.visited.mall)) || ['oxford', 'mall'].includes(s.place)
+  },
+  mogul_dbee_1_3: {
+    id: 'mogul_dbee_1_3', dream: 'mogul', chapter: 1, step: 3,
+    title: 'Commercial Working Capital',
+    desc: 'High-volume trading requires serious liquidity. Hold at least GH₵2,500 across your accounts.',
+    dialogue: { speaker: 'Trade Finance Officer', text: 'Letters of credit require cash collateral. Keep your balances healthy.' },
+    action: 'bank', target: 'bank', hint: 'Hold at least GH₵2,500 in total liquid assets (cash + MoMo)',
+    reward: { cash: 400, xp: 45, badge: 'Working Capitalist' },
+    check: (s) => (s.cash + s.momo >= 2500) || (s.flags.fixed?.amount || 0) >= 1500
+  },
+  landlord_dbee_1_4_alt: null,
+  mogul_dbee_1_4: {
+    id: 'mogul_dbee_1_4', dream: 'mogul', chapter: 1, step: 4, isClimax: true,
+    title: 'Climax: The Tema Port Customs Clearance Bottleneck',
+    desc: 'A chief customs controller has placed a red hold on your container demanding "special processing fees."',
+    encounterId: 'enc_dbee_mogul_c1',
+    action: 'story_event', hint: 'Resolve the customs clearance bottleneck',
+    reward: { cash: 600, xp: 70, rep: 3, badge: 'Port Master' },
+    check: (s) => (s.story?.completedEncounters || []).includes('enc_dbee_mogul_c1')
+  },
+
+  // --- Mogul Dbee: Chapter 2 (Commercial Freight & Fleet) ---
+  mogul_dbee_2_1: {
+    id: 'mogul_dbee_2_1', dream: 'mogul', chapter: 2, step: 1,
+    title: 'Fleet Logistics Expansion',
+    desc: 'Inspect commercial transport lines and vehicles. Visit Spintex car dealerships or travel between commercial corridors.',
+    dialogue: { speaker: 'Transport Union Boss', text: 'Whoever owns the transport controls the goods. Add wheels to your business!' },
+    action: 'explore', target: 'cars', hint: 'Visit Spintex car showroom or travel across districts',
+    reward: { cash: 450, xp: 50 },
+    check: (s, c) => (s.discovery?.visited && s.discovery.visited.cars) || s.place === 'cars' || Object.keys(s.cnt || {}).some(k => k.startsWith('travel:') && (s.cnt[k] || 0) >= 2)
+  },
+  mogul_dbee_2_2: {
+    id: 'mogul_dbee_2_2', dream: 'mogul', chapter: 2, step: 2,
+    title: 'Corporate Retail Contracts',
+    desc: 'Establish managed business equity or operate a commercial enterprise.',
+    dialogue: { speaker: 'Enterprise Consultant', text: 'Transition from pure trading to owning commercial enterprises.' },
+    action: 'enterprise', target: 'enterprise', hint: 'Open Enterprise app or own commercial business/property',
+    reward: { cash: 600, xp: 70 },
+    check: (s) => Object.keys(s.biz || {}).length >= 1 || Object.keys(s.owned || {}).length >= 1 || (s.cash + s.momo >= 4000)
+  },
+  mogul_dbee_2_3: {
+    id: 'mogul_dbee_2_3', dream: 'mogul', chapter: 2, step: 3,
+    title: 'The Five-Figure Commercial Milestone',
+    desc: 'Scale your business operations to reach at least GH₵5,000 in liquid reserves.',
+    dialogue: { speaker: 'Auditor Mensah', text: 'Your revenues are outpacing established merchants. True tycoon status is within reach.' },
+    action: 'bank', target: 'bank', hint: 'Reach at least GH₵5,000 in total liquid wealth',
+    reward: { cash: 800, xp: 90, badge: 'Fleet Magnate' },
+    check: (s) => (s.cash + s.momo >= 5000) || Object.keys(s.biz || {}).length >= 1
+  },
+  mogul_dbee_2_4: {
+    id: 'mogul_dbee_2_4', dream: 'mogul', chapter: 2, step: 4, isClimax: true,
+    title: 'Climax: The Mall Retail Monopoly Battle',
+    desc: 'A rival foreign syndicate attempts to buy out your prime mall retail leases before your flagship store opens.',
+    encounterId: 'enc_dbee_mogul_c2',
+    action: 'story_event', hint: 'Win the mall retail battle',
+    reward: { cash: 1000, xp: 120, rep: 5, badge: 'Retail Kingpin' },
+    check: (s) => (s.story?.completedEncounters || []).includes('enc_dbee_mogul_c2')
+  },
+
+  // --- Unicorn Dbee: Chapter 1 (The Boardroom Defiance) ---
+  unicorn_dbee_1_1: {
+    id: 'unicorn_dbee_1_1', dream: 'unicorn', chapter: 1, step: 1,
+    title: 'The Garage Dev Workstation',
+    desc: 'Your family wants you to take an easy corporate desk job. Defy expectations and write the initial architecture for your independent startup.',
+    dialogue: { speaker: 'Co-Founder Senyo', text: 'They think we are just playing with laptops. Let us ship an architecture that silences every skeptic!' },
+    action: 'hub', target: 'hub', hint: 'Visit Sankofa Tech Hub or code at home',
+    reward: { cash: 200, xp: 25 },
+    check: (s, c) => (s.discovery?.visited && s.discovery.visited.hub) || s.place === 'hub' || (s.skills?.coding || 0) >= 1
+  },
+  unicorn_dbee_1_2: {
+    id: 'unicorn_dbee_1_2', dream: 'unicorn', chapter: 1, step: 2,
+    title: 'The Silicon Accra Tech Meetup',
+    desc: 'Connect with grassroots Accra engineers and designers at Sankofa Tech Hub in Osu.',
+    dialogue: { speaker: 'Lead Frontend Dev', text: 'Accra has world-class engineering talent. Let us build products that solve real African pain points!' },
+    action: 'explore', target: 'hub', hint: 'Visit Sankofa Tech Hub in Osu',
+    reward: { cash: 300, xp: 35 },
+    check: (s, c) => (s.discovery?.visited && s.discovery.visited.hub) || s.place === 'hub'
+  },
+  unicorn_dbee_1_3: {
+    id: 'unicorn_dbee_1_3', dream: 'unicorn', chapter: 1, step: 3,
+    title: 'The Prototype Codebase',
+    desc: 'Advance your Coding skill to level 2+ and prepare the minimum viable product.',
+    dialogue: { speaker: 'Product Manager Ama', text: 'Clean code and fast API response times. Investors will have to take us seriously.' },
+    action: 'status', target: 'status', hint: 'Reach Coding skill 2+ or code projects',
+    reward: { cash: 400, xp: 45, badge: 'Garagetech Dev' },
+    check: (s) => (s.skills?.coding || 0) >= 2 || (s.flags.mvp || 0) >= 20
+  },
+  unicorn_dbee_1_4: {
+    id: 'unicorn_dbee_1_4', dream: 'unicorn', chapter: 1, step: 4, isClimax: true,
+    title: 'Climax: The Corporate Boardroom Intervention',
+    desc: 'Uncle Kenneth and family elders convene an intervention to push you into an easy corporate job with a company Prado.',
+    encounterId: 'enc_dbee_unicorn_c1',
+    action: 'story_event', hint: 'Defend your startup autonomy against the family board',
+    reward: { cash: 600, xp: 70, rep: 4, badge: 'Defiant Founder' },
+    check: (s) => (s.story?.completedEncounters || []).includes('enc_dbee_unicorn_c1')
+  },
+
+  // --- Unicorn Dbee: Chapter 2 (The Angel Syndicate Round) ---
+  unicorn_dbee_2_1: {
+    id: 'unicorn_dbee_2_1', dream: 'unicorn', chapter: 2, step: 1,
+    title: 'The Accra Polo Club Investor Circuit',
+    desc: 'Visit high-end networking hubs in Airport Residential and Osu to map out prospective angel investors.',
+    dialogue: { speaker: 'Angel Scout Kofi', text: 'High-net-worth individuals in Accra want tech exposure, but they need to see serious numbers.' },
+    action: 'explore', target: 'oxford', hint: 'Visit Osu or Airport Residential area',
+    reward: { cash: 500, xp: 55 },
+    check: (s, c) => (s.discovery?.visited && (s.discovery.visited.oxford || s.discovery.visited.hub)) || ['oxford', 'hub'].includes(s.place)
+  },
+  unicorn_dbee_2_2: {
+    id: 'unicorn_dbee_2_2', dream: 'unicorn', chapter: 2, step: 2,
+    title: 'FinTech Architecture & Security',
+    desc: 'Refine your platform code to pass regulatory and security scrutiny. Reach Coding skill 4+.',
+    dialogue: { speaker: 'Security Auditor', text: 'Bank of Ghana data privacy standards require zero vulnerabilities in your payment gateway.' },
+    action: 'hub', target: 'hub', hint: 'Reach Coding skill 4+ or build MVP',
+    reward: { cash: 700, xp: 75 },
+    check: (s) => (s.skills?.coding || 0) >= 3 || (s.flags.mvp || 0) >= 50
+  },
+  unicorn_dbee_2_3: {
+    id: 'unicorn_dbee_2_3', dream: 'unicorn', chapter: 2, step: 3,
+    title: 'The Pre-Seed Working Treasury',
+    desc: 'Hold at least GH₵3,500 in working funds to fund server infrastructure and legal registration.',
+    dialogue: { speaker: 'Startup CFO', text: 'AWS bills and registrar fees don\'t take IOUs. Our treasury is fully capitalized!' },
+    action: 'bank', target: 'bank', hint: 'Hold at least GH₵3,500 in total funds',
+    reward: { cash: 900, xp: 90, badge: 'Funded Founder' },
+    check: (s) => (s.cash + s.momo >= 3500) || (s.flags.round || 0) >= 1
+  },
+  unicorn_dbee_2_4: {
+    id: 'unicorn_dbee_2_4', dream: 'unicorn', chapter: 2, step: 4, isClimax: true,
+    title: 'Climax: The Polo Club Shark Term Sheet',
+    desc: 'An aggressive venture partner tries to demand 51% controlling equity in exchange for pre-seed capital.',
+    encounterId: 'enc_dbee_unicorn_c2',
+    action: 'story_event', hint: 'Reject the predatory shark term sheet',
+    reward: { cash: 1200, xp: 120, rep: 6, badge: 'Syndicate Closer' },
+    check: (s) => (s.story?.completedEncounters || []).includes('enc_dbee_unicorn_c2')
+  },
+
+  // --- Bigman Dbee: Chapter 1 (The Dynastic Heir) ---
+  bigman_dbee_1_1: {
+    id: 'bigman_dbee_1_1', dream: 'bigman', chapter: 1, step: 1,
+    title: 'Diplomatic Wardrobe Fitting',
+    desc: 'High society in Accra scrutinizes every detail. Visit an upscale boutique or dress in bespoke designer attire.',
+    dialogue: { speaker: 'Master Tailor Ofori', text: 'When a dynastic heir enters a reception, the fabric must speak before the mouth opens!' },
+    action: 'explore', target: 'mall', hint: 'Visit Accra Mall or Kantamanto boutique to inspect fine clothing',
+    reward: { cash: 250, xp: 30 },
+    check: (s, c) => (s.discovery?.visited && (s.discovery.visited.mall || s.discovery.visited.kantamanto)) || ['mall', 'kantamanto'].includes(s.place)
+  },
+  bigman_dbee_1_2: {
+    id: 'bigman_dbee_1_2', dream: 'bigman', chapter: 1, step: 2,
+    title: 'High-Society Diplomatic Reception',
+    desc: 'Travel to Airport Residential or Ridge to attend elite diplomatic and business mixers.',
+    dialogue: { speaker: 'Ambassadorial Protocol', text: 'Good evening. Your family seat is reserved at the high table with visiting delegates.' },
+    action: 'explore', target: 'bank', hint: 'Visit Ridge or Airport Residential area',
+    reward: { cash: 350, xp: 40 },
+    check: (s, c) => (s.discovery?.visited && (s.discovery.visited.bank || s.discovery.visited.ridge)) || ['bank', 'ridge'].includes(s.place)
+  },
+  bigman_dbee_1_3: {
+    id: 'bigman_dbee_1_3', dream: 'bigman', chapter: 1, step: 3,
+    title: 'The Dynastic Liquidity Threshold',
+    desc: 'True influence requires financial staying power. Maintain at least GH₵3,000 across your accounts.',
+    dialogue: { speaker: 'Family Trust Custodian', text: 'You represent generations of family prestige. Maintain your personal reserves.' },
+    action: 'bank', target: 'bank', hint: 'Hold at least GH₵3,000 in cash or MoMo',
+    reward: { cash: 500, xp: 50, badge: 'Dynastic Liquidity' },
+    check: (s) => (s.cash + s.momo >= 3000) || (s.rep || 0) >= 5
+  },
+  bigman_dbee_1_4: {
+    id: 'bigman_dbee_1_4', dream: 'bigman', chapter: 1, step: 4, isClimax: true,
+    title: 'Climax: The Ambassador\'s Diplomatic Gala',
+    desc: 'At an exclusive diplomatic charity dinner, a visiting delegate condescends to Ghanaian enterprise.',
+    encounterId: 'enc_dbee_bigman_c1',
+    action: 'story_event', hint: 'Defend national dignity at the gala',
+    reward: { cash: 700, xp: 80, rep: 5, badge: 'Diplomatic Star' },
+    check: (s) => (s.story?.completedEncounters || []).includes('enc_dbee_bigman_c1')
+  },
+
+  // --- Bigman Dbee: Chapter 2 (The Family Trust Succession) ---
+  bigman_dbee_2_1: {
+    id: 'bigman_dbee_2_1', dream: 'bigman', chapter: 2, step: 1,
+    title: 'The Ancestral Civic Landmark Summons',
+    desc: 'Travel to Black Star Square or Jamestown Lighthouse to connect with historical roots and civic legacy.',
+    dialogue: { speaker: 'Civic Historian', text: 'Leadership in Ghana is rooted in knowing where our nation and your lineage come from.' },
+    action: 'explore', target: 'blackstar', hint: 'Visit Black Star Square or Jamestown Lighthouse',
+    reward: { cash: 500, xp: 60 },
+    check: (s, c) => (s.discovery?.visited && (s.discovery.visited.blackstar || s.discovery.visited.lighthouse || s.discovery.visited.memorial)) || ['blackstar', 'lighthouse', 'memorial'].includes(s.place)
+  },
+  bigman_dbee_2_2: {
+    id: 'bigman_dbee_2_2', dream: 'bigman', chapter: 2, step: 2,
+    title: 'The Civic Philanthropy Endowment',
+    desc: 'Demonstrate leadership by building public respect and community goodwill (Reputation 10+).',
+    dialogue: { speaker: 'Community Youth Leader', text: 'A real leader doesn\'t just eat alone; they lift the entire community along.' },
+    action: 'status', target: 'status', hint: 'Reach Reputation 10+ or make philanthropic donations',
+    reward: { cash: 750, xp: 80 },
+    check: (s) => (s.rep || 0) >= 10 || (s.cash + s.momo >= 5000)
+  },
+  bigman_dbee_2_3: {
+    id: 'bigman_dbee_2_3', dream: 'bigman', chapter: 2, step: 3,
+    title: 'The Executive Transport Command',
+    desc: 'Acquire personal transport or travel through Accra with distinction.',
+    dialogue: { speaker: 'VIP Chauffeur', text: 'Your presence commands respect at every gate and venue in Greater Accra.' },
+    action: 'houses', target: 'houses', hint: 'Own a car, rental vehicle, or reside in executive home',
+    reward: { cash: 1000, xp: 100, badge: 'High Society Escort' },
+    check: (s) => Boolean(s.car) || Boolean(s.rental?.until) || ['airres', 'trasacco', 'legon', 'osu'].includes(s.home)
+  },
+  bigman_dbee_2_4: {
+    id: 'bigman_dbee_2_4', dream: 'bigman', chapter: 2, step: 4, isClimax: true,
+    title: 'Climax: The Chieftaincy Council Succession',
+    desc: 'The family royal stool council convenes to test your readiness to assume executive leadership.',
+    encounterId: 'enc_dbee_bigman_c2',
+    action: 'story_event', hint: 'Earn the ancestral council\'s blessing',
+    reward: { cash: 1500, xp: 150, rep: 8, badge: 'Council Pillar' },
+    check: (s) => (s.story?.completedEncounters || []).includes('enc_dbee_bigman_c2')
   }
 };
 
@@ -1314,6 +1734,130 @@ export const STORY_ENCOUNTERS = {
       { id: 'honor', label: 'Dedicate the honor to every young dreamer in Jamestown', hint: 'Humble national icon', result: { rep: 15, mood: { v: 40, label: 'National Hero' }, note: '"If a boy from the compound house can stand here today, every child in Ghana can reach the stars." Historic moment!' } },
       { id: 'future', label: 'Announce a nationwide youth endowment partnership', hint: 'Transform national honors into lasting action', result: { cash: -5000, rep: 20, mood: { v: 45, label: 'Father of the Nation' }, note: 'Your initiative will fund 10,000 young entrepreneurs over the next decade. Your legacy is immortalized in Accra!' } },
     ]
+  },
+
+  // =========================================================================
+  // DBEE ORIGIN ENCOUNTERS
+  // =========================================================================
+
+  enc_dbee_landlord_c1: {
+    id: 'enc_dbee_landlord_c1',
+    title: 'The Expat Diplomatic Tenant Dispute',
+    speaker: "Ambassador's Housing Attache",
+    text: 'The European attache renting Unit 3 claims the solar inverter dipped during an official diplomatic dinner and demands a 30% lease reduction or immediate contract termination.',
+    choices: [
+      { id: 'upgrade', label: 'Upgrade to industrial 20kVA lithium battery bank', hint: 'Invest in elite infrastructure (-GH₵500)', result: { cash: -500, rep: 4, mood: { v: 14, label: 'Unshakeable Landlord' }, note: 'You installed pristine tier-1 lithium storage with zero-second transfer. The embassy extended the lease for 3 years!' } },
+      { id: 'terms', label: 'Point to the Force Majeure utility clause in the signed lease', hint: 'Stand on strict legal contract terms', result: { rep: 3, mood: { v: 8, label: 'Contractual Rigor' }, note: 'You calmly reviewed Section 14 of the contract with their legal team. They dropped the threat and apologized.' } },
+      { id: 'champagne', label: 'Host an exclusive apology wine tasting for the delegation', hint: 'Diplomatic charm & hospitality (-GH₵150)', result: { cash: -150, rep: 3, mood: { v: 10, label: 'Gracious Host' }, note: 'Your hospitality charmed the attache. The incident became a lighthearted inside joke!' } },
+    ]
+  },
+
+  enc_dbee_landlord_c2: {
+    id: 'enc_dbee_landlord_c2',
+    title: 'The Cantonments High-Stakes Auction',
+    speaker: 'Elite Auctioneer Quaye',
+    text: 'A rival old-money family is aggressively bidding against you for the final prime commercial half-acre off Cantonments Road.',
+    choices: [
+      { id: 'counter', label: 'Counter-bid with personal syndicate reserves', hint: 'Commit funds to secure the crown plot (-GH₵800)', result: { cash: -800, rep: 6, mood: { v: 18, label: 'Cantonments Victor' }, note: 'The gavel slammed down! The deed is yours. The rival family politely tipped their hats in defeat.' } },
+      { id: 'zoning', label: 'Expose their pending boundary litigation to the council', hint: 'Sharp legal maneuvering', result: { rep: 5, mood: { v: 14, label: 'Savvy Strategist' }, note: 'You presented documentation of their boundary disputes. The committee disqualified their bid and awarded you the parcel!' } },
+      { id: 'pivot', label: 'Graciously pivot to an East Legon corner plot', hint: 'Conserve capital · High long-term upside', result: { rep: 4, mood: { v: 10, label: 'Prudent Mogul' }, note: 'You let them overpay, then snapped up a prime corner in East Legon at a 40% discount!' } },
+    ]
+  },
+
+  enc_dbee_star_c1: {
+    id: 'enc_dbee_star_c1',
+    title: 'The Jamestown Cypher Confrontation',
+    speaker: 'Jamestown Cypher Leader',
+    text: 'The street cypher crew looks at your clean designer jacket. "Dbee boy, this isn\'t American International School. Drop real bars with street soul or take your car back to Airport!"',
+    choices: [
+      { id: 'bars', label: 'Drop a fierce, authentic Ga and Twi freestyle', hint: 'Spit raw dialect rhythm', result: { rep: 5, mood: { v: 16, label: 'Born Spitter' }, note: 'Your punchlines landed with devastating Ga street cadence! The cypher erupted in roars and pounds of respect!' } },
+      { id: 'humble', label: 'Freestyle self-deprecating humor about Dbee life', hint: 'Charm the crowd with hilarious wit', result: { rep: 4, mood: { v: 14, label: 'Crowd Charmer' }, note: 'You roasted your own silver-spoon struggles. The block broke into laughter and welcomed you with open arms!' } },
+      { id: 'collab', label: 'Invite the best young street MC to feature on your single', hint: 'Elevate street talent', result: { rep: 5, mood: { v: 15, label: 'Talent Champion' }, note: 'You gave the 19-year-old kid a chance on the mic. Your collaborative freestyle trended across Accra TikTok by night!' } },
+    ]
+  },
+
+  enc_dbee_star_c2: {
+    id: 'enc_dbee_star_c2',
+    title: 'The Radio Gatekeeper\'s Extortion',
+    speaker: 'Old-Guard Radio DJ',
+    text: '"Your father is a big man, so why are you acting stingy? Give me GH₵1,000 promo kola or my afternoon drive show ignores your single."',
+    choices: [
+      { id: 'boycott', label: 'Boycott legacy radio and launch a grassroots TikTok wave', hint: 'Let the youth decide the sound', result: { rep: 6, mood: { v: 18, label: 'Digital Pioneer' }, note: 'The youth danced to your sound on TikTok and street bars. The radio station ended up playing it anyway to stay relevant!' } },
+      { id: 'diss', label: 'Drop a searing freestyle mocking crooked payola', hint: 'Fearless artistic rebellion', result: { rep: 7, mood: { v: 20, label: 'Fearless Voice' }, note: 'Your diss track caught fire! Fans praised your courage and the station management issued a public apology.' } },
+      { id: 'leverage', label: 'Call the station owner who belongs to your polo network', hint: 'Elite social leverage', result: { rep: 4, mood: { v: 10, label: 'High Connected' }, note: 'One polite phone call resolved the matter. The DJ was reassigned to the 3 AM graveyard shift.' } },
+    ]
+  },
+
+  enc_dbee_mogul_c1: {
+    id: 'enc_dbee_mogul_c1',
+    title: 'The Tema Port Customs Clearance Bottleneck',
+    speaker: 'Chief Customs Controller',
+    text: 'Your family container of consumer electronics has been delayed at the terminal. The controller smiles: "Systems are slow today, unless you pay GH₵400 administrative expedite."',
+    choices: [
+      { id: 'single_window', label: 'Present pre-cleared Single Window exemption papers', hint: 'Strict regulatory precision', result: { rep: 5, mood: { v: 14, label: 'Compliance Master' }, note: 'You pulled out the digital Single Window QR clearance certificate. His supervisor verified it and ordered immediate gate release!' } },
+      { id: 'expedite', label: 'Pay the GH₵300 expedited processing fee', hint: 'Practical business compromise (-GH₵300)', result: { cash: -300, rep: 2, mood: { v: 6, label: 'Cargo Released' }, note: 'You bargained the fee down and got your trucks moving to retail stores before sunset.' } },
+      { id: 'commissioner', label: 'Escalate directly to the Port Authority Director', hint: 'High-level executive intervention', result: { rep: 6, mood: { v: 16, label: 'Executive Authority' }, note: 'You phoned the Port Director\'s office. The container was cleared within 20 minutes with no illegal fees!' } },
+    ]
+  },
+
+  enc_dbee_mogul_c2: {
+    id: 'enc_dbee_mogul_c2',
+    title: 'The Mall Retail Monopoly Battle',
+    speaker: 'Accra Mall Leasing Director',
+    text: 'A rival foreign import syndicate offers a massive under-the-table sum to take over your prime retail locations in Accra Mall and West Hills.',
+    choices: [
+      { id: 'stand_firm', label: 'Stand firm on your signed long-term leases', hint: 'Defend your commercial footprint', result: { rep: 6, mood: { v: 16, label: 'Retail Fortress' }, note: 'You proved your legal tenure was airtight. Your retail stores opened to record crowds and packed aisles!' } },
+      { id: 'joint_venture', label: 'Propose an exclusive joint distribution partnership', hint: 'Turn competition into profit (+GH₵2,000)', result: { cash: 2000, rep: 4, mood: { v: 12, label: 'Strategic Dealmaker' }, note: 'You partnered on logistics and took 20% margin on their wholesale supply. Pure profit!' } },
+      { id: 'expansion', label: 'Expand to Kumasi and Takoradi commercial malls', hint: 'Scale outside Greater Accra', result: { rep: 7, mood: { v: 18, label: 'National Tycoon' }, note: 'You expanded beyond Accra, locking down regional dominance across Ghana!' } },
+    ]
+  },
+
+  enc_dbee_unicorn_c1: {
+    id: 'enc_dbee_unicorn_c1',
+    title: 'The Corporate Boardroom Intervention',
+    speaker: 'Uncle Kenneth (Board Chairman)',
+    text: '"Why are you burning your nights coding buggy apps in a garage? Take this VP role at our logistics firm: GH₵25,000 monthly salary, company Prado, and no stress!"',
+    choices: [
+      { id: 'reject', label: 'Defiantly reject the corporate golden handcuffs', hint: 'Bet 100% on your independent startup dream', result: { rep: 6, mood: { v: 20, label: 'Self-Made Visionary' }, note: '"I want to build something that touches millions of lives across Africa, not just warm a boardroom chair." The room went silent in stunned admiration.' } },
+      { id: 'enterprise', label: 'Pitch the family firm as your startup\'s first enterprise customer', hint: 'Turn skepticism into cash (+GH₵1,000)', result: { cash: 1000, rep: 5, mood: { v: 15, label: 'Master Pitcher' }, note: 'You demonstrated your logistics routing API. Uncle Kenneth signed a GH₵1,000 annual pilot contract on the spot!' } },
+      { id: 'consult', label: 'Accept part-time advisory while keeping startup ownership', hint: 'Smart cash cushion (+GH₵500)', result: { cash: 500, rep: 4, mood: { v: 10, label: 'Pragmatic Founder' }, note: 'You took a light advisory stipend while retaining 100% equity in your tech baby.' } },
+    ]
+  },
+
+  enc_dbee_unicorn_c2: {
+    id: 'enc_dbee_unicorn_c2',
+    title: 'The Polo Club Shark Term Sheet',
+    speaker: 'Venture Capital Partner Van-Hein',
+    text: '"I will inject GH₵50,000 in your fintech app today, but I require 51% controlling equity and board veto rights since you are young."',
+    choices: [
+      { id: 'reject_shark', label: 'Tear up the term sheet and walk away', hint: 'Preserve startup founder sovereignty', result: { rep: 7, mood: { v: 20, label: 'Uncompromising Founder' }, note: 'You walked away from the predatory valuation. Three Silicon Valley funds reached out the next week offering 10x better terms!' } },
+      { id: 'counter_safe', label: 'Counter with a standard 10% SAFE note at a GH₵500,000 cap', hint: 'Professional Silicon-standard negotiation', result: { cash: 2000, rep: 6, mood: { v: 16, label: 'Venture Architect' }, note: 'He realized you understood venture finance inside out. He signed the SAFE note on your terms!' } },
+      { id: 'bootstrap', label: 'Rely purely on customer transaction fees', hint: 'Profitable bootstrapping path', result: { rep: 5, mood: { v: 14, label: 'Bootstrapped Boss' }, note: 'Your user base grew organically and transaction fees covered all server bills. You own 100% of the goldmine.' } },
+    ]
+  },
+
+  enc_dbee_bigman_c1: {
+    id: 'enc_dbee_bigman_c1',
+    title: 'The Ambassador\'s Diplomatic Gala',
+    speaker: 'Visiting Foreign Delegate',
+    text: 'At an elite diplomatic charity dinner, a visiting trade envoy condescendingly remarks that Ghanaian entrepreneurs lack global sophistication.',
+    choices: [
+      { id: 'oratory', label: 'Deliver an eloquent, data-backed Pan-African rebuttal', hint: 'Oratorical masterclass', result: { rep: 7, mood: { v: 22, label: 'National Dignity' }, note: 'You cited Ghanaian economic milestones, tech innovations, and historical legacy. The entire banquet applauded your eloquence!' } },
+      { id: 'philanthropy', label: 'Pledge an endowed education fellowship for local coders', hint: 'Lead through generous action (-GH₵800)', result: { cash: -800, rep: 8, mood: { v: 20, label: 'Civic Beacon' }, note: 'Your pledge shamed the cynics and earned you a personal commendation from the High Commissioner!' } },
+      { id: 'charm_delegate', label: 'Charm him with private business matchmaking', hint: 'Convert a skeptic into an international partner', result: { rep: 5, mood: { v: 14, label: 'Global Diplomat' }, note: 'You introduced him to top Ghanaian founders and secured bilateral business commitments.' } },
+    ]
+  },
+
+  enc_dbee_bigman_c2: {
+    id: 'enc_dbee_bigman_c2',
+    title: 'The Chieftaincy Council Succession',
+    speaker: 'Clan Elder Nana Obeng',
+    text: 'The family royal stool council convenes. Some elders question whether your modern lifestyle means you have forgotten ancient customs and ancestral duty.',
+    choices: [
+      { id: 'address', label: 'Deliver a fluent, respectful traditional Ga/Twi address', hint: 'Honor ancestral heritage with humility', result: { rep: 8, mood: { v: 25, label: 'Beloved Heir' }, note: 'You recited ancestral lineages flawlessly and poured traditional libation with deep reverence. Nana smiled and blessed your head.' } },
+      { id: 'solar_palace', label: 'Endow clean solar power and a health clinic for the ancestral village', hint: 'Bring lasting modernity to tradition (-GH₵1,200)', result: { cash: -1200, rep: 12, mood: { v: 30, label: 'Dynastic Patron' }, note: 'The village celebrated with talking drums! You proved that modern wealth can preserve and honor heritage.' } },
+      { id: 'council_chair', label: 'Propose a transparent youth enterprise board for the clan', hint: 'Progressive leadership vision', result: { rep: 7, mood: { v: 18, label: 'Modern Leader' }, note: 'The young elders rallied behind your vision. You were officially consecrated as the council executive head!' } },
+    ]
   }
 };
 
@@ -1323,7 +1867,9 @@ export const STORY_ENCOUNTERS = {
 
 export function initStory(state, dream) {
   if (!STORY_ARCS[dream]) dream = 'landlord';
-  const firstMissionId = `${dream}_1_1`;
+  const isDbee = state.origin === 'dbee' || state.birthOrigin === 'dbee';
+  const firstDbee = `${dream}_dbee_1_1`;
+  const firstMissionId = (isDbee && STORY_MISSIONS[firstDbee]) ? firstDbee : `${dream}_1_1`;
   state.story = {
     dream,
     chapter: 1,
@@ -1342,6 +1888,14 @@ export function initStory(state, dream) {
 export function activeStoryMission(state, ctx = {}) {
   const story = state.story;
   if (!story || !story.dream) return null;
+  const isDbee = state.origin === 'dbee' || state.birthOrigin === 'dbee';
+
+  // If player is a Dbee on an initial chapter and not started, seamlessly point to Dbee track
+  if (isDbee && story.chapter <= 2 && (!story.completedMissions || story.completedMissions.length === 0)) {
+    const dbeeEquivalent = `${story.dream}_dbee_${story.chapter}_${story.step}`;
+    if (STORY_MISSIONS[dbeeEquivalent]) story.missionId = dbeeEquivalent;
+  }
+
   const m = STORY_MISSIONS[story.missionId];
   if (!m) return null;
 
@@ -1354,10 +1908,12 @@ export function activeStoryMission(state, ctx = {}) {
   }
 
   const arc = STORY_ARCS[story.dream];
-  const ch = arc?.chapters?.find(c => c.num === story.chapter);
+  const chapters = (isDbee && arc?.dbeeChapters) ? arc.dbeeChapters : (arc?.chapters || []);
+  const ch = chapters?.find(c => c.num === story.chapter);
 
   return {
     ...m,
+    kind: 'main', // Explicitly tag as main story mission
     chapterTitle: ch ? `Chapter ${ch.num}: ${ch.title}` : `Chapter ${story.chapter}`,
     arcName: arc?.name || 'Aspiration',
     accent: arc?.accent || '#d97706',
@@ -1392,18 +1948,23 @@ export function claimStoryMission(state, id, now = Date.now()) {
   story.history.push({ id, completedAt: now, reward: rew });
 
   // Advance step or chapter
+  const isDbee = state.origin === 'dbee' || state.birthOrigin === 'dbee';
   const nextStep = story.step + 1;
-  const nextMissionId = `${story.dream}_${story.chapter}_${nextStep}`;
+  const nextDbee = `${story.dream}_dbee_${story.chapter}_${nextStep}`;
+  const nextStandard = `${story.dream}_${story.chapter}_${nextStep}`;
+  const nextMissionId = (isDbee && STORY_MISSIONS[nextDbee]) ? nextDbee : (STORY_MISSIONS[nextStandard] ? nextStandard : null);
 
-  if (STORY_MISSIONS[nextMissionId]) {
+  if (nextMissionId) {
     story.step = nextStep;
     story.missionId = nextMissionId;
   } else {
     // End of chapter!
     story.completedChapters.push(story.chapter);
     const nextChapter = story.chapter + 1;
-    const nextChapterFirst = `${story.dream}_${nextChapter}_1`;
-    if (STORY_MISSIONS[nextChapterFirst]) {
+    const nextChDbee = `${story.dream}_dbee_${nextChapter}_1`;
+    const nextChStandard = `${story.dream}_${nextChapter}_1`;
+    const nextChapterFirst = (isDbee && STORY_MISSIONS[nextChDbee]) ? nextChDbee : (STORY_MISSIONS[nextChStandard] ? nextChStandard : null);
+    if (nextChapterFirst) {
       story.chapter = nextChapter;
       story.step = 1;
       story.missionId = nextChapterFirst;

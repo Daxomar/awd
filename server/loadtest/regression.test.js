@@ -184,4 +184,42 @@ test('story and aspiration engine provides multi-chapter progression, interactiv
   assert.ok(p.state.story.completedEncounters.includes('enc_landlord_c1'));
 });
 
+test('Dbee origin players receive distinctive high-society story arcs, encounters and main mission tagging', () => {
+  const p = player(99);
+  p.state.origin = 'dbee';
+  p.state.birthOrigin = 'dbee';
+  
+  // Pick dream
+  const pick = Game.onMsg(p, { t: 'pickdream', id: 'landlord' }, {}, Date.now());
+  assert.equal(pick.t, 'st');
+  assert.equal(p.state.dream, 'landlord');
+  assert.equal(p.state.story.missionId, 'landlord_dbee_1_1');
+
+  // Check mission status
+  const stat = Game.onMsg(p, { t: 'story_status' }, {}, Date.now());
+  assert.equal(stat.active.id, 'landlord_dbee_1_1');
+  assert.equal(stat.active.kind, 'main');
+  assert.ok(stat.active.title.includes('Airport Residential'));
+
+  // Satisfy requirement (home visit)
+  p.state.place = 'home';
+  const statReady = Game.onMsg(p, { t: 'story_status' }, {}, Date.now());
+  assert.equal(statReady.active.ready, true);
+
+  // Claim Dbee mission 1
+  const startCash = p.state.cash;
+  const claimed = Game.onMsg(p, { t: 'story_claim', id: 'landlord_dbee_1_1' }, {}, Date.now());
+  assert.equal(claimed.t, 'story_claimed');
+  assert.equal(p.state.cash, startCash + 200);
+  assert.equal(p.state.story.step, 2);
+  assert.equal(p.state.story.missionId, 'landlord_dbee_1_2');
+
+  // Test Dbee encounter
+  const choiceRes = Game.onMsg(p, { t: 'story_choice', encounterId: 'enc_dbee_landlord_c1', choiceId: 'terms' }, {}, Date.now());
+  assert.equal(choiceRes.t, 'story_choice_result');
+  assert.ok(choiceRes.note.includes('Section 14'));
+  assert.ok(p.state.story.completedEncounters.includes('enc_dbee_landlord_c1'));
+});
+
+
 

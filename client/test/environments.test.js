@@ -66,8 +66,13 @@ test('baseline zone IDs, action IDs, item indices, routes and authored spawns st
     assert.deepEqual(baseline,contract.zones,id+' original interaction contract');
     // Authored milestone additions may extend a zone without moving/removing old actions.
     const additions=zones.flatMap(z=>z.acts.filter(a=>!originalActs.has(a)));
-    assert.equal(additions.length,id.startsWith('n:')||id==='police'?1:0,id+' deliberate activity extension');
+    const allowed = id.startsWith('n:') ? 1 : ({ police: 1, circle: 2, oxford: 2, vibes: 2, labadi: 1 }[id] || 0);
+    assert.equal(additions.length, allowed, id+' deliberate activity extension');
     if(id==='police')assert.deepEqual(additions,['community_service']);
+    if(id==='circle')assert.deepEqual(additions,['okada_snatch','armed_heist']);
+    if(id==='oxford')assert.deepEqual(additions,['osu_hookup','pickpocket_osu']);
+    if(id==='vibes')assert.deepEqual(additions,['vibes_hookup','car_breakin']);
+    if(id==='labadi')assert.deepEqual(additions,['beach_hookup']);
   }
 });
 test('all neighbourhoods differ in composition and every occupied estate plot is reachable',()=>{

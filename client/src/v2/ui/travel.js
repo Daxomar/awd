@@ -38,12 +38,31 @@ export function openPlace(id, act, options={}) {
   };
   const noteEl = h('div.ride-note');
   goBtn.onclick = () => { act.travel(id, sel, dest.name); sh.close(); };
-  const preview = isHome ? [] : l.acts.slice(0, 6);
+  const preview = isHome ? [] : l.acts.slice(0, 8);
+  const hasSpicy = !isHome && l.acts?.some(a => a.tags?.includes('spicy'));
+  const hasCrime = !isHome && l.acts?.some(a => a.tags?.includes('crime'));
+  const isHotspot = people >= 2;
   const body = h('div.sheet-body', null,
     h('div.place-hero', null, h('div.ph', null, isHome ? 'icon:house' : l.ic), h('div.grow', null,
-      h('div.row', { style: { gap: '6px', flexWrap: 'wrap' } }, h('span.status.' + (open ? 'open' : 'closed'), null, open ? 'Open' : 'Closed'), isHome ? null : h('span.pill', null, hours(l.open)), people ? h('span.pill', null, h('span.dot'), `${people} here`) : null),
+      h('div.row', { style: { gap: '6px', flexWrap: 'wrap' } },
+        h('span.status.' + (open ? 'open' : 'closed'), null, open ? 'Open' : 'Closed'),
+        isHome ? null : h('span.pill', null, hours(l.open)),
+        people ? h('span.pill', null, h('span.dot'), `${people} here`) : null,
+        isHotspot ? h('span.pill', { style: { background: '#fef3c7', color: '#b45309', fontWeight: '700' } }, '🔥 Hotspot') : null,
+        hasSpicy ? h('span.pill', { style: { background: '#fdf2f8', color: '#be185d', fontWeight: '700' } }, '🌶️ Nightlife') : null,
+        hasCrime ? h('span.pill', { style: { background: '#fef2f2', color: '#b91c1c', fontWeight: '700' } }, '⚠️ High-Risk') : null
+      ),
       h('div.muted', { style: { fontSize: '13.5px', marginTop: '6px' } }, isHome ? `${G.cat.homes[s.home].area} · your place` : l.blurb))),
-    preview.length ? h('div', null, h('div.section', null, 'Things to do'), h('div.row', { style: { gap: '6px', flexWrap: 'wrap' } }, ...preview.map((a) => h('span.pill', null, a.ic, ' ', a.label.length > 26 ? a.label.slice(0, 25) + '…' : a.label)))) : null,
+    preview.length ? h('div', null, h('div.section', null, 'Things to do & opportunities'), h('div.row', { style: { gap: '6px', flexWrap: 'wrap' } }, ...preview.map((a) => {
+      const isSpicy = a.tags?.includes('spicy');
+      const isCrime = a.tags?.includes('crime');
+      const isGig = a.tags?.includes('gig');
+      const style = isSpicy ? { background: '#fdf2f8', color: '#be185d', border: '1px solid #fbcfe8' }
+        : isCrime ? { background: '#fef2f2', color: '#991b1b', border: '1px solid #fecaca' }
+        : isGig ? { background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0' }
+        : {};
+      return h('span.pill', { style }, (isSpicy ? '🌶️ ' : isCrime ? '⚠️ ' : (a.ic ? a.ic + ' ' : '')), a.label.length > 28 ? a.label.slice(0, 27) + '…' : a.label);
+    }))) : null,
     h('div.section', null, 'How you dey go?'), ridesEl, noteEl, goBtn);
   draw(); const sh = sheet(body, { title: isHome ? 'Home' : l.name, sub: isHome ? dest.name : l.area });
   return sh;

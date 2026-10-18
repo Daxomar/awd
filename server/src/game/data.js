@@ -73,6 +73,8 @@ export const LOCATIONS = {
     { id: 'sellwater', label: 'Sell pure water in traffic', ic: 'icon:circle', min: 60, earn: { base: 22, per: 9, skill: 'hustle' }, needs: { energy: -10, hygiene: -10 }, skill: { hustle: 0.35 }, tags: ['gig', 'hustle'], rest: 30 },
     { id: 'mate', label: 'Mate a few trotro trips (game)', ic: 'icon:bus', mg: 'trotro', tags: ['gig'], rest: 60 },
     { id: 'pickpocket', label: 'Pickpocket in the crowd', ic: 'icon:circle', min: 20, crime: { catch: 0.35, skill: 'hustle', loot: [10, 120] }, tags: ['crime'], rest: 180 },
+    { id: 'okada_snatch', label: 'Okada snatch-and-run (phone/bag)', ic: 'icon:circle', min: 30, crime: { catch: 0.42, skill: 'hustle', loot: [80, 450] }, tags: ['crime'], rest: 240 },
+    { id: 'armed_heist', label: 'Midnight container heist', ic: 'icon:circle', min: 45, req: { skill: { hustle: 3 } }, crime: { catch: 0.55, skill: 'hustle', loot: [300, 1800] }, tags: ['crime'], rest: 360 },
   ] },
   muni: { name: "Auntie Muni's Waakye", area: 'Circle', ic: 'icon:bowl-food', ll: [5.5695, -0.2140], open: [5, 14], blurb: 'Gari, shito, wele, egg, spaghetti. Queue moves fast if you know Auntie.', acts: [
     { id: 'waakye', label: 'Waakye with everything', ic: 'icon:bowl-food', min: 25, cost: 30, needs: { hunger: 110, bladder: -12 }, tags: ['eat'], untilFull: 'hunger' },
@@ -105,16 +107,20 @@ export const LOCATIONS = {
   oxford: { name: 'Oxford Street, Osu', area: 'Osu', ic: 'icon:moon', ll: [5.5585, -0.1830], open: [0, 24], blurb: 'Neon, kelewele, shopping, hawkers, and everyone you know.', acts: [
     { id: 'kelewele', label: 'Kelewele & groundnuts', ic: 'icon:circle', min: 15, cost: 15, needs: { hunger: 60, fun: 30 }, tags: ['eat'], open: [16, 25] },
     { id: 'stroll', label: 'Stroll and people-watch', ic: 'icon:eye', min: 40, needs: { fun: 22, social: 14 }, tags: ['social'] },
+    { id: 'osu_hookup', label: 'Spicy hookup at Oxford terrace', ic: 'icon:heart', min: 90, cost: 80, open: [20, 29], needs: { fun: 45, social: 40, energy: -15 }, tags: ['social', 'nightlife', 'spicy'], moodlet: 'accraRomance', moodV: 14, moodL: 'Accra night romance' },
+    { id: 'pickpocket_osu', label: 'Snatch handbag in Osu traffic', ic: 'icon:circle', min: 25, crime: { catch: 0.38, skill: 'hustle', loot: [50, 350] }, tags: ['crime'], rest: 200 },
     { id: 'photoOsu', label: 'Photograph tourists (DSLR)', ic: 'icon:camera', min: 90, earn: { base: 50, per: 32, skill: 'photo' }, skill: { photo: 0.5 }, req: { item: 'dslr' }, tags: ['gig', 'photo'], rest: 60 },
     { id: 'hawk', label: 'Hawk phone accessories', ic: 'icon:circle', min: 60, earn: { base: 30, per: 14, skill: 'hustle' }, skill: { hustle: 0.4 }, needs: { energy: -8 }, tags: ['gig', 'hustle'], rest: 40 },
   ] },
   vibes: { name: 'Vibes Lounge, Osu', area: 'Osu', ic: 'icon:circle', ll: [5.5578, -0.1815], open: [21, 29], blurb: 'Amapiano till 4. VIP is a state of mind (and GH₵1,500).', acts: [
     { id: 'party', label: 'Party (cover ₵60)', ic: 'icon:circle', min: 120, cost: 60, needs: { fun: 40, social: 30, energy: -10, bladder: -15 }, skill: { dance: 0.4 }, tags: ['party', 'nightlife', 'dance'] },
     { id: 'drinks', label: 'Bottle of Club & small chops', ic: 'icon:circle', min: 30, cost: 45, needs: { fun: 30, hunger: 20, bladder: -40 }, tags: ['nightlife', 'eat'] },
+    { id: 'vibes_hookup', label: 'VIP lounge hookup & afterparty', ic: 'icon:heart', min: 120, cost: 120, open: [22, 29], needs: { fun: 60, social: 50, energy: -20 }, tags: ['nightlife', 'spicy'], moodlet: 'clubVibe', moodV: 18, moodL: 'Vibes Lounge afterglow' },
     { id: 'battle', label: 'Azonto dance battle (game)', ic: 'icon:person-simple-dance', mg: 'azonto', tags: ['gig', 'dance'], rest: 90 },
     { id: 'vip', label: 'VIP table', ic: 'icon:beer-bottle', min: 120, cost: 1500, needs: { fun: 70, social: 50 }, rep: 6, tags: ['party', 'nightlife', 'luxury'], moment: true },
     { id: 'shutdown', label: 'Shut down the club (everyone drinks on you)', ic: 'icon:wallet', min: 60, cost: 250000, needs: { fun: 100, social: 100 }, rep: 120, tags: ['luxury', 'nightlife'], moment: 'shutdown' },
     { id: 'sneakvip', label: 'Sneak into VIP', ic: 'icon:circle', min: 20, crime: { catch: 0.45, skill: 'charisma', reward: { fun: 40, social: 30 } }, tags: ['crime'] },
+    { id: 'car_breakin', label: 'Break into parked car outside club', ic: 'icon:car', min: 30, crime: { catch: 0.48, skill: 'hustle', loot: [150, 800] }, tags: ['crime'], rest: 240 },
     T(2),
   ] },
   hub: { name: 'Sankofa Tech Hub, Osu', area: 'Osu', ic: 'icon:circle', ll: [5.5575, -0.1790], open: [8, 22], blurb: 'Fibre internet, standing desks, founders who say "disrupt".', acts: [
@@ -176,6 +182,7 @@ export const LOCATIONS = {
     { id: 'palmwine', label: 'Palm wine from a cooler on the sand', ic: 'icon:circle', min: 20, cost: 15, needs: { fun: 34, bladder: -40 }, tags: ['relax'] },
     { id: 'tilapia', label: 'Tilapia & banku (cooked on a coal pot now)', ic: 'icon:circle', min: 40, cost: 70, needs: { hunger: 120, fun: 12 }, tags: ['eat'] },
     { id: 'beachworkout', label: 'Muscle Beach workout', ic: 'icon:barbell', min: 60, needs: { energy: -16, hygiene: -16, fun: 8, social: 8 }, skill: { fitness: 0.8 }, tags: ['workout'] },
+    { id: 'beach_hookup', label: 'Late night beach bon-fire hookup', ic: 'icon:heart', min: 90, cost: 50, open: [19, 26], needs: { fun: 50, social: 45, energy: -12 }, tags: ['social', 'nightlife', 'spicy'], moodlet: 'beachLove', moodV: 15, moodL: 'Sea breeze & romance' },
     { id: 'drumjam', label: 'Sunday drummers’ jam on the sand', ic: 'icon:circle', min: 120, days: [0], open: [14, 22], needs: { fun: 44, social: 36, energy: -8 }, skill: { dance: 0.3, music: 0.2 }, tags: ['party'] },
     T(2),
   ] },

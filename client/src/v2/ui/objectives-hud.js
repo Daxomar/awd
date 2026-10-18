@@ -56,7 +56,13 @@ export function buildObjectives(act) {
     const state = d.claimed ? 'claimed' : d.completed ? 'ready' : 'open';
     return h('div.obj-row', { 'data-state': state },
       h('span.obj-mark', { 'aria-hidden': 'true' }, ic(d.claimed ? 'check-circle' : d.completed ? 'gift' : 'circle')),
-      h('div.obj-text', null, h('strong', null, d.title), h('small', null, d.claimed ? `Done · ${d.xp} XP earned` : d.description)),
+      h('div.obj-text', null,
+        h('div', { style: { display: 'flex', alignItems: 'center', gap: '5px' } },
+          h('strong', null, d.title),
+          h('span.mission-tag.side', null, 'SIDE')
+        ),
+        h('small', null, d.claimed ? `Done · ${d.xp} XP earned` : d.description)
+      ),
       d.claimed ? null : d.completed ? h('button.obj-btn.claim', { disabled: pending.has(d.id), onclick: () => claim(d) }, `Claim ${d.xp} XP`) :
         h('button.obj-btn', { 'aria-label': 'Go: ' + d.title, onclick: () => goObjective(d, act) }, 'Go'));
   }
@@ -122,6 +128,7 @@ export function buildObjectives(act) {
             ic(isReady ? 'gift' : isClimax ? 'lightning' : ICON[storyMission.action] || 'target')
           ),
           h('span.obj-copy', null,
+            h('span.mission-pill.main', null, '★ MAIN STORY'),
             h('small', null, `${arcTitle} · Ch. ${chNum}`),
             h('strong', null, isReady ? 'Ready to Claim: ' + storyMission.title : isClimax ? 'Dilemma: ' + storyMission.title : storyMission.title)
           ),
@@ -141,8 +148,11 @@ export function buildObjectives(act) {
         }
       },
         h('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' } },
-          h('small', { style: { fontWeight: '700', color: '#b45309', textTransform: 'uppercase', letterSpacing: '0.04em' } },
-            storyMission.chapterTitle || `Chapter ${chNum}`
+          h('div', { style: { display: 'flex', alignItems: 'center', gap: '6px' } },
+            h('span.mission-pill.main', null, '★ MAIN'),
+            h('small', { style: { fontWeight: '700', color: '#b45309', textTransform: 'uppercase', letterSpacing: '0.04em' } },
+              storyMission.chapterTitle || `Chapter ${chNum}`
+            )
           ),
           storyMission.reward ? h('small', { style: { color: '#0e7a4e', fontWeight: '600' } },
             `+${cedi(storyMission.reward.cash || 0)} · +${storyMission.reward.xp || 0} XP`
@@ -157,8 +167,12 @@ export function buildObjectives(act) {
       );
 
       const panel = open ? h('div.obj-panel', { id: 'obj-panel' },
+        h('div.obj-section-title.main', null, ic('star'), ' Main Story Mission'),
         storyDetailCard,
-        ...(view.rows.length ? [h('h4', { style: { fontSize: '11px', textTransform: 'uppercase', color: '#8a9a90', margin: '8px 2px 4px' } }, 'Milestones'), ...view.rows.map(row)] : []),
+        ...(view.rows.length ? [
+          h('div.obj-section-title.side', null, ic('briefcase'), ' Side Missions & Street Hustles'),
+          ...view.rows.map(row)
+        ] : []),
         h('button.obj-more', { onclick: () => act.phone('goals') }, 'Story chapters & roadmap', ic('caret-right'))
       ) : null;
 
@@ -179,6 +193,7 @@ export function buildObjectives(act) {
       },
         h('span.obj-icon', { 'aria-hidden': 'true' }, ic(curObj.completed ? 'gift' : ICON[curObj.action] || 'target')),
         h('span.obj-copy', null,
+          h('span.mission-pill.side', null, '💼 SIDE HUSTLE'),
           h('small', null, `${view.label} · ${done}/${total}`),
           h('strong', null, curObj.completed ? 'Ready to claim: ' + curObj.title : curObj.title)
         ),
@@ -197,6 +212,7 @@ export function buildObjectives(act) {
     );
 
     const panel = open ? h('div.obj-panel', { id: 'obj-panel' },
+      h('div.obj-section-title.side', null, ic('briefcase'), ' Side Missions & Milestones'),
       ...view.rows.map(row),
       h('button.obj-more', { onclick: () => act.phone('milestones') }, 'All milestones', ic('caret-right'))
     ) : null;
@@ -212,7 +228,15 @@ export function buildObjectives(act) {
       el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse');
     }
     for (const d of rows || []) if (d.claimed && pending.has(d.id)) {
-      pending.delete(d.id); toast(`+${d.xp} XP${d.badge ? ' · ' + d.badge + ' badge' : ''}`, 'gold');
+      pending.delete(d.id);
+      toast(`+${d.xp} XP${d.badge ? ' · ' + d.badge + ' badge' : ''}`, 'gold');
+      const nextUnfinished = (rows || []).find(r => !r.claimed && !r.completed);
+      if (nextUnfinished) {
+        setTimeout(() => {
+          toast(`Next Side Step: ${nextUnfinished.title} — ${nextUnfinished.description}`, 'good');
+          el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse');
+        }, 1200);
+      }
     }
     known = done;
     draw();

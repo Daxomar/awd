@@ -270,8 +270,11 @@ export function makeApps(act) {
           const isClimax = activeMission.isClimax && !isReady;
           missionEl = h('div.group', { style: { padding: '14px 16px', margin: '10px 0 14px', background: '#fff' } },
             h('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' } },
-              h('span', { style: { fontSize: '11px', fontWeight: 700, color: '#b45309', textTransform: 'uppercase', letterSpacing: '0.04em' } },
-                activeMission.chapterTitle || `Chapter ${currChapter}`
+              h('div', { style: { display: 'flex', alignItems: 'center', gap: '6px' } },
+                h('span.mission-pill.main', null, '★ MAIN STORY'),
+                h('span', { style: { fontSize: '11px', fontWeight: 700, color: '#b45309', textTransform: 'uppercase', letterSpacing: '0.04em' } },
+                  activeMission.chapterTitle || `Chapter ${currChapter}`
+                )
               ),
               activeMission.reward ? h('span', { style: { fontSize: '12px', fontWeight: 600, color: '#0e7a4e' } },
                 `+${cedi(activeMission.reward.cash || 0)} · +${activeMission.reward.xp || 0} XP`
@@ -325,8 +328,9 @@ export function makeApps(act) {
           );
         }
 
-        // Chapters Roadmap
-        const chapters = arc.chapters || [];
+        // Chapters Roadmap (Dbee vs Hustler origin branching)
+        const isDbee = s.origin === 'dbee' || s.birthOrigin === 'dbee';
+        const chapters = (isDbee && arc.dbeeChapters) ? arc.dbeeChapters : (arc.chapters || []);
         const chapterCells = chapters.map(ch => {
           const isDone = ch.num < currChapter;
           const isCurrent = ch.num === currChapter;
@@ -343,7 +347,7 @@ export function makeApps(act) {
           group(null, cell({
             ic: arc.ic || 'target',
             icbg: arc.accent || '#34c759',
-            t: arc.name,
+            t: `${arc.name}${isDbee ? ' (Dbee Track)' : ''}`,
             s: arc.tagline || arc.desc,
             r: `Ch. ${currChapter}/5`
           })),

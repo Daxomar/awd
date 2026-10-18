@@ -256,6 +256,22 @@ function finishAction(p, now) {
     else { out.crime = 'caught'; const mins = Math.round(Math.min(30, 8 + s.heat / 10)); s.flags.jailUntil = now + mins * 60000; s.flags.bailReview=now+120000; s.busy=null; s.shift=null; out.jail = mins; const fine = Math.min(s.cash + s.momo, 150 + Math.round(s.heat * 3)); spend(s, fine, 'Game offence fine'); out.fine = fine; s.rep = Math.max(0, s.rep - 2); goPlace(p, 'police'); out.place = 'police'; } }
   if (a.tags && a.tags.includes('eat')) s.stats.meals++;
   if (a.rep) s.rep += a.rep; if (a.moodlet) moodlet(s, a.moodlet, a.moodV ?? 12, 6, a.moodL || a.label);
+  if (a.tags && a.tags.includes('spicy')) {
+    const drama = Math.random() < 0.35;
+    if (drama) {
+      const taxiTab = Math.min(s.cash || 0, 40 + Math.floor(Math.random() * 40));
+      if (taxiTab > 0) {
+        spend(s, taxiTab, 'Morning-after Bolt & breakfast tab');
+        out.spicyTab = taxiTab;
+      }
+      moodlet(s, 'spicyDrama', -4, 4, 'Accra hookup morning drama');
+      out.spicy = 'drama';
+    } else {
+      s.rep = (s.rep || 0) + 1;
+      moodlet(s, 'spicyRomance', 16, 8, 'Sweet Accra romantic connection');
+      out.spicy = 'romance';
+    }
+  }
   if (a.cures && s.sick && (a.cures === 'serious' || s.sick.level === 'mild')) { s.sick = null; out.cured = true; }
   if (a.mvp) { s.flags.mvp = Math.min(100, (s.flags.mvp || 0) + 6 + lvl(s, 'coding') * 1.6); out.mvp = Math.round(s.flags.mvp); }
   if (a.pitch) { s.flags.lastPitch = now; const round = s.flags.round || 0; const R = [['Pre-seed', 60000], ['Seed', 300000], ['Series A', 1500000]][round];

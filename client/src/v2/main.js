@@ -1,4 +1,8 @@
 // Accra We Dey v2 — portrait, room-based life sim (Lagos Life style): rooms, city map, phone, people, money.
+import '@fontsource/poppins/400.css';
+import '@fontsource/poppins/500.css';
+import '@fontsource/poppins/600.css';
+import '@fontsource/poppins/700.css';
 import '@fontsource-variable/outfit';
 import '@fontsource-variable/bricolage-grotesque';
 import '@phosphor-icons/web/bold';
@@ -122,7 +126,7 @@ function game() {
   world = new World(stage, tags); window.__world = world; map = new CityMap(stage, mapUi); window.__map = map; map.build(G.cat);
   fetch('/api/billboards').then((r) => r.json()).then((j) => applyBoards(j.slots || [])).catch(() => {});
   setInterval(() => fetch('/api/billboards').then((r) => r.json()).then((j) => applyBoards(j.slots || [])).catch(() => {}), 5 * 60000);
-  const filters = h('div.map-filters', null, ...[['all', 'All'], ['open', 'Open now'], ['eat', 'Food'], ['gig', 'Work'], ['fun', 'Fun'], ['people', 'Busy'],['homes','Estates'],['streets','Streets']].map(([k, l]) => h('button' + (k === 'all' ? '.on' : ''), { onclick: (e) => { map.filter = k; filters.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b === e.currentTarget)); drawPins(); } }, l)));
+  const filters = h('div.map-filters', null, ...[['all', 'All'], ['open', 'Open now'], ['spicy', '🌶️ Nightlife'], ['crime', '⚠️ High-Risk'], ['people', '🔥 Hotspots'], ['eat', 'Food'], ['gig', 'Work'], ['fun', 'Fun'], ['homes', 'Estates'], ['streets', 'Streets']].map(([k, l]) => h('button' + (k === 'all' ? '.on' : ''), { onclick: (e) => { map.filter = k; filters.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b === e.currentTarget)); drawPins(); } }, l)));
   filters.append(h('label.map-names',null,h('input',{type:'checkbox',onchange:e=>{map.showNames=e.target.checked;} }),'Names'));mapUi.append(filters);
   hud = buildHud(ui, act);window.__hud=hud;window.__audio=cityAudio;phone=new Phone(ui,makeApps(act));window.__phone=phone;phone.onchange=()=>{if(phone.open){chat?.close();closeSheets();}hud.setNav(phone.open?'phone':view==='map'?'map':'home');};
   hud.setNav('home'); refresh();
@@ -294,7 +298,12 @@ function drawPins() {
   for (const l of G.cat.locs) {
     if(f==='homes'&&!l.estate||f==='streets'&&!l.neighbourhood)continue;if(!['homes','streets'].includes(f)&&(l.estate||l.neighbourhood)&&s.place!==l.id)continue;
     const open = isOpen(l); const n = G.places[l.id] || 0;
-    if (f === 'open' && !open) continue; if (f === 'people' && !n) continue; if (['eat', 'gig'].includes(f) && !l.acts.some((a) => a.tags && a.tags.includes(f))) continue; if (f === 'fun' && !l.acts.some((a) => (a.tags || []).some((t) => ['party', 'nightlife', 'relax', 'sport', 'tour'].includes(t)))) continue;
+    if (f === 'open' && !open) continue;
+    if (f === 'people' && !n) continue;
+    if (f === 'spicy' && !l.acts.some((a) => (a.tags || []).some((t) => ['spicy', 'nightlife'].includes(t)))) continue;
+    if (f === 'crime' && !l.acts.some((a) => (a.tags || []).includes('crime'))) continue;
+    if (['eat', 'gig'].includes(f) && !l.acts.some((a) => a.tags && a.tags.includes(f))) continue;
+    if (f === 'fun' && !l.acts.some((a) => (a.tags || []).some((t) => ['party', 'nightlife', 'relax', 'sport', 'tour'].includes(t)))) continue;
     list.push({ id: l.id, ic: l.ic, name: l.name, x: l.x, z: l.z, count: n, cls: [open ? '' : 'closed', s.place === l.id ? 'here' : '', G.gem && G.gem.place === l.id ? 'gem' : ''].join(' '), keep: s.place === l.id || (G.gem && G.gem.place === l.id) });
   }
   if (s.home) { const H = G.cat.homes[s.home]; list.push({ id: 'home',homeId:s.home, ic: 'icon:house', name: 'Home', x: H.x, z: H.z, xz: map.slotOf('h:' + s.home), cls: 'home' + (s.place === 'home' ? ' here' : ''), keep: true }); }
@@ -501,6 +510,15 @@ function bindNet() {
         tone: 'gold'
       });
     }
+    // Proactive next story guiding: always keep the player informed on what to do next
+    setTimeout(() => {
+      const nextMission = G.state?.story?.activeMission;
+      if (nextMission) {
+        toast(`Next Story Mission: ${nextMission.title} — ${nextMission.hint || nextMission.description}`, 'good');
+        const hud = document.querySelector('.objectives-hud');
+        if (hud) { hud.classList.remove('pulse'); void hud.offsetWidth; hud.classList.add('pulse'); }
+      }
+    }, 1600);
     refresh();
   });
   net.on('story_choice_result', (m) => {

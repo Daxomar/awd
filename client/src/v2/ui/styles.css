@@ -5,7 +5,7 @@
   --blue: #2f6bff; --pink: #ff4f8b; --orange: #ff8a3d; --teal: #13a89b; --purple: #7c5cff; --night: #1d2236;
   --r: 18px; --r-sm: 12px; --sh: 0 8px 24px rgba(23, 21, 15, .14), 0 1px 0 rgba(23, 21, 15, .06); --sh-s: 0 3px 10px rgba(23, 21, 15, .12);
   --safe-t: env(safe-area-inset-top, 0px); --safe-b: env(safe-area-inset-bottom, 0px);
-  --disp: 'Bricolage Grotesque Variable', 'Outfit Variable', system-ui, sans-serif; --body: 'Outfit Variable', system-ui, -apple-system, sans-serif;
+  --disp: 'Poppins', 'Bricolage Grotesque Variable', system-ui, sans-serif; --body: 'Poppins', 'Outfit Variable', system-ui, -apple-system, sans-serif;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { margin: 0; height: 100%; overflow: hidden; background: var(--sand); color: var(--ink); font: 500 15px/1.35 var(--body); touch-action: manipulation; overscroll-behavior: none; -webkit-user-select: none; user-select: none; }
