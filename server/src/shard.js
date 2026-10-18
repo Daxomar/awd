@@ -53,6 +53,8 @@ export class Shard {
     pool.query(`create table if not exists kv (k text primary key, v bigint)`).then(() => pool.query(`select v from kv where k='gems'`)).then((r) => { this.gemsFound = r.rows[0] ? +r.rows[0].v : 0; }).catch(() => {});
     setInterval(() => this.slowTick(), 1000);
     setInterval(() => this.placesTick(), 5000);
+    this.nextHappening = Date.now() + 60000;
+    setInterval(() => this.cityHappeningsTick(), 15000);
     // Free play: no unsolicited timed treasure hunts or story objectives.
     setInterval(() => this.flush().catch((e) => console.error('[save]', e.message)), CFG.saveEveryMs);
     // Stage 7: event schedule transitions and real-presence attendance, persisted in SQL.
@@ -485,6 +487,29 @@ export class Shard {
     if (g.prize >= 100) Gist.post(p, ` Found the gem at ${Game.LOC[g.place].name} and won GH₵${g.prize}!`, true).catch(() => {});
   }
   broadcast(m, except) { const s = JSON.stringify(m); for (const o of this.players.values()) if (o !== except && !o.bot) try { o.ws.send(s, false); } catch {} }
+  cityHappeningsTick() {
+    const now = Date.now();
+    if (this.dumsorEmergencyUntil && now > this.dumsorEmergencyUntil && !this.dumsorRestored) {
+      this.dumsorRestored = true;
+      this.broadcast({ t: 'toast', k: 'good', m: '💡✨ LIGHT IS BACK! ECG grid power restored across Accra.' });
+    }
+    if (now < (this.nextHappening || 0)) return;
+    this.nextHappening = now + (9 + Math.random() * 8) * 60000;
+    const HAPPENINGS = [
+      { id: 'dumsor', toast: '💡⚡ DUMSOR ALERT: ECG emergency load-shedding reported across Accra! Fuel your generator or use solar.', kind: 'happening' },
+      { id: 'elevy', toast: '📱🏛️ GRA TAX NOTICE: Electronic transfer compliance audit active. MoMo transfers operating normally.', kind: 'happening' },
+      { id: 'fare_surge', toast: '🚐⛽ TRANSPORT UPDATE: GPRTU announces 10% trotro fare adjustment after fuel price review.', kind: 'happening' },
+      { id: 'circle_rain', toast: '🌧️🌊 ACCRA WEATHER: Sudden heavy downpour at Kwame Nkrumah Circle! Watch out for overflowing gutters.', kind: 'happening' },
+      { id: 'osu_turnup', toast: '🎉🎶 ACCRA NIGHTLIFE: Major Afrobeats turn-up buzzing along Oxford Street and Vibes Lounge!', kind: 'happening' },
+    ];
+    const item = HAPPENINGS[Math.floor(Math.random() * HAPPENINGS.length)];
+    this.currentHappening = item;
+    if (item.id === 'dumsor') {
+      this.dumsorEmergencyUntil = now + 4 * 60000;
+      this.dumsorRestored = false;
+    }
+    this.broadcast({ t: 'toast', k: item.kind, m: item.toast });
+  }
   placesTick() {
     const c = {}; for (const p of this.players.values()) { if (p.bot) continue; const pl = p.state.place; if (pl && Game.LOC[pl]) c[pl] = (c[pl] || 0) + 1; }
     this.activeToday().then((today) => {

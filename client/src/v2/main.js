@@ -248,7 +248,7 @@ const act = (window.__act = {
         const [i,j]=world.room.nearestFree(task.station.x,task.station.z+.9),x=(i+.5)*.25-world.spec.w/2,zpos=(j+.5)*.25-world.spec.d/2;
         if(Math.hypot(x-task.station.x,zpos-task.station.z)>3){waiting=false;status.textContent='Approach the station from its clear side and try again.';return;}
         world.walkMe(x,zpos,go);net.send({t:'rmv',x,z:zpos,it:null,zn:null});
-      }},choice)),status),{title:task.title,sub:z.label});
+      }},choice)),h('button.btn.primary.wide',{style:{marginTop:'10px',background:'#d97706'},onclick:()=>{net.send({t:'work',op:'rush'});panel.close();}},'⚡ Rush Finish (30 XP)'),status),{title:task.title,sub:z.label});
   },
   workAssignment(){phone.close();const z=world.spec?.zones.find(z=>z.work===G.state.job?.id);if(z)act.workStation(z);},
   // A one-off life action from the world (property door or in-unit activity); errors become toasts.
@@ -370,7 +370,7 @@ function bindCamera() {
 // ---------------------------------------------------------------- input: tap / drag / pinch
 function bindInput() {
   const cv = stage.renderer.domElement; const pts = new Map(); let moved = 0, pinch0 = 0, t0 = 0;
-  cv.addEventListener('pointerdown', (e) => {if(worldBlocked(ui))return; pts.set(e.pointerId, { x: e.clientX, y: e.clientY }); moved = 0; t0 = performance.now(); if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch0 = Math.hypot(a.x - b.x, a.y - b.y); } });
+  cv.addEventListener('pointerdown', (e) => {hud.collapseObjectives?.();if(worldBlocked(ui))return; pts.set(e.pointerId, { x: e.clientX, y: e.clientY }); moved = 0; t0 = performance.now(); if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch0 = Math.hypot(a.x - b.x, a.y - b.y); } });
   cv.addEventListener('pointermove', (e) => { if(worldBlocked(ui)){pts.clear();return;}const p = pts.get(e.pointerId); if (!p) return; const dx = e.clientX - p.x, dy = e.clientY - p.y;
     if (view === 'map') map.transition = null;
     if (pts.size === 1) { moved += Math.abs(dx) + Math.abs(dy); if (studio.open) studio.turn(dx); else if (ride.active) ride.drag(dx); else if (moved > 8) stage.pan(dx, dy); }

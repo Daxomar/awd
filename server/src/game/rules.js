@@ -48,7 +48,7 @@ const inWindow = (h, [a, b]) => (b > 24 ? h >= a || h < b - 24 : h >= a && h < b
 export function isOpen(loc, now = Date.now()) {
   return true; // 24/7 Accra life: venues are open at any time
 }
-export function dumsorNow(now = Date.now(), policy) { const { h, wd } = clock(now); const w = D.DUMSOR[wd]; if (!w) return false; if (policy === 'light' && h >= w[0] + 1.5) return false; return h >= w[0] && h < w[1]; }
+export function dumsorNow(now = Date.now(), policy) { if (CUR.shard?.dumsorEmergencyUntil && CUR.shard.dumsorEmergencyUntil > now) return true; const { h, wd } = clock(now); const w = D.DUMSOR[wd]; if (!w) return false; if (policy === 'light' && h >= w[0] + 1.5) return false; return h >= w[0] && h < w[1]; }
 // real seconds an action takes (Sims-style compression, as fast as Lagos Life's feel)
 export const realSecs = (min, sleep) => (sleep ? Math.min(36, 10 + 0.055 * min) : Math.min(28, 4 + 0.11 * min));
 
@@ -344,10 +344,10 @@ function startShift(p, now) {
   const c = D.CAREERS[j.id], loc = LOC[c.at]; if (s.busy || s.shift) return toast('Busy.', 'bad');
   if (!at(p, loc.id)) return toast(`Go to ${loc.name} to start your shift.`, 'bad');
   if (!shiftWindowOk(c, now)) return toast(c.night ? 'Shifts here are 20:00–04:00 on work nights.' : 'Shifts run 06:00–22:00 on work days.', 'bad');
-  if (j.lastDay === clock(now).day) return toast('You already worked today. Come back tomorrow.', 'bad');
+  if (j.cooldownUntil && now < j.cooldownUntil) { const waitSec = Math.max(1, Math.ceil((j.cooldownUntil - now) / 1000)); return toast(`Shift cooldown active. Rest for ${waitSec}s before your next shift.`, 'bad'); }
   if (s.sick && s.sick.level === 'serious') return toast('Too sick to work.', 'bad');
   workDay(s, now).mins += 480;
-  s.shift = { start: now, worked: 0, last: now, perf0: j.perf, tasks: 0, wins: 0, tone: 'normal' };
+  s.shift = { start: now, worked: 0, last: now, perf0: j.perf, tasks: 0, wins: 0, tone: 'normal', maxDuration: 5 * 60000 };
   return { t: 'shift', shift: {...s.shift,assignment:taskView(s)}, title: c.ranks[j.rank][0], pay: shiftPay(s, now) };
 }
 function shiftPay(s, now, policy) { const j = s.job, c = D.CAREERS[j.id]; return Math.round(c.ranks[j.rank][1] * (1 + 0.05 * j.grade) * (policy === 'wages' ? 1.1 : 1)); }
@@ -361,7 +361,8 @@ function tickShift(p, now, policy) {
   for (const [k, v] of [['energy', -5], ['fun', -5], ['hygiene', -3]]) s.n[k] = clamp(s.n[k] + v * dt / 60);
   addSkill(s, c.skill, 2.2 * dt / 60);
   if ((sh.completedTasks?.length || 0) >= Career.SESSION.tasks) return endShift(p, now, policy, true);
-  if (now - sh.start >= Career.SESSION.legacyMinutes * 60000) return endShift(p, now, policy);
+  if (sh.maxDuration && now - sh.start >= sh.maxDuration) return endShift(p, now, policy, true);
+  if (now - sh.start >= Career.SESSION.legacyMinutes * 60000) return endShift(p, now, policy, true);
   return null;
 }
 function endShift(p, now, policy, session = false) {
@@ -372,7 +373,7 @@ function endShift(p, now, policy, session = false) {
     j.perf = clamp(j.perf + perfH * rest, 0, 100); addSkill(s, c.skill, 2.2 * rest); for (const [k, v] of [['energy', -5], ['fun', -5], ['hygiene', -3]]) s.n[k] = clamp(s.n[k] + v * rest); sh.worked = 60; }
   const frac = Math.min(1, sh.worked / 60); if (frac < 0.1) return toast('You barely worked. No pay today.', 'bad');
   const stars = sh.wins >= 3 ? 1.15 : 1; const amt = shiftPay(s, now, policy) * Math.max(0.25, frac) * stars;
-  const got = earn(s, amt, `${c.ranks[j.rank][0]} shift`); j.shifts++; j.lastDay = clock(now).day; s.stats.shifts++; addXp(s, 25);
+  const got = earn(s, amt, `${c.ranks[j.rank][0]} shift`); j.shifts++; j.lastDay = clock(now).day; j.cooldownUntil = now + 60000; s.stats.shifts++; addXp(s, 25);
   const out = { t: 'shiftDone', pay: got, perf: Math.round(j.perf), stars: stars > 1 }; bump(s, 'shift');
   // promotions: perf 100 → grade up; grade 4 + requirements → rank up
   if (j.perf >= 100) {
@@ -636,7 +637,7 @@ export function onMsg(p, msg, shard, now) {
     case 'onboard': return !s.onboarded&&(CFG.production||s.onboarding?.started)?toast('Reload the game and finish your saved setup steps.','bad'):onboard(p, msg);
     case 'act': { if (msg.home && s.place?.startsWith('visit:')) return guestHomeAction(p, String(msg.id), now, shard); if (msg.home) return homeAction(p, String(msg.id), now); const loc = LOC[msg.loc]; const a = loc && loc.acts.find((x) => x.id === msg.id); if (!a) return toast('Not available.', 'bad'); return startAction(p, loc, a, now, shard.policy); }
     case 'mgResult': { const b = s.busy; if (!b || !b.mg) return null; s.busy = null; const secs = (now - b.start) / 1000; if (secs < 20) return toast('Too fast.', 'bad'); const stars = Math.max(0, Math.min(3, msg.stars | 0)); const skill = { trotro: 'hustle', waakye: 'cooking', bolu: 'driving', bughunt: 'coding', azonto: 'dance', boxing: 'fitness' }[b.mg]; let amt = (18 + stars * 22) * (1 + lvl(s, skill) * 0.07); amt *= hustleMult(s, b.id, now, skill); s.gd.earned += amt; const got = earn(s, amt, 'Gig'); addSkill(s, skill, 0.3 + stars * 0.25); s.gigRest[b.id] = now + 30 * 1000; s.stats.gigs++; return { t: 'done', id: b.id, earned: got, stars }; }
-    case 'work': if(msg.op==='beginTask'){const c=D.CAREERS[s.job?.id];if(!s.shift||!c)return toast('Start your shift at work first.','bad');const error=beginTask(p,msg,c,now);return error?toast(error,'bad'):{t:'worktask',shift:{...s.shift,assignment:taskView(s)}};}return msg.op === 'start' ? startShift(p, now) : msg.op === 'task' && s.shift ? toast('Work performance is calculated by the server.') : msg.op === 'quit' ? ((s.job = null), (s.shift = null), { t: 'st', state: view(s) }) : msg.op === 'end' && s.shift ? ((s.shift = null), { t: 'st', state: view(s) }) : null;
+    case 'work': if(msg.op==='beginTask'){const c=D.CAREERS[s.job?.id];if(!s.shift||!c)return toast('Start your shift at work first.','bad');const error=beginTask(p,msg,c,now);return error?toast(error,'bad'):{t:'worktask',shift:{...s.shift,assignment:taskView(s)}};}if(msg.op==='rush'){const c=D.CAREERS[s.job?.id];if(!s.shift||!c)return toast('No active shift to finish.','bad');const cost=30;if((s.xp||0)<cost)return toast(`Needs ${cost} XP to rush finish your shift (you have ${s.xp||0} XP).`,'bad');s.xp-=cost;s.shift.completedTasks=['rush_1','rush_2','rush_3'];s.shift.wins=Math.max(s.shift.wins||0,3);s.shift.worked=Math.max(s.shift.worked||0,60);const r=endShift(p,now,shard.policy,true);return r;}return msg.op === 'start' ? startShift(p, now) : msg.op === 'task' && s.shift ? toast('Work performance is calculated by the server.') : msg.op === 'quit' ? ((s.job = null), (s.shift = null), { t: 'st', state: view(s) }) : msg.op === 'end' && s.shift ? ((s.shift = null), { t: 'st', state: view(s) }) : null;
     case 'apply': return apply(p, String(msg.id), now);
     case 'course': return takeCourse(p, msg, now);
     case 'lifeevent': { const r = LE.decide(s, lifeCtx(p, now), String(msg.choice || '')); if (r.error) return toast(r.error, 'bad'); const effects = applyLifeOutcome(p, r.out, r.active, now); return { t: 'life_event_result', id: r.active.id, title: r.active.title, text: r.out.text, effects, state: view(s) }; }

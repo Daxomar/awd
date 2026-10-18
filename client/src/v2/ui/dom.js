@@ -50,9 +50,12 @@ export const topSheet = () => stack[stack.length - 1];
 // ---------- toasts ----------
 const recentToasts=new Map();
 export function toast(m, k = '') {
-  if (!m) return; const key=k+':'+m,now=Date.now();if(now-(recentToasts.get(key)||0)<1500)return;recentToasts.set(key,now);if(recentToasts.size>50)for(const [k,t] of recentToasts)if(now-t>10000)recentToasts.delete(k);let box = document.getElementById('toasts'); if (!box) { box = h('div', { id: 'toasts' }); document.getElementById('ui').append(box); } const el = h('div.toast' + (k ? '.' + k : ''), null, m);
+  if (!m) return; const key=k+':'+m,now=Date.now();if(now-(recentToasts.get(key)||0)<1500)return;recentToasts.set(key,now);if(recentToasts.size>50)for(const [k,t] of recentToasts)if(now-t>10000)recentToasts.delete(k);let box = document.getElementById('toasts'); if (!box) { box = h('div', { id: 'toasts' }); document.getElementById('ui')?.append(box); }
+  const prefix = k === 'bad' ? '⚠️ ' : k === 'good' ? '✨ ' : k === 'gold' ? '🏆 ' : k === 'happening' ? '📢 ' : '';
+  const text = prefix && !m.startsWith(prefix.trim()) ? `${prefix}${m}` : m;
+  const el = h('div.toast' + (k ? '.' + k : ''), null, text);
   box.append(el); while (box.children.length > 2) box.firstChild.remove();
-  requestAnimationFrame(() => el.classList.add('in')); setTimeout(() => { el.classList.remove('in'); setTimeout(() => el.remove(), 300); }, Math.min(6000, 2600 + m.length * 35));
+  requestAnimationFrame(() => el.classList.add('in')); setTimeout(() => { el.classList.remove('in'); setTimeout(() => el.remove(), 260); }, Math.min(6500, 2800 + m.length * 35));
 }
 // centred celebration card (promotions, dream tiers, gems)
 export function celebrate({ icon, title, text, cta = 'Nice!', tone = 'gold', onclose }) {

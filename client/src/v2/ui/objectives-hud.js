@@ -29,7 +29,9 @@ export function goObjective(d, act) {
   const here = s?.place;
 
   // 2. Direct venue or exploration target (e.g. story missions or specific tasks)
-  const destId = d.venue || d.target;
+  const rawDest = d.venue || d.target;
+  const VENUE_ALIASES = { kaneshie: 'circle', airres: 'airport', jtown: 'kenkey', trasacco: 'hotel', nima: 'circle', legon: 'ug' };
+  const destId = VENUE_ALIASES[rawDest] || rawDest;
   if (destId) {
     if (destId === 'home') {
       if (here === 'home') {
@@ -406,5 +408,13 @@ export function buildObjectives(act) {
     draw(true);
   }
 
-  return { el, update, refresh: () => draw(false) };
+  function collapse() {
+    if (open) {
+      open = false;
+      saveOpen(false);
+      draw(true);
+    }
+  }
+
+  return { el, update, refresh: () => draw(false), collapse, isOpen: () => open, toggle: () => { open = !open; saveOpen(open); draw(true); } };
 }

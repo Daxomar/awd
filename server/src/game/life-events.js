@@ -41,6 +41,42 @@ export const DEFS = {
     },
     expire: 'You stepped back into a lit area and the moment passed. Nothing was taken.',
   },
+  kwashe_boys: {
+    cat: 'street', title: 'Ambushed by Kwashe Boys!', weight: 2, cooldownH: 24, negative: true, expireMin: 3,
+    eligible: (s, c) => (c.street || ['circle', 'kantamanto', 'makola', 'bukom'].includes(c.place)) && (s.cash || 0) >= 40,
+    text: () => 'A squad of aggressive Kwashe Boys corner you: "Charley, drop everything for your pocket sharp, or you go collect woto-woto!" (MoMo, bank savings and property are always safe.)',
+    choices: () => [
+      {id: 'fight', label: 'Stand ground & throw hands!', hint: 'Fitness helps. High risk, high respect'},
+      {id: 'sprint', label: 'Sprint like Asafa Powell!', hint: 'Fitness helps outrun them'},
+      {id: 'negotiate', label: 'Bargain: "Bossu take GH₵15 make I pass"', hint: 'Charisma & Hustle help give small change'},
+      {id: 'comply', label: 'Hand over some pocket change', hint: 'Lose a fraction of cash, no injuries'},
+      {id: 'shout', label: 'Scream "Awurade! Thief!"', hint: 'Nearby street crowd might step in'}],
+    resolve(s, c, x, choice, rnd) {
+      const hand = pocket(s, 0.25, 120), stress = {id: 'shaken', v: -10, h: 5, label: 'Shaken by Kwashe Boys'};
+      if (choice === 'fight') {
+        const combatPower = lvl(s, 'fitness') * 0.08 + (lvl(s, 'fitness') > 2 ? 0.35 : 0.2);
+        if (rnd() < pct(combatPower)) return {rep: 3, skill: ['fitness', 0.25], mood: {id: 'streetboss', v: 8, h: 6, label: 'Defeated Kwashe Boys'}, text: 'Accra we dey! You threw a sharp jab and knocked their leader off balance. The boys scattered into the alley!'};
+        return {cash: -pocket(s, 0.35, 160), needs: {energy: -20, hygiene: -15}, mood: stress, text: 'They overwhelmed you with numbers and grabbed some pocket cash before fleeing.'};
+      }
+      if (choice === 'sprint') {
+        return rnd() < pct(0.4 + lvl(s, 'fitness') * 0.07)
+          ? {needs: {energy: -15}, skill: ['fitness', 0.15], mood: {id: 'escaped', v: 5, h: 3, label: 'Outran Kwashe Boys'}, text: 'You dashed through the stalls and lost them near the trotro rank! Clean escape.'}
+          : {cash: -pocket(s, 0.3, 140), needs: {energy: -20}, mood: stress, text: 'You tripped near a gutter and they caught up, taking some pocket change.'};
+      }
+      if (choice === 'negotiate') {
+        return rnd() < pct(0.35 + lvl(s, 'charisma') * 0.08)
+          ? {cash: -Math.min(15, s.cash || 0), skill: ['charisma', 0.15], text: 'You spoke street pidgin like a veteran hustler. They took GH₵15 for "pure water" and let you pass with respect.'}
+          : {cash: -hand, mood: stress, text: 'They refused the small change and took your pocket cash anyway.'};
+      }
+      if (choice === 'shout') {
+        return rnd() < 0.65
+          ? {rep: 1, needs: {social: 5}, text: 'Trotro mates and street hawkers shouted and rushed over! The Kwashe Boys bolted. Nothing lost!'}
+          : {cash: -hand, mood: stress, text: 'Street noise drowned out your voice. You surrendered pocket cash.'};
+      }
+      return {cash: -hand, mood: stress, needs: {energy: -5}, text: `You calmly handed over GH₵${hand} and slipped away safely into the crowd.`};
+    },
+    expire: 'You slipped into a crowded shop before they could close in. Safe!',
+  },
   career: {
     cat: 'career', title: 'A chance to impress', weight: 1, cooldownH: 24, expireMin: 15,
     eligible: (s) => !!s.job,

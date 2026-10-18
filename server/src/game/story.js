@@ -162,9 +162,9 @@ export const STORY_MISSIONS = {
     title: 'Scouting the City Outskirts',
     desc: 'Travel to Kaneshie or Circle and work a transport or station hustle to earn your land survey fee.',
     dialogue: { speaker: 'Surveyor Mensah', text: 'Accra land is pure gold, but you have to walk the perimeter with your two eyes before signing any paper!' },
-    action: 'explore', target: 'kaneshie', hint: 'Go to Kaneshie/Circle and earn at least GH₵40 from gigs or station work',
+    action: 'explore', target: 'circle', hint: 'Go to Circle/Kaneshie and earn at least GH₵40 from gigs or station work',
     reward: { cash: 250, xp: 35 },
-    check: (s, c) => ['kaneshie', 'circle', 'nima'].includes(s.place) && ((s.stats?.gigs || 0) >= 1 || (s.gd?.earned || 0) >= 40 || (s.cnt && ((s.cnt['act:mate'] || 0) + (s.cnt['act:load'] || 0) + (s.cnt['act:resell'] || 0)) >= 1))
+    check: (s, c) => ['circle', 'kantamanto', 'makola', 'nima'].includes(s.place) && ((s.stats?.gigs || 0) >= 1 || (s.gd?.earned || 0) >= 40 || (s.cnt && ((s.cnt['act:mate'] || 0) + (s.cnt['act:load'] || 0) + (s.cnt['act:resell'] || 0)) >= 1))
   },
   landlord_2_2: {
     id: 'landlord_2_2', dream: 'landlord', chapter: 2, step: 2,
@@ -276,9 +276,9 @@ export const STORY_MISSIONS = {
     title: 'The Trasacco Valley Viewing',
     desc: 'Travel to East Legon or Trasacco Valley. The gold gates and manicured lawns await the city\'s biggest players. Present proof of wealth or luxury dining.',
     dialogue: { speaker: 'Trasacco Luxury Broker', text: 'Welcome home, Chairman. Double garage, private borehole, 24-hour estate armed security.' },
-    action: 'explore', target: 'trasacco', hint: 'Visit East Legon/Trasacco with liquid capital >= GH₵5,000 or fine dining',
+    action: 'explore', target: 'hotel', hint: 'Visit East Legon/Trasacco luxury area with liquid capital >= GH₵5,000 or fine dining',
     reward: { cash: 2000, xp: 200 },
-    check: (s, c) => ['trasacco', 'legon'].includes(s.place) && ((s.cash + s.momo >= 5000) || (s.stats?.meals || 0) >= 4 || (s.cnt && (s.cnt.social || 0) >= 2))
+    check: (s, c) => ['hotel', 'mall', 'cars', 'ug', 'trasacco', 'legon'].includes(s.place) && ((s.cash + s.momo >= 5000) || (s.stats?.meals || 0) >= 4 || (s.cnt && (s.cnt.social || 0) >= 2))
   },
   landlord_5_2: {
     id: 'landlord_5_2', dream: 'landlord', chapter: 5, step: 2,
@@ -392,9 +392,9 @@ export const STORY_MISSIONS = {
     title: 'The Executive Dinner in Airport Residential',
     desc: 'Meet record label A&Rs at an upscale dinner lounge in Airport Residential. Dine or network with industry figures.',
     dialogue: { speaker: 'Label Boss Dapper', text: 'We will put you on billboards in London and Lagos. Just put your signature on this little contract...' },
-    action: 'explore', target: 'airres', hint: 'Visit Airport Residential and dine, network, or earn GH₵100+ at the venue',
+    action: 'explore', target: 'hotel', hint: 'Visit Airport Residential luxury hotel lounge and dine, network, or earn GH₵100+',
     reward: { cash: 400, xp: 50 },
-    check: (s, c) => s.place === 'airres' && ((s.stats?.meals || 0) >= 1 || (s.cnt && (s.cnt.social || 0) >= 2) || (s.gd?.earned || 0) >= 100)
+    check: (s, c) => ['hotel', 'airport', 'airres'].includes(s.place) && ((s.stats?.meals || 0) >= 1 || (s.cnt && (s.cnt.social || 0) >= 2) || (s.gd?.earned || 0) >= 100)
   },
   star_3_2: {
     id: 'star_3_2', dream: 'star', chapter: 3, step: 2,
@@ -747,9 +747,9 @@ export const STORY_MISSIONS = {
     title: 'The Airport Residential Angel Boardroom',
     desc: 'Present your fintech deck inside an executive suite in Airport Residential. Dine with investors or pitch your prototype.',
     dialogue: { speaker: 'Angel Investor Boateng', text: 'Your customer acquisition cost is low, and your MoMo conversion is high. I like this.' },
-    action: 'explore', target: 'airres', hint: 'Visit Airport Residential with MVP 30%+ or dine with angel investors',
+    action: 'explore', target: 'hotel', hint: 'Visit Airport Residential executive hotel suite and pitch or dine with angel investors',
     reward: { cash: 350, xp: 45 },
-    check: (s, c) => s.place === 'airres' && ((s.flags?.mvp || 0) >= 30 || (s.stats?.meals || 0) >= 1 || (s.cnt && (s.cnt.social || 0) >= 2) || (s.gd?.earned || 0) >= 100)
+    check: (s, c) => ['hotel', 'airport', 'hub', 'airres'].includes(s.place) && ((s.flags?.mvp || 0) >= 30 || (s.stats?.meals || 0) >= 1 || (s.cnt && (s.cnt.social || 0) >= 2) || (s.gd?.earned || 0) >= 100)
   },
   unicorn_2_3: {
     id: 'unicorn_2_3', dream: 'unicorn', chapter: 2, step: 3,
@@ -852,9 +852,9 @@ export const STORY_MISSIONS = {
     title: 'The Cantonments Glass Tech Campus',
     desc: 'Move your headquarters into an iconic glass campus in Cantonments with rooftop helipad.',
     dialogue: { speaker: 'Head of People', text: 'Barista bar, sleep pods, and 500 brilliant minds building the future of Africa!' },
-    action: 'explore', target: 'trasacco', hint: 'Visit high-end districts or own luxury estate',
+    action: 'explore', target: 'hotel', hint: 'Visit high-end districts or own luxury estate',
     reward: { cash: 5000, xp: 500 },
-    check: (s) => ['airres', 'legon', 'trasacco'].includes(s.home) || (s.cash + s.momo >= 50000)
+    check: (s) => ['hotel', 'mall', 'airres', 'legon', 'trasacco'].includes(s.home) || (s.cash + s.momo >= 50000)
   },
   unicorn_5_2: {
     id: 'unicorn_5_2', dream: 'unicorn', chapter: 5, step: 2,
@@ -892,9 +892,9 @@ export const STORY_MISSIONS = {
     title: 'Kotoka International Airport Arrival',
     desc: 'Survive the airport protocol gauntlet and step out into the tropical Accra humidity. Tip the luggage attendants, socialize, or take a private ride.',
     dialogue: { speaker: 'Protocol Boy', text: 'Welcome home Boss! Anything for the boys? God bless your hustle!' },
-    action: 'explore', target: 'airres', hint: 'Visit Airport Residential and take transport or chat with locals',
+    action: 'explore', target: 'airport', hint: 'Visit Kotoka International Airport and take transport or chat with locals',
     reward: { cash: 100, xp: 20 },
-    check: (s, c) => s.place === 'airres' && (Object.keys(s.cnt || {}).some(k => k.startsWith('travel:') && s.cnt[k] > 0) || (s.cnt && (s.cnt.social || 0) >= 1) || (s.stats?.meals || 0) >= 1)
+    check: (s, c) => ['airport', 'hotel', 'airres'].includes(s.place) && (Object.keys(s.cnt || {}).some(k => k.startsWith('travel:') && s.cnt[k] > 0) || (s.cnt && (s.cnt.social || 0) >= 1) || (s.stats?.meals || 0) >= 1)
   },
   bigman_1_2: {
     id: 'bigman_1_2', dream: 'bigman', chapter: 1, step: 2,
@@ -930,9 +930,9 @@ export const STORY_MISSIONS = {
     title: 'The Family Compound Pilgrimage',
     desc: 'Visit the ancestral family compound in Jamestown or Nima to greet the elders. Share a meal with elders or make a family donation.',
     dialogue: { speaker: 'Elder Auntie', text: 'Our son has returned! Look how fat and handsome you have become! Praise God!' },
-    action: 'explore', target: 'jtown', hint: 'Visit Jamestown or Nima and eat a meal, socialize, or donate',
+    action: 'explore', target: 'kenkey', hint: 'Visit Jamestown Kenkey or Bukom and eat a meal, socialize, or donate',
     reward: { cash: 250, xp: 35 },
-    check: (s, c) => ['jtown', 'nima'].includes(s.place) && ((s.stats?.meals || 0) >= 1 || (s.cnt && (s.cnt.social || 0) >= 1) || (s.cnt && (s.cnt.donate || 0) >= 20))
+    check: (s, c) => ['kenkey', 'bukom', 'lighthouse', 'canoes', 'jtown', 'nima'].includes(s.place) && ((s.stats?.meals || 0) >= 1 || (s.cnt && (s.cnt.social || 0) >= 1) || (s.cnt && (s.cnt.donate || 0) >= 20))
   },
   bigman_2_2: {
     id: 'bigman_2_2', dream: 'bigman', chapter: 2, step: 2,

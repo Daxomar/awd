@@ -16,7 +16,8 @@ export function buildHud(ui,act){
  const population=h('span.hud-population',null,h('span.connection-dot',{'aria-hidden':'true'}),online);
  const location=h('span.current-location'),time=h('time'),place=h('button.location-control',{'aria-label':'Current location and city map',onclick:()=>act.map()},ic('map-pin'),h('span.location-copy',null,location,population),time,ic('caret-right'));
  const offline=h('p.connection-note',{hidden:true,role:'status'},ic('wifi-slash'),'Reconnecting. Your saved life is safe.');
- const top=h('header.hud.play-hud',{'aria-label':'Player and location'},h('div.hud-surface',null,h('div.hud-top',null,identity,wallet),place),offline);
+ const minToggle=h('button.hud-fold-toggle',{'aria-label':'Toggle HUD view',onclick:(e)=>{e.stopPropagation();top.classList.toggle('hud-minimized');minToggle.replaceChildren(ic(top.classList.contains('hud-minimized')?'caret-down':'caret-up'));}},ic('caret-up'));
+ const top=h('header.hud.play-hud',{'aria-label':'Player and location'},h('div.hud-surface',null,h('div.hud-top',null,identity,wallet,minToggle),place),offline);
  const streetName=h('span'),entrance=h('button.street-entrance',{hidden:true,onclick:()=>{if(nearbyZone)act.openZone(nearbyZone);}});
  const streetRow=h('div.street-context',{hidden:true},streetName,entrance);top.querySelector('.hud-surface').append(streetRow);
  const objectives=buildObjectives(act);top.querySelector('.hud-surface').append(objectives.el);
@@ -58,6 +59,9 @@ export function buildHud(ui,act){
   sheet(body,{title:n.label,sub:'Based on your current needs'});
  }
  const H={top,zones,nav,chips,busy,bottom,chatlog,
+  collapseObjectives(){objectives.collapse?.();},
+  toggleObjectives(){objectives.toggle?.();},
+  toggleMinimize(){top.classList.toggle('hud-minimized');minToggle.replaceChildren(ic(top.classList.contains('hud-minimized')?'caret-down':'caret-up'));},
   objective(rows){objectives.update(rows);},
   refreshObjectives(){objectives.refresh?.();},
   setNav(id){for(const b of nav.children){const on=b.dataset.nav===id;b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on));}},
