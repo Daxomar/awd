@@ -16,6 +16,10 @@ const ICON = { houses: 'house-line', home: 'house', interact: 'hand-tap', meet: 
 export function goObjective(d, act) {
   if (!d) return;
 
+  if (d.finished || d.action === 'aspirations') {
+    return openAspirationModal(() => act.refresh?.());
+  }
+
   // 1. Climax encounter / story dilemma
   if (d.encounterId || d.activeEncounter) {
     return openStoryEncounter(d.activeEncounter || { id: d.encounterId, title: d.title, text: d.desc }, () => act.refresh?.());
@@ -236,13 +240,18 @@ export function buildObjectives(act) {
     // 2. If an active story mission exists, it takes top spotlight on the HUD beacon!
     if (storyMission) {
       el.hidden = false;
+      const isFinished = storyMission.finished;
       const isReady = storyMission.ready;
-      const isClimax = storyMission.isClimax && !isReady;
-      const arcTitle = storyMission.arcTitle || 'Accra Story';
-      const chNum = storyMission.chapter || 1;
+      const isClimax = storyMission.isClimax && !isReady && !isFinished;
+      const arcTitle = storyMission.arcTitle || storyMission.arcName || 'Accra Story';
+      const chNum = storyMission.chapter || 5;
       const destName = storyMission.target && loc(storyMission.target) ? loc(storyMission.target).name : null;
 
-      const actButton = isReady
+      const actButton = isFinished
+        ? h('button.obj-btn.claim', {
+            onclick: () => openAspirationModal(() => act.refresh?.())
+          }, 'Next Dream 🏆')
+        : isReady
         ? h('button.obj-btn.claim', {
             disabled: pending.has(storyMission.id),
             onclick: () => claimStory(storyMission.id)
@@ -262,13 +271,13 @@ export function buildObjectives(act) {
           'aria-controls': 'obj-panel',
           onclick: () => { open = !open; saveOpen(open); draw(true); }
         },
-          h('span.obj-icon', { 'aria-hidden': 'true', style: isReady ? { background: '#fef3c7', color: '#b45309' } : null },
-            ic(isReady ? 'gift' : isClimax ? 'lightning' : ICON[storyMission.action] || 'target')
+          h('span.obj-icon', { 'aria-hidden': 'true', style: (isReady || isFinished) ? { background: '#fef3c7', color: '#b45309' } : null },
+            ic(isFinished ? 'crown' : isReady ? 'gift' : isClimax ? 'lightning' : ICON[storyMission.action] || 'target')
           ),
           h('span.obj-copy', null,
-            h('span.mission-pill.main', null, '★ MAIN STORY'),
-            h('small', null, `${arcTitle} · Ch. ${chNum}`),
-            h('strong', null, isReady ? 'Ready to Claim: ' + storyMission.title : isClimax ? 'Dilemma: ' + storyMission.title : storyMission.title)
+            h('span.mission-pill.main', null, isFinished ? '★ DREAM CONQUERED' : '★ MAIN STORY'),
+            h('small', null, isFinished ? `${arcTitle} Completed` : `${arcTitle} · Ch. ${chNum}`),
+            h('strong', null, isFinished ? storyMission.title : isReady ? 'Ready to Claim: ' + storyMission.title : isClimax ? 'Dilemma: ' + storyMission.title : storyMission.title)
           ),
           ic(open ? 'caret-up' : 'caret-down')
         ),
@@ -287,9 +296,9 @@ export function buildObjectives(act) {
       },
         h('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' } },
           h('div', { style: { display: 'flex', alignItems: 'center', gap: '6px' } },
-            h('span.mission-pill.main', null, '★ MAIN'),
-            h('small', { style: { fontWeight: '700', color: '#b45309', textTransform: 'uppercase', letterSpacing: '0.04em' } },
-              storyMission.chapterTitle || `Chapter ${chNum}`
+            h('span.mission-pill.main', null, isFinished ? '★ CONQUERED' : '★ MAIN'),
+            h('small', { style: { fontWeight: '700', color: isFinished ? '#10b981' : '#b45309', textTransform: 'uppercase', letterSpacing: '0.04em' } },
+              storyMission.chapterTitle || (isFinished ? 'All 5 Chapters Complete' : `Chapter ${chNum}`)
             )
           ),
           storyMission.reward ? h('small', { style: { color: '#0e7a4e', fontWeight: '600' } },
@@ -297,7 +306,11 @@ export function buildObjectives(act) {
           ) : null
         ),
         h('strong', { style: { display: 'block', fontSize: '13px', color: '#1d3b31', marginBottom: '4px' } }, storyMission.title),
-        h('p', { style: { fontSize: '12px', color: '#556b62', margin: '0 0 8px', lineHeight: '1.4' } }, storyMission.description),
+        h('p', { style: { fontSize: '12px', color: '#556b62', margin: '0 0 8px', lineHeight: '1.4' } }, storyMission.description || storyMission.desc),
+        isFinished ? h('button.btn.primary.wide', {
+          style: { minHeight: '36px', fontSize: '12px', padding: '0 12px', background: '#0e7a4e' },
+          onclick: () => openAspirationModal(() => act.refresh?.())
+        }, 'Choose Next Aspiration 🏆') :
         isReady ? h('button.btn.primary.wide', {
           style: { minHeight: '36px', fontSize: '12px', padding: '0 12px', background: '#c58a1c' },
           disabled: pending.has(storyMission.id),

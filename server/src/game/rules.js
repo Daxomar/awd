@@ -222,7 +222,10 @@ function canDo(s, p, loc, a, now, residence) {
   if (s.flags.jailUntil > now) return `You are in police cells for ${Math.ceil((s.flags.jailUntil - now) / 60000)} more min.`;
   if (a.pitch && (s.flags.mvp || 0) < 100) return `Your MVP is ${Math.round(s.flags.mvp || 0)}% done. Build it at the hub first.`;
   if (a.pitch && s.flags.lastPitch && now - s.flags.lastPitch < 7 * 86400000) return 'Investors take a week to reply. Pitch again next week.';
-  if (a.rest && (s.gigRest[a.id] || 0) > now) return `Rest ${Math.ceil((s.gigRest[a.id] - now) / 60000)} min before doing this again.`;
+  if (a.rest && (s.gigRest[a.id] || 0) > now) {
+    const remSec = Math.ceil((s.gigRest[a.id] - now) / 1000);
+    return remSec > 60 ? `Rest ${Math.ceil(remSec / 60)} min before doing this again.` : `Catch your breath: ${remSec}s remaining.`;
+  }
   if (s.sick && s.sick.level === 'serious' && a.earn) return 'You are too sick to work. See a doctor.';
   return null;
 }
@@ -245,7 +248,7 @@ function finishAction(p, now) {
   for (const k in a.inst || {}) { if (k === 'food') { s.food = Math.min(18, s.food + a.inst.food); continue; } s.n[k] = clamp(s.n[k] + a.inst[k]); out.gains[k] = (out.gains[k] || 0) + a.inst[k]; }
   for (const k in a.skill || {}) { const up = addSkill(s, k, a.skill[k] * hrs); if (up) out.levelUp = [k, up]; }
   if (a.earn) { const e = a.earn; let amt = e.base + (e.per || 0) * lvl(s, e.skill); if (e.var) amt *= 1 - e.var / 2 + Math.random() * e.var; if (has(s, 'hustler') && a.tags.includes('hustle')) amt *= 1.15; if (a.tags.includes('gig') || a.tags.includes('hustle')) { amt *= hustleMult(s, a.id, now, e.skill); s.gd.earned += amt; if (amt < (e.base || 20) * 0.5) out.tired = true; } out.earned = earn(s, amt, a.label); s.stats.gigs++; }
-  if (a.rest) s.gigRest[a.id] = now + a.rest * 60000;
+  if (a.rest) s.gigRest[a.id] = now + (a.crime ? Math.min(60000, a.rest * 1000) : 30000);
   if (a.crime) { const c = a.crime; s.heat = s.heat || 0; const pCatch = Math.max(.05,Math.min(0.92, c.catch + s.heat / 250 - lvl(s, c.skill) * 0.03)); out.crimeRisk=pCatch;s.heat = Math.min(200, s.heat + 30);
     if (Math.random() > pCatch) { if (c.loot) out.earned = earn(s, (c.loot[0] + Math.random() * (c.loot[1] - c.loot[0])) * (a.sakawa && s.flags.juju ? 1.8 : 1) * (a.sakawa ? Math.max(0.3, 1 - (s.cnt['act:sakawa'] || 0) * 0.02) : 1), a.sakawa ? 'Fictional deal proceeds' : 'Fictional street proceeds', false);
       if (a.sakawa && s.flags.juju && Math.random() < 0.15) { const lost = Math.round((s.cash + s.momo) * 0.2); spend(s, lost, 'Strange misfortune'); out.juju = lost; } if (c.reward) for (const k in c.reward) s.n[k] = clamp(s.n[k] + c.reward[k]); out.crime = 'ok'; }
@@ -615,7 +618,7 @@ export function onMsg(p, msg, shard, now) {
     // must complete saved checkpoints; a cached old client needs a reload.
     case 'onboard': return !s.onboarded&&(CFG.production||s.onboarding?.started)?toast('Reload the game and finish your saved setup steps.','bad'):onboard(p, msg);
     case 'act': { if (msg.home && s.place?.startsWith('visit:')) return guestHomeAction(p, String(msg.id), now, shard); if (msg.home) return homeAction(p, String(msg.id), now); const loc = LOC[msg.loc]; const a = loc && loc.acts.find((x) => x.id === msg.id); if (!a) return toast('Not available.', 'bad'); return startAction(p, loc, a, now, shard.policy); }
-    case 'mgResult': { const b = s.busy; if (!b || !b.mg) return null; s.busy = null; const secs = (now - b.start) / 1000; if (secs < 20) return toast('Too fast.', 'bad'); const stars = Math.max(0, Math.min(3, msg.stars | 0)); const skill = { trotro: 'hustle', waakye: 'cooking', bolu: 'driving', bughunt: 'coding', azonto: 'dance', boxing: 'fitness' }[b.mg]; let amt = (18 + stars * 22) * (1 + lvl(s, skill) * 0.07); amt *= hustleMult(s, b.id, now, skill); s.gd.earned += amt; const got = earn(s, amt, 'Gig'); addSkill(s, skill, 0.3 + stars * 0.25); s.gigRest[b.id] = now + 60 * 60000; s.stats.gigs++; return { t: 'done', id: b.id, earned: got, stars }; }
+    case 'mgResult': { const b = s.busy; if (!b || !b.mg) return null; s.busy = null; const secs = (now - b.start) / 1000; if (secs < 20) return toast('Too fast.', 'bad'); const stars = Math.max(0, Math.min(3, msg.stars | 0)); const skill = { trotro: 'hustle', waakye: 'cooking', bolu: 'driving', bughunt: 'coding', azonto: 'dance', boxing: 'fitness' }[b.mg]; let amt = (18 + stars * 22) * (1 + lvl(s, skill) * 0.07); amt *= hustleMult(s, b.id, now, skill); s.gd.earned += amt; const got = earn(s, amt, 'Gig'); addSkill(s, skill, 0.3 + stars * 0.25); s.gigRest[b.id] = now + 30 * 1000; s.stats.gigs++; return { t: 'done', id: b.id, earned: got, stars }; }
     case 'work': if(msg.op==='beginTask'){const c=D.CAREERS[s.job?.id];if(!s.shift||!c)return toast('Start your shift at work first.','bad');const error=beginTask(p,msg,c,now);return error?toast(error,'bad'):{t:'worktask',shift:{...s.shift,assignment:taskView(s)}};}return msg.op === 'start' ? startShift(p, now) : msg.op === 'task' && s.shift ? toast('Work performance is calculated by the server.') : msg.op === 'quit' ? ((s.job = null), (s.shift = null), { t: 'st', state: view(s) }) : msg.op === 'end' && s.shift ? ((s.shift = null), { t: 'st', state: view(s) }) : null;
     case 'apply': return apply(p, String(msg.id), now);
     case 'course': return takeCourse(p, msg, now);
@@ -746,6 +749,8 @@ function storyClaim(p, id, now) {
     t: 'story_claimed',
     mission: res.mission,
     reward: res.reward,
+    arcFinished: !!res.arcFinished,
+    arc: res.arc || null,
     next: ST.activeStoryMission(s, c),
     state: view(s)
   };

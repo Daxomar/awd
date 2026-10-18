@@ -33,7 +33,7 @@ import { confirmRoomArrival, zoneActions } from './ui/hud-state.js';
 import { renderZones, openZone, actsFor } from './ui/venue.js';
 import { openMeet } from './ui/meet.js';
 import { openLifeEvent, showLifeResult } from './ui/life-event.js';
-import { openAspirationModal } from './ui/story-dialog.js';
+import { openStoryEncounter, openAspirationModal } from './ui/story-dialog.js';
 import { goObjective } from './ui/objectives-hud.js';
 import { openPlace, rideScreen } from './ui/travel.js';
 import { Ride } from './scene/ride.js';
@@ -455,6 +455,16 @@ function bindNet() {
     if(m.place==='viewing'||m.place.startsWith('n:'))net.send({t:'matches'});
     if(m.place.startsWith('e:'))net.send({t:'estate_list',area:m.place.slice(2),page:0});
     const l = loc(m.place); if (l && !isOpen(l)) toast(`${l.name} is closed right now. Come back during opening hours.`, 'bad');
+    const activeMission = G.state?.story?.activeMission;
+    if (activeMission && !activeMission.ready && !activeMission.finished) {
+      if (activeMission.activeEncounter && (activeMission.target === m.place || !activeMission.target)) {
+        setTimeout(() => {
+          openStoryEncounter(activeMission.activeEncounter, () => refresh());
+        }, 500);
+      } else if (activeMission.target === m.place) {
+        toast(`★ Main Story: ${activeMission.title} — ${activeMission.hint || activeMission.desc || activeMission.description || ''}`, 'good');
+      }
+    }
   });
   setInterval(()=>{if(G.state?.place?.startsWith('e:'))net.send({t:'estate_list',area:G.state.place.slice(2),page:world.estate?.page||0});},30000);
   let estatePanel=null;net.on('estate_list',m=>{if(world.place!=='e:'+m.area)return;world.loadEstate(m);renderZones(hud.zones,world.spec,world.place,act);if(estatePanel)estatePanel.remove();estatePanel=h('div.estate-panel',null,h('span',null,`${G.cat.homes[m.area].area} · ${m.total} purchased homes`),m.total===0?h('span.muted',null,'Homes appear here when players buy in this area.'):null,...(m.total>12?[h('button.btn.sm',{disabled:m.page===0,onclick:()=>net.send({t:'estate_list',area:m.area,page:m.page-1})},'Previous'),h('span',null,`${m.page+1}/${Math.ceil(m.total/12)}`),h('button.btn.sm',{disabled:(m.page+1)*12>=m.total,onclick:()=>net.send({t:'estate_list',area:m.area,page:m.page+1})},'Next')]:[]));hud.zones.append(estatePanel);});
@@ -507,6 +517,18 @@ function bindNet() {
   net.on('dream', (m) => { if (m.state) merge(m.state); celebrate({ icon: m.done ? 'icon:circle' : 'icon:star', title: m.done ? 'Dream achieved!' : 'Milestone unlocked', text: `${m.label} · +${cedi(m.cash)} · +${m.rep} rep` }); });
   net.on('story_claimed', (m) => {
     if (m.state) merge(m.state);
+    if (m.arcFinished) {
+      celebrate({
+        icon: 'icon:crown',
+        title: `${m.arc?.name || 'Aspiration'} Conquered!`,
+        text: 'You have conquered all 5 chapters of your Accra Dream! Choose your next aspiration or continue dominating Accra.',
+        cta: 'Choose Next Dream 🏆',
+        tone: 'gold'
+      });
+      setTimeout(() => openAspirationModal(), 2000);
+      refresh();
+      return;
+    }
     if (m.reward) {
       const rw = [];
       if (m.reward.cash) rw.push(`+${cedi(m.reward.cash)}`);
@@ -524,7 +546,7 @@ function bindNet() {
     setTimeout(() => {
       const nextMission = G.state?.story?.activeMission;
       if (nextMission) {
-        toast(`Next Story Mission: ${nextMission.title} — ${nextMission.hint || nextMission.description}`, 'good');
+        toast(`Next Story Mission: ${nextMission.title} — ${nextMission.hint || nextMission.description || nextMission.desc}`, 'good');
         const hud = document.querySelector('.objectives-hud');
         if (hud) { hud.classList.remove('pulse'); void hud.offsetWidth; hud.classList.add('pulse'); }
       }

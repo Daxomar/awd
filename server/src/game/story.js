@@ -130,12 +130,12 @@ export const STORY_MISSIONS = {
   },
   landlord_1_2: {
     id: 'landlord_1_2', dream: 'landlord', chapter: 1, step: 2,
-    title: 'Source Emergency Sealant',
-    desc: 'Don\'t let Lamptey cheat you. Visit a nearby market or convenience store to buy sealant or hire a local fundi.',
-    dialogue: { speaker: 'Aunty Mansa (Neighbor)', text: 'Don\'t let Lamptey take your money for repairs and drink Guinness with it. Buy the tar yourself from Makola!' },
-    action: 'explore', target: 'makola', hint: 'Visit Makola market or Kantamanto to inspect supplies',
+    title: 'Source Emergency Sealant at Makola',
+    desc: 'Don\'t let Lamptey cheat you. Go to Makola Market or Kantamanto and work a market gig (carry loads, resell, or hawk) to earn your own repair supplies.',
+    dialogue: { speaker: 'Aunty Mansa (Neighbor)', text: 'Don\'t let Lamptey take your money for repairs and drink Guinness with it. Go hustle at Makola and buy the tar yourself!' },
+    action: 'explore', target: 'makola', hint: 'Go to Makola/Kantamanto and complete any market work/gig to earn supplies',
     reward: { cash: 150, xp: 25 },
-    check: (s, c) => (s.discovery?.visited && (s.discovery.visited.makola || s.discovery.visited.kantamanto)) || ['makola', 'kantamanto'].includes(s.place)
+    check: (s, c) => ['makola', 'kantamanto'].includes(s.place) && ((s.stats?.gigs || 0) >= 1 || (s.cnt && ((s.cnt['act:kayayo'] || 0) + (s.cnt['act:resell'] || 0) + (s.cnt['act:hawk'] || 0) + (s.cnt['act:accessories'] || 0)) >= 1) || (s.gd && (s.gd.earned || 0) >= 60))
   },
   landlord_1_3: {
     id: 'landlord_1_3', dream: 'landlord', chapter: 1, step: 3,
@@ -160,11 +160,11 @@ export const STORY_MISSIONS = {
   landlord_2_1: {
     id: 'landlord_2_1', dream: 'landlord', chapter: 2, step: 1,
     title: 'Scouting the City Outskirts',
-    desc: 'Travel to Kaneshie or an emerging outer district to inspect undeveloped land boundaries.',
+    desc: 'Travel to Kaneshie or Circle and work a transport or station hustle to earn your land survey fee.',
     dialogue: { speaker: 'Surveyor Mensah', text: 'Accra land is pure gold, but you have to walk the perimeter with your two eyes before signing any paper!' },
-    action: 'explore', target: 'kaneshie', hint: 'Travel to Kaneshie or an emerging district',
+    action: 'explore', target: 'kaneshie', hint: 'Go to Kaneshie/Circle and earn at least GH₵40 from gigs or station work',
     reward: { cash: 250, xp: 35 },
-    check: (s, c) => (s.discovery?.visited && s.discovery.visited.kaneshie) || s.place === 'kaneshie' || Object.keys(s.cnt || {}).some(k => k.startsWith('travel:') && (s.cnt[k] || 0) >= 2)
+    check: (s, c) => ['kaneshie', 'circle', 'nima'].includes(s.place) && ((s.stats?.gigs || 0) >= 1 || (s.gd?.earned || 0) >= 40 || (s.cnt && ((s.cnt['act:mate'] || 0) + (s.cnt['act:load'] || 0) + (s.cnt['act:resell'] || 0)) >= 1))
   },
   landlord_2_2: {
     id: 'landlord_2_2', dream: 'landlord', chapter: 2, step: 2,
@@ -198,11 +198,11 @@ export const STORY_MISSIONS = {
   landlord_3_1: {
     id: 'landlord_3_1', dream: 'landlord', chapter: 3, step: 1,
     title: 'Pricing Blocks & Rods',
-    desc: 'Head to Kantamanto or Circle building depots to price five-inch cement blocks and iron rods.',
+    desc: 'Head to Kantamanto or Makola building area and hustle to earn at least GH₵80 towards building supplies.',
     dialogue: { speaker: 'Kweku Mason', text: 'Master, cement price jumped this morning oh! Dollar has touched it. Buy today before tomorrow rises!' },
-    action: 'explore', target: 'kantamanto', hint: 'Visit Kantamanto or Makola building area',
+    action: 'explore', target: 'kantamanto', hint: 'Work gigs or trades in Kantamanto/Makola to earn building supplies funds',
     reward: { cash: 400, xp: 45 },
-    check: (s, c) => (s.discovery?.visited && (s.discovery.visited.kantamanto || s.discovery.visited.makola))
+    check: (s, c) => ['kantamanto', 'makola'].includes(s.place) && ((s.stats?.gigs || 0) >= 2 || (s.gd?.earned || 0) >= 80 || (s.cnt && ((s.cnt['act:resell'] || 0) + (s.cnt['act:kayayo'] || 0) + (s.cnt['act:hawk'] || 0)) >= 1))
   },
   landlord_3_2: {
     id: 'landlord_3_2', dream: 'landlord', chapter: 3, step: 2,
@@ -236,11 +236,11 @@ export const STORY_MISSIONS = {
   landlord_4_1: {
     id: 'landlord_4_1', dream: 'landlord', chapter: 4, step: 1,
     title: 'Scouting Oxford Street Commercial Stalls',
-    desc: 'Residential rent is safe, but commercial storefronts on Oxford Street Osu mint serious wealth.',
+    desc: 'Residential rent is safe, but commercial storefronts on Oxford Street Osu mint serious wealth. Earn commercial hustle income or network with shop owners.',
     dialogue: { speaker: 'Osu Commercial Agent', text: 'Foot traffic here is 24/7. Tourists, expats, ballers. A shop here pays for itself in one Christmas season!' },
-    action: 'explore', target: 'oxford', hint: 'Visit Oxford Street in Osu',
+    action: 'explore', target: 'oxford', hint: 'Visit Oxford Street Osu and earn GH₵100+ or network with shopkeepers',
     reward: { cash: 600, xp: 60 },
-    check: (s, c) => (s.discovery?.visited && s.discovery.visited.oxford) || s.place === 'oxford'
+    check: (s, c) => s.place === 'oxford' && ((s.gd?.earned || 0) >= 100 || (s.stats?.gigs || 0) >= 3 || (s.cnt && (s.cnt.social || 0) >= 2) || (s.stats?.meals || 0) >= 2)
   },
   landlord_4_2: {
     id: 'landlord_4_2', dream: 'landlord', chapter: 4, step: 2,
@@ -274,11 +274,11 @@ export const STORY_MISSIONS = {
   landlord_5_1: {
     id: 'landlord_5_1', dream: 'landlord', chapter: 5, step: 1,
     title: 'The Trasacco Valley Viewing',
-    desc: 'Travel to East Legon or Trasacco Valley. The gold gates and manicured lawns await the city\'s biggest players.',
+    desc: 'Travel to East Legon or Trasacco Valley. The gold gates and manicured lawns await the city\'s biggest players. Present proof of wealth or luxury dining.',
     dialogue: { speaker: 'Trasacco Luxury Broker', text: 'Welcome home, Chairman. Double garage, private borehole, 24-hour estate armed security.' },
-    action: 'explore', target: 'trasacco', hint: 'Visit East Legon or Trasacco area',
+    action: 'explore', target: 'trasacco', hint: 'Visit East Legon/Trasacco with liquid capital >= GH₵5,000 or fine dining',
     reward: { cash: 2000, xp: 200 },
-    check: (s, c) => (s.discovery?.visited && (s.discovery.visited.trasacco || s.discovery.visited.legon)) || ['trasacco', 'legon'].includes(s.place)
+    check: (s, c) => ['trasacco', 'legon'].includes(s.place) && ((s.cash + s.momo >= 5000) || (s.stats?.meals || 0) >= 4 || (s.cnt && (s.cnt.social || 0) >= 2))
   },
   landlord_5_2: {
     id: 'landlord_5_2', dream: 'landlord', chapter: 5, step: 2,
@@ -323,11 +323,11 @@ export const STORY_MISSIONS = {
   star_1_2: {
     id: 'star_1_2', dream: 'star', chapter: 1, step: 2,
     title: 'Labadi Beach Listening Session',
-    desc: 'Take your phone demo to Labadi Beach and play it for friends to test the beat.',
+    desc: 'Take your phone demo to Labadi Beach and test the beat with an on-site dance clash, busking, or beach interaction.',
     dialogue: { speaker: 'Chale Boy Sly', text: 'This baseline is sweet chaley! If you drop this at night, the girls will lose their sandals!' },
-    action: 'explore', target: 'labadi', hint: 'Visit Labadi Beach and chat with someone',
+    action: 'explore', target: 'labadi', hint: 'Go to Labadi Beach and engage in dance, battle, music, or social chats',
     reward: { cash: 150, xp: 30 },
-    check: (s, c) => (s.discovery?.visited && s.discovery.visited.labadi) || s.place === 'labadi'
+    check: (s, c) => s.place === 'labadi' && ((s.cnt && ((s.cnt['act:dance'] || 0) + (s.cnt['act:battle'] || 0) + (s.cnt['act:guitar'] || 0) + (s.cnt.social || 0) + (s.cnt.chat || 0)) >= 1) || (s.skills?.music || 0) >= 2)
   },
   star_1_3: {
     id: 'star_1_3', dream: 'star', chapter: 1, step: 3,
@@ -352,11 +352,11 @@ export const STORY_MISSIONS = {
   star_2_1: {
     id: 'star_2_1', dream: 'star', chapter: 2, step: 1,
     title: 'Vibes Lounge Debut',
-    desc: 'Arrive at Vibes Lounge in Osu and get your name on the DJ\'s open mic roster.',
+    desc: 'Arrive at Vibes Lounge in Osu and rock the mic or dance floor with a performance or club gig.',
     dialogue: { speaker: 'DJ Black', text: 'You get 3 minutes on my stage. If the crowd doesn\'t scream, I will cut your mic!' },
-    action: 'explore', target: 'vibes', hint: 'Visit Vibes Lounge in Osu',
+    action: 'explore', target: 'vibes', hint: 'Visit Vibes Lounge in Osu and complete a battle, performance or club gig',
     reward: { cash: 250, xp: 40 },
-    check: (s, c) => (s.discovery?.visited && s.discovery.visited.vibes) || s.place === 'vibes'
+    check: (s, c) => s.place === 'vibes' && ((s.cnt && ((s.cnt['act:battle'] || 0) + (s.cnt['act:dance'] || 0) + (s.cnt['act:club'] || 0) + (s.cnt['act:sing'] || 0)) >= 1) || (s.stats?.gigs || 0) >= 1 || (s.gd?.earned || 0) >= 50)
   },
   star_2_2: {
     id: 'star_2_2', dream: 'star', chapter: 2, step: 2,
@@ -390,11 +390,11 @@ export const STORY_MISSIONS = {
   star_3_1: {
     id: 'star_3_1', dream: 'star', chapter: 3, step: 1,
     title: 'The Executive Dinner in Airport Residential',
-    desc: 'Meet record label A&Rs at an upscale dinner lounge in Airport Residential.',
+    desc: 'Meet record label A&Rs at an upscale dinner lounge in Airport Residential. Dine or network with industry figures.',
     dialogue: { speaker: 'Label Boss Dapper', text: 'We will put you on billboards in London and Lagos. Just put your signature on this little contract...' },
-    action: 'explore', target: 'airres', hint: 'Visit Airport Residential',
+    action: 'explore', target: 'airres', hint: 'Visit Airport Residential and dine, network, or earn GH₵100+ at the venue',
     reward: { cash: 400, xp: 50 },
-    check: (s, c) => (s.discovery?.visited && s.discovery.visited.airres) || s.place === 'airres'
+    check: (s, c) => s.place === 'airres' && ((s.stats?.meals || 0) >= 1 || (s.cnt && (s.cnt.social || 0) >= 2) || (s.gd?.earned || 0) >= 100)
   },
   star_3_2: {
     id: 'star_3_2', dream: 'star', chapter: 3, step: 2,
@@ -408,11 +408,11 @@ export const STORY_MISSIONS = {
   star_3_3: {
     id: 'star_3_3', dream: 'star', chapter: 3, step: 3,
     title: 'Jamestown Lighthouse Video Shoot',
-    desc: 'Shoot your official music video with the historic Jamestown lighthouse in the background.',
+    desc: 'Shoot your official music video with the historic Jamestown lighthouse. Spar in the gym, perform on the street, or complete 2 gigs.',
     dialogue: { speaker: 'Video Director Nana', text: 'Camera rolls in 3, 2, 1! Flex the sunglasses, let the ocean wind blow your shirt!' },
-    action: 'explore', target: 'n:jtown', hint: 'Visit Jamestown streets or harbour area',
+    action: 'explore', target: 'n:jtown', hint: 'Visit Jamestown and engage in video shooting actions (performing, gym workout, or gigs)',
     reward: { cash: 600, xp: 80 },
-    check: (s, c) => (s.discovery?.visited && (s.discovery.visited['n:jtown'] || s.discovery.visited.jtown)) || s.place?.includes('jtown')
+    check: (s, c) => (s.place === 'jtown' || s.place?.includes('jtown')) && ((s.stats?.gigs || 0) >= 2 || (s.cnt && ((s.cnt['act:spar'] || 0) + (s.cnt['act:boxing'] || 0) + (s.cnt['act:guitar'] || 0) + (s.cnt.social || 0)) >= 1))
   },
   star_3_4: {
     id: 'star_3_4', dream: 'star', chapter: 3, step: 4, isClimax: true,
@@ -466,11 +466,11 @@ export const STORY_MISSIONS = {
   star_5_1: {
     id: 'star_5_1', dream: 'star', chapter: 5, step: 1,
     title: 'The Live Street Billboard Face',
-    desc: 'Your face shines on the digital billboards of Accra announcing Detty December.',
+    desc: 'Your face shines on the digital billboards of Accra announcing Detty December. Inspect the billboards in Osu or Circle with established street reputation.',
     dialogue: { speaker: 'Concert Promoter', text: 'All 8 city billboards are booked with your face. Tickets sold out in 14 minutes!' },
-    action: 'explore', target: 'oxford', hint: 'Inspect the billboard ads in Osu or Circle',
+    action: 'explore', target: 'oxford', hint: 'Visit Oxford Street or Circle with Reputation 15+ or earn GH₵200+',
     reward: { cash: 2500, xp: 250 },
-    check: (s, c) => (s.discovery?.visited && (s.discovery.visited.oxford || s.discovery.visited.circle))
+    check: (s, c) => ['oxford', 'circle'].includes(s.place) && ((s.rep || 0) >= 15 || (s.gd?.earned || 0) >= 200 || (s.skills?.music || 0) >= 6)
   },
   star_5_2: {
     id: 'star_5_2', dream: 'star', chapter: 5, step: 2,
@@ -506,20 +506,20 @@ export const STORY_MISSIONS = {
   mogul_1_1: {
     id: 'mogul_1_1', dream: 'mogul', chapter: 1, step: 1,
     title: 'The 5 AM Kantamanto Bale',
-    desc: 'Visit Kantamanto early morning to inspect fresh imported bales of vintage clothes.',
+    desc: 'Visit Kantamanto early morning to inspect fresh imported bales. Work a sorting, load or resell gig to earn your first merchandise funds.',
     dialogue: { speaker: 'Bale Importer Yakubu', text: 'First grade UK bale! Clean jackets and jeans. If you take this, you double your money by sunset!' },
-    action: 'explore', target: 'kantamanto', hint: 'Visit Kantamanto market',
+    action: 'explore', target: 'kantamanto', hint: 'Visit Kantamanto and complete a gig (thrift sort, load carry, or resell)',
     reward: { cash: 100, xp: 20 },
-    check: (s, c) => (s.discovery?.visited && s.discovery.visited.kantamanto) || s.place === 'kantamanto'
+    check: (s, c) => s.place === 'kantamanto' && ((s.stats?.gigs || 0) >= 1 || (s.gd?.earned || 0) >= 40 || (s.cnt && ((s.cnt['act:resell'] || 0) + (s.cnt['act:load'] || 0) + (s.cnt['act:kayayo'] || 0)) >= 1))
   },
   mogul_1_2: {
     id: 'mogul_1_2', dream: 'mogul', chapter: 1, step: 2,
     title: 'Mastering the Makola Haggle',
-    desc: 'Bargain with market women and purchase wholesale goods.',
+    desc: 'Bargain with market women and complete a street hawking, retail or wholesale gig to earn at least GH₵50 in trade margin.',
     dialogue: { speaker: 'Market Queen Mother', text: 'You speak well, young trader. I\'ll give you merchant rate because you have sharp eyes!' },
-    action: 'explore', target: 'makola', hint: 'Visit Makola market and check market listings',
+    action: 'explore', target: 'makola', hint: 'Visit Makola market and earn GH₵50+ through trading or hawking',
     reward: { cash: 150, xp: 25, badge: 'Sharp Bargainer' },
-    check: (s, c) => (s.discovery?.visited && s.discovery.visited.makola) || s.place === 'makola'
+    check: (s, c) => s.place === 'makola' && ((s.stats?.gigs || 0) >= 1 || (s.gd?.earned || 0) >= 50 || (s.cnt && ((s.cnt['act:hawk'] || 0) + (s.cnt['act:resell'] || 0) + (s.cnt['act:accessories'] || 0)) >= 1))
   },
   mogul_1_3: {
     id: 'mogul_1_3', dream: 'mogul', chapter: 1, step: 3,
@@ -544,11 +544,11 @@ export const STORY_MISSIONS = {
   mogul_2_1: {
     id: 'mogul_2_1', dream: 'mogul', chapter: 2, step: 1,
     title: 'Meeting the Circle Station Master',
-    desc: 'Visit Circle station to negotiate loading rights for a transport route.',
+    desc: 'Go to Kwame Nkrumah Circle station and work a transport gig (trotro mate, loading, or phone repair hustle) to earn at least GH₵50.',
     dialogue: { speaker: 'GPRTU Chairman Agyeman', text: 'Circle to Kaneshie is hot. If your bus runs on time, you will print money every day.' },
-    action: 'explore', target: 'circle', hint: 'Visit Circle Station',
+    action: 'explore', target: 'circle', hint: 'Visit Circle Station and earn GH₵50+ doing station gigs or repairs',
     reward: { cash: 250, xp: 35 },
-    check: (s, c) => (s.discovery?.visited && s.discovery.visited.circle) || s.place === 'circle'
+    check: (s, c) => s.place === 'circle' && ((s.stats?.gigs || 0) >= 1 || (s.gd?.earned || 0) >= 50 || (s.cnt && ((s.cnt['act:mate'] || 0) + (s.cnt['act:repair'] || 0) + (s.cnt['act:load'] || 0)) >= 1))
   },
   mogul_2_2: {
     id: 'mogul_2_2', dream: 'mogul', chapter: 2, step: 2,
@@ -707,11 +707,11 @@ export const STORY_MISSIONS = {
   unicorn_1_2: {
     id: 'unicorn_1_2', dream: 'unicorn', chapter: 1, step: 2,
     title: 'The Osu Tech Cafe Standup',
-    desc: 'Visit Oxford Street in Osu to meet other developers and designers.',
+    desc: 'Visit Oxford Street in Osu and work a freelance dev, coffee gig, or tech collaboration to earn your first GH₵50.',
     dialogue: { speaker: 'UI/UX Designer Akua', text: 'Our wireframes are clean! If we build this right, every trotro passenger will use it.' },
-    action: 'explore', target: 'oxford', hint: 'Visit Oxford Street Osu',
+    action: 'explore', target: 'oxford', hint: 'Visit Oxford Street Osu and complete a freelance gig or coding collaboration',
     reward: { cash: 150, xp: 25 },
-    check: (s, c) => (s.discovery?.visited && s.discovery.visited.oxford) || s.place === 'oxford'
+    check: (s, c) => s.place === 'oxford' && ((s.stats?.gigs || 0) >= 1 || (s.gd?.earned || 0) >= 50 || (s.cnt && ((s.cnt['act:freelance'] || 0) + (s.cnt['act:code'] || 0) + (s.cnt.social || 0)) >= 1))
   },
   unicorn_1_3: {
     id: 'unicorn_1_3', dream: 'unicorn', chapter: 1, step: 3,
@@ -745,11 +745,11 @@ export const STORY_MISSIONS = {
   unicorn_2_2: {
     id: 'unicorn_2_2', dream: 'unicorn', chapter: 2, step: 2,
     title: 'The Airport Residential Angel Boardroom',
-    desc: 'Present your fintech deck inside an executive suite in Airport Residential.',
+    desc: 'Present your fintech deck inside an executive suite in Airport Residential. Dine with investors or pitch your prototype.',
     dialogue: { speaker: 'Angel Investor Boateng', text: 'Your customer acquisition cost is low, and your MoMo conversion is high. I like this.' },
-    action: 'explore', target: 'airres', hint: 'Visit Airport Residential',
+    action: 'explore', target: 'airres', hint: 'Visit Airport Residential with MVP 30%+ or dine with angel investors',
     reward: { cash: 350, xp: 45 },
-    check: (s, c) => (s.discovery?.visited && s.discovery.visited.airres) || s.place === 'airres'
+    check: (s, c) => s.place === 'airres' && ((s.flags?.mvp || 0) >= 30 || (s.stats?.meals || 0) >= 1 || (s.cnt && (s.cnt.social || 0) >= 2) || (s.gd?.earned || 0) >= 100)
   },
   unicorn_2_3: {
     id: 'unicorn_2_3', dream: 'unicorn', chapter: 2, step: 3,
@@ -890,11 +890,11 @@ export const STORY_MISSIONS = {
   bigman_1_1: {
     id: 'bigman_1_1', dream: 'bigman', chapter: 1, step: 1,
     title: 'Kotoka International Airport Arrival',
-    desc: 'Survive the airport protocol gauntlet and step out into the tropical Accra humidity.',
+    desc: 'Survive the airport protocol gauntlet and step out into the tropical Accra humidity. Tip the luggage attendants, socialize, or take a private ride.',
     dialogue: { speaker: 'Protocol Boy', text: 'Welcome home Boss! Anything for the boys? God bless your hustle!' },
-    action: 'explore', target: 'airres', hint: 'Visit Airport Residential or travel to your first destination',
+    action: 'explore', target: 'airres', hint: 'Visit Airport Residential and take transport or chat with locals',
     reward: { cash: 100, xp: 20 },
-    check: (s, c) => (s.discovery?.visited && s.discovery.visited.airres) || s.place === 'airres' || Object.keys(s.cnt || {}).some(k => k.startsWith('travel:') && s.cnt[k] > 0)
+    check: (s, c) => s.place === 'airres' && (Object.keys(s.cnt || {}).some(k => k.startsWith('travel:') && s.cnt[k] > 0) || (s.cnt && (s.cnt.social || 0) >= 1) || (s.stats?.meals || 0) >= 1)
   },
   bigman_1_2: {
     id: 'bigman_1_2', dream: 'bigman', chapter: 1, step: 2,
@@ -928,11 +928,11 @@ export const STORY_MISSIONS = {
   bigman_2_1: {
     id: 'bigman_2_1', dream: 'bigman', chapter: 2, step: 1,
     title: 'The Family Compound Pilgrimage',
-    desc: 'Visit the ancestral family compound in Jamestown or Nima to greet the elders.',
+    desc: 'Visit the ancestral family compound in Jamestown or Nima to greet the elders. Share a meal with elders or make a family donation.',
     dialogue: { speaker: 'Elder Auntie', text: 'Our son has returned! Look how fat and handsome you have become! Praise God!' },
-    action: 'explore', target: 'jtown', hint: 'Visit Jamestown or Nima',
+    action: 'explore', target: 'jtown', hint: 'Visit Jamestown or Nima and eat a meal, socialize, or donate',
     reward: { cash: 250, xp: 35 },
-    check: (s, c) => (s.discovery?.visited && (s.discovery.visited.jtown || s.discovery.visited.nima)) || ['jtown', 'nima'].includes(s.place)
+    check: (s, c) => ['jtown', 'nima'].includes(s.place) && ((s.stats?.meals || 0) >= 1 || (s.cnt && (s.cnt.social || 0) >= 1) || (s.cnt && (s.cnt.donate || 0) >= 20))
   },
   bigman_2_2: {
     id: 'bigman_2_2', dream: 'bigman', chapter: 2, step: 2,
@@ -975,11 +975,11 @@ export const STORY_MISSIONS = {
   bigman_3_2: {
     id: 'bigman_3_2', dream: 'bigman', chapter: 3, step: 2,
     title: 'Front Entrance Valet at Bloombar',
-    desc: 'Roll up to the hottest lounge in Osu. The bouncers part the velvet ropes for you.',
+    desc: 'Roll up to the hottest lounge in Osu. The bouncers part the velvet ropes for you as you command the VIP lounge.',
     dialogue: { speaker: 'VIP Security Bouncer', text: 'Right this way Boss! Table 1 is reserved for the Big Man of Accra!' },
-    action: 'explore', target: 'vibes', hint: 'Visit Vibes Lounge or nightlife hub with high reputation',
+    action: 'explore', target: 'vibes', hint: 'Visit Vibes Lounge with Reputation 10+ or party in the VIP section',
     reward: { cash: 700, xp: 80, badge: 'VIP Reverence' },
-    check: (s, c) => (s.discovery?.visited && s.discovery.visited.vibes) || s.place === 'vibes'
+    check: (s, c) => s.place === 'vibes' && ((s.rep || 0) >= 10 || (s.cnt && (s.cnt['act:club'] || s.cnt['act:party'] || 0) >= 1) || (s.stats?.meals || 0) >= 2)
   },
   bigman_3_3: {
     id: 'bigman_3_3', dream: 'bigman', chapter: 3, step: 3,
@@ -1004,11 +1004,11 @@ export const STORY_MISSIONS = {
   bigman_4_1: {
     id: 'bigman_4_1', dream: 'bigman', chapter: 4, step: 1,
     title: 'Hosting the Diaspora Gala Dinner',
-    desc: 'Host a formal gathering at Labadi Beach Hotel for diaspora investors and civic leaders.',
+    desc: 'Host a formal gathering at Labadi Beach Hotel for diaspora investors and civic leaders. Dine and network with prominent guests.',
     dialogue: { speaker: 'Master of Ceremonies', text: 'Distinguished ladies and gentlemen, welcome to an evening of Ghanaian prestige!' },
-    action: 'explore', target: 'labadi', hint: 'Visit Labadi Beach Hotel venue',
+    action: 'explore', target: 'labadi', hint: 'Visit Labadi Beach and dine or network with Reputation 15+',
     reward: { cash: 1500, xp: 150 },
-    check: (s, c) => (s.discovery?.visited && s.discovery.visited.labadi) || s.place === 'labadi'
+    check: (s, c) => s.place === 'labadi' && ((s.stats?.meals || 0) >= 3 || (s.cnt && (s.cnt.social || 0) >= 3) || (s.rep || 0) >= 15)
   },
   bigman_4_2: {
     id: 'bigman_4_2', dream: 'bigman', chapter: 4, step: 2,
@@ -1093,11 +1093,11 @@ export const STORY_MISSIONS = {
   landlord_dbee_1_2: {
     id: 'landlord_dbee_1_2', dream: 'landlord', chapter: 1, step: 2,
     title: 'Contractor Facility Negotiations',
-    desc: 'Head to Osu or East Legon to negotiate maintenance and solar contracts for the estate tenants.',
+    desc: 'Head to Osu or East Legon to negotiate maintenance and solar contracts for the estate tenants. Consult with contractors or complete a commercial transaction.',
     dialogue: { speaker: 'Solar Facility Manager', text: 'European tenants will not tolerate even 2 minutes of Dumsor. Let us quote a 15kVA lithium backup system.' },
-    action: 'explore', target: 'oxford', hint: 'Visit Osu or commercial center to consult contractors',
+    action: 'explore', target: 'oxford', hint: 'Visit Osu or Hub/Makola and consult contractors or complete a gig',
     reward: { cash: 250, xp: 30 },
-    check: (s, c) => (s.discovery?.visited && (s.discovery.visited.oxford || s.discovery.visited.hub || s.discovery.visited.makola)) || ['oxford', 'hub'].includes(s.place)
+    check: (s, c) => ['oxford', 'hub', 'makola'].includes(s.place) && ((s.cnt && (s.cnt.social || 0) >= 1) || (s.stats?.gigs || 0) >= 1 || (s.gd?.earned || 0) >= 60)
   },
   landlord_dbee_1_3: {
     id: 'landlord_dbee_1_3', dream: 'landlord', chapter: 1, step: 3,
@@ -1122,11 +1122,11 @@ export const STORY_MISSIONS = {
   landlord_dbee_2_1: {
     id: 'landlord_dbee_2_1', dream: 'landlord', chapter: 2, step: 1,
     title: 'Scouting Cantonments & East Legon Parcels',
-    desc: 'Deploy your estate seed capital into prime real estate. Survey the elite corridors of Cantonments and East Legon.',
+    desc: 'Deploy your estate seed capital into prime real estate. Survey the elite corridors of Cantonments and East Legon with verified liquid wealth or fine dining.',
     dialogue: { speaker: 'Senior Broker Addo', text: 'Cantonments is where diplomats and oil execs pay in hard dollars. Half an acre here out-earns a factory in Tema!' },
-    action: 'explore', target: 'oxford', hint: 'Travel through prime districts (Osu, Airport, Legon, Trasacco)',
+    action: 'explore', target: 'oxford', hint: 'Travel through prime districts with liquid funds >= GH₵2,000 or dining',
     reward: { cash: 400, xp: 45 },
-    check: (s, c) => (s.discovery?.visited && (s.discovery.visited.trasacco || s.discovery.visited.legon || s.discovery.visited.oxford)) || ['trasacco', 'legon', 'oxford'].includes(s.place)
+    check: (s, c) => ['trasacco', 'legon', 'oxford'].includes(s.place) && ((s.cash + s.momo >= 2000) || (s.stats?.meals || 0) >= 2 || (s.cnt && (s.cnt.social || 0) >= 2))
   },
   landlord_dbee_2_2: {
     id: 'landlord_dbee_2_2', dream: 'landlord', chapter: 2, step: 2,
@@ -1169,11 +1169,11 @@ export const STORY_MISSIONS = {
   star_dbee_1_2: {
     id: 'star_dbee_1_2', dream: 'star', chapter: 1, step: 2,
     title: 'The Jamestown Street Reality Check',
-    desc: 'Step out of your gated enclave. Travel to Jamestown or Labadi Beach to test your track in the real street sound clash.',
+    desc: 'Step out of your gated enclave. Travel to Jamestown or Labadi Beach to test your track in the real street sound clash with music, dance, or freestyle.',
     dialogue: { speaker: 'Jamestown DJ', text: 'Play your track here. If the fishermen and street dancers don\'t move their feet, go back to the drawing board.' },
-    action: 'explore', target: 'kenkey', hint: 'Travel to Jamestown or Labadi Beach',
+    action: 'explore', target: 'kenkey', hint: 'Travel to Jamestown or Labadi Beach and perform or dance',
     reward: { cash: 200, xp: 25 },
-    check: (s, c) => (s.discovery?.visited && (s.discovery.visited.kenkey || s.discovery.visited.labadi || s.discovery.visited.lighthouse)) || ['kenkey', 'labadi', 'lighthouse'].includes(s.place)
+    check: (s, c) => ['kenkey', 'labadi', 'lighthouse', 'jtown'].includes(s.place) && ((s.cnt && ((s.cnt['act:dance'] || 0) + (s.cnt['act:battle'] || 0) + (s.cnt['act:guitar'] || 0) + (s.cnt.social || 0)) >= 1) || (s.skills?.music || 0) >= 1)
   },
   star_dbee_1_3: {
     id: 'star_dbee_1_3', dream: 'star', chapter: 1, step: 3,
@@ -1198,11 +1198,11 @@ export const STORY_MISSIONS = {
   star_dbee_2_1: {
     id: 'star_dbee_2_1', dream: 'star', chapter: 2, step: 1,
     title: 'Sound Engineering at Vibes Lounge',
-    desc: 'Head to Vibes Lounge in Osu to connect with resident DJs and test your mastered track on the club sound system.',
+    desc: 'Head to Vibes Lounge in Osu to connect with resident DJs and test your mastered track with a live performance, dance battle or club gig.',
     dialogue: { speaker: 'DJ Black Star', text: 'If the bass vibrates the cocktail glasses at 1 AM, the song is a smash.' },
-    action: 'explore', target: 'vibes', hint: 'Visit Vibes Lounge in Osu',
+    action: 'explore', target: 'vibes', hint: 'Visit Vibes Lounge in Osu and complete a performance, battle or party action',
     reward: { cash: 350, xp: 40 },
-    check: (s, c) => (s.discovery?.visited && s.discovery.visited.vibes) || s.place === 'vibes'
+    check: (s, c) => s.place === 'vibes' && ((s.cnt && ((s.cnt['act:battle'] || 0) + (s.cnt['act:dance'] || 0) + (s.cnt['act:party'] || 0)) >= 1) || (s.skills?.music || 0) >= 2)
   },
   star_dbee_2_2: {
     id: 'star_dbee_2_2', dream: 'star', chapter: 2, step: 2,
@@ -1236,20 +1236,20 @@ export const STORY_MISSIONS = {
   mogul_dbee_1_1: {
     id: 'mogul_dbee_1_1', dream: 'mogul', chapter: 1, step: 1,
     title: 'The Tema Port Freight Manifest',
-    desc: 'Your family conglomerate is clearing a 40ft container of consumer electronics at Tema Port. Head to Makola or Circle commercial hub to review the cargo manifest.',
+    desc: 'Your family conglomerate is clearing a 40ft container of consumer electronics at Tema Port. Head to Makola or Circle commercial hub to review cargo and earn your first GH₵50.',
     dialogue: { speaker: 'Logistics Manager Kwesi', text: 'Tema Port waits for no man. Clear the paperwork before container demurrage begins!' },
-    action: 'explore', target: 'makola', hint: 'Visit Makola Market or Circle trading hub',
+    action: 'explore', target: 'makola', hint: 'Visit Makola Market or Circle trading hub and complete work or trade',
     reward: { cash: 200, xp: 25 },
-    check: (s, c) => (s.discovery?.visited && (s.discovery.visited.makola || s.discovery.visited.circle)) || ['makola', 'circle'].includes(s.place)
+    check: (s, c) => ['makola', 'circle'].includes(s.place) && ((s.stats?.gigs || 0) >= 1 || (s.gd?.earned || 0) >= 50 || (s.cnt && (s.cnt.social || 0) >= 1))
   },
   mogul_dbee_1_2: {
     id: 'mogul_dbee_1_2', dream: 'mogul', chapter: 1, step: 2,
     title: 'Upscale Retail Distribution',
-    desc: 'Visit Oxford Street in Osu or Accra Mall to pitch your imported goods to high-end boutique and electronics stores.',
+    desc: 'Visit Oxford Street in Osu or Accra Mall to pitch your imported goods to high-end boutique and electronics stores. Network or earn retail margins.',
     dialogue: { speaker: 'Mall Retail Buyer', text: 'If your goods are certified and customs-cleared, we will put them on prime shelves across all branches.' },
-    action: 'explore', target: 'oxford', hint: 'Visit Oxford Street or Accra Mall',
+    action: 'explore', target: 'oxford', hint: 'Visit Oxford Street or Accra Mall and network or complete a gig',
     reward: { cash: 300, xp: 35 },
-    check: (s, c) => (s.discovery?.visited && (s.discovery.visited.oxford || s.discovery.visited.mall)) || ['oxford', 'mall'].includes(s.place)
+    check: (s, c) => ['oxford', 'mall'].includes(s.place) && ((s.stats?.gigs || 0) >= 1 || (s.gd?.earned || 0) >= 60 || (s.cnt && (s.cnt.social || 0) >= 1))
   },
   mogul_dbee_1_3: {
     id: 'mogul_dbee_1_3', dream: 'mogul', chapter: 1, step: 3,
@@ -1260,7 +1260,6 @@ export const STORY_MISSIONS = {
     reward: { cash: 400, xp: 45, badge: 'Working Capitalist' },
     check: (s) => (s.cash + s.momo >= 2500) || (s.flags.fixed?.amount || 0) >= 1500
   },
-  landlord_dbee_1_4_alt: null,
   mogul_dbee_1_4: {
     id: 'mogul_dbee_1_4', dream: 'mogul', chapter: 1, step: 4, isClimax: true,
     title: 'Climax: The Tema Port Customs Clearance Bottleneck',
@@ -1322,11 +1321,11 @@ export const STORY_MISSIONS = {
   unicorn_dbee_1_2: {
     id: 'unicorn_dbee_1_2', dream: 'unicorn', chapter: 1, step: 2,
     title: 'The Silicon Accra Tech Meetup',
-    desc: 'Connect with grassroots Accra engineers and designers at Sankofa Tech Hub in Osu.',
+    desc: 'Connect with grassroots Accra engineers and designers at Sankofa Tech Hub in Osu. Collaborate on code, socialize, or build MVP prototype progress.',
     dialogue: { speaker: 'Lead Frontend Dev', text: 'Accra has world-class engineering talent. Let us build products that solve real African pain points!' },
-    action: 'explore', target: 'hub', hint: 'Visit Sankofa Tech Hub in Osu',
+    action: 'explore', target: 'hub', hint: 'Visit Sankofa Tech Hub in Osu and code or collaborate with devs',
     reward: { cash: 300, xp: 35 },
-    check: (s, c) => (s.discovery?.visited && s.discovery.visited.hub) || s.place === 'hub'
+    check: (s, c) => s.place === 'hub' && ((s.skills?.coding || 0) >= 1 || (s.cnt && ((s.cnt['act:code'] || 0) + (s.cnt.social || 0)) >= 1) || (s.flags?.mvp || 0) >= 10)
   },
   unicorn_dbee_1_3: {
     id: 'unicorn_dbee_1_3', dream: 'unicorn', chapter: 1, step: 3,
@@ -1351,11 +1350,11 @@ export const STORY_MISSIONS = {
   unicorn_dbee_2_1: {
     id: 'unicorn_dbee_2_1', dream: 'unicorn', chapter: 2, step: 1,
     title: 'The Accra Polo Club Investor Circuit',
-    desc: 'Visit high-end networking hubs in Airport Residential and Osu to map out prospective angel investors.',
+    desc: 'Visit high-end networking hubs in Airport Residential and Osu to map out prospective angel investors. Dine or network with business founders.',
     dialogue: { speaker: 'Angel Scout Kofi', text: 'High-net-worth individuals in Accra want tech exposure, but they need to see serious numbers.' },
-    action: 'explore', target: 'oxford', hint: 'Visit Osu or Airport Residential area',
+    action: 'explore', target: 'oxford', hint: 'Visit Osu or Airport Residential area and dine, network or earn GH₵80+',
     reward: { cash: 500, xp: 55 },
-    check: (s, c) => (s.discovery?.visited && (s.discovery.visited.oxford || s.discovery.visited.hub)) || ['oxford', 'hub'].includes(s.place)
+    check: (s, c) => ['oxford', 'hub', 'airres'].includes(s.place) && ((s.stats?.meals || 0) >= 1 || (s.cnt && (s.cnt.social || 0) >= 2) || (s.gd?.earned || 0) >= 80)
   },
   unicorn_dbee_2_2: {
     id: 'unicorn_dbee_2_2', dream: 'unicorn', chapter: 2, step: 2,
@@ -1389,20 +1388,20 @@ export const STORY_MISSIONS = {
   bigman_dbee_1_1: {
     id: 'bigman_dbee_1_1', dream: 'bigman', chapter: 1, step: 1,
     title: 'Diplomatic Wardrobe Fitting',
-    desc: 'High society in Accra scrutinizes every detail. Visit an upscale boutique or dress in bespoke designer attire.',
+    desc: 'High society in Accra scrutinizes every detail. Visit an upscale boutique or dress in bespoke designer attire (update outfit or own Kente).',
     dialogue: { speaker: 'Master Tailor Ofori', text: 'When a dynastic heir enters a reception, the fabric must speak before the mouth opens!' },
-    action: 'explore', target: 'mall', hint: 'Visit Accra Mall or Kantamanto boutique to inspect fine clothing',
+    action: 'explore', target: 'mall', hint: 'Visit Accra Mall or boutique and change outfit or acquire fine clothes',
     reward: { cash: 250, xp: 30 },
-    check: (s, c) => (s.discovery?.visited && (s.discovery.visited.mall || s.discovery.visited.kantamanto)) || ['mall', 'kantamanto'].includes(s.place)
+    check: (s, c) => ['mall', 'kantamanto', 'oxford'].includes(s.place) && ((s.cnt && s.cnt.outfit > 0) || !!s.wardrobe?.kente || (s.cash + s.momo >= 800))
   },
   bigman_dbee_1_2: {
     id: 'bigman_dbee_1_2', dream: 'bigman', chapter: 1, step: 2,
     title: 'High-Society Diplomatic Reception',
-    desc: 'Travel to Airport Residential or Ridge to attend elite diplomatic and business mixers.',
+    desc: 'Travel to Airport Residential or Ridge to attend elite diplomatic and business mixers. Dine or network with visiting delegates.',
     dialogue: { speaker: 'Ambassadorial Protocol', text: 'Good evening. Your family seat is reserved at the high table with visiting delegates.' },
-    action: 'explore', target: 'bank', hint: 'Visit Ridge or Airport Residential area',
+    action: 'explore', target: 'bank', hint: 'Visit Ridge or Airport Residential and dine or network with delegates',
     reward: { cash: 350, xp: 40 },
-    check: (s, c) => (s.discovery?.visited && (s.discovery.visited.bank || s.discovery.visited.ridge)) || ['bank', 'ridge'].includes(s.place)
+    check: (s, c) => ['airres', 'oxford', 'bank', 'ridge'].includes(s.place) && ((s.stats?.meals || 0) >= 1 || (s.cnt && (s.cnt.social || 0) >= 2) || (s.rep || 0) >= 5)
   },
   bigman_dbee_1_3: {
     id: 'bigman_dbee_1_3', dream: 'bigman', chapter: 1, step: 3,
@@ -1897,6 +1896,27 @@ export function initStory(state, dream) {
 export function activeStoryMission(state, ctx = {}) {
   const story = state.story;
   if (!story || !story.dream) return null;
+  const arc = STORY_ARCS[story.dream];
+
+  // If this story arc has been conquered, display completion and encourage next aspiration
+  if (story.finished) {
+    const text = `You have completed all 5 chapters of ${arc?.name || 'this story arc'}! Open Aspirations to choose your next dream or continue dominating Accra.`;
+    return {
+      id: `${story.dream}_completed`,
+      finished: true,
+      kind: 'main',
+      dream: story.dream,
+      arcName: arc?.name || 'Aspiration',
+      accent: arc?.accent || '#10b981',
+      title: `${arc?.name || 'Aspiration'} Conquered!`,
+      desc: text,
+      description: text,
+      action: 'aspirations',
+      hint: 'Tap to pick your next Aspiration',
+      ready: false
+    };
+  }
+
   const isDbee = state.origin === 'dbee' || state.birthOrigin === 'dbee';
 
   // If player is a Dbee on an initial chapter and not started, seamlessly point to Dbee track
@@ -1916,12 +1936,12 @@ export function activeStoryMission(state, ctx = {}) {
     try { ready = Boolean(m.check(state, ctx)); } catch { ready = false; }
   }
 
-  const arc = STORY_ARCS[story.dream];
   const chapters = (isDbee && arc?.dbeeChapters) ? arc.dbeeChapters : (arc?.chapters || []);
   const ch = chapters?.find(c => c.num === story.chapter);
 
   return {
     ...m,
+    description: m.desc || m.description,
     kind: 'main', // Explicitly tag as main story mission
     chapterTitle: ch ? `Chapter ${ch.num}: ${ch.title}` : `Chapter ${story.chapter}`,
     arcName: arc?.name || 'Aspiration',
@@ -1982,6 +2002,15 @@ export function claimStoryMission(state, id, now = Date.now()) {
       story.missionId = nextChapterFirst;
     } else {
       story.finished = true;
+      story.missionId = null;
+      state.dreamsDone = [...new Set([...(state.dreamsDone || []), story.dream])];
+      state.dreamProgress ||= {};
+      state.dreamProgress[story.dream] = (DREAM_TIERS[story.dream] || []).length || 5;
+      state.dreamTier = state.dreamProgress[story.dream];
+      if (state.storyProgress) {
+        state.storyProgress[story.dream] = structuredClone(story);
+      }
+      return { ok: true, mission: m, reward: rew, arcFinished: true, arc: STORY_ARCS[story.dream] };
     }
   }
 
