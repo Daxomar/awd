@@ -29,6 +29,7 @@ import { confirmRoomArrival, zoneActions } from './ui/hud-state.js';
 import { renderZones, openZone, actsFor } from './ui/venue.js';
 import { openMeet } from './ui/meet.js';
 import { openLifeEvent, showLifeResult } from './ui/life-event.js';
+import { openAspirationModal } from './ui/story-dialog.js';
 import { goObjective } from './ui/objectives-hud.js';
 import { openPlace, rideScreen } from './ui/travel.js';
 import { Ride } from './scene/ride.js';
@@ -152,6 +153,13 @@ function game() {
     setTimeout(() => focusBillboardOnMap(targetPlacement), 800);
   }
   setTimeout(()=>net.send({t:'objective_status'}),2000);
+  if (G.state?.onboarded && !G.state?.dream) {
+    setTimeout(() => {
+      openAspirationModal(() => {
+        refresh();
+      });
+    }, 1500);
+  }
   // Stage 10: advertising lives on its own page; signing in from there returns the player to it.
   if(new URLSearchParams(location.search).get('openAds')==='1')sheet(h('div.sheet-body',null,h('p',null,'You are signed in. Bookings, payments and campaign reports are on the advertising page.'),h('a.btn.primary.wide',{href:'/advertise.html'},'Back to advertising')),{title:'Advertising'});
   const tu = new URLSearchParams(location.search).get('topup'); if (tu) fetch('/api/topup/verify?ref=' + encodeURIComponent(tu)).then((r) => r.json()).then((r) => toast(r.status === 'paid' ? 'Top-up received! It will land in your MoMo.' : 'Payment still processing…', r.status === 'paid' ? 'good' : '')).catch(() => {});
@@ -159,7 +167,7 @@ function game() {
 let phoneSig = '',workZoneSig='',closeAdPreview=null;
 function refresh() {
   if (!hud) return; if(world&&G.state)world.custody=(G.state.jail??G.state.flags?.jailUntil??0)>accraNow(); if (world && world.me && G.state) { const f = myFit(); const lk = G.state.look; const key = JSON.stringify(lk) + f; if (key !== world.me.av.styleKey) { world.me.av.styleKey = key; world.me.av.baseLook = lk; world.restyle('me', lk, f); } }
-  hud.stats(); hud.quests(); hud.clock(); hud.progress(); hud.badge('phone', phoneBadge());
+  hud.stats(); hud.quests(); hud.clock(); hud.progress(); hud.badge('phone', phoneBadge()); hud.refreshObjectives?.();
   // the phone only redraws when something it shows actually changed (keeps taps and scroll stable)
   const s = G.state; const sig = JSON.stringify([s.cash, s.momo, s.job&&[s.job.id,s.job.rank,s.job.grade,Math.round(s.job.perf),s.job.shifts,s.job.satisfaction,s.job.lastDay], s.shift && [Math.floor(s.shift.worked),s.shift.tasks,s.shift.assignment?.id,s.shift.assignment?.stage], s.items, s.home, s.car, s.loan, s.story && s.story.inbox.map((m) => m.id + ':' + m.ans), s.story && s.story.goals.length, s.daily, Object.keys(s.biz || {}), Object.keys(s.land || {}), Object.keys(s.friends || {}).length, G.unreadDm, s.dream, s.dreamTier, s.place, s.flags && s.flags.flirtOff]);
   const workKey=[world?.place,s.job?.id,!!s.shift].join(':');
@@ -477,7 +485,36 @@ function bindNet() {
   net.on('moved', (m) => {if(m.state)merge(m.state); toast('New home!  Your things are moving in.', 'good'); });
   net.on('open', (m) => act.start({ opens: m.what }, null));
   net.on('income', (m) => { toast(` Business profit today: +${cedi(m.amt)}`, 'good'); for (const n of m.notes || []) toast(n, ''); });
-  net.on('dream', (m) => celebrate({ icon: m.done ? 'icon:circle' : 'icon:star', title: m.done ? 'Dream achieved!' : 'Milestone unlocked', text: `${m.label} · +${cedi(m.cash)} · +${m.rep} rep` }));
+  net.on('dream', (m) => { if (m.state) merge(m.state); celebrate({ icon: m.done ? 'icon:circle' : 'icon:star', title: m.done ? 'Dream achieved!' : 'Milestone unlocked', text: `${m.label} · +${cedi(m.cash)} · +${m.rep} rep` }); });
+  net.on('story_claimed', (m) => {
+    if (m.state) merge(m.state);
+    if (m.reward) {
+      const rw = [];
+      if (m.reward.cash) rw.push(`+${cedi(m.reward.cash)}`);
+      if (m.reward.xp) rw.push(`+${m.reward.xp} XP`);
+      if (m.reward.rep) rw.push(`+${m.reward.rep} rep`);
+      if (m.reward.badge) rw.push(`${m.reward.badge} badge`);
+      celebrate({
+        icon: 'icon:star',
+        title: m.mission?.chapter ? `Chapter ${m.mission.chapter} Milestone!` : 'Story Mission Complete!',
+        text: rw.join(' · ') || 'Your Accra legend grows.',
+        tone: 'gold'
+      });
+    }
+    refresh();
+  });
+  net.on('story_choice_result', (m) => {
+    if (m.state) merge(m.state);
+    refresh();
+  });
+  net.on('story_status', (m) => {
+    if (m.state) merge(m.state);
+    refresh();
+  });
+  net.on('story_ready', (m) => {
+    if (m.mission) toast(`Story ready to claim: ${m.mission.title}!`, 'good');
+    refresh();
+  });
   net.on('streak', (m) => celebrate({ icon: 'icon:fire', title: `${m.streak}-day streak!`, text: m.bonus ? `Bonus +${cedi(m.bonus)}. Keep it going tomorrow.` : 'All daily missions done. Keep the streak alive tomorrow.' }));
   net.on('missions', (m) => { G.state.daily = { ...(G.state.daily || {}), list: m.list, streak: m.streak }; refresh(); });
   net.on('game_notice',m=>{if(phone.open&&phone.win?.app.id==='games')return;phone.notify({app:'games',title:'Game update from @'+m.from,body:'Open Games to see the invitation or latest move.'});});

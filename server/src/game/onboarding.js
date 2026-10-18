@@ -13,7 +13,7 @@ export function onboardingDraft(state) {
   if(!revealed&&steps.indexOf(step)>2)step='lottery';
   return {version:1,started:!!d.started,step,revision:Number.isSafeInteger(d.revision)?d.revision:0,
     name:cleanText(d.name||state.name||'',16),look:W.cleanLook(d.look||state.look||{},state.wardrobe),
-    traits:traitsOf(d.traits||state.traits),characterReady:ready,revealedAt:revealed?d.revealedAt:null,
+    traits:traitsOf(d.traits||state.traits),dream:d.dream||state.dream||null,characterReady:ready,revealedAt:revealed?d.revealedAt:null,
     home:origin?.homes.includes(d.home)?d.home:null};
 }
 
@@ -32,6 +32,7 @@ export function transitionOnboarding(state,m,now=Date.now()) {
     const name=cleanText(m.name||'',16).trim(),traits=traitsOf(m.traits);
     if(m.op==='character'&&(!name||traits.length!==2))return fail('Add a name and choose exactly two traits.');
     d.name=name||d.name;d.look=W.cleanLook(m.look,state.wardrobe);d.traits=traits;
+    if(m.dream)d.dream=m.dream;
     if(m.op==='character'){d.characterReady=true;d.step='lottery';}
   }else if(m.op==='roll'&&d.step==='lottery'&&d.characterReady){d.revealedAt=now;}
   else if(m.op==='homes'&&d.step==='lottery'&&d.revealedAt){d.step='home';}
@@ -43,7 +44,7 @@ export function transitionOnboarding(state,m,now=Date.now()) {
     if(!allowed[d.step]?.includes(m.to))return fail('Return to the previous setup step.');
     d.step=m.to;
   }else if(m.op==='finish'&&d.step==='enter'&&d.characterReady&&d.revealedAt&&d.home){
-    return {state:out,finish:{name:d.name,look:d.look,traits:d.traits,home:d.home}};
+    return {state:out,finish:{name:d.name,look:d.look,traits:d.traits,home:d.home,dream:d.dream}};
   }else return fail('Complete the current setup step first.');
   d.revision++;return {state:out};
 }

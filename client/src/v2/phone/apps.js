@@ -16,6 +16,8 @@ import {properties as propertyApp} from './property.js';
 import {openCourse,careerNeeds,certified} from '../ui/courses.js';
 import {eventsApp,profileSettings,homeGuests} from './social-life.js';
 import {PREFS,TIERS,savedQuality} from '../scene/quality.js';
+import { openStoryEncounter, openAspirationModal } from '../ui/story-dialog.js';
+import { goObjective } from '../ui/objectives-hud.js';
 
 const grad = (a, b) => `linear-gradient(160deg, ${a}, ${b})`;
 const cell = (o) => h('button.cell' + (o.ic ? '' : '.noic'), { onclick: o.onclick }, o.ic instanceof Node ? o.ic : o.ic ? h('div.ci', { style: { background: o.icbg || '#8e8e93' } }, typeof o.ic === 'string' && o.ic.length <= 3 && !/^[a-z]/.test(o.ic) ? o.ic : icf(o.ic)) : null, h('div.cm', null, h('div.c1', null, o.t), o.s ? h('div.c2', null, o.s) : null), o.r != null ? h('div.cr', null, o.r) : null, o.onclick && o.chev !== false ? ic('caret-right', 'chev') : null);
@@ -229,15 +231,158 @@ export function makeApps(act) {
         at ? h('button.ibtn.wide.green', { disabled: !ok, onclick: () => { net.send({ t: 'apply', id }); win.pop(); } }, s.job ? 'Switch to this job' : 'Apply now') : h('button.ibtn.wide', { onclick: () => { act.closePhone(); act.place(c.at); } }, `Go to ${loc(c.at).name}`));
     }, { small: true });
   }
-  // ------------------------------------------------------------------ Goals
+  // ------------------------------------------------------------------ Goals / Aspirations
   const goals = { id: 'goals', name: 'Aspirations', icon: 'target', bg: grad('#31554b', '#16382e'),
-    open(win) { win.page('Your own pace', () => {
-      const s = G.state, d = G.cat.allDreams[s.dream], tiers = G.cat.dreamTiers[s.dream] || [];
-      return h('div', null, group(null, cell({ ic: 'compass', t: d?.name || 'A life of your choosing', s: 'Explore, work, create a home and meet other players. Aspirations are optional, with no story deadlines.' })),
-        ...tiers.map((t, i) => group(null, cell({ ic: i < s.dreamTier ? 'check-circle' : 'circle', t, s: i < s.dreamTier ? 'Completed' : `Milestone · ${cedi(G.cat.tierReward[i][0])}` }))),
-        h('button.ibtn.wide', { onclick: () => dreamPicker(win) }, s.dream ? 'Change aspiration' : 'Choose an aspiration'), s.dream ? h('button.ibtn.wide', { onclick: () => net.send({ t: 'pickdream', id: 'none' }) }, 'Pause aspiration') : null);
-    }); } };
-  function dreamPicker(win) { win.page('New dream', () => group(null, ...Object.entries(G.cat.allDreams).filter(([k]) => !G.state.dreamsDone.includes(k)).map(([k, d]) => cell({ ic: d.ic, icbg: '#f2f2f7', t: d.name, s: d.desc, onclick: () => { net.send({ t: 'pickdream', id: k }); win.pop(); } }))), { small: true }); }
+    open(win) {
+      win.page('Accra Aspirations', () => {
+        const s = G.state;
+        const arc = G.cat.storyArcs?.[s.dream] || G.cat.allDreams?.[s.dream];
+        const currChapter = s.story?.chapter || 1;
+        const activeMission = s.story?.activeMission;
+
+        if (!s.dream || !arc) {
+          const arcs = Object.values(G.cat.storyArcs || {});
+          return h('div', null,
+            group(null, cell({
+              ic: 'compass',
+              icbg: '#34c759',
+              t: 'Choose Your Accra Dream',
+              s: 'Every hustler in Accra is chasing something. Select your path to unlock deep multi-chapter story missions, authentic street encounters, and massive rewards.'
+            })),
+            group('Available Paths', ...arcs.map(a => cell({
+              ic: a.ic || 'target',
+              icbg: a.accent || '#34c759',
+              t: a.name,
+              s: a.tagline || a.desc,
+              onclick: () => {
+                net.send({ t: 'pickdream', id: a.id });
+                act.toast(`Aspiration chosen: ${a.name}! Chapter 1 begins.`, 'good');
+                setTimeout(() => win.refresh(), 300);
+              }
+            })))
+          );
+        }
+
+        // Active Mission Component
+        let missionEl = null;
+        if (activeMission) {
+          const isReady = activeMission.ready;
+          const isClimax = activeMission.isClimax && !isReady;
+          missionEl = h('div.group', { style: { padding: '14px 16px', margin: '10px 0 14px', background: '#fff' } },
+            h('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' } },
+              h('span', { style: { fontSize: '11px', fontWeight: 700, color: '#b45309', textTransform: 'uppercase', letterSpacing: '0.04em' } },
+                activeMission.chapterTitle || `Chapter ${currChapter}`
+              ),
+              activeMission.reward ? h('span', { style: { fontSize: '12px', fontWeight: 600, color: '#0e7a4e' } },
+                `+${cedi(activeMission.reward.cash || 0)} · +${activeMission.reward.xp || 0} XP`
+              ) : null
+            ),
+            h('div', { style: { fontWeight: 700, fontSize: '16px', color: '#12241e', marginBottom: '4px' } }, activeMission.title),
+            h('p', { style: { fontSize: '13.5px', color: '#4a5d54', margin: '0 0 10px', lineHeight: 1.4 } }, activeMission.description),
+            activeMission.dialogue ? h('div', {
+              style: {
+                padding: '8px 12px',
+                background: '#f7f5ed',
+                borderLeft: '3px solid #d97706',
+                borderRadius: '4px',
+                fontSize: '12.5px',
+                color: '#5a452a',
+                marginBottom: '12px'
+              }
+            },
+              h('strong', { style: { display: 'block', marginBottom: '2px', color: '#85581a', fontStyle: 'normal' } },
+                activeMission.dialogue.speaker + ':'
+              ),
+              h('span', { style: { fontStyle: 'italic' } }, `“${activeMission.dialogue.text}”`)
+            ) : null,
+            isReady ? h('button.ibtn.wide.green', {
+              style: { height: '46px' },
+              onclick: () => {
+                net.send({ t: 'story_claim', id: activeMission.id });
+                act.toast('Claiming story milestone reward…');
+                setTimeout(() => win.refresh(), 400);
+              }
+            }, `Claim Reward (+${cedi(activeMission.reward?.cash || 0)})`)
+            : isClimax && activeMission.activeEncounter ? h('button.ibtn.wide', {
+              style: { background: '#d97706', color: '#fff', height: '46px' },
+              onclick: () => {
+                act.closePhone();
+                openStoryEncounter(activeMission.activeEncounter, () => act.refresh());
+              }
+            }, `Resolve Dilemma: ${activeMission.activeEncounter.title}`)
+            : h('button.ibtn.wide.green', {
+              style: { height: '46px' },
+              onclick: () => {
+                act.closePhone();
+                goObjective(activeMission, act);
+              }
+            }, 'Go to Mission Target')
+          );
+        } else {
+          missionEl = h('div.group', { style: { padding: '14px 16px', margin: '10px 0 14px', background: '#fff' } },
+            h('div', { style: { fontWeight: 700, fontSize: '15px', color: '#0e7a4e', marginBottom: '4px' } }, '🎉 All Story Chapters Completed!'),
+            h('p', { style: { fontSize: '13px', color: '#556b62', margin: 0 } }, 'You have conquered your Accra dream! You can switch to another path to live another life in Accra.')
+          );
+        }
+
+        // Chapters Roadmap
+        const chapters = arc.chapters || [];
+        const chapterCells = chapters.map(ch => {
+          const isDone = ch.num < currChapter;
+          const isCurrent = ch.num === currChapter;
+          return cell({
+            ic: isDone ? 'check-circle' : isCurrent ? 'star' : 'lock-key',
+            icbg: isDone ? '#34c759' : isCurrent ? '#d97706' : '#8e8e93',
+            t: `Chapter ${ch.num}: ${ch.title}`,
+            s: ch.summary,
+            r: isDone ? 'Done' : isCurrent ? 'Active' : 'Locked'
+          });
+        });
+
+        return h('div', null,
+          group(null, cell({
+            ic: arc.ic || 'target',
+            icbg: arc.accent || '#34c759',
+            t: arc.name,
+            s: arc.tagline || arc.desc,
+            r: `Ch. ${currChapter}/5`
+          })),
+          missionEl,
+          group('Story Chapters', ...chapterCells),
+          h('button.ibtn.wide', {
+            style: { marginTop: '14px' },
+            onclick: () => {
+              act.closePhone();
+              openAspirationModal(() => act.refresh());
+            }
+          }, 'Switch Aspiration'),
+          h('button.ibtn.wide.gray', {
+            style: { marginTop: '8px' },
+            onclick: () => {
+              net.send({ t: 'pickdream', id: 'none' });
+              act.toast('Aspiration paused');
+              setTimeout(() => win.refresh(), 300);
+            }
+          }, 'Pause Aspiration')
+        );
+      });
+    }
+  };
+  function dreamPicker(win) {
+    win.page('New Dream', () => {
+      const arcs = Object.values(G.cat.storyArcs || {});
+      return group(null, ...arcs.map(a => cell({
+        ic: a.ic || 'target',
+        icbg: a.accent || '#34c759',
+        t: a.name,
+        s: a.tagline || a.desc,
+        onclick: () => {
+          net.send({ t: 'pickdream', id: a.id });
+          win.pop();
+        }
+      })));
+    }, { small: true });
+  }
   // ------------------------------------------------------------------ property & shopping
   const houses = { id: 'houses', name: 'Houses', icon: 'house-line', bg: grad('#30d158', '#0e7a4e'),
     open(win) { win.page('Houses', () => { const s = G.state; const H = G.cat.homes;

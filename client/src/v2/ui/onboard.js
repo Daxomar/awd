@@ -11,11 +11,13 @@ const titles={welcome:'Welcome to Accra',character:'Your character',lottery:'Bir
 const order=Object.keys(titles);
 export function onboardScreen(ui,{preview,username,studio,stage}) {
  return new Promise(resolve=>{
-  let state=G.state,look,name,traits,characterPanel='style',busy=false,dirty=false,closed=false,timer,draftTask,zoom=1;
+  let state=G.state,look,name,traits,dream,characterPanel='style',busy=false,dirty=false,closed=false,timer,draftTask,zoom=1;
   const el=h('section.screen.ob.onboarding-flow',{'aria-label':'Start your Accra life'}),panel=h('div.of-panel'),content=h('div.of-content');
   const error=h('p.of-error',{role:'alert',hidden:true}),status=h('span.of-save',{role:'status'}),connection=h('p.of-connection',{role:'status',hidden:true});
   const back=h('button.of-back',{'aria-label':'Back',onclick:()=>{
-    if(busy)return;if(phase()==='character'&&characterPanel==='traits'){characterPanel='style';draw();return;}
+    if(busy)return;
+    if(phase()==='character'&&characterPanel==='dream'){characterPanel='traits';draw();return;}
+    if(phase()==='character'&&characterPanel==='traits'){characterPanel='style';draw();return;}
     const to={character:'welcome',lottery:'character',home:'lottery',enter:'home'}[phase()];if(to)saveDraft().then(()=>run('back',{to})).catch(fail);
   }},ic('caret-left'));
   const stepLabel=h('span.of-step'),progress=h('ol.of-progress',{'aria-label':'Setup progress'},...order.map(k=>h('li',{'aria-label':titles[k]})));
@@ -29,9 +31,9 @@ export function onboardScreen(ui,{preview,username,studio,stage}) {
   panel.append(content,error,connection);el.append(header,viewport,dieHost,panel);ui.append(el);
   const die=new BirthDie(stage,dieHost);
   const phase=()=>state.onboarding?.step||'welcome';
-  const fields=()=>({name,look:{...look},traits:[...traits]});
+  const fields=()=>({name,look:{...look},traits:[...traits],dream:dream||'landlord'});
   const fingerprint=()=>JSON.stringify(fields());
-  function load(){const d=state.onboarding||{};look={...(d.look||G.cat.defaultLook.m)};name=d.name||username;traits=[...(d.traits||[])];}
+  function load(){const d=state.onboarding||{};look={...(d.look||G.cat.defaultLook.m)};name=d.name||username;traits=[...(d.traits||[])];dream=d.dream||state.dream||'landlord';}
   const session=new OnboardingSession(net,state,{onState:(s,reason)=>{
     state=G.state=s;
     if(s.onboarded){queueMicrotask(()=>finish(s));return;}
@@ -72,17 +74,30 @@ export function onboardScreen(ui,{preview,username,studio,stage}) {
       content.append(h('div.of-welcome-scene',{'aria-hidden':'true'},homeArt('jtown'),h('span.of-city-line',null,'From Jamestown to East Legon')),
         h('p.of-note',null,'Create your character, discover your background, then choose your first home.'),cta('Create my character',()=>run('begin')));
     }else if(step==='character'){
-      content.append(h('div.of-character-title',null,h('h1',null,characterPanel==='style'?'Make it you.':'What are you like?')));
+      content.append(h('div.of-character-title',null,h('h1',null,characterPanel==='style'?'Make it you.':characterPanel==='traits'?'What are you like?':'What is your Accra Dream?')));
       if(characterPanel==='style'){
         const input=h('input',{id:'setup-name',value:name,maxLength:16,autocomplete:'nickname',oninput:e=>{name=e.target.value;mark();}});
         content.append(h('label.of-name',null,h('span',null,'Your name'),input));
         stylist(content,{mode:'create',look,onPreview:l=>{look=l;preview?.(l);mark();},onSave:l=>{look=l;characterPanel='traits';draw();},saveLabel:'Choose traits'});
-      }else{
+      }else if(characterPanel==='traits'){
         content.append(h('p.of-intro',null,'Choose two traits. They shape what you enjoy and how you learn.'),h('div.of-traits',null,...Object.entries(G.cat.traits).map(([key,t])=>h('button.of-trait',{'aria-pressed':String(traits.includes(key)),onclick:()=>{
           traits=traits.includes(key)?traits.filter(t=>t!==key):[...traits.slice(-1),key];mark();draw();
         }},ic(t.ic),h('span',null,h('strong',null,t.name),h('small',null,t.desc)),traits.includes(key)?ic('check-circle'):null))),
-        cta(`Save character (${traits.length}/2)`,saveCharacter,traits.length!==2));
+        cta(`Choose aspiration (${traits.length}/2)`,()=>{characterPanel='dream';draw();},traits.length!==2));
         const b=content.querySelector('.of-primary');b.dataset.invalid=traits.length!==2?'yes':'no';
+      }else{
+        const arcs=[
+          {id:'landlord',name:'East Legon Landlord',tag:'From Compound to Trasacco Villa',ic:'house-line',color:'#d97706',desc:'Own estates, retail stores, and Trasacco mansions.'},
+          {id:'star',name:'Afrobeats Hitmaker',tag:'From Freestyles to Detty December',ic:'microphone',color:'#ec4899',desc:'Top the airwaves, pack out Vibes Lounge, and headline Detty December.'},
+          {id:'mogul',name:'Makola Business Mogul',tag:'From Pavement Table to Conglomerate',ic:'storefront',color:'#10b981',desc:'Turn thrift bales into a freight empire and commercial conglomerate.'},
+          {id:'unicorn',name:'Osu Tech Founder',tag:'From Cafeteria Coding to $100M Unicorn',ic:'laptop',color:'#6366f1',desc:'Build products on iced Milo, raise venture capital, and build Silicon Accra.'},
+          {id:'bigman',name:'High Society Borga',tag:'From Heathrow to King of Accra',ic:'crown',color:'#f59e0b',desc:'Drip in tailored Kente, cruise in a Prado, and cement your high society reign.'},
+        ];
+        content.append(h('p.of-intro',null,'Choose your aspiration. It shapes your story chapters, personal missions and street events.'),
+          h('div.of-traits',null,...arcs.map(a=>h('button.of-trait',{'aria-pressed':String(dream===a.id),onclick:()=>{dream=a.id;mark();draw();}},
+            ic(a.ic),h('span',null,h('strong',{style:{color:a.color}},a.name),h('small',null,a.tag)),dream===a.id?ic('check-circle'):null))),
+          cta('Save character',saveCharacter,!dream));
+        const b=content.querySelector('.of-primary');b.dataset.invalid=!dream?'yes':'no';
       }
       preview?.(look);requestAnimationFrame(frame);
     }else if(step==='lottery'){

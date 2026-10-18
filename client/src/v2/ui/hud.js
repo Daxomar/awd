@@ -59,6 +59,7 @@ export function buildHud(ui,act){
  }
  const H={top,zones,nav,chips,busy,bottom,chatlog,
   objective(rows){objectives.update(rows);},
+  refreshObjectives(){objectives.refresh?.();},
   setNav(id){for(const b of nav.children){const on=b.dataset.nav===id;b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on));}},
   badge(id,n){const b=nav.querySelector(`[data-nav="${id}"] .badge`);if(b){b.hidden=!n;patch(b,n>99?'99+':String(n));}},
   stats(){const s=G.state;if(!s)return;
@@ -73,7 +74,7 @@ export function buildHud(ui,act){
    if(busy.dataset.id!==a.id){busy.dataset.id=a.id;busy.replaceChildren(ic(a.travel?'bus':a.shift?'briefcase':'hourglass-medium'),h('div.grow',null,h('strong.bl',null,a.label),h('div.activity-meta'),h('div.bar',{role:'progressbar','aria-label':a.label,'aria-valuemin':'0','aria-valuemax':'100'},h('i'))),a.canCancel?h('button.bx',{'aria-label':'Stop activity',onclick:()=>act.cancel()},ic('x')):a.shift?h('button.bx',{'aria-label':'View shift',onclick:()=>act.work()},ic('briefcase')):null);}
    patch(busy.querySelector('.activity-meta'),a.remaining?(a.remaining>60?`${Math.ceil(a.remaining/60)} min remaining`:`${a.remaining}s remaining`):'Finishing…');busy.querySelector('.bar i').style.width=(a.progress*100).toFixed(1)+'%';busy.querySelector('.bar').setAttribute('aria-valuenow',String(Math.round(a.progress*100)));
   },
-  quests(){const s=G.state;if(!s)return;const sig=JSON.stringify([G.gem,s.job,s.shift,s.sick,s.home,s.daily,s.dumsor,activeLifeEvent()?.at]);if(sig===extrasSig)return;extrasSig=sig;chips.replaceChildren();
+  quests(){const s=G.state;if(!s)return;objectives.refresh?.();const sig=JSON.stringify([G.gem,s.job,s.shift,s.sick,s.home,s.daily,s.dumsor,activeLifeEvent()?.at]);if(sig===extrasSig)return;extrasSig=sig;chips.replaceChildren();
    const ev=activeLifeEvent();lifeChip.hidden=!ev;if(ev)lifeChip.replaceChildren(ic('lightning'),h('span',null,ev.title),h('small',null,'Decide'));
    if(G.gem)chips.append(actionLink('diamond',`Gem hunt · ${cedi(G.gem.prize)}`,()=>act.gem()));
    if(s.daily?.list?.length)chips.append(actionLink('target',`Today ${s.daily.list.filter(x=>x.done).length}/${s.daily.list.length}`,()=>act.goals()));

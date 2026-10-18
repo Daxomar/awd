@@ -141,3 +141,47 @@ test('sending MoMo money succeeds for onboarded players without arbitrary hour l
   assert.equal(p.state.cash, 149); // 200 - 51 = 149
 });
 
+test('story and aspiration engine provides multi-chapter progression, interactive encounters, and server-authoritative rewards', () => {
+  const p = player();
+  assert.ok(!p.state.story.missionId);
+  
+  // Pick dream
+  const pick = Game.onMsg(p, { t: 'pickdream', id: 'landlord' }, {}, Date.now());
+  assert.equal(pick.t, 'st');
+  assert.equal(p.state.dream, 'landlord');
+  assert.equal(p.state.story.dream, 'landlord');
+  assert.equal(p.state.story.chapter, 1);
+  assert.equal(p.state.story.step, 1);
+  assert.equal(p.state.story.missionId, 'landlord_1_1');
+
+  // Set place to street so home mission is not yet satisfied
+  p.state.place = 'oxford';
+  delete p.state.discovery?.visited?.home;
+
+  // Check mission status
+  const stat = Game.onMsg(p, { t: 'story_status' }, {}, Date.now());
+  assert.equal(stat.t, 'story_status');
+  assert.equal(stat.active.id, 'landlord_1_1');
+  assert.equal(stat.active.ready, false);
+
+  // Complete mission 1 (visiting home)
+  p.state.place = 'home';
+  const statReady = Game.onMsg(p, { t: 'story_status' }, {}, Date.now());
+  assert.equal(statReady.active.ready, true);
+
+  // Claim mission 1
+  const startCash = p.state.cash;
+  const claimed = Game.onMsg(p, { t: 'story_claim', id: 'landlord_1_1' }, {}, Date.now());
+  assert.equal(claimed.t, 'story_claimed');
+  assert.equal(p.state.cash, startCash + 100);
+  assert.equal(p.state.story.step, 2);
+  assert.equal(p.state.story.missionId, 'landlord_1_2');
+
+  // Test encounter resolution
+  const choiceRes = Game.onMsg(p, { t: 'story_choice', encounterId: 'enc_landlord_c1', choiceId: 'rally' }, {}, Date.now());
+  assert.equal(choiceRes.t, 'story_choice_result');
+  assert.ok(choiceRes.note.includes('refused to pay'));
+  assert.ok(p.state.story.completedEncounters.includes('enc_landlord_c1'));
+});
+
+

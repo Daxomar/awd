@@ -103,9 +103,27 @@ export function catalog() {
     careers: Object.fromEntries(Object.entries(D.CAREERS).map(([id,{mg,...c}])=>[id,{...c,workplace:{x:WORKPLACES[id].x,z:WORKPLACES[id].z,label:WORKPLACES[id].label}}])),
     courses: Object.fromEntries(Object.values(Career.COURSES).map(c=>[c.id,Career.publicCourse(c)])), careerReqs: Career.CAREER_REQS, autowork: Career.AUTO, session: Career.SESSION, transport: D.TRANSPORT, rush: D.RUSH, cars: D.CARS, traits: D.TRAITS, dreams: D.DREAMS, origins: D.ORIGINS, skills: D.SKILLS, items: ITEMS, biz: D.BUSINESSES, lands: D.LANDS, repTitles: REP_TITLES, promoSkill: D.PROMO_SKILL, promoShifts: D.PROMO_SHIFTS,
     allDreams: { ...D.DREAMS, ...ST.DREAM_INFO }, dreamTiers: Object.fromEntries(Object.entries(ST.DREAM_TIERS).map(([k, t]) => [k, t.map((x) => x[0])])), tierReward: ST.TIER_REWARD, contacts: ST.CONTACTS,
+    storyArcs: ST.STORY_ARCS, storyMissions: ST.STORY_MISSIONS,
     missions: Object.fromEntries(ST.MISSIONS.map((m) => [m.id, m.label])), missionReward: ST.MISSION_REWARD, streakBonus: ST.STREAK_BONUS, wear: W.WEAR, uniform: W.UNIFORM, skinTones: W.SKIN, hairColors: W.HAIR_COLORS, defaultLook: W.DEFAULT_LOOK };
 }
-export const view = (s) => ({ ...s, phones: (s.phones || []).map(({ fake, ...r }) => r), ledger: s.ledger.slice(-20), cnt: undefined, story: { inbox: s.story.inbox.slice(-30), goals: s.story.goals.map(({ id, label, until, from }) => ({ id, label, until, from })) } });
+export const view = (s) => ({
+  ...s,
+  phones: (s.phones || []).map(({ fake, ...r }) => r),
+  ledger: s.ledger.slice(-20),
+  cnt: undefined,
+  story: {
+    dream: s.dream,
+    chapter: s.story?.chapter || 1,
+    step: s.story?.step || 1,
+    missionId: s.story?.missionId || null,
+    completedMissions: s.story?.completedMissions || [],
+    completedChapters: s.story?.completedChapters || [],
+    completedEncounters: s.story?.completedEncounters || [],
+    activeMission: ST.activeStoryMission(s, { at: s.place, place: s.place, now: Date.now() }),
+    inbox: (s.story?.inbox || []).slice(-30),
+    goals: (s.story?.goals || []).map(({ id, label, until, from }) => ({ id, label, until, from }))
+  }
+});
 export const publicStatus = (p) => (p.state.busy ? p.state.busy.ic : p.state.shift ? 'icon:briefcase' : '');
 const lvl = (s, k) => Math.floor(s.skills[k] || 0);
 const has = (s, t) => s.traits.includes(t);
@@ -161,11 +179,12 @@ export const REP_TITLES = [[0, 'New to Accra'], [3, 'Correct Person'], [5, 'Area
 function onboard(p, m) {
   const s = p.state; if (s.onboarded) return toast('Already living in Accra.');
   const traits = [...new Set((Array.isArray(m.traits) ? m.traits : []).filter((t) => typeof t==='string'&&Object.hasOwn(D.TRAITS,t)))].slice(0, 2); if (traits.length !== 2) return toast('Pick exactly 2 traits.', 'bad');
-  if (m.dream && !D.DREAMS[m.dream]) return toast('Choose a valid aspiration.', 'bad');
+  if (m.dream && !D.DREAMS[m.dream] && !ST.STORY_ARCS[m.dream]) return toast('Choose a valid aspiration.', 'bad');
   const origin = s.birthOrigin || birthOrigin(p.acct);
   const start = D.ORIGINS[origin];
   if (!start.homes.includes(m.home)) return toast('Choose one of the homes available for your background.', 'bad');
   const defaultName = p.name || s.name; s.name = (!m.name || m.name === defaultName) ? defaultName : (cleanText(m.name, 16).slice(0, 16) || defaultName); s.traits = traits; s.dream = m.dream || null; s.look = W.cleanLook(m.look || {}, {});
+  if (s.dream) { ST.initStory(s, s.dream); }
   s.origin = origin; s.birthOrigin = origin; s.cash = start.cash; s.momo = start.momo;
   s.home = m.home; s.job = null; s.loan = null; delete s.flags.daddyPays;
   s.wardrobe.jersey = true; s.wardrobe.jerseyaway = true;
@@ -602,6 +621,9 @@ export function onMsg(p, msg, shard, now) {
     case 'state': return { t: 'st', state: view(s), mood: mood(s), dumsor: dumsorNow(now, shard.policy) };
     case 'reply': return toast('Accra is now free play. Story conversations have been retired.');
     case 'pickdream': return pickDream(p, String(msg.id));
+    case 'story_status': return storyStatus(p, now);
+    case 'story_claim': return storyClaim(p, String(msg.id || ''), now);
+    case 'story_choice': return storyChoice(p, String(msg.encounterId || ''), String(msg.choiceId || ''), now);
     case 'donate': return donate(p, msg);
     case 'phone': return phoneOp(p, msg, now);
   }
@@ -672,12 +694,53 @@ export function aspirationDue(s,now){
 
 function pickDream(p, id) {
   const s = p.state;
-  if (id !== 'none' && !ST.DREAM_TIERS[id]) return toast('Unknown aspiration.', 'bad');
+  if (id !== 'none' && !ST.DREAM_TIERS[id] && !ST.STORY_ARCS[id]) return toast('Unknown aspiration.', 'bad');
   s.dreamProgress ||= {};
   if (s.dream) s.dreamProgress[s.dream] = s.dreamTier || 0;
   s.dream = id === 'none' ? null : id;
-  s.dreamTier = s.dream ? Math.min(ST.DREAM_TIERS[id].length, Math.max(s.dreamsDone.includes(id) ? ST.DREAM_TIERS[id].length : 0, Number(s.dreamProgress[id]) || 0)) : 0;
+  const tiers = ST.DREAM_TIERS[id] || [];
+  s.dreamTier = s.dream ? Math.min(tiers.length, Math.max((s.dreamsDone || []).includes(id) ? tiers.length : 0, Number(s.dreamProgress[id]) || 0)) : 0;
+  if (s.dream && id !== 'none') {
+    ST.initStory(s, s.dream);
+  }
   return { t: 'st', state: view(s) };
+}
+function storyStatus(p, now) {
+  const s = p.state, c = ctx(p, now);
+  return {
+    t: 'story_status',
+    story: s.story,
+    active: ST.activeStoryMission(s, c),
+    arc: s.dream ? ST.STORY_ARCS[s.dream] : null
+  };
+}
+function storyClaim(p, id, now) {
+  const s = p.state;
+  if (!s.dream) return toast('Choose an aspiration first.', 'bad');
+  const res = ST.claimStoryMission(s, id, now);
+  if (res.error) return toast(res.error, 'bad');
+  const c = ctx(p, now);
+  return {
+    t: 'story_claimed',
+    mission: res.mission,
+    reward: res.reward,
+    next: ST.activeStoryMission(s, c),
+    state: view(s)
+  };
+}
+function storyChoice(p, encounterId, choiceId, now) {
+  const s = p.state;
+  const res = ST.resolveStoryChoice(s, encounterId, choiceId, now);
+  if (res.error) return toast(res.error, 'bad');
+  const c = ctx(p, now);
+  return {
+    t: 'story_choice_result',
+    encounter: res.encounter,
+    choice: res.choice,
+    note: res.note,
+    next: ST.activeStoryMission(s, c),
+    state: view(s)
+  };
 }
 function donate(p, msg) {
   const s = p.state; const a = Math.max(0, Math.min(1e7, Math.round(+msg.amount || 0))); if (a < 50) return toast('Minimum donation is GH₵50.', 'bad');
