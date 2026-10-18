@@ -65,9 +65,9 @@
  "airport": {
   "id": "airport",
   "file": "assets/world/landmarks/airport.glb",
-  "bytes": 28812,
-  "triangles": 456,
-  "materials": 7
+  "bytes": 310628,
+  "triangles": 5712,
+  "materials": 18
  },
  "ug": {
   "id": "ug",

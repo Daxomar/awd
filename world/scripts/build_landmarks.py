@@ -131,10 +131,10 @@ class Landmark:
             pts.append((math.cos(a) * rr, math.sin(a) * rr))
         self.prism(pts, y, depth, mat, x=x, z=z, upright=upright)
 
-    def tube(self, x, y, z, r, length, mat, segments=12):
+    def tube(self, x, y, z, r, length, mat, segments=12, r_top=None):
         """Cylinder lying along game x, resting on height y."""
         m = self.place(x, y + r, z) @ Matrix.Rotation(math.pi / 2, 4, 'Y')
-        bmesh.ops.create_cone(self.bm(mat), cap_ends=True, cap_tris=False, segments=segments, radius1=r, radius2=r, depth=length, matrix=m)
+        bmesh.ops.create_cone(self.bm(mat), cap_ends=True, cap_tris=False, segments=segments, radius1=r, radius2=r if r_top is None else r_top, depth=length, matrix=m)
 
     def ring(self, x, y, z, radius, width, h, mat, segments=24, arc=2 * math.pi, start=0.0):
         """Flat ring (road deck) made of trapezoid segments."""
@@ -325,21 +325,168 @@ def mosque(L):
 
 
 def airport(L):
-    """Kotoka terminal: long glazed terminal under a curved roof, control tower and a parked aircraft."""
-    L.box(0, 0, 0, 250, 1, 150, 'asphalt')
-    L.box(0, 1, -10, 220, 16, 50, 'glass')
-    L.box(0, 1, -10, 222, 3, 52, 'concrete')
-    for i in range(12):                                  # curved roof in slats
-        a = -0.9 + i * 0.165
-        L.box(0, 17 + math.cos(a) * 6, -10 + math.sin(a) * 30, 236, 1.4, 6, 'white', 0)
-    L.cyl(96, 1, 48, 5, 46, 'concrete', 10); L.cyl(96, 47, 48, 10, 6, 'glass', 12); L.cyl(96, 53, 48, 11, 1.4, 'concrete', 12)
-    L.tube(-30, 1, 52, 3.4, 44, 'white')                # fuselage
-    L.box(-30, 3.8, 52, 6, 0.8, 40, 'white')             # wings
-    L.box(-50, 4, 52, 2, 8, 0.8, 'green')                # tail fin
-    for sx in (-1, 1):
-        L.box(-34, 2.2, 52 + sx * 10, 5, 2.4, 2.4, 'steel')   # engines
-    for i in range(5):
-        L.box(-90 + i * 40, 1, 40, 2, 0.1, 30, 'lane')
+    """Kotoka International Airport (KIA) Terminal 3: iconic sweeping wave roof, two-level departures/arrivals
+    viaduct, glazed curtain walls with structural mullions, boarding bridges (jetways), detailed ATC tower,
+    Ghana-livery airliner with boarding bridge, ground service vehicles, runway threshold, and landscaped forecourt."""
+    # 1. Main Tarmac & Runway Apron
+    L.box(0, 0, 0, 260, 1.2, 160, 'asphalt')
+
+    # Runway strip on the far side (z = -62)
+    L.box(0, 1.2, -62, 258, 0.1, 26, 'asphalt')
+    # Runway threshold piano keys / markings
+    for i in range(14):
+        L.box(-115 + i * 4.2, 1.3, -62, 2.4, 0.05, 18, 'lane')
+        L.box(60 + i * 4.2, 1.3, -62, 2.4, 0.05, 18, 'lane')
+    # Runway centerline dashes
+    for i in range(7):
+        L.box(-45 + i * 15, 1.3, -62, 9, 0.05, 1.4, 'lane')
+    # Apron yellow taxiway lead-in lines
+    for i in range(8):
+        L.box(-90 + i * 26, 1.25, -34, 18, 0.04, 0.9, 'flag_gold')
+        L.box(-90 + i * 26, 1.25, -20, 14, 0.04, 0.9, 'flag_gold')
+
+    # 2. Terminal 3 Main Building (x: -50 to 65, z: -10 to 20)
+    # Concrete foundation podium
+    L.box(8, 1.2, 4, 140, 2.4, 40, 'concrete')
+
+    # Ground Floor: Arrivals hall with tinted glass
+    L.box(8, 3.6, 4, 136, 6.0, 36, 'glass')
+    # Structural columns & entrance frames along arrivals
+    for i in range(13):
+        x = -54 + i * 10.3
+        L.box(x, 1.2, 22.2, 1.6, 8.4, 1.6, 'steel')
+        L.box(x, 1.2, -14.2, 1.6, 8.4, 1.6, 'steel')
+
+    # Second Floor: Departures grand concourse (high ceiling glass curtain wall)
+    L.box(8, 9.6, 4, 134, 8.4, 34, 'glass')
+    for i in range(13):
+        x = -54 + i * 10.3
+        L.box(x, 9.6, 21.2, 1.2, 8.4, 1.2, 'white')
+        L.box(x, 9.6, -13.2, 1.2, 8.4, 1.2, 'white')
+
+    # Signature Undulating Wave Roof of Terminal 3
+    # Curved aerodynamic roof canopy spanning from z = -18 to z = 32 (overhanging the viaduct)
+    for i in range(18):
+        t = i / 17.0
+        z_pos = -18 + t * 48
+        y_pos = 18.2 + math.sin(t * math.pi) * 4.6 + (1 - t) * 1.5
+        L.box(8, y_pos, z_pos, 148, 1.4, 3.2, 'white')
+        if i % 3 == 0:  # Glass skylight strips along the wave roof
+            L.box(8, y_pos + 0.3, z_pos, 110, 0.6, 1.2, 'glass')
+
+    # Front terminal canopy fascia with gold/black signage band
+    L.box(8, 17.5, 30.5, 120, 2.2, 1.0, 'black')
+    L.box(8, 18.2, 31.1, 108, 0.8, 0.4, 'gold')
+    # Ghana national colors badge at center of terminal entrance
+    L.box(8, 18.2, 31.4, 14, 1.4, 0.2, 'flag_gold')
+    L.box(8, 19.1, 31.5, 14, 0.4, 0.2, 'red')
+    L.box(8, 17.3, 31.5, 14, 0.4, 0.2, 'green')
+    L.star(8, 18.2, 31.7, 0.55, 0.1, 'black')
+
+    # 3. Departures Viaduct (Elevated Drop-off Road & Ground Arrivals)
+    L.box(8, 9.6, 32, 134, 1.6, 12, 'asphalt')
+    L.box(8, 11.2, 37.6, 134, 1.2, 0.8, 'concrete')
+    L.box(8, 11.2, 26.4, 134, 1.2, 0.8, 'concrete')
+    # Viaduct support columns underneath
+    for i in range(9):
+        L.cyl(-48 + i * 14, 1.2, 32, 1.5, 8.4, 'concrete', 10)
+    # West approach ramp (rising from y = 1.2 to 9.6)
+    for i in range(6):
+        h = 1.2 + (i + 1) * 1.4
+        L.box(-64 - i * 5.5, 1.2, 32, 5.5, h, 12, 'concrete')
+    # East exit ramp (sloping back down to ground)
+    for i in range(6):
+        h = 9.6 - (i + 1) * 1.4
+        L.box(80 + i * 5.5, 1.2, 32, 5.5, max(1.2, h), 12, 'concrete')
+    # Ground level arrivals lane in front
+    L.box(8, 1.2, 44, 140, 0.1, 10, 'lane')
+
+    # 4. Passenger Boarding Bridges (Aero-Bridges / Jetways) on airside (z < 0)
+    for gx in (-38, 2, 42):
+        L.box(gx, 9.6, -18, 5, 4.5, 8, 'glass')
+        L.box(gx - 4, 7.5, -26, 3.2, 3.4, 12, 'white', 0.18)
+        L.box(gx - 4, 7.5, -26, 3.4, 1.8, 11.8, 'glass', 0.18)
+        L.box(gx - 7, 6.2, -33, 4.4, 4.0, 4.0, 'concrete')
+        L.box(gx - 7, 6.4, -35.2, 3.6, 3.6, 1.2, 'black')
+        L.cyl(gx - 4, 1.2, -26, 0.8, 6.0, 'steel', 8)
+        L.box(gx - 4, 1.2, -26, 3.0, 1.2, 1.4, 'black')
+
+    # 5. Parked Modern Airliner (Ghanaian Commercial Jet at Gate 1)
+    # Fuselage (52m long, radius 3.2)
+    L.tube(-48, 4.2, -40, 3.2, 52, 'white', 16)
+    # Aerodynamic nose cone (tapered)
+    L.tube(-18, 4.2, -40, 3.2, 8, 'white', 16, r_top=0.5)
+    # Cockpit windshield band
+    L.box(-23.5, 6.2, -40, 3.2, 1.2, 4.2, 'glass')
+    # Passenger windows strip along fuselage
+    for w in range(16):
+        L.box(-68 + w * 2.8, 5.8, -43.25, 1.2, 0.9, 0.2, 'glass')
+        L.box(-68 + w * 2.8, 5.8, -36.75, 1.2, 0.9, 0.2, 'glass')
+
+    # Swept Wings (44m span)
+    L.box(-48, 4.6, -40, 14, 0.9, 44, 'white', 0.12)
+    # Winglet wingtips
+    L.box(-54, 7.5, -62.5, 2.2, 3.2, 0.4, 'red', 0.3)
+    L.box(-54, 7.5, -17.5, 2.2, 3.2, 0.4, 'red', -0.3)
+
+    # Turbofan Jet Engines on pylons under the wings
+    for s_wing in (-1, 1):
+        ez = -40 + s_wing * 11
+        L.box(-46, 3.8, ez, 4.2, 1.6, 0.6, 'steel')
+        L.tube(-46, 2.2, ez, 2.1, 7.5, 'steel', 12)
+        L.tube(-41.5, 2.2, ez, 2.1, 1.8, 'black', 12, r_top=0.4)
+
+    # Tail assembly: Ghana Tricolor Vertical Fin
+    L.box(-70, 7.4, -40, 7.5, 3.2, 0.8, 'green', -0.32)
+    L.box(-71, 10.6, -40, 6.2, 3.2, 0.7, 'flag_gold', -0.32)
+    L.star(-71, 12.2, -39.5, 0.8, 0.2, 'black')
+    L.star(-71, 12.2, -40.5, 0.8, 0.2, 'black')
+    L.box(-72, 13.8, -40, 5.0, 3.0, 0.6, 'red', -0.32)
+    # Horizontal stabilizers
+    L.box(-69, 7.6, -40, 6.0, 0.6, 18, 'white')
+
+    # Landing gear (nose & main)
+    L.cyl(-26, 1.2, -40, 0.4, 3.0, 'steel', 6)
+    L.cyl(-26, 1.2, -40, 1.0, 1.2, 'black', 8)
+    for s_gear in (-1, 1):
+        L.cyl(-48, 1.2, -40 + s_gear * 3.5, 0.5, 3.0, 'steel', 6)
+        L.cyl(-48, 1.2, -40 + s_gear * 3.5, 1.3, 1.4, 'black', 8)
+
+    # Apron Ground Support Equipment (GSE)
+    L.box(-30, 1.2, -33, 4.2, 2.0, 2.6, 'flag_gold')
+    L.box(-31, 2.2, -33, 2.2, 1.6, 2.4, 'glass')
+    for t_idx in (1, 2):
+        tx = -30 - t_idx * 5.5
+        L.box(tx, 1.2, -33, 3.6, 1.2, 2.2, 'steel')
+        L.box(tx, 2.4, -33, 2.8, 1.0, 1.8, 'red' if t_idx == 1 else 'teal')
+
+    # 6. Detailed Air Traffic Control (ATC) Tower (KIA iconic tower)
+    L.box(100, 1.2, 38, 22, 2.0, 22, 'concrete')
+    L.box(100, 3.2, 38, 18, 5.0, 18, 'glass')
+    L.cyl(100, 8.2, 38, 6.2, 38, 'concrete', 12, r_top=4.8)
+    L.cyl(100, 46.2, 38, 6.8, 1.4, 'steel', 12)
+    L.cyl(100, 47.6, 38, 5.2, 7.0, 'glass', 12, r_top=7.8)
+    L.cyl(100, 54.6, 38, 8.4, 1.6, 'concrete', 12)
+    L.dome(100, 56.2, 38, 2.8, 'dome', 14, 6, 1.0)
+    L.cyl(100, 59.0, 38, 0.3, 9.0, 'steel', 6)
+    L.cyl(100, 68.0, 38, 0.45, 1.2, 'red', 6)
+
+    # 7. Landscaped Entrance Forecourt & Roundabout
+    L.ring(8, 1.2, 62, 16, 6, 0.1, 'asphalt', 24)
+    L.cyl(8, 1.2, 62, 12.8, 0.8, 'grass', 20)
+    L.cyl(8, 2.0, 62, 3.4, 2.4, 'marble', 12)
+    L.flag(8, 62, 26, 8)
+    L.flag(-4, 62, 20, 6)
+    L.flag(20, 62, 20, 6)
+
+    for p_x in (-60, -40, -20, 36, 56, 76):
+        L.palm(p_x, 62, 22, 0.9)
+    for p_z in (48, 68):
+        L.palm(-65, p_z, 20, 0.85)
+        L.palm(80, p_z, 20, 0.85)
+
+    L.box(-28, 1.2, 52, 16, 3.2, 1.8, 'stone_dark')
+    L.box(-28, 4.4, 52, 18, 1.2, 2.0, 'flag_gold')
 
 
 def ug(L):

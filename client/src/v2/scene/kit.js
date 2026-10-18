@@ -101,6 +101,8 @@ export const T = {
   scribble: () => tex('scrib', 256, 128, (x, w, h) => { seed(5); x.fillStyle = '#fbfbf7'; x.fillRect(0, 0, w, h); x.strokeStyle = '#2c4fb0'; x.lineWidth = 2; for (let i = 0; i < 6; i++) { x.beginPath(); x.moveTo(14, 18 + i * 17); for (let k = 0; k < 18; k++) x.lineTo(14 + k * 9 + rnd() * 5, 18 + i * 17 + (rnd() - 0.5) * 6); x.stroke(); } x.strokeStyle = '#c8102e'; x.beginPath(); x.arc(205, 64, 26, 0, PI * 2); x.stroke(); x.beginPath(); x.moveTo(185, 64); x.lineTo(225, 64); x.moveTo(205, 44); x.lineTo(205, 84); x.stroke(); }),
   speaker: () => tex('spk', 64, 64, (x) => { x.fillStyle = '#1b1c1f'; x.fillRect(0, 0, 64, 64); x.fillStyle = '#2a2c30'; for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) { x.beginPath(); x.arc(4 + i * 8, 4 + j * 8, 2, 0, PI * 2); x.fill(); } }),
   tilesWall: (c = '#dfeff5') => tex('tw' + c, 128, 128, (x) => { x.fillStyle = shade(c, -0.18); x.fillRect(0, 0, 128, 128); for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) { x.fillStyle = shade(c, (i + j) % 2 ? 0.05 : -0.02); x.fillRect(i * 32 + 1, j * 32 + 1, 30, 30); } }, [1, 1]),
+  chevron: () => tex('chev', 256, 64, (x) => { for (let i = -64; i < 256; i += 32) { x.fillStyle = '#dc2626'; x.beginPath(); x.moveTo(i, 0); x.lineTo(i + 16, 0); x.lineTo(i + 32, 64); x.lineTo(i + 16, 64); x.fill(); x.fillStyle = '#facc15'; x.beginPath(); x.moveTo(i + 16, 0); x.lineTo(i + 32, 0); x.lineTo(i + 48, 64); x.lineTo(i + 32, 64); x.fill(); } }),
+  taxiBadge: () => tex('taxib', 128, 128, (x) => { x.fillStyle = '#f59e0b'; x.beginPath(); x.arc(64, 64, 58, 0, PI * 2); x.fill(); x.strokeStyle = '#1f2937'; x.lineWidth = 5; x.stroke(); x.fillStyle = '#1f2937'; x.font = 'bold 22px system-ui, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('GPRTU', 64, 46); x.font = 'bold 15px system-ui, sans-serif'; x.fillText('ACCRA', 64, 76); star(x, 64, 98, 7, '#dc2626'); }),
 };
 
 // ------------------------------------------------------------------ floor materials
@@ -536,18 +538,178 @@ K.coffin = (o) => { const b = new B(); const c = o.color || '#f7f1e3'; b.box(1.0
   return b.done([1.3, 2.4], [U.stand(0.9, 0.2, -HP), U.stand(-0.9, 0.2, HP)]); };
 K.portrait_stand = (o) => { const b = new B(); b.bar([0, 0, -0.2], [0, 1.6, 0], 0.02, C.woodD); b.bar([-0.3, 0, 0.2], [0, 1.6, 0], 0.02, C.woodD); b.bar([0.3, 0, 0.2], [0, 1.6, 0], 0.02, C.woodD); b.box(0.7, 0.9, 0.04, C.gold, 0, 0.95, 0.12, 0.01); b.box(0.6, 0.8, 0.02, '#2b2b2b', 0, 1.0, 0.145, 0.005);
   b.sph(0.13, '#5a3524', 0, 1.5, 0.16, 1, 1.2, 0.3); b.box(0.36, 0.3, 0.02, '#141414', 0, 1.06, 0.16, 0.05); b.box(0.4, 0.08, 0.01, mat('#fff', { map: T.text('REST IN PEACE', '#141414', '#fcd116', 256, 64) }), 0, 1.0, 0.165); return b.done([0.7, 0.45], [U.stand(0, 0.7)]); };
-K.trotro = (o) => { const b = new B(); const c = o.color || '#f2f0e6'; const L = 4.6, W = 1.9; b.box(L, 1.55, W, mat(c, { r: 0.55 }), 0, 0.35, 0, 0.18); b.box(L + 0.02, 0.32, W + 0.02, mat(o.stripe || '#f2c230', { r: 0.6 }), 0, 0.55, 0, 0.1); b.box(L + 0.03, 0.08, W + 0.03, mat('#c8102e'), 0, 0.92, 0, 0.03);
-  const gl = mat('#27384a', { r: 0.2, m: 0.3 }); for (let i = 0; i < 4; i++) for (const s of [-1, 1]) b.box(0.82, 0.52, 0.02, gl, -1.55 + i * 0.98, 1.2, s * (W / 2 + 0.005), 0.02); b.bc(0.02, 0.6, 1.6, gl, L / 2 + 0.005, 1.45, 0, 0, 0, 0.1); b.box(0.02, 0.5, 1.6, gl, -L / 2 - 0.005, 1.2, 0, 0.02);
-  for (const [x, z] of [[1.45, 1], [1.45, -1], [-1.45, 1], [-1.45, -1]]) { b.cc(0.36, 0.36, 0.24, C.black, x, 0.36, z * 0.85, HP, 0, 0, 14); b.cc(0.18, 0.18, 0.25, '#9aa1a8', x, 0.36, z * 0.85, HP, 0, 0, 10); }
-  for (const s of [-1, 1]) b.box(0.03, 0.14, 0.3, mat('#fff7c2', { e: '#ffe28a', ei: 0.8 }), L / 2 + 0.01, 0.75, s * 0.65, 0.02); b.box(0.06, 0.2, W - 0.1, '#3a3a3a', L / 2 + 0.03, 0.42, 0, 0.03);
-  const rk = mat('#3a3a3a', { m: 0.4, r: 0.5 }); for (const s of [-1, 1]) b.bar([-1.9, 2.0, s * 0.8], [1.6, 2.0, s * 0.8], 0.02, rk); for (let i = 0; i < 5; i++) b.bar([-1.8 + i * 0.85, 2.0, -0.8], [-1.8 + i * 0.85, 2.0, 0.8], 0.015, rk); b.box(0.7, 0.35, 0.6, '#5d4037', -0.8, 2.0, 0.1, 0.06); b.box(0.5, 0.3, 0.5, mat('#fff', { map: T.wax() }), 0.3, 2.0, -0.2, 0.08);
-  b.box(1.0, 1.25, 0.02, '#1f262e', 0.6, 0.38, W / 2 + 0.01, 0.02); signPanel(b, o.label || 'GOD IS KING', '#f2c230', '#c8102e', 1.8, 0.2, -0.9, 1.63, W / 2 + 0.03); signPanel(b, 'CIRCLE · MADINA', '#1b1b1b', '#ffd23f', 1.2, 0.18, L / 2 + 0.03, 1.82, 0, HP);
-  return b.done([L, W], [{ x: 0.6, z: W / 2 + 0.45, face: PI, pose: 'stand' }, { x: -0.5, z: W / 2 + 0.5, face: PI, pose: 'cheer' }]); };
-K.car_display = (o) => { const b = new B(); const c = o.color || '#c8102e'; const L = 3.9, W = 1.75; const bm = mat(c, { r: 0.3, m: 0.35 }); b.box(L, 0.6, W, bm, 0, 0.25, 0, 0.22); b.bc(2.0, 0.55, W - 0.12, bm, -0.25, 1.1, 0, 0, 0, 0, 0.2); const gl = mat('#22303d', { r: 0.15, m: 0.4 });
-  b.bc(0.02, 0.45, W - 0.3, gl, 0.77, 1.08, 0, 0, 0, 0.55); b.bc(0.02, 0.42, W - 0.3, gl, -1.26, 1.08, 0, 0, 0, -0.45); for (const s of [-1, 1]) { b.box(0.8, 0.38, 0.02, gl, 0.2, 0.9, s * (W / 2 - 0.055), 0.02); b.box(0.75, 0.38, 0.02, gl, -0.7, 0.9, s * (W / 2 - 0.055), 0.02); }
-  for (const [x, z] of [[1.2, 1], [1.2, -1], [-1.25, 1], [-1.25, -1]]) { b.cc(0.33, 0.33, 0.24, C.black, x, 0.33, z * (W / 2 - 0.08), HP, 0, 0, 16); b.cc(0.2, 0.2, 0.25, C.chrome, x, 0.33, z * (W / 2 - 0.08), HP, 0, 0, 10); }
-  for (const s of [-1, 1]) { b.box(0.04, 0.1, 0.3, mat('#fff7d6', { e: '#fff1b8', ei: 1 }), L / 2 + 0.01, 0.62, s * 0.6, 0.02); b.box(0.04, 0.1, 0.28, mat('#ff3b3b', { e: '#ff2a2a', ei: 0.7 }), -L / 2 - 0.01, 0.65, s * 0.6, 0.02); } b.box(0.05, 0.12, 0.6, '#d9d9d9', L / 2 + 0.02, 0.33, 0, 0.02); b.box(0.04, 0.1, 0.36, mat('#fff', { map: T.text('GR 2026', '#ffffff', '#111', 256, 64) }), L / 2 + 0.04, 0.33, 0, 0.005);
-  return b.done([L, W], [{ x: 0.1, z: W / 2 + 0.45, face: PI, pose: 'stand' }]); };
+K.trotro = (o) => {
+  const b = new B(); const c = o.color || '#f4f1ea'; const L = 4.8, W = 2.0;
+  const stripeCol = o.stripe || '#f59e0b'; const plateText = o.plate || 'GR 4821 - 24';
+  const sloganText = o.label || o.slogan || 'NYAME NHYIRA'; const destText = o.dest || 'CIRCLE · MADINA';
+
+  // 1. Lower chassis & wheels (commercial 16-inch steel rims with rubber tyres)
+  b.box(L - 0.4, 0.22, W - 0.2, '#1a1c20', 0, 0.18, 0, 0.04);
+  for (const [x, z] of [[1.48, 1], [1.48, -1], [-1.52, 1], [-1.52, -1]]) {
+    b.cc(0.38, 0.38, 0.26, '#181a1d', x, 0.38, z * (W / 2 - 0.1), HP, 0, 0, 16);
+    b.cc(0.22, 0.22, 0.27, '#94a3b8', x, 0.38, z * (W / 2 - 0.1), HP, 0, 0, 12);
+    b.cc(0.08, 0.08, 0.28, '#24272b', x, 0.38, z * (W / 2 - 0.1), HP, 0, 0, 8);
+  }
+  // Rear mudflaps with Ghana flag colors
+  for (const s of [-1, 1]) {
+    b.box(0.04, 0.28, 0.3, mat('#1e293b'), -1.95, 0.22, s * (W / 2 - 0.1), 0.01);
+    b.box(0.045, 0.06, 0.26, mat('#dc2626'), -1.95, 0.32, s * (W / 2 - 0.1), 0.005);
+    b.box(0.045, 0.06, 0.26, mat('#facc15'), -1.95, 0.24, s * (W / 2 - 0.1), 0.005);
+    b.box(0.045, 0.06, 0.26, mat('#16a34a'), -1.95, 0.16, s * (W / 2 - 0.1), 0.005);
+  }
+
+  // 2. Main Body & Classic 207 / Sprinter Cab
+  b.box(L, 0.65, W, mat(c, { r: 0.5 }), 0, 0.35, 0, 0.16);
+  b.box(L + 0.02, 0.34, W + 0.02, mat(stripeCol, { r: 0.55 }), 0, 0.62, 0, 0.08);
+  b.box(L + 0.03, 0.07, W + 0.03, mat('#dc2626'), 0, 0.98, 0, 0.02);
+  b.box(L - 0.1, 0.95, W - 0.06, mat(c, { r: 0.5 }), -0.15, 1.0, 0, 0.14);
+
+  // Front sloped bonnet (Mercedes 207/307 style)
+  b.bc(0.9, 0.48, W - 0.16, mat(c, { r: 0.5 }), 1.85, 0.72, 0, 0, 0, -0.15, 0.12);
+  b.box(0.04, 0.32, 0.92, '#18181b', L / 2 + 0.01, 0.68, 0, 0.02);
+  for (let g = 0; g < 3; g++) b.box(0.045, 0.025, 0.82, C.chrome, L / 2 + 0.015, 0.6 + g * 0.08, 0, 0.005);
+  b.cyl(0.06, 0.06, 0.05, C.chrome, L / 2 + 0.02, 0.68, 0, 8, null, HP);
+
+  // Headlights & indicators
+  for (const s of [-1, 1]) {
+    b.box(0.04, 0.18, 0.26, mat('#fffbeb', { e: '#fef3c7', ei: 1.1 }), L / 2 + 0.01, 0.68, s * 0.68, 0.02);
+    b.box(0.045, 0.18, 0.1, mat('#f97316', { e: '#ea580c', ei: 0.9 }), L / 2 + 0.01, 0.68, s * 0.84, 0.015);
+  }
+  b.box(0.14, 0.22, W + 0.06, '#27272a', L / 2 + 0.03, 0.36, 0, 0.04);
+  for (const s of [-1, 1]) b.box(0.16, 0.26, 0.14, '#18181b', L / 2 + 0.04, 0.36, s * 0.55, 0.02);
+
+  // Ghanaian Commercial Yellow Plates
+  signPanel(b, plateText, '#f59e0b', '#111827', 0.56, 0.15, L / 2 + 0.11, 0.36, 0, HP);
+  signPanel(b, plateText, '#f59e0b', '#111827', 0.56, 0.15, -L / 2 - 0.08, 0.38, 0, -HP);
+
+  // Windows & Glazing
+  const gl = mat('#1e293b', { r: 0.15, m: 0.4 });
+  b.bc(0.04, 0.68, W - 0.26, gl, 1.48, 1.42, 0, 0, 0, 0.36, 0.04);
+  b.bar([1.52, 1.18, -0.3], [1.46, 1.55, -0.1], 0.015, '#18181b');
+  b.bar([1.52, 1.18, 0.2], [1.46, 1.55, 0.4], 0.015, '#18181b');
+  b.box(0.04, 0.58, W - 0.35, gl, -L / 2 + 0.02, 1.35, 0, 0.03);
+  for (let i = 0; i < 4; i++) b.box(0.82, 0.54, 0.03, gl, -1.65 + i * 0.94, 1.35, -W / 2 - 0.005, 0.02);
+  for (let i = 0; i < 3; i++) b.box(0.82, 0.54, 0.03, gl, -1.65 + i * 0.94, 1.35, W / 2 + 0.005, 0.02);
+
+  // 3. Side Sliding Door & Trotro Mate Perch
+  b.box(1.02, 1.32, 0.06, '#18181b', 0.72, 0.42, W / 2 - 0.02, 0.02);
+  b.box(0.85, 0.12, 0.65, '#334155', 0.72, 0.68, W / 2 - 0.45, 0.03);
+  b.box(0.85, 0.45, 0.1, '#334155', 0.72, 0.92, W / 2 - 0.72, 0.03);
+  b.bar([1.2, 0.45, W / 2 + 0.03], [1.2, 1.65, W / 2 + 0.03], 0.02, '#94a3b8');
+  b.bar([0.22, 0.45, W / 2 + 0.03], [0.22, 1.65, W / 2 + 0.03], 0.02, '#94a3b8');
+  b.box(0.95, 0.06, 0.22, '#27272a', 0.72, 0.32, W / 2 + 0.08, 0.015);
+
+  // Side mirrors
+  for (const s of [-1, 1]) {
+    b.bar([1.4, 1.25, s * (W / 2 - 0.02)], [1.4, 1.25, s * (W / 2 + 0.22)], 0.016, '#18181b');
+    b.box(0.08, 0.28, 0.14, '#18181b', 1.4, 1.25, s * (W / 2 + 0.24), 0.02);
+    b.box(0.02, 0.24, 0.11, C.chrome, 1.37, 1.25, s * (W / 2 + 0.24), 0.01);
+  }
+
+  // 4. Rear Safety & Ghanaian Road Regulations
+  b.box(0.14, 0.22, W + 0.04, '#27272a', -L / 2 - 0.03, 0.36, 0, 0.03);
+  b.plane(W - 0.2, 0.12, mat('#fff', { map: T.chevron() }), -L / 2 - 0.11, 0.48, 0, -HP, 0);
+  for (const s of [-1, 1]) {
+    b.box(0.04, 0.34, 0.12, mat('#dc2626', { e: '#b91c1c', ei: 0.8 }), -L / 2 - 0.02, 0.95, s * 0.86, 0.02);
+    b.box(0.045, 0.1, 0.12, mat('#f97316', { e: '#ea580c', ei: 0.8 }), -L / 2 - 0.02, 0.82, s * 0.86, 0.015);
+  }
+
+  // 5. Authentic Slogans & Destination Boards
+  signPanel(b, sloganText, '#18181b', '#facc15', 1.45, 0.24, -L / 2 - 0.01, 1.35, 0, -HP);
+  signPanel(b, destText, '#18181b', '#facc15', 1.35, 0.22, 1.48, 1.88, 0, HP);
+  signPanel(b, sloganText, stripeCol, '#18181b', 1.9, 0.22, -0.65, 0.62, W / 2 + 0.025);
+  signPanel(b, sloganText, stripeCol, '#18181b', 1.9, 0.22, -0.65, 0.62, -W / 2 - 0.025, PI);
+
+  // 6. Heavy-Duty Steel Roof Rack & Loaded Accra Luggage
+  const rk = mat('#334155', { m: 0.6, r: 0.4 });
+  for (const s of [-1, 1]) b.bar([-2.0, 2.06, s * 0.85], [1.3, 2.06, s * 0.85], 0.024, rk);
+  for (let i = 0; i < 6; i++) b.bar([-1.9 + i * 0.64, 2.06, -0.85], [-1.9 + i * 0.64, 2.06, 0.85], 0.018, rk);
+  for (let i = 0; i < 4; i++) for (const s of [-1, 1]) b.bar([-1.8 + i * 1.0, 1.95, s * 0.85], [-1.8 + i * 1.0, 2.06, s * 0.85], 0.02, rk);
+  b.box(0.75, 0.38, 0.65, mat('#d97706', { r: 0.9 }), -1.2, 2.15, 0.15, 0.08);
+  b.box(0.65, 0.32, 0.55, mat('#b45309', { r: 0.9 }), -1.4, 2.15, -0.35, 0.07);
+  b.box(0.62, 0.36, 0.58, mat('#fff', { map: T.wax('#dc2626', '#facc15', '#2563eb') }), -0.4, 2.16, 0.2, 0.06);
+  b.box(0.85, 0.26, 0.72, mat('#2563eb', { r: 0.7 }), 0.5, 2.14, -0.1, 0.08);
+  b.cc(0.36, 0.36, 0.22, '#181a1d', 0.4, 2.14, 0.42, 0, 0, 0, 14);
+  b.cc(0.2, 0.2, 0.23, '#94a3b8', 0.4, 2.14, 0.42, 0, 0, 0, 10);
+  b.bar([-1.6, 2.38, -0.85], [-1.0, 2.38, 0.85], 0.012, '#facc15');
+  b.bar([-0.6, 2.38, -0.85], [-0.2, 2.38, 0.85], 0.012, '#dc2626');
+  b.bar([0.2, 2.32, -0.85], [0.8, 2.32, 0.85], 0.012, '#16a34a');
+
+  return b.done([L, W], [{ x: 0.72, z: W / 2 + 0.52, face: PI, pose: 'stand' }, { x: -0.5, z: W / 2 + 0.55, face: PI, pose: 'cheer' }]);
+};
+
+K.taxi = (o) => {
+  const b = new B(); const L = 3.95, W = 1.76;
+  const bodyCol = o.color || '#f4f4f2'; const fenderCol = '#f59e0b'; const plateText = o.plate || 'GW 1928 - 25';
+  const bm = mat(bodyCol, { r: 0.35, m: 0.3 }), fm = mat(fenderCol, { r: 0.35, m: 0.3 }), gl = mat('#1e293b', { r: 0.15, m: 0.4 });
+
+  b.box(L - 0.3, 0.2, W - 0.2, '#18181b', 0, 0.16, 0, 0.03);
+  for (const [x, z] of [[1.22, 1], [1.22, -1], [-1.22, 1], [-1.22, -1]]) {
+    b.cc(0.33, 0.33, 0.24, '#18181b', x, 0.33, z * (W / 2 - 0.08), HP, 0, 0, 16);
+    b.cc(0.18, 0.18, 0.25, C.chrome, x, 0.33, z * (W / 2 - 0.08), HP, 0, 0, 10);
+    b.cc(0.06, 0.06, 0.26, '#18181b', x, 0.33, z * (W / 2 - 0.08), HP, 0, 0, 6);
+  }
+  b.box(2.2, 0.58, W, bm, -0.05, 0.26, 0, 0.16);
+  b.bc(1.9, 0.54, W - 0.14, bm, -0.22, 1.08, 0, 0, 0, 0, 0.18);
+  b.box(0.95, 0.56, W, fm, 1.45, 0.26, 0, 0.18);
+  b.box(0.9, 0.08, W - 0.24, bm, 1.42, 0.78, 0, 0.06);
+  b.box(0.95, 0.56, W, fm, -1.45, 0.26, 0, 0.18);
+  b.box(0.85, 0.08, W - 0.24, bm, -1.42, 0.78, 0, 0.06);
+
+  b.bc(0.04, 0.46, W - 0.28, gl, 0.78, 1.06, 0, 0, 0, 0.52, 0.02);
+  b.bc(0.04, 0.42, W - 0.28, gl, -1.22, 1.06, 0, 0, 0, -0.45, 0.02);
+  for (const s of [-1, 1]) {
+    b.box(0.78, 0.38, 0.02, gl, 0.2, 0.9, s * (W / 2 - 0.055), 0.02);
+    b.box(0.72, 0.38, 0.02, gl, -0.68, 0.9, s * (W / 2 - 0.055), 0.02);
+    b.plane(0.24, 0.24, mat('#fff', { map: T.taxiBadge() }), -0.15, 0.58, s * (W / 2 + 0.01), s > 0 ? 0 : PI);
+    b.box(0.12, 0.03, 0.02, C.chrome, -0.18, 0.72, s * (W / 2 + 0.01), 0.005);
+    b.box(0.12, 0.03, 0.02, C.chrome, 0.32, 0.72, s * (W / 2 + 0.01), 0.005);
+    b.box(0.06, 0.08, 0.12, '#18181b', 0.65, 0.88, s * (W / 2 + 0.08), 0.01);
+  }
+  b.box(0.04, 0.18, 0.68, '#18181b', L / 2 + 0.01, 0.54, 0, 0.01);
+  b.cyl(0.04, 0.04, 0.05, C.chrome, L / 2 + 0.015, 0.54, 0, 8, null, HP);
+  for (const s of [-1, 1]) {
+    b.box(0.04, 0.12, 0.28, mat('#fffbeb', { e: '#fef3c7', ei: 1.2 }), L / 2 + 0.01, 0.62, s * 0.62, 0.02);
+    b.box(0.04, 0.12, 0.26, mat('#dc2626', { e: '#b91c1c', ei: 0.8 }), -L / 2 - 0.01, 0.64, s * 0.62, 0.02);
+  }
+  b.box(0.1, 0.14, W + 0.02, '#27272a', L / 2 + 0.02, 0.34, 0, 0.02);
+  b.box(0.1, 0.14, W + 0.02, '#27272a', -L / 2 - 0.02, 0.34, 0, 0.02);
+  signPanel(b, plateText, '#f59e0b', '#111827', 0.48, 0.13, L / 2 + 0.08, 0.34, 0, HP);
+  signPanel(b, plateText, '#f59e0b', '#111827', 0.48, 0.13, -L / 2 - 0.08, 0.34, 0, -HP);
+
+  // Illuminated Taxi Roof Sign
+  b.box(0.52, 0.16, 0.24, mat('#f59e0b', { e: '#f59e0b', ei: 0.6, r: 0.3 }), -0.15, 1.42, 0, 0.04);
+  signPanel(b, 'TAXI', '#f59e0b', '#111827', 0.42, 0.12, -0.15, 1.42, 0.125);
+  signPanel(b, 'TAXI', '#f59e0b', '#111827', 0.42, 0.12, -0.15, 1.42, -0.125, PI);
+
+  return b.done([L, W], [{ x: 0.1, z: W / 2 + 0.45, face: PI, pose: 'stand' }]);
+};
+
+K.car_display = (o) => {
+  const b = new B(); const c = o.color || '#c8102e'; const L = 4.0, W = 1.78;
+  const bm = mat(c, { r: 0.3, m: 0.35 }); const gl = mat('#1e293b', { r: 0.15, m: 0.4 });
+  b.box(L, 0.6, W, bm, 0, 0.25, 0, 0.22);
+  b.bc(2.0, 0.55, W - 0.12, bm, -0.25, 1.1, 0, 0, 0, 0, 0.2);
+  b.bc(0.04, 0.45, W - 0.3, gl, 0.77, 1.08, 0, 0, 0, 0.55);
+  b.bc(0.04, 0.42, W - 0.3, gl, -1.26, 1.08, 0, 0, 0, -0.45);
+  for (const s of [-1, 1]) {
+    b.box(0.8, 0.38, 0.02, gl, 0.2, 0.9, s * (W / 2 - 0.055), 0.02);
+    b.box(0.75, 0.38, 0.02, gl, -0.7, 0.9, s * (W / 2 - 0.055), 0.02);
+    b.box(0.06, 0.08, 0.12, '#18181b', 0.68, 0.88, s * (W / 2 + 0.08), 0.01);
+  }
+  for (const [x, z] of [[1.22, 1], [1.22, -1], [-1.25, 1], [-1.25, -1]]) {
+    b.cc(0.33, 0.33, 0.24, '#18181b', x, 0.33, z * (W / 2 - 0.08), HP, 0, 0, 16);
+    b.cc(0.2, 0.2, 0.25, C.chrome, x, 0.33, z * (W / 2 - 0.08), HP, 0, 0, 10);
+  }
+  for (const s of [-1, 1]) {
+    b.box(0.04, 0.12, 0.3, mat('#fffbeb', { e: '#fef3c7', ei: 1.2 }), L / 2 + 0.01, 0.62, s * 0.6, 0.02);
+    b.box(0.04, 0.12, 0.28, mat('#dc2626', { e: '#b91c1c', ei: 0.8 }), -L / 2 - 0.01, 0.65, s * 0.6, 0.02);
+  }
+  b.box(0.05, 0.12, 0.6, '#d9d9d9', L / 2 + 0.02, 0.33, 0, 0.02);
+  signPanel(b, o.plate || 'GR 2026 - 24', '#ffffff', '#111827', 0.48, 0.13, L / 2 + 0.08, 0.33, 0, HP);
+  signPanel(b, o.plate || 'GR 2026 - 24', '#ffffff', '#111827', 0.48, 0.13, -L / 2 - 0.08, 0.33, 0, -HP);
+  return b.done([L, W], [{ x: 0.1, z: W / 2 + 0.45, face: PI, pose: 'stand' }]);
+};
 K.traffic_cone = (o) => { const b = new B(); b.box(0.36, 0.04, 0.36, '#e85d04', 0, 0, 0, 0.01); b.cyl(0.03, 0.15, 0.62, '#f77f00', 0, 0.04, 0, 12); b.cyl(0.075, 0.105, 0.12, C.white, 0, 0.3, 0, 12); return b.done([0.36, 0.36], [U.stand(0, 0.45)]); };
 K.pure_water = (o) => { const b = new B(); b.cyl(0.42, 0.32, 0.18, mat('#c9ccd0', { m: 0.5, r: 0.35 }), 0, 0.42, 0, 16); b.cyl(0.24, 0.22, 0.42, C.woodL, 0, 0, 0, 10); seed(31); const sm = mat('#fff', { map: T.stripes(['#e8f4ff', '#e8f4ff', '#1d6fd1'], 6, false), r: 0.3 }); for (let i = 0; i < 16; i++) { const a = rnd() * PI * 2, r = rnd() * 0.3; b.add(RB(0.14, 0.04, 0.2, 0.018), sm, Math.cos(a) * r, 0.62 + (0.3 - r) * 0.5 + rnd() * 0.05, Math.sin(a) * r, rnd() * 0.5, rnd() * 3, rnd() * 0.5); }
   for (let i = 0; i < 4; i++) b.box(0.42, 0.22, 0.3, mat('#e8f4ff', { r: 0.4 }), 0.55, i * 0.22, (i % 2) * 0.05 - 0.1, 0.04); return b.done([1.0, 0.85], [U.stand(0, 0.7)]); };
@@ -558,6 +720,40 @@ K.sign_post = (o) => { const b = new B(); b.cyl(0.04, 0.04, 2.2, '#4a4f55', 0, 0
 K.board_sign = (o) => { const b = new B(); const W = o.arg || 2.4; for (const s of [-1, 1]) b.cyl(0.05, 0.05, 2.6, '#4a4f55', s * W * 0.4, 0, 0, 8); signPanel(b, o.label || 'WELCOME', o.color || '#1d6f42', o.fg || '#ffffff', W, W * 0.28, 0, 2.25, 0.06); return b.done([W, 0.2], [U.stand(0, 0.5)]); };
 K.departure_board = (o) => { const b = new B(); b.box(1.9, 1.2, 0.12, C.dark, 0, 1.3, 0.06, 0.03); b.plane(1.8, 1.1, mat('#000', { map: T.screen('board'), e: '#fff', ei: 0.9 }), 0, 1.9, 0.125).userData.noShadow = true; b.cyl(0.04, 0.04, 1.3, C.dark, 0, 0, 0.06, 8); b.box(0.5, 0.04, 0.4, C.dark, 0, 0, 0.06, 0.01); return b.done([1.9, 0.45], [U.stand(0, 0.8)]); };
 K.runway_window = (o) => { const b = new B(); const W = o.arg || 4; b.box(W + 0.1, 2.3, 0.1, C.dark, 0, 0.1, 0.05, 0.01); b.plane(W, 2.1, mat('#fff', { map: T.screen('runway'), e: '#ffffff', ei: 0.55 }), 0, 1.25, 0.105).userData.noShadow = true; for (let i = 1; i < 4; i++) b.box(0.05, 2.1, 0.04, C.dark, -W / 2 + (W / 4) * i, 0.2, 0.12, 0.005); return b.done([W, 0.2], [U.stand(0, 0.9)], { walkable: true }); };
+K.luggage_carousel = (o) => {
+  const b = new B(); const L = o.arg || 3.2, W = o.arg2 || 1.8;
+  const steel = mat('#9ca3af', { r: 0.25, m: 0.75 }); const belt = mat('#1f2937', { r: 0.85 });
+  b.box(L, 0.22, W, steel, 0, 0, 0, 0.08); b.box(L - 0.24, 0.08, W - 0.24, belt, 0, 0.22, 0, 0.06); b.box(L - 0.9, 0.35, W - 0.9, steel, 0, 0.22, 0, 0.04);
+  const colors = ['#b91c1c', '#1d4ed8', '#047857', '#d97706', '#475569'];
+  const bags = [[-L / 2 + 0.45, 0.3, -W / 2 + 0.35, 0.15, colors[0]], [0.1, 0.3, -W / 2 + 0.32, -0.1, colors[1]], [L / 2 - 0.45, 0.3, -W / 2 + 0.36, 0.2, colors[2]], [L / 2 - 0.38, 0.3, W / 2 - 0.34, -0.25, colors[3]], [-0.2, 0.3, W / 2 - 0.33, 0.05, colors[4]], [-L / 2 + 0.42, 0.3, W / 2 - 0.35, -0.18, colors[0]]];
+  for (const [x, y, z, rot, col] of bags) { b.bc(0.42, 0.22, 0.3, mat(col, { r: 0.4 }), x, y, z, 0, rot, 0, 0.04); b.bc(0.12, 0.02, 0.03, '#111827', x, y + 0.12, z, 0, rot, 0, 0.01); }
+  b.cyl(0.025, 0.025, 1.4, steel, 0, 0.55, 0, 8); b.box(0.85, 0.34, 0.06, '#1e3a8a', 0, 1.85, 0, 0.02);
+  signPanel(b, o.label || 'BAGGAGE CLAIM\nCAROUSEL 2', '#1e3a8a', '#ffffff', 0.8, 0.3, 0, 1.85, 0.035);
+  signPanel(b, o.label || 'BAGGAGE CLAIM\nCAROUSEL 2', '#1e3a8a', '#ffffff', 0.8, 0.3, 0, 1.85, -0.035, PI);
+  return b.done([L, W], [U.stand(0, W / 2 + 0.5)]);
+};
+K.metal_detector = (o) => {
+  const b = new B(); const c = o.color || '#475569'; const postM = mat(c, { r: 0.4, m: 0.3 });
+  for (const sx of [-0.45, 0.45]) { b.box(0.14, 2.2, 0.55, postM, sx, 0, 0, 0.02); b.box(0.22, 0.03, 0.62, '#1e293b', sx, 0, 0, 0.01); b.box(0.02, 1.8, 0.4, '#0f172a', sx > 0 ? sx - 0.06 : sx + 0.06, 0.2, 0, 0.005); }
+  b.box(1.04, 0.22, 0.55, postM, 0, 2.2, 0, 0.02); b.box(0.08, 0.08, 0.02, mat('#22c55e', { e: '#22c55e', ei: 1.2 }), 0, 2.25, 0.28, 0.01); b.box(0.08, 0.08, 0.02, mat('#22c55e', { e: '#22c55e', ei: 1.2 }), 0, 2.25, -0.28, 0.01);
+  signPanel(b, 'SECURITY', '#0f172a', '#38bdf8', 0.45, 0.12, 0, 2.25, 0.285);
+  return b.done([1.04, 0.55], [{ x: 0, z: 0.6, face: PI, pose: 'stand' }], { walkable: true });
+};
+K.duty_free = (o) => {
+  const b = new B(); const W = o.arg || 2.2; const wood = mat('#1e293b', { r: 0.3 });
+  b.box(W, 2.2, 0.45, wood, 0, 0, 0, 0.03); b.box(W, 0.3, 0.48, '#0f172a', 0, 2.2, 0, 0.01);
+  signPanel(b, 'DUTY FREE · ACCRA', '#0f172a', '#fbbf24', W - 0.2, 0.22, 0, 2.2, 0.245);
+  const cols = ['#f59e0b', '#ec4899', '#3b82f6', '#10b981', '#8b5cf6'];
+  for (let s = 0; s < 3; s++) {
+    const y = 0.5 + s * 0.55; b.box(W - 0.1, 0.03, 0.38, '#334155', 0, y, 0.02, 0.005);
+    for (let i = 0; i < 7; i++) {
+      const x = -W / 2 + 0.25 + i * (W - 0.5) / 6;
+      b.box(0.12, 0.22, 0.12, mat(cols[(s + i) % cols.length], { r: 0.2, m: 0.4 }), x, y + 0.03, 0.02, 0.02);
+      b.cyl(0.025, 0.025, 0.06, C.gold, x, y + 0.25, 0.02, 8);
+    }
+  }
+  return b.done([W, 0.45], [U.stand(0, 0.7)]);
+};
 K.voting_booth = (o) => { const b = new B(); b.box(0.9, 0.04, 0.6, '#c8c2b4', 0, 0.9, 0, 0.01); for (const sx of [-1, 1]) { b.box(0.03, 0.9, 0.03, C.chrome, sx * 0.42, 0, -0.25); b.box(0.03, 0.9, 0.03, C.chrome, sx * 0.42, 0, 0.25); b.box(0.02, 0.6, 0.6, '#d9d9d9', sx * 0.45, 0.94, 0, 0.005); } b.box(0.9, 0.6, 0.02, '#d9d9d9', 0, 0.94, -0.3, 0.005); b.box(0.5, 0.15, 0.02, mat('#fff', { map: T.text('VOTE', '#1d4ed8', '#fff', 256, 64) }), 0, 1.4, -0.28, 0.003);
   return b.done([0.95, 0.65], [U.work(0, 0.55)]); };
 K.ballot_box = (o) => { const b = new B(); b.box(0.9, 0.7, 0.6, C.woodL, 0, 0, 0, 0.02); b.box(0.5, 0.45, 0.45, mat(C.glass, { op: 0.5, r: 0.1 }), 0, 0.7, 0, 0.02).userData.noShadow = true; b.box(0.25, 0.01, 0.03, C.black, 0, 1.16, 0); pile(b, 0, 0.72, 0, 0.1, '#ffffff', 5, 0.05); return b.done([0.95, 0.65], [U.work(0, 0.6)]); };

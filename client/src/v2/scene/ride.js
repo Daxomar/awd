@@ -154,13 +154,33 @@ function okadaMesh() { const g = new THREE.Group(); const blk = mat('#1b1b1b', {
   g.traverse((m) => { if (m.isMesh) m.castShadow = true; }); return g; }
 function vehicle(kind, o = {}) { // returns a group whose front faces -z
   const g = new THREE.Group(); let it;
-  if (kind === 'trotro') it = makeItem('trotro', { color: o.color || pick(['#f2f0e6', '#f4f4f2', '#e9e4d4']), stripe: o.stripe || pick(['#f2c230', '#1d4ed8', '#c8102e', '#0e7a4e']) });
-  else if (kind === 'okada') { const m = okadaMesh(); g.add(m); g.userData.len = 1.8; return g; }
-  else it = makeItem('car_display', { color: o.color || (kind === 'taxi' ? '#f4f4f2' : pick(['#c9ccd1', '#1b1f27', '#b5172b', '#f4f4f2', '#2b4a7a', '#6c757d'])) });
+  if (kind === 'trotro') {
+    const slogans = ['NYAME NHYIRA', 'SEA NEVER DRY', 'ALL SHALL PASS', 'WHO KNOWS TOMORROW', 'NO CONDITION IS PERMANENT', 'GOD IS KING', 'OTAN HUNU', 'FEAR WOMAN', 'WORK & HAPPINESS', 'NYAME NTI'];
+    const dests = ['CIRCLE · MADINA', 'ACCRA · TEMA', 'CIRCLE · KANESHIE', 'LAPAZ · CIRCLE', 'KANESHIE · TEMA'];
+    const plates = ['GR 4821 - 24', 'GW 1928 - 25', 'GT 3055 - 24', 'GS 8122 - 25', 'GE 6041 - 24'];
+    it = makeItem('trotro', {
+      color: o.color || pick(['#f4f1ea', '#f8fafc', '#e2e8f0', '#fef3c7']),
+      stripe: o.stripe || pick(['#f59e0b', '#2563eb', '#dc2626', '#16a34a']),
+      slogan: o.label || o.slogan || pick(slogans),
+      dest: o.dest || pick(dests),
+      plate: o.plate || pick(plates),
+    });
+  } else if (kind === 'okada') {
+    const m = okadaMesh(); g.add(m); g.userData.len = 1.8; return g;
+  } else if (kind === 'taxi') {
+    const plates = ['GW 1928 - 25', 'GR 3105 - 24', 'GS 7490 - 25', 'GE 4210 - 24'];
+    it = makeItem('taxi', {
+      color: o.color || pick(['#f4f4f2', '#ea580c', '#1d4ed8', '#15803d', '#991b1b', '#475569']),
+      plate: o.plate || pick(plates),
+    });
+  } else {
+    it = makeItem('car_display', {
+      color: o.color || pick(['#c9ccd1', '#1b1f27', '#b5172b', '#f4f4f2', '#2b4a7a', '#6c757d']),
+      plate: o.plate || pick(['GR 2026 - 24', 'GW 5500 - 25', 'GN 9012 - 24']),
+    });
+  }
   const obj = it.obj; obj.rotation.y = Math.PI / 2; g.add(obj); obj.traverse((m) => { if (m.isMesh) m.castShadow = true; });
-  if (kind === 'taxi') { const y = mat('#f4a90c', { r: 0.4, m: 0.2 }); for (const sx of [-1, 1]) for (const sz of [-1, 1]) { const c = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.36, 0.55), y); c.position.set(sx * 0.87, 0.62, sz * 1.42); g.add(c); }
-    const sign = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.16, 0.22), mat('#ffffff', { map: T.text('TAXI', '#f4a90c', '#17150f', 256, 96), e: '#ffd27a', ei: 0.3 })); sign.position.set(0, 1.46, 0.1); g.add(sign); }
-  g.userData.len = kind === 'trotro' ? 4.6 : 3.9; return g;
+  g.userData.len = kind === 'trotro' ? 4.8 : 3.95; return g;
 }
 const TRAFFIC = ['trotro', 'trotro', 'taxi', 'taxi', 'car', 'car', 'okada', 'trotro'];
 

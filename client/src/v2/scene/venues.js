@@ -69,7 +69,8 @@ export const VENUES = {
       // Tiptoe Lane phone market: tables of UK-used phones, the fitter's bench, accessory hawkers, MoMo
       I('phone_stall', -0.6, 3.2, 0, { key: 'ptab', color: '#1f6fb8' }), I('umbrella', -0.2, 2.2, 0, { color: '#f2c230' }), I('phone_stall', 1.5, 3.2, 0, { key: 'ptab2', color: '#c8102e', label: 'FITTER\nREPAIRS · UNLOCK' }), I('umbrella', 1.9, 2.2, 0, { color: '#c8102e' }),
       I('phone_stall', 3.6, 3.2, 0, { color: '#0e7a4e', label: 'iFONE\nSAMSANG · TEKNO' }), I('hawker_stand', 5.5, 2.4, -HP, { key: 'hawk', color: '#1d4ed8' }), I('momo_kiosk', 5.7, 0.4, -HP, { color: '#ffcc00' }),
-      I('sign_post', -2.2, 3.6, 0, { label: 'TIPTOE LANE' })],
+      I('sign_post', -2.2, 3.6, 0, { label: 'TIPTOE LANE' }),
+      I('board_sign', 0.0, -1.3, 0, { label: 'G.P.R.T.U. CIRCLE\nACCRA · MADINA · KASOA', color: '#1e3a8a', fg: '#fcd116', arg: 2.2 })],
     zones: [Z('preacher', 'Market preacher', 'ph-megaphone', 'bench', ['preacher']), Z('water', 'Pure water hustle', 'ph-drop', 'water', ['sellwater']), Z('ice', 'Fan Ice & water', 'ph-ice-cream', 'ice', ['purewater']),
       Z('phones', 'Phone market', 'ph-device-mobile', 'ptab', ['phonemarket']), Z('fitter', 'Phone fitter', 'ph-wrench', 'ptab2', ['fitter', 'unlock']), Z('acc', 'Chargers hustle', 'ph-plug', 'hawk', ['accessories']),
       Z('tro', 'Trotro', 'ph-bus', 'tro', ['mate']), Z('crowd', 'Crowd', 'ph-users-three', 'stall', ['pickpocket', 'okada_snatch', 'armed_heist']), Z('wc', 'Pay toilet', 'ph-toilet', 'wc', ['toilet'])],
@@ -393,10 +394,11 @@ export const VENUES = {
     sign: { text: 'Kotoka International Airport', bg: '#1d3557', fg: '#ffffff' },
     items: [I('runway_window:4', -6, -1.5, HP), I('airport_seats:5', -3.8, -1.5, -HP, { key: 'seats', color: '#2f6fd1' }), I('airport_seats:5', -2.3, -1.5, -HP, { color: '#2f6fd1' }),
       I('counter:2.4', 1.2, -3.2, 0, { key: 'checkin', color: '#1d3557', label: 'CHECK-IN' }), I('departure_board', 4.6, -4.25), I('suitcase', 3.4, -1.0, 0.4, { color: '#c8102e' }), I('suitcase', -0.8, 1.6, -0.3),
-      I('shared_door', -3.0, -4.5, 0, { key: 'wc', label: 'TOILETS', color: '#1d3557' }), I('plant', -5.5, -4.0), I('plant', 5.5, 0.4), I('floor_sign', 2.4, -1.4, 0.3, { label: 'GATE 3\nKUMASI', color: '#1d3557' }), I('rope:2.4', 1.2, -1.9), I('bin', 5.6, -2.4)],
+      I('shared_door', -3.0, -4.5, 0, { key: 'wc', label: 'TOILETS', color: '#1d3557' }), I('plant', -5.5, -4.0), I('plant', 5.5, 0.4), I('floor_sign', 2.4, -1.4, 0.3, { label: 'GATE 3\nKUMASI', color: '#1d3557' }), I('rope:2.4', 1.2, -1.9), I('bin', 5.6, -2.4),
+      I('metal_detector', -0.6, -1.8, HP), I('luggage_carousel', 2.2, 2.2, 0, { arg: 3.4, arg2: 1.8 }), I('duty_free:2.4', 4.5, -1.4, -HP)],
     zones: [Z('seats', 'Viewing deck', 'ph-airplane-landing', 'seats', ['planes']), Z('checkin', 'Check-in', 'ph-airplane-takeoff', 'checkin', ['kumasi']), Z('wc', 'Toilets', 'ph-toilet', 'wc', ['toilet'])],
     spawn: { x: -5.2, z: 3.15 },
-    npcs: [N('Selorm (check-in)', 1.2, -3.9, 0, LOOK.girl('#1d3557', '#1d3557'), 'work'), N('Uncle Kwaku', 3.0, -0.5, -2.4, LOOK.uncle('#7b2d8e', '#3a2e22')), S('Traveller', ['seats', 3], L('f', '#2a9d8f', '#e9e2d0', 3))],
+    npcs: [N('Selorm (check-in)', 1.2, -3.9, 0, LOOK.girl('#1d3557', '#1d3557'), 'work'), N('Uncle Kwaku', 3.0, -0.5, -2.4, LOOK.uncle('#7b2d8e', '#3a2e22')), S('Traveller', ['seats', 3], L('f', '#2a9d8f', '#e9e2d0', 3)), N('Officer Boateng', -0.6, -0.9, PI, LOOK.police(), 'stand')],
     lights: warm([[-3, -1.5], [2, -2], [2, 2]], '#fff6e6', 5) }),
 
   // ------------------------------------------------------------------ Labadi Beach Hotel

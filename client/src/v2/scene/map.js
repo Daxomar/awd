@@ -167,7 +167,7 @@ export class CityMap {
     }
     st.renderer.shadowMap.enabled = v.zoom < 15;
     this.terrain?.waterMaterial?.color.set('#73aeb4').multiplyScalar(.45+.55*(1-st.night));
-    if(this.mode==='geographic'){this.foundation?.update(v.zoom,v.target.x,v.target.z,st.aspect);if(this.terrain)this.terrain.localRoads.visible=v.zoom<65;this.chunks?.update(v.target.x,v.target.z,v.zoom);}this.ads.update(st.camera); this.ads.sample(st); this.layout();
+    if(this.mode==='geographic'){this.foundation?.update(v.zoom,v.target.x,v.target.z,st.aspect);if(this.terrain)this.terrain.localRoads.visible=v.zoom<65;this.chunks?.update(v.target.x,v.target.z,v.zoom);}else{this.compact?.update?.(dt);}this.ads.update(st.camera); this.ads.sample(st); this.layout();
   }
   layout() {
     const viewport=[innerWidth,innerHeight].join(':');

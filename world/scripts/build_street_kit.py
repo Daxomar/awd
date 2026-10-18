@@ -267,19 +267,43 @@ def umbrella():
 
 
 def trotro():
-    """A minibus trotro: boxy body, windows, a coloured stripe, wheels and a roof rack."""
+    """A minibus trotro: boxy body, Mercedes 207 sloped nose, yellow commercial stripe, wheels, headlights, luggage rack with cargo."""
     a = Asset('trotro')
-    L, W, H = 5.6, 2.0, 2.3
+    L, W, H = 5.2, 2.0, 2.3
+    # Main white body
     a.box('white', (L, W, H - 0.5), at=(0, 0, 0.45 + (H - 0.5) / 2))
-    a.box('white', (0.9, W, 1.0), at=(L / 2 + 0.3, 0, 0.95))
-    a.box('glass', (L - 1.0, W + 0.02, 0.6), at=(-0.3, 0, 1.75))
-    a.box('glass', (0.05, W - 0.2, 0.6), at=(L / 2 + 0.01, 0, 1.75))
-    a.box('yellow', (L + 0.02, W + 0.02, 0.25), at=(0, 0, 1.2))
-    a.box('red', (L + 0.02, W + 0.02, 0.08), at=(0, 0, 1.0))
-    for x in (-1.8, 1.9):
+    # Mercedes 207 front sloped hood & bumper
+    a.box('white', (1.0, W - 0.1, 0.65), at=(L / 2 + 0.45, 0, 0.78))
+    a.box('dark', (0.1, W * 0.5, 0.35), at=(L / 2 + 0.96, 0, 0.75))
+    a.box('dark', (0.2, W + 0.1, 0.22), at=(L / 2 + 0.96, 0, 0.42))
+    a.box('dark', (0.2, W + 0.1, 0.22), at=(-L / 2 - 0.05, 0, 0.42))
+    # Headlights
+    for y in (-W / 2 + 0.25, W / 2 - 0.25):
+        a.box('yellow', (0.05, 0.28, 0.18), at=(L / 2 + 0.98, y, 0.78))
+    # Number plates (Ghana commercial yellow)
+    a.box('yellow', (0.05, 0.52, 0.14), at=(L / 2 + 1.07, 0, 0.42))
+    a.box('yellow', (0.05, 0.52, 0.14), at=(-L / 2 - 0.16, 0, 0.42))
+    # Windows
+    a.box('glass', (L - 1.2, W + 0.04, 0.6), at=(-0.3, 0, 1.75))
+    a.box('glass', (0.08, W - 0.25, 0.65), at=(L / 2 + 0.02, 0, 1.68))
+    a.box('glass', (0.08, W - 0.35, 0.55), at=(-L / 2 - 0.01, 0, 1.72))
+    # Commercial yellow waist stripe & red accent line
+    a.box('yellow', (L + 0.04, W + 0.04, 0.32), at=(0, 0, 1.15))
+    a.box('red', (L + 0.05, W + 0.05, 0.08), at=(0, 0, 0.95))
+    # Wheels with rims
+    for x in (-1.6, 1.7):
         for y in (-W / 2, W / 2):
-            a.cyl('dark', 0.38, 0.38, 0.25, at=(x, y, 0.38), rot_x=math.pi / 2, segs=12)
-    a.box('metal', (L - 0.6, 1.6, 0.12), at=(-0.3, 0, H))
+            a.cyl('dark', 0.38, 0.38, 0.26, at=(x, y, 0.38), rot_x=math.pi / 2, segs=12)
+            a.cyl('metal', 0.22, 0.22, 0.28, at=(x, y, 0.38), rot_x=math.pi / 2, segs=10)
+    # Roof luggage rack & cargo
+    a.box('metal', (L - 0.4, 1.8, 0.12), at=(-0.2, 0, H + 0.06))
+    a.box('metal', (L - 0.4, 0.06, 0.2), at=(-0.2, 0.88, H + 0.16))
+    a.box('metal', (L - 0.4, 0.06, 0.2), at=(-0.2, -0.88, H + 0.16))
+    # Cargo on roof
+    a.box('red', (0.8, 0.7, 0.32), at=(-1.0, 0.2, H + 0.26))
+    a.box('yellow', (0.7, 0.6, 0.28), at=(-1.1, -0.4, H + 0.24))
+    a.box('white', (0.9, 0.8, 0.25), at=(0.3, -0.1, H + 0.22))
+    a.cyl('dark', 0.36, 0.36, 0.22, at=(1.4, 0.2, H + 0.22), segs=12)
     return a.build()
 
 

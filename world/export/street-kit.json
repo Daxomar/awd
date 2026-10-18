@@ -95,14 +95,14 @@
   "trotro": {
    "meshes": [
     "kit_trotro__white",
-    "kit_trotro__glass",
-    "kit_trotro__yellow",
-    "kit_trotro__red",
     "kit_trotro__dark",
+    "kit_trotro__yellow",
+    "kit_trotro__glass",
+    "kit_trotro__red",
     "kit_trotro__metal"
    ],
-   "triangles": 260
+   "triangles": 604
   }
  },
- "bytes": 206360
+ "bytes": 223044
 }
