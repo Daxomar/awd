@@ -23,7 +23,7 @@ test('location uses current state, not a previous room label, including transpor
 });
 test('activity progress is bounded; cancel follows existing server rules, not a new timer',()=>{
  const b={id:'nap',label:'Nap',start:1000,end:11000,sleep:true};assert.equal(activityView({busy:b},6000).progress,.5);assert.equal(activityView({busy:b},12000).remaining,0);assert.equal(activityView({busy:b},-1).progress,0);assert.equal(activityView({busy:b},5000).canCancel,true);
- assert.equal(activityView({busy:{...b,mg:'azonto'}},5000).canCancel,false);assert.equal(activityView({busy:{...b,travel:{mode:'walk'}}},5000).canCancel,false);assert.equal(activityView({shift:{start:1000}},1000).remaining,3600);assert.equal(activityView({shift:{start:1000,maxDuration:180000}},1000).remaining,180);
+ assert.equal(activityView({busy:{...b,mg:'azonto'}},5000).canCancel,false);assert.equal(activityView({busy:{...b,travel:{mode:'walk'}}},5000).canCancel,false);assert.equal(activityView({shift:{start:1000}},1000).remaining,180);assert.equal(activityView({shift:{start:1000,maxDuration:3600000}},1000).remaining,3600);
  assert.equal(activityView({},5000),null);
 });
 test('context menus contain only actions mapped to that selected object',()=>{

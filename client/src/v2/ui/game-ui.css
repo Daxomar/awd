@@ -70,10 +70,12 @@
 @media (orientation:landscape) and (max-height:600px){.game-ui.map-view .mapui .map-filters{top:112px}}
 
 /* Stage 4 camera toggle: right side, above the bottom navigation and clear of busy work shift buttons. */
-.game-ui .camera-toggle { position:absolute; right:14px; bottom:calc(var(--safe-b) + 160px + var(--keyboard-bottom,0px)); width:48px; height:48px; border-radius:50%; border:1px solid #ffffffa8; background:#fcfaf2d9; color:#1d3a32; display:grid; place-items:center; font-size:22px; box-shadow:0 4px 14px #142d2921; z-index:6; pointer-events:auto; touch-action:manipulation; }
+.game-ui .camera-toggle { position:absolute; right:14px; bottom:calc(var(--safe-b) + 175px + var(--keyboard-bottom,0px)); width:48px; height:48px; border-radius:50%; border:1px solid #ffffffa8; background:#fcfaf2d9; color:#1d3a32; display:grid; place-items:center; font-size:22px; box-shadow:0 4px 14px #142d2921; z-index:6; pointer-events:auto; touch-action:manipulation; }
 .game-ui .camera-toggle[aria-pressed="true"] { background:#dfbc5f; }
 .game-ui.map-view .camera-toggle { display:none; }
 @media (max-height:600px) { .game-ui .camera-toggle { width:44px; height:44px; bottom:calc(var(--safe-b) + 130px + var(--keyboard-bottom,0px)); } }
+.game-ui .busy { flex-wrap:nowrap; }
+.game-ui .busy .bx { flex:none; }
 .game-ui .busy .rush-btn { background:#d97706; color:#fff; border:1px solid #f59e0b; }
 .game-ui .busy .rush-btn:disabled { opacity:.45; background:rgba(255,255,255,.12); border-color:transparent; cursor:not-allowed; }
 

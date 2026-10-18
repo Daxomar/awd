@@ -28,7 +28,7 @@ export function locationView(state,cat,roomName=''){
 }
 export function activityView(state,now){
  const b=state?.busy,sh=state?.shift;if(!b&&!sh)return null;
- const dur = b ? (b.end - b.start) : (sh.maxDuration || 3600000);
+ const dur = b ? (b.end - b.start) : (sh.maxDuration || 180000);
  const start=b?.start??sh.start,end=b?.end??(sh.start+dur);
  const progress=Math.max(0,Math.min(1,(now-start)/Math.max(1,end-start)));
  return {id:b?`${b.id}:${start}`:`shift:${start}`,label:b?.label||'At work',progress,remaining:Math.max(0,Math.ceil((end-now)/1000)),canCancel:!!b&&!b.travel&&!b.mg,travel:!!b?.travel,shift:!b&&!!sh};

@@ -78,14 +78,19 @@ export function buildHud(ui,act){
    if(busy.dataset.id!==a.id){
       busy.dataset.id=a.id;
       const hasXp=(G.state?.xp||0)>=30;
+      const actions=[];
+      if(a.canCancel){
+        actions.push(h('button.bx',{'aria-label':'Stop activity',onclick:()=>act.cancel()},ic('x')));
+      }else if(a.shift){
+        actions.push(
+          h('button.bx.rush-btn',{'aria-label':'Rush finish (30 XP)',title:hasXp?'⚡ Rush finish shift (30 XP)':'Need 30 XP to rush finish',disabled:!hasXp,onclick:()=>act.rushWork?.()},ic('lightning')),
+          h('button.bx',{'aria-label':'View shift',onclick:()=>act.work()},ic('briefcase'))
+        );
+      }
       busy.replaceChildren(
         ic(a.travel?'bus':a.shift?'briefcase':'hourglass-medium'),
         h('div.grow',null,h('strong.bl',null,a.label),h('div.activity-meta'),h('div.bar',{role:'progressbar','aria-label':a.label,'aria-valuemin':'0','aria-valuemax':'100'},h('i'))),
-        a.canCancel?h('button.bx',{'aria-label':'Stop activity',onclick:()=>act.cancel()},ic('x')):
-        a.shift?[
-          h('button.bx.rush-btn',{'aria-label':'Rush finish (30 XP)',title:hasXp?'⚡ Rush finish shift (30 XP)':'Need 30 XP to rush finish',disabled:!hasXp,onclick:()=>act.rushWork?.()},ic('lightning')),
-          h('button.bx',{'aria-label':'View shift',onclick:()=>act.work()},ic('briefcase'))
-        ]:null
+        ...actions
       );
     }
     const rushBtn=busy.querySelector('.rush-btn');
