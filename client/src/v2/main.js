@@ -132,8 +132,23 @@ function game() {
   hud = buildHud(ui, act);window.__hud=hud;window.__audio=cityAudio;phone=new Phone(ui,makeApps(act));window.__phone=phone;phone.onchange=()=>{if(phone.open){chat?.close();closeSheets();}hud.setNav(phone.open?'phone':view==='map'?'map':'home');};
   hud.setNav('home'); refresh();
   setInterval(() => { hud.clock(); if (studio.open) return; const hh = accraClock().h; stage.setTime(hh); }, 5000); hud.clock();
-  setInterval(() => { hud.quests(); }, 15000);
-  net.on('connection',m=>{hud.connection(m);hud.clock();}); G.connected = net.connected;
+  let wasOffline = false;
+  net.on('connection', m => {
+    hud.connection(m);
+    hud.clock();
+    if (m.connected) {
+      if (wasOffline) {
+        checkSuggestionPrompt(act, { delay: 4000, reason: 'online' });
+      }
+      wasOffline = false;
+    } else {
+      wasOffline = true;
+    }
+  });
+  net.on('reconnected', () => {
+    checkSuggestionPrompt(act, { delay: 4000, reason: 'online' });
+  });
+  G.connected = net.connected;
   bindInput(); joy = bindJoystick(); bindCamera(); bindNet(); world.onRoam = (x, z) => net.send({ t: 'rmv', x, z, it: null, zn: null }); chat = buildChat(ui, n => hud.badge('chat', n), (name, id) => {
     chat.close();
     if (!name) return;
@@ -142,7 +157,17 @@ function game() {
     openPerson(peer ? peer.id : null, name, act);
   }); net.release();if(G.state.busy?.travel&&!ride.active)net.emit('busy',{busy:G.state.busy});
   showTutorial(ui);
-  checkSuggestionPrompt(act);
+  checkSuggestionPrompt(act, { delay: 8000, reason: 'boot' });
+  setInterval(() => {
+    if (net.connected && !document.hidden) {
+      checkSuggestionPrompt(act, { delay: 1000, reason: 'periodic' });
+    }
+  }, 60000);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && net.connected) {
+      checkSuggestionPrompt(act, { delay: 3500, reason: 'resume' });
+    }
+  });
   const focusBillboardOnMap = async (slotId) => {
     if (!slotId) return;
     try {

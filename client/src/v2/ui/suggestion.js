@@ -69,7 +69,10 @@ export function openSuggestionModal(act) {
         clearTimeout(timer);
         sending = false;
         status.textContent = 'Thank you! Your suggestion has been sent to our team.';
-        try { localStorage.setItem('awd_suggest_submitted', String(Date.now())); } catch {}
+        try {
+          localStorage.setItem('awd_suggest_submitted', String(Date.now()));
+          markSeen();
+        } catch {}
         setTimeout(() => {
           sh.close();
         }, 1500);
@@ -108,19 +111,40 @@ export function openSuggestionModal(act) {
   return sh;
 }
 
+let promptTimer = null;
+let memLastSeen = 0;
+
+function getLastSeen() {
+  try {
+    return Number(localStorage.getItem('awd_suggest_prompt_seen')) || memLastSeen;
+  } catch {
+    return memLastSeen;
+  }
+}
+
+function markSeen() {
+  const now = Date.now();
+  memLastSeen = now;
+  try {
+    localStorage.setItem('awd_suggest_prompt_seen', String(now));
+  } catch {}
+}
+
 export function promptSuggestionPopup(act) {
+  if (document.querySelector('.suggestion-prompt') || document.querySelector('.suggestion-form')) return null;
+  markSeen();
   closeSheets();
   const body = h('div.sheet-body.suggestion-prompt', null,
     h('p', null, 'We want to make Accra We Dey the best experience possible for you. What features do you want to see? What should be improved or added?'),
     h('button.btn.primary.wide', {
       onclick: () => {
-        try { localStorage.setItem('awd_suggest_prompt_seen', String(Date.now())); } catch {}
+        markSeen();
         openSuggestionModal(act);
       }
     }, ic('lightbulb'), ' Share a suggestion'),
     h('button.btn.ghost.wide', {
       onclick: () => {
-        try { localStorage.setItem('awd_suggest_prompt_seen', String(Date.now())); } catch {}
+        markSeen();
         sh.close();
       }
     }, 'Maybe later')
@@ -133,18 +157,29 @@ export function promptSuggestionPopup(act) {
   return sh;
 }
 
-export function checkSuggestionPrompt(act) {
+export function checkSuggestionPrompt(act, options = {}) {
   try {
-    const lastSeen = Number(localStorage.getItem('awd_suggest_prompt_seen') || 0);
-    const submitted = Number(localStorage.getItem('awd_suggest_submitted') || 0);
+    const lastSeen = getLastSeen();
     const now = Date.now();
-    // Prompt if never seen or after 14 days if not submitted
-    if (!lastSeen || (!submitted && now - lastSeen > 14 * 86400000)) {
-      setTimeout(() => {
-        if (!document.querySelector('.sheet-back') && !document.querySelector('.auth')) {
-          promptSuggestionPopup(act);
-        }
-      }, 45000);
+    const isOnlineReturn = options.reason === 'online' || options.reason === 'resume' || options.reason === 'boot';
+    // Frequent cadences: ~2.5 mins if returning online/reconnecting, ~5 mins during continuous play
+    const cooldown = isOnlineReturn ? 2.5 * 60 * 1000 : 5 * 60 * 1000;
+    if (lastSeen && now - lastSeen < cooldown) {
+      return false;
     }
-  } catch {}
+    const delay = options.delay ?? (lastSeen ? 6000 : 10000);
+    clearTimeout(promptTimer);
+    promptTimer = setTimeout(() => {
+      if (document.querySelector('.sheet-back') || document.querySelector('.auth') || document.querySelector('.modal-back')) {
+        return;
+      }
+      if (window.__phone?.open) {
+        return;
+      }
+      promptSuggestionPopup(act);
+    }, delay);
+    return true;
+  } catch {
+    return false;
+  }
 }
