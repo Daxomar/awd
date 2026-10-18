@@ -93,6 +93,33 @@ export async function reports(view, ctx, state = {status: 'open', page: 1}) {
     h('h2', {text: 'Event reports'}), table([{label: 'When', get: x => when(x.at)}, {label: 'Event', get: x => x.title}, {label: 'Reason', get: x => x.reason}], r.eventReports, 'No event reports.'));
 }
 
+export async function suggestions(view, ctx, state = {status: 'open', page: 1}) {
+  const r = await api.get('/api/admin/suggestions', state); if (r.error) return fail(view, r);
+  const out = h('p.msg', {role: 'status'});
+  const resolve = async (x, outcome) => {
+    const v = await confirmAction({title: outcome === 'planned' ? 'Mark as Planned' : outcome === 'reviewed' ? 'Mark as Reviewed' : 'Dismiss suggestion', text: `“${x.text.slice(0, 120)}”`}); if (!v) return;
+    const res = await api.post('/api/admin/suggestions', {id: x.id, outcome, reason: v.reason}); say(out, res); if (!res.error) suggestions(view, ctx, state);
+  };
+  view.replaceChildren(h('h1', {text: 'Player Suggestions & Feature Requests'}),
+    h('p.note', {text: 'Suggestions and feature ideas submitted by players across Accra.'}),
+    h('div.row', {}, r.filters.map(f => h('button.btn.small' + (f === state.status ? '' : '.ghost'), {onclick: () => suggestions(view, ctx, {status: f, page: 1})}, f))), out,
+    table([
+      {label: 'When', get: x => when(x.at)},
+      {label: 'Player', get: x => x.acct ? h('a', {href: '#', onclick: e => { e.preventDefault(); player(view, ctx, x.acct); }, text: x.player_name || ('Player #' + x.acct)}) : 'Anonymous'},
+      {label: 'Category', get: x => tag(x.category || 'feature', x.category === 'feature' ? 'ok' : 'mute')},
+      {label: 'Suggestion', get: x => x.text},
+      {label: 'Status', get: x => x.status === 'open' ? tag('open', 'warn') : x.status === 'planned' ? tag('planned', 'ok') : tag(x.status, 'mute')},
+      {label: 'Handled by', get: x => x.handled_by ? `${x.handled_by}${x.admin_note ? ': ' + x.admin_note : ''}` : '—'},
+      {label: '', get: x => ctx.can('reports.resolve') ? h('div.row', {},
+        x.status !== 'planned' ? h('button.btn.small', {onclick: () => resolve(x, 'planned')}, 'Plan') : null,
+        x.status !== 'reviewed' ? h('button.btn.ghost.small', {onclick: () => resolve(x, 'reviewed')}, 'Review') : null,
+        x.status !== 'dismissed' ? h('button.btn.ghost.small', {onclick: () => resolve(x, 'dismissed')}, 'Dismiss') : null
+      ) : ''}
+    ], r.rows, 'No suggestions in this list.'),
+    pager(r, page => suggestions(view, ctx, {...state, page}))
+  );
+}
+
 export async function auditLog(view, ctx, state = {page: 1, actor: '', action: ''}) {
   const r = await api.get('/api/admin/audit', state); if (r.error) return fail(view, r);
   const actor = h('input', {value: state.actor, placeholder: 'Administrator', 'aria-label': 'Administrator', maxlength: 16});

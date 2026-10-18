@@ -45,7 +45,7 @@ export function buildHud(ui,act){
     actionLink('briefcase',career?career.ranks[s.job.rank]?.[0]||career.name:'Find your next opportunity',()=>act.work()),
     actionLink('users','Relationships & contacts',()=>act.phone('contacts')),
     actionLink('user-circle',`Your life · reputation ${s.rep||0}`,()=>act.me()),
-    actionLink('speaker-high','Sound settings',()=>act.sound()),actionLink('question','Quick tour',()=>act.tutorial())),chips);
+    actionLink('speaker-high','Sound settings',()=>act.sound()),actionLink('lightbulb','Suggest a feature or improvement',()=>act.openSuggestion?.()),actionLink('question','Quick tour',()=>act.tutorial())),chips);
   };
   statusDraw();sheet(content,{title:'How you dey?',sub:'Your character and what they need',onclose:()=>{identity.setAttribute('aria-expanded','false');statusDraw=null;}});
  }

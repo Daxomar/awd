@@ -6,6 +6,7 @@ import * as Ops from './views-ops.js';
 
 const TABS = [
   ['overview', 'Overview', 'overview.read', People.overview], ['players', 'Players', 'players.read', People.players],
+  ['suggestions', 'Suggestions', 'reports.read', People.suggestions],
   ['reports', 'Reports', 'reports.read', People.reports], ['economy', 'Economy', 'economy.read', Ops.economy],
   ['ads', 'Advertising', 'ads.read', Ops.ads], ['payments', 'Payments', 'payments.read', Ops.payments],
   ['world', 'World & events', ['world.manage', 'events.manage'], Ops.world], ['ops', 'Operations', 'ops.read', Ops.ops],

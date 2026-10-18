@@ -103,6 +103,36 @@ export async function resolveReport(admin, b) {
   } catch (e) { await db.query('rollback').catch(() => {}); throw e; } finally { db.release(); }
 }
 
+const SUGGESTION_FILTERS = {
+  open: "s.status = 'open'",
+  planned: "s.status = 'planned'",
+  reviewed: "s.status = 'reviewed'",
+  dismissed: "s.status = 'dismissed'",
+  all: 'true'
+};
+
+export async function suggestions({ status = 'open', ...p } = {}) {
+  const where = Object.hasOwn(SUGGESTION_FILTERS, status) ? SUGGESTION_FILTERS[status] : SUGGESTION_FILTERS.open, { lim, off } = pageOf(p);
+  const rows = (await pool.query(`select s.id, s.acct, a.username as player_name, s.category, s.text, s.status, s.admin_note, s.handled_by, s.handled_at, s.at,
+      count(*) over() as total
+    from player_suggestions s left join accounts a on a.id = s.acct
+    where ${where} order by s.at desc limit ${lim} offset ${off}`)).rows;
+  return { rows: rows.map(({ total, ...r }) => ({ ...r, id: +r.id })), total: +(rows[0]?.total || 0), page: off / lim + 1, limit: lim, filters: Object.keys(SUGGESTION_FILTERS) };
+}
+
+export async function resolveSuggestion(admin, b) {
+  const id = Number(b.id), outcome = b.outcome, note = cleanReason(b.note || b.reason || '');
+  if (!Number.isSafeInteger(id) || !['planned', 'reviewed', 'dismissed', 'open'].includes(outcome)) return { error: 'Choose a suggestion and an outcome.' };
+  const db = await pool.connect();
+  try {
+    await db.query('begin');
+    const r = await db.query("update player_suggestions set status = $2, admin_note = $3, handled_by = $4, handled_at = now() where id = $1 returning id", [id, outcome, note || null, admin.name]);
+    if (!r.rowCount) { await db.query('rollback'); return { error: 'Suggestion not found.', httpStatus: '404 Not Found' }; }
+    await audit(db, admin, 'suggestions.resolve', { target: `suggestion:${id}`, reason: note || null, detail: { outcome } });
+    await db.query('commit'); return { ok: true };
+  } catch (e) { await db.query('rollback').catch(() => {}); throw e; } finally { db.release(); }
+}
+
 export async function auditLog({actor = '', action = '', target = '', ...p} = {}) {
   const {lim, off} = pageOf(p);
   const rows = (await pool.query(`select id, actor_name, role, action, target, reason, detail, outcome, at, count(*) over() as total from admin_audit

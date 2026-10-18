@@ -226,6 +226,7 @@ export class Shard {
       case 'home_remove': return this.homeRemove(p, msg);
       case 'gem': return this.claimGem(p, msg);
       case 'report': return this.reportPlayer(p, msg);
+      case 'suggestion': return this.submitSuggestion(p, msg);
       case 'ping': return this.send(p, { t: 'pong', c: msg.c, now: Date.now() });
       case 'settings': { const f = p.state.flags; if (typeof msg.flirtOff === 'boolean') f.flirtOff = msg.flirtOff; if (typeof msg.dmFriends === 'boolean') f.dmFriends = msg.dmFriends; p.dirty = true; return this.send(p, { t: 'settings', flirtOff: !!f.flirtOff, dmFriends: !!f.dmFriends }); }
     }
@@ -510,6 +511,25 @@ export class Shard {
     const o = this.players.get(msg.id | 0) || this.byName(msg.name); if (!o) return; const k = 'rep:' + o.acct; if (p[k]) return this.send(p, { t: 'toast', m: 'Already reported. Thanks.' }); p[k] = 1;
     this.report(p.acct, `player:${o.acct}:${o.name}`, cleanText(msg.reason || '', 200) + ' | last: ' + (o.lastChat || ''));
     this.send(p, { t: 'toast', k: 'good', m: `Reported ${o.name}. Our team will review it.` });
+  }
+  submitSuggestion(p, msg) {
+    const text = cleanText(msg.text || '', 500);
+    if (text.length < 5) return this.send(p, { t: 'toast', k: 'bad', m: 'Please write a suggestion of at least 5 characters.' });
+    const category = ['feature', 'improvement', 'world', 'quest', 'other'].includes(msg.category) ? msg.category : 'feature';
+    const now = Date.now();
+    if (p.lastSuggestionAt && now - p.lastSuggestionAt < 10000) {
+      return this.send(p, { t: 'toast', k: 'bad', m: 'Please wait a moment before sending another suggestion.' });
+    }
+    p.lastSuggestionAt = now;
+    pool.query('insert into player_suggestions (acct, category, text) values ($1, $2, $3)', [p.acct, category, text])
+      .then(() => {
+        this.send(p, { t: 'toast', k: 'good', m: 'Thank you! Your suggestion has been sent to our team.' });
+        this.send(p, { t: 'suggestion_ack', ok: true });
+      })
+      .catch((e) => {
+        console.error('[suggestion]', e.message);
+        this.send(p, { t: 'toast', k: 'bad', m: 'Could not submit suggestion. Please try again.' });
+      });
   }
   chat(p, msg) {
     const now = Date.now();

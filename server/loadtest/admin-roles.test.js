@@ -64,3 +64,10 @@ test('operational telemetry records worker failures as incidents without detail'
   assert.equal(s.workers['unit-ok'].failures, 0); assert.equal(s.workers['unit-fail'].failures, 1);
   assert.equal(s.incidents[0].code, 'E_UNIT'); assert.ok(!JSON.stringify(s).includes('secret detail'));
 });
+
+test('suggestions can be cleaned and bounded for administrator notes and submission', () => {
+  assert.equal(cleanReason('  Make trotro routes to Tema!  '), 'Make trotro routes to Tema!');
+  assert.equal(cleanReason(''), '');
+  assert.equal(cleanReason(null), '');
+  assert.equal(cleanReason('x'.repeat(600)).length, 500);
+});

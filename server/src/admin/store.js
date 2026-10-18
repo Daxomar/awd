@@ -24,6 +24,14 @@ export async function migrateAdmin() {
   alter table reports add column if not exists target_acct int;
   create index if not exists reports_target_acct on reports(target_acct);
   create index if not exists reports_status_at on reports(status, at desc);
+  create table if not exists player_suggestions (
+    id bigserial primary key, acct int references accounts(id), category text not null default 'feature',
+    text text not null, status text not null default 'open', handled_by text, handled_at timestamptz,
+    admin_note text, at timestamptz not null default now()
+  );
+  create index if not exists player_suggestions_at on player_suggestions(at desc);
+  create index if not exists player_suggestions_acct on player_suggestions(acct);
+  create index if not exists player_suggestions_status on player_suggestions(status, at desc);
   create table if not exists player_activity_days(acct int not null references accounts(id), day date not null, connections int not null default 0,
     first_at timestamptz not null default now(), last_at timestamptz not null default now(), primary key(acct, day));
   create index if not exists player_activity_day on player_activity_days(day);

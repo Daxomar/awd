@@ -72,3 +72,12 @@
 .chat-author:hover,.chat-author:focus-visible { text-decoration:underline; }
 .chat-mention { font:inherit; font-weight:600; color:var(--green); background:rgba(36,92,72,0.12); padding:1px 5px; border-radius:6px; cursor:pointer; font-size:0.95em; vertical-align:baseline; }
 .chat-mention:hover,.chat-mention:focus-visible { background:rgba(36,92,72,0.22); text-decoration:underline; }
+.suggestion-form { display:flex; flex-direction:column; gap:10px; margin-top:4px; }
+.suggestion-label { font-size:12px; font-weight:700; color:var(--ink2); text-transform:uppercase; letter-spacing:0.04em; }
+.suggestion-cats { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:4px; }
+.suggestion-cat { padding:7px 12px; border-radius:12px; font-size:13px; font-weight:600; background:var(--sand); color:var(--ink); border:1px solid transparent; cursor:pointer; }
+.suggestion-cat.on { background:var(--green); color:#fff; }
+.suggestion-field-head { display:flex; justify-content:space-between; align-items:center; }
+.suggestion-count { font-size:12px; color:var(--muted); }
+.suggestion-input { width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:12px; padding:12px; font:inherit; font-size:15px; line-height:1.45; background:#fff; resize:vertical; min-height:90px; }
+.suggestion-prompt { display:flex; flex-direction:column; gap:12px; font-size:15px; line-height:1.5; }

@@ -28,6 +28,7 @@ import { G, money, loc, accraNow, accraClock, isOpen, actBlock } from './store.j
 import { h, ic, toast, sheet, closeSheets, celebrate, cedi, vibrate, confirmBox } from './ui/dom.js';
 import { buildChat } from './ui/chat.js';
 import { showTutorial } from './ui/tutorial.js';
+import { openSuggestionModal, checkSuggestionPrompt } from './ui/suggestion.js';
 import { buildHud } from './ui/hud.js';
 import { confirmRoomArrival, zoneActions } from './ui/hud-state.js';
 import { renderZones, openZone, actsFor } from './ui/venue.js';
@@ -141,6 +142,7 @@ function game() {
     openPerson(peer ? peer.id : null, name, act);
   }); net.release();if(G.state.busy?.travel&&!ride.active)net.emit('busy',{busy:G.state.busy});
   showTutorial(ui);
+  checkSuggestionPrompt(act);
   const focusBillboardOnMap = async (slotId) => {
     if (!slotId) return;
     try {
@@ -222,6 +224,7 @@ const act = (window.__act = {
   sound(){cityAudio.controls();},
   interact(){if(ride.active||G.state.busy?.travel){hud.setNav('home');return toast('You can interact with places after you arrive.');}if(view==='map'){hud.setNav('map');return toast('Enter a place to interact with its surroundings.');}closeSheets();sheet(h('div.sheet-body',null,h('p.context-hint',null,'Tap an object in the world, or choose what is nearby.'),hud.zones,h('h3.panel-heading',null,'Players here'),world.others.size?h('div',null,...[...world.others.values()].map(p=>h('button.world-row',{onclick:()=>openPerson(p.id,p.n,act)},ic('user'),h('span',null,'@'+p.n),ic('caret-right')))):h('p.context-hint',null,'No other players in this room. City chat reaches everyone online.')),{title:'Around you',sub:G.placeName,onclose:()=>hud.setNav(view==='map'?'map':'home')});},
   status(){hud.openStatus();}, lifeEvent(){openLifeEvent();}, roomPeople(){return [...(world?.others?.values?.()||[])];}, meet(){closeSheets();phone.close();openMeet(act,{onObjective:d=>goObjective(d,act)});},
+  openSuggestion(){openSuggestionModal(act);},
   map() { act.nav('map'); }, phone(app, arg) { closeAdPreview?.();phone.show(app, arg); }, app(id) { closeAdPreview?.();phone.show(id); }, closePhone() { phone.close(); },
   previewAd(slot,image){
     if(!map.ready)return toast('The city map is still loading. Try the preview again shortly.');

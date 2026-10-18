@@ -57,6 +57,7 @@ another owner's account.
   Actions: note, appeal record, suspend (1 hour to 90 days; signs the player out at once), lift suspension, ban,
   unban. Saved player data is always kept.
 - **Reports**: open and closed player reports, close as actioned or dismissed with a reason; event reports.
+- **Suggestions**: player feedback and feature requests submitted in-game (categorized into features, improvements, world/places, story/jobs and general feedback). Staff can filter by status (open, planned, reviewed, dismissed) and mark suggestions as planned or reviewed with an audit note.
 - **Economy**: money entering and leaving wallets by source, transfers between players (marketplace, vehicles,
   property, MoMo), property activity, unusual single entries (GH₵20,000+), players earning over GH₵50,000 in a
   day, and ledger reconciliation (saved wallet against the latest journal balance).

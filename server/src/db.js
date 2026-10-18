@@ -31,6 +31,14 @@ export async function migrate() {
   create table if not exists votes (week int, account int, cand int, primary key (week, account));
   create table if not exists candidates (week int, account int, name text, policy text, slogan text, primary key (week, account));
   create table if not exists reports (id bigserial primary key, reporter int, target text, text text, at timestamptz default now());
+  create table if not exists player_suggestions (
+    id bigserial primary key, acct int references accounts(id), category text not null default 'feature',
+    text text not null, status text not null default 'open', handled_by text, handled_at timestamptz,
+    admin_note text, at timestamptz not null default now()
+  );
+  create index if not exists player_suggestions_at on player_suggestions(at desc);
+  create index if not exists player_suggestions_acct on player_suggestions(acct);
+  create index if not exists player_suggestions_status on player_suggestions(status, at desc);
   create table if not exists homes (account int primary key, home text, x real, z real);
   alter table accounts add column if not exists adult_verified boolean not null default false;
   alter table accounts add column if not exists suspended_until timestamptz;

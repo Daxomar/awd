@@ -126,6 +126,8 @@ export function registerAdmin(app, deps) {
   post('/api/admin/moderate', b => P.MOD_ACTIONS[b.kind], async (a, b) => P.moderate(a, b, id => disconnectAccount(id)));
   get('/api/admin/reports', 'reports.read', async (a, q) => P.reports(q));
   post('/api/admin/reports', 'reports.resolve', async (a, b) => P.resolveReport(a, b));
+  get('/api/admin/suggestions', 'reports.read', async (a, q) => P.suggestions(q));
+  post('/api/admin/suggestions', 'reports.resolve', async (a, b) => P.resolveSuggestion(a, b));
 
   // ---- economy, advertising, payments ----
   get('/api/admin/economy', 'economy.read', async (a, q) => M.economy(Number(q.days)));
