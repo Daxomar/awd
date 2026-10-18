@@ -3,6 +3,7 @@ import {CITY_NEIGHBOURHOODS,CITY_LINKS,worldLocations} from '../../../../../shar
 import {CityKit,disposeBatch} from './kit.js';
 import {SCALE,seeded} from './geography.js';
 import {buildLandmarks} from './landmarks.js';
+import {buildPlots,buildAdField,disposeField,cityBounds,widthOf,PLOT,AD} from './estates.js';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 // Blender landmark models (world/scripts/build_landmarks.py). index.json lists the ids that exist;
@@ -106,8 +107,21 @@ export class CompactCity {
       }
     }
     this.batch=p.finish();this.group.add(this.batch);
+    // Player estates and the advertising field sit on open land beyond the mapped places, so they never
+    // cover a destination. Both are instanced; the advert artwork arrives later with setAds().
+    const b=cityBounds(this.locations),margin=3;
+    this.plotOrigin={x:b.maxX+margin,z:b.minZ};
+    this.adOrigin={x:b.minX-margin-widthOf(AD),z:b.minZ};
+    this.plots=buildPlots(this.plotOrigin,'accra');this.group.add(this.plots);
     this.districts=CITY_NEIGHBOURHOODS.map(n=>({...n,x:n.x/SCALE,z:n.z/SCALE,radius:900,secondary:n.family,provenance:'Authored schematic presentation; original geographic map retained'}));
     this.readyMs=performance.now()-start;
+  }
+  // Live billboard artwork for the advertising field (CityMap.setBillboards).
+  setAds(slots,renderer){
+    if(this.disposed)return;
+    disposeField(this.adField);
+    this.adField=buildAdField(this.adOrigin,slots,renderer);
+    this.group.add(this.adField);
   }
   async upgradeLandmark(id,x,z,stand){
     if(!(await landmarkIds()).has(id)||this.disposed)return;
@@ -119,7 +133,7 @@ export class CompactCity {
       stand.removeFromParent();disposeBatch(stand);this.group.add(model);
     }catch{/* keep the procedural stand-in */}
   }
-  dispose(){if(this.disposed)return;this.disposed=true;for(const group of [...this.group.children]){if(group.userData.glb){group.traverse(o=>{if(o.isMesh){o.geometry.dispose();for(const m of [o.material].flat())m.dispose();}});group.removeFromParent();}else disposeBatch(group);}this.group.removeFromParent();this.group.clear();this.kit.dispose();}
+  dispose(){if(this.disposed)return;this.disposed=true;disposeField(this.adField);this.adField=null;disposeField(this.plots);this.plots=null;for(const group of [...this.group.children]){if(group.userData.glb){group.traverse(o=>{if(o.isMesh){o.geometry.dispose();for(const m of [o.material].flat())m.dispose();}});group.removeFromParent();}else disposeBatch(group);}this.group.removeFromParent();this.group.clear();this.kit.dispose();}
   pick(ray){
     const hit=new THREE.Vector3(),bounds=new THREE.Box3();let nearest=null,distance=Infinity;
     for(const place of this.locations){

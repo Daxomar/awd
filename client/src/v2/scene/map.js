@@ -93,7 +93,7 @@ export class CityMap {
   get normalZoom(){return this.mode==='compact'?18:9;}
   realToMap(x, z) { return this.toMap(x,z); }
   toMap(x, z) { return this.mode==='compact'?playableAnchor(this.compact.locations,x,z):display(x,z); }
-  setBillboards(slots) { this.ads.set(slots);this.positionBoards(); }
+  setBillboards(slots) { this.ads.set(slots);this.positionBoards();this.compact?.setAds(slots,this.stage.renderer); }
   updateBoards() { this.ads.update(); }
   pickBoard(x, y) { return this.ads.pick(x, y, this.stage); }
   pickDestination(x,y){
