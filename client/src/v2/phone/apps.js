@@ -336,7 +336,7 @@ export function makeApps(act) {
         out.append(h('div.group-h', null, s.job ? 'Other careers' : 'Careers in Accra'));
         if(s.shift){const task=s.shift.assignment;out.prepend(h('div.group',{style:{padding:'16px'}},h('strong',null,task?.title||'Workplace attendance'),h('p',null,`${s.shift.tasks||0}/3 assignments done · max 5 min shift · satisfaction ${s.job.satisfaction??60}%`),h('p',null,task?.situation||'Finish assignments or use XP to fast finish immediately.'),h('div.row',{style:{gap:'8px',marginTop:'8px'}},task?h('button.ibtn.grow',{onclick:()=>act.workAssignment()},task.stage==='working'?'View work station':'Go to station'):null,h('button.ibtn.green.grow',{onclick:()=>{net.send({t:'work',op:'rush'});act.closePhone();}},'⚡ Rush (30 XP)'))));}
         out.append(h('div.group', null, ...Object.entries(C).filter(([id]) => !s.job || s.job.id !== id).map(([id, c]) => { const reqs = Object.entries(c.req || {}); const courses = careerNeeds(id, 0); const ok = reqs.every(([k, v]) => lvl(k) >= v) && !courses.length;
-          return cell({ ic: c.ic, icbg: ok ? '#f2f2f7' : '#f2f2f7', t: `${c.ranks[0][0]} · ${c.name}`, s: `${cedi(c.ranks[0][1])}/shift → up to ${cedi(c.ranks[4][1])} · ${loc(c.at).name}${reqs.length ? ' · needs ' + reqs.map(([k, v]) => `${G.cat.skills[k]} ${v}`).join(', ') : ''}${courses.length ? ' · needs ' + courses.map(x => x.name).join(', ') : ''}${ok ? '' : ' · locked'}`, onclick: () => careerPage(win, id) }); })));
+          return cell({ ic: c.ic, icbg: ok ? '#e8f5e9' : '#f2f2f7', t: `${c.ranks[0][0]} · ${c.name}`, s: `${cedi(c.ranks[0][1])}/shift → up to ${cedi(c.ranks[4][1])} · ${loc(c.at).name}${reqs.length ? ' · needs ' + reqs.map(([k, v]) => `${G.cat.skills[k]} ${v}`).join(', ') : ''}${courses.length ? ' · needs ' + courses.map(x => x.name).join(', ') : ''}${ok ? ' · Qualified' : ' · Locked'}`, r: ok ? 'Apply →' : 'Locked', onclick: () => careerPage(win, id) }); })));
         return out;
       });
     } };
@@ -355,15 +355,41 @@ export function makeApps(act) {
   }
   function careerPage(win, id) {
     const c = G.cat.careers[id]; const s = G.state;
-    win.page(c.name, () => { const reqs = Object.entries(c.req || {}); const entry = careerNeeds(id, 0); const ok = reqs.every(([k, v]) => lvl(k) >= v) && !entry.length; const at = s.place === c.at;
-      const ladder = c.ranks.map(([t, p], i) => { const need = (G.cat.careerReqs?.[id]?.[i] || []).map(cid => G.cat.courses[cid]); return cell({ ic: String(i + 1), icbg: i === 0 ? '#34c759' : '#c7c7cc', t, s: need.length ? 'Needs ' + need.map(x => (certified(x.id) ? '✓ ' : '') + x.name).join(', ') : i ? `Needs ${G.cat.promoShifts[i - 1]} sessions and ${G.cat.skills[c.skill]} ${G.cat.promoSkill[i - 1]}` : 'Entry role', r: cedi(p) + '/shift' }); });
+    win.page(c.name, () => {
+      const reqs = Object.entries(c.req || {}); const entry = careerNeeds(id, 0); const ok = reqs.every(([k, v]) => lvl(k) >= v) && !entry.length;
+      const isCurrent = s.job?.id === id; const onShift = !!s.shift; const atWork = s.place === c.at;
+      const ladder = c.ranks.map(([t, p], i) => {
+        const need = (G.cat.careerReqs?.[id]?.[i] || []).map(cid => G.cat.courses[cid]);
+        const isPlayerRank = isCurrent && s.job.rank === i;
+        return cell({
+          ic: String(i + 1),
+          icbg: isPlayerRank ? '#ff9f0a' : i === 0 ? '#34c759' : '#c7c7cc',
+          t: isPlayerRank ? `${t} (Current Role)` : t,
+          s: need.length ? 'Needs ' + need.map(x => (certified(x.id) ? '✓ ' : '') + x.name).join(', ') : i ? `Needs ${G.cat.promoShifts[i - 1]} sessions and ${G.cat.skills[c.skill]} ${G.cat.promoSkill[i - 1]}` : 'Entry role',
+          r: cedi(p) + '/shift'
+        });
+      });
       const missing = [...reqs.filter(([k, v]) => lvl(k) < v).map(([k, v]) => `${G.cat.skills[k]} ${v} (you: ${lvl(k)}) — practise at activities that train ${G.cat.skills[k]}`), ...entry.map(x => `${x.name} certificate — ${x.cost ? cedi(x.cost) : 'free'} at ${loc(x.at).name}`)];
-      return h('div', null, missing.length ? group('Why this job is locked', ...missing.map(t => cell({ t, chev: false }))) : null,
+      const buttons = [];
+      if (isCurrent) {
+        buttons.push(h('button.ibtn.wide', { disabled: true }, `Already holding ${c.ranks[s.job.rank][0]}`));
+      } else if (onShift) {
+        buttons.push(h('button.ibtn.wide', { disabled: true }, 'Finish your active shift before changing jobs'));
+      } else if (ok) {
+        buttons.push(h('button.ibtn.wide.green', { onclick: () => { net.send({ t: 'apply', id }); win.pop(); } }, s.job ? 'Switch to this job' : 'Apply now'));
+      } else {
+        buttons.push(h('button.ibtn.wide', { disabled: true }, 'Requirements not met'));
+      }
+      if (!atWork) {
+        buttons.push(h('button.ibtn.wide', { style: { marginTop: '8px' }, onclick: () => { act.closePhone(); act.place(c.at); } }, `Travel to ${loc(c.at).name}`));
+      }
+      return h('div', null,
+        missing.length ? group('Why this job is locked', ...missing.map(t => cell({ t, chev: false }))) : null,
         entry.length ? group('Training to qualify', ...entry.map(x => cell({ ic: 'icon:graduation-cap', icbg: '#f2f2f7', t: x.name, s: `${x.cost ? cedi(x.cost) : 'Free'} · ${loc(x.at).name}${(x.requires || []).filter(r => !certified(r)).length ? ' · after ' + x.requires.filter(r => !certified(r)).map(r => G.cat.courses[r].name).join(', ') : ''}`, onclick: () => openCourse(x.id, act) }))) : null,
         group('Ladder', ...ladder),
-        group('Details', cell({ t: 'Where', r: loc(c.at).name }), cell({ t: 'Skill', r: G.cat.skills[c.skill] }), cell({ t: 'Days', r: c.days.map((d) => 'SMTWTFS'[d]).join(' ') }), ...reqs.map(([k, v]) => cell({ t: `Needs ${G.cat.skills[k]} ${v}`, r: lvl(k) >= v ? '✓' : `you: ${lvl(k)}` }))),
-        h('div', { style: { color: '#6d6d72', fontSize: '13px', margin: '0 4px 12px' } }, 'Apply in person at the workplace. A shift is a short work session of three assignments (about 3 minutes), once per day, paid into MoMo.'),
-        at ? h('button.ibtn.wide.green', { disabled: !ok, onclick: () => { net.send({ t: 'apply', id }); win.pop(); } }, s.job ? 'Switch to this job' : 'Apply now') : h('button.ibtn.wide', { onclick: () => { act.closePhone(); act.place(c.at); } }, `Go to ${loc(c.at).name}`));
+        group('Details', cell({ t: 'Workplace', r: loc(c.at).name }), cell({ t: 'Primary Skill', r: G.cat.skills[c.skill] }), cell({ t: 'Work Days', r: c.days.map((d) => 'SMTWTFS'[d]).join(' ') }), ...reqs.map(([k, v]) => cell({ t: `Needs ${G.cat.skills[k]} ${v}`, r: lvl(k) >= v ? '✓' : `you: ${lvl(k)}` }))),
+        h('div', { style: { color: '#6d6d72', fontSize: '13px', margin: '0 4px 12px' } }, 'Apply anytime through your phone. Shifts take place at the workplace (about 3 minutes), once per day, paid into MoMo.'),
+        ...buttons);
     }, { small: true });
   }
   // ------------------------------------------------------------------ Goals / Aspirations

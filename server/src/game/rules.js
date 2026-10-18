@@ -386,17 +386,16 @@ function endShift(p, now, policy, session = false) {
 }
 function apply(p, id, now) {
   const s = p.state, c = D.CAREERS[id]; if (!c) return toast('Unknown job.', 'bad'); const loc = LOC[c.at];
-  if (!at(p, loc.id)) return toast(`Apply in person at ${loc.name}.`, 'bad');
-  if(s.busy||s.shift)return toast('Finish your current activity or shift before changing careers.','bad');
-  if(s.job?.id===id)return toast('You already hold this job. Your experience is retained.');
-  const restriction=Life.employmentRestriction(s,id,now);if(restriction)return toast(restriction,'bad');
+  if (s.busy || s.shift) return toast('Finish your current activity or shift before changing careers.', 'bad');
+  if (s.job?.id === id) return toast('You already hold this job. Your experience is retained.');
+  const restriction = Life.employmentRestriction(s, id, now); if (restriction) return toast(restriction, 'bad');
   for (const k in c.req || {}) if (lvl(s, k) < c.req[k]) return toast(`Needs ${D.SKILLS[k]} ${c.req[k]}.`, 'bad');
-  const prior0=Life.careerRecord(s,id)?.saved, missing=Career.missingFor(s,id,prior0?.rank||0);
-  if(missing.length)return toast(`Qualify first: ${missing.map(m=>m.label).join(', ')}. Open Jobs to find the course.`, 'bad');
-  Life.rememberCareer(s);const prior=Life.careerRecord(s,id)?.saved;
-  s.job = prior?{...prior,id}:{ id, rank: 0, grade: 0, perf: 60, shifts: 0, since: now, lastDay: -1 };
-  Life.event(s,'career_hired',{career:id,returning:!!prior},now);
-  return { t: 'hired', job: s.job, title: c.ranks[s.job.rank][0], pay: c.ranks[s.job.rank][1] };
+  const prior0 = Life.careerRecord(s, id)?.saved, missing = Career.missingFor(s, id, prior0?.rank || 0);
+  if (missing.length) return toast(`Qualify first: ${missing.map(m => m.label).join(', ')}. Open Jobs to find the course.`, 'bad');
+  Life.rememberCareer(s); const prior = Life.careerRecord(s, id)?.saved;
+  s.job = prior ? { ...prior, id } : { id, rank: 0, grade: 0, perf: 60, shifts: 0, since: now, lastDay: -1 };
+  Life.event(s, 'career_hired', { career: id, returning: !!prior }, now);
+  return { t: 'hired', job: s.job, title: c.ranks[s.job.rank][0], pay: c.ranks[s.job.rank][1], state: view(s) };
 }
 
 // ---------- Stage 5: courses and auto-work ----------

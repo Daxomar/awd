@@ -544,7 +544,12 @@ function bindNet() {
   net.on('shift', (m) => { G.state.shift = m.shift; toast(`Shift started · ${m.title} · ${cedi(m.pay)}. Finish three short assignments here to get paid.`, 'good'); refresh(); });
   net.on('worktask',m=>{G.state.shift=m.shift;toast('Assignment started. Stay at this station.','good');refresh();});
   net.on('shiftDone', (m) => { G.state.shift = null; if (m.promoted) celebrate({ icon: 'icon:confetti', title: `Promoted: ${m.promoted}!`, text: `New pay ${cedi(m.newPay)} per shift.` }); else toast(`Shift done · +${cedi(m.pay)}${m.stars ? '  great work bonus' : ''}${m.grade ? ` · grade ${m.grade}` : ''}`, 'good'); if (m.needs) toast(m.needs, ''); refresh(); });
-  net.on('hired', (m) => { celebrate({ icon: 'icon:briefcase', title: 'You’re hired!', text: `${m.title} · ${cedi(m.pay)} per shift. A shift is three short assignments (about 3 minutes), once a day.` }); });
+  net.on('hired', (m) => {
+    if (m.job) G.state.job = m.job;
+    if (m.state) merge(m.state);
+    celebrate({ icon: 'icon:briefcase', title: 'You’re hired!', text: `${m.title} · ${cedi(m.pay)} per shift. A shift is three short assignments (about 3 minutes), once a day.` });
+    refresh();
+  });
   net.on('bought', (m) => { toast(`Bought: ${m.what}`, 'good'); if (G.state.place === 'home') setTimeout(() => net.send({ t: 'state' }), 200); });
   net.on('moved', (m) => {if(m.state)merge(m.state); toast('New home!  Your things are moving in.', 'good'); });
   net.on('open', (m) => act.start({ opens: m.what }, null));
