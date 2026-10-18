@@ -1925,6 +1925,19 @@ export function activeStoryMission(state, ctx = {}) {
     if (STORY_MISSIONS[dbeeEquivalent]) story.missionId = dbeeEquivalent;
   }
 
+  // Self-heal if missionId is missing or invalid
+  if (!story.missionId || !STORY_MISSIONS[story.missionId]) {
+    const ch = story.chapter || 1;
+    const st = story.step || 1;
+    const dbeeCandidate = `${story.dream}_dbee_${ch}_${st}`;
+    const standardCandidate = `${story.dream}_${ch}_${st}`;
+    const fallbackFirst = (isDbee && STORY_MISSIONS[`${story.dream}_dbee_${ch}_1`]) ? `${story.dream}_dbee_${ch}_1` : `${story.dream}_${ch}_1`;
+    const resolvedId = (isDbee && STORY_MISSIONS[dbeeCandidate]) ? dbeeCandidate : (STORY_MISSIONS[standardCandidate] ? standardCandidate : (STORY_MISSIONS[fallbackFirst] ? fallbackFirst : null));
+    if (resolvedId) {
+      story.missionId = resolvedId;
+    }
+  }
+
   const m = STORY_MISSIONS[story.missionId];
   if (!m) return null;
 

@@ -265,7 +265,9 @@ export function makeApps(act) {
 
         // Active Mission Component
         let missionEl = null;
-        if (activeMission) {
+        const isArcCompleted = !!s.story?.finished || (s.story?.completedChapters || []).length >= 5 || (s.dreamsDone || []).includes(s.dream);
+
+        if (activeMission && !activeMission.finished) {
           const isReady = activeMission.ready;
           const isClimax = activeMission.isClimax && !isReady;
           missionEl = h('div.group', { style: { padding: '14px 16px', margin: '10px 0 14px', background: '#fff' } },
@@ -321,10 +323,22 @@ export function makeApps(act) {
               }
             }, 'Go to Mission Target')
           );
-        } else {
+        } else if (isArcCompleted || (activeMission && activeMission.finished)) {
           missionEl = h('div.group', { style: { padding: '14px 16px', margin: '10px 0 14px', background: '#fff' } },
             h('div', { style: { fontWeight: 700, fontSize: '15px', color: '#0e7a4e', marginBottom: '4px' } }, '🎉 All Story Chapters Completed!'),
             h('p', { style: { fontSize: '13px', color: '#556b62', margin: 0 } }, 'You have conquered your Accra dream! You can switch to another path to live another life in Accra.')
+          );
+        } else {
+          missionEl = h('div.group', { style: { padding: '14px 16px', margin: '10px 0 14px', background: '#fff' } },
+            h('div', { style: { fontWeight: 700, fontSize: '15px', color: '#b45309', marginBottom: '4px' } }, `Chapter ${currChapter}: In Progress`),
+            h('p', { style: { fontSize: '13px', color: '#556b62', margin: '0 0 10px' } }, 'Preparing your next story objective...'),
+            h('button.ibtn.wide.green', {
+              onclick: () => {
+                net.send({ t: 'story_status' });
+                act.toast('Syncing story missions...');
+                setTimeout(() => win.refresh(), 300);
+              }
+            }, 'Sync Mission')
           );
         }
 
@@ -332,8 +346,8 @@ export function makeApps(act) {
         const isDbee = s.origin === 'dbee' || s.birthOrigin === 'dbee';
         const chapters = (isDbee && arc.dbeeChapters) ? arc.dbeeChapters : (arc.chapters || []);
         const chapterCells = chapters.map(ch => {
-          const isDone = ch.num < currChapter;
-          const isCurrent = ch.num === currChapter;
+          const isDone = (s.story?.completedChapters || []).includes(ch.num) || ch.num < currChapter;
+          const isCurrent = ch.num === currChapter && !isArcCompleted;
           return cell({
             ic: isDone ? 'check-circle' : isCurrent ? 'star' : 'lock-key',
             icbg: isDone ? '#34c759' : isCurrent ? '#d97706' : '#8e8e93',

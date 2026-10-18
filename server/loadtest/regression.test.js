@@ -194,6 +194,15 @@ test('story and aspiration engine provides multi-chapter progression, interactiv
   assert.equal(reclaim.t, 'toast');
   assert.equal(reclaim.k, 'bad');
   assert.ok(reclaim.m.includes('Not your active story mission') || reclaim.m.includes('already completed'));
+
+  // Test state migration preservation: reconnecting/reloading must never wipe story or claim premature completion
+  const migrated = Game.migrate(p.state, { id: 1, u: 'testplayer' });
+  assert.equal(migrated.dream, 'landlord');
+  assert.equal(migrated.story.chapter, 1);
+  assert.equal(migrated.story.step, 2);
+  assert.equal(migrated.story.missionId, 'landlord_1_2');
+  assert.ok(!migrated.story.finished);
+  assert.deepEqual(migrated.story.completedMissions, ['landlord_1_1']);
 });
 
 test('Dbee origin players receive distinctive high-society story arcs, encounters and main mission tagging', () => {

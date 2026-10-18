@@ -64,8 +64,25 @@ export function migrate(saved, acct) {
   for (const k of ['n', 'skills', 'stats', 'wk', 'flags', 'owned', 'items', 'biz', 'land', 'gigRest', 'rel', 'cnt', 'dc', 'story', 'daily', 'dreamProgress', 'storyProgress']) out[k] = { ...base[k], ...(saved[k] && typeof saved[k] === 'object' ? saved[k] : {}) };
   delete out.flags.daddyPays;
   for (const k of ['traits', 'moodlets', 'ledger', 'dreamsDone']) if (!Array.isArray(out[k])) out[k] = [];
-  for (const k of ['inbox', 'goals']) if (!Array.isArray(out.story[k])) out.story[k] = []; out.story = { seen: {}, inbox: [], goals: [], at: 0 }; out.daily = { day: -1, list: [], streak: 0, lastFull: -1 };
-  if (!Array.isArray(out.daily.list)) out.daily.list = []; if (!Array.isArray(out.dc.visits)) out.dc.visits = [];
+  if (!out.story || typeof out.story !== 'object') out.story = {};
+  out.story.seen ||= {};
+  out.story.inbox = [];
+  out.story.goals = [];
+  if (!Array.isArray(out.story.completedMissions)) out.story.completedMissions = [];
+  if (!Array.isArray(out.story.completedChapters)) out.story.completedChapters = [];
+  if (!Array.isArray(out.story.completedEncounters)) out.story.completedEncounters = [];
+  if (!Array.isArray(out.story.history)) out.story.history = [];
+  if (out.dream) {
+    if (!out.story.dream || out.story.dream !== out.dream || !out.story.missionId) {
+      if (out.storyProgress && out.storyProgress[out.dream] && out.storyProgress[out.dream].missionId) {
+        out.story = { ...out.story, ...out.storyProgress[out.dream] };
+      } else {
+        ST.initStory(out, out.dream);
+      }
+    }
+  }
+  if (!out.daily || typeof out.daily !== 'object') out.daily = { day: -1, list: [], streak: 0, lastFull: -1 };
+  out.daily.list = []; if (!Array.isArray(out.dc.visits)) out.dc.visits = [];
   for (const k in out.n) if (!Number.isFinite(out.n[k])) out.n[k] = base.n[k];
   if (!Number.isFinite(out.cash)) out.cash = 0; if (!Number.isFinite(out.momo)) out.momo = 0;
   if (out.home && !D.HOMES[out.home]) out.home = 'nima'; if (out.job && !D.CAREERS[out.job.id]) out.job = null;
@@ -736,7 +753,8 @@ function storyStatus(p, now) {
     t: 'story_status',
     story: s.story,
     active: ST.activeStoryMission(s, c),
-    arc: s.dream ? ST.STORY_ARCS[s.dream] : null
+    arc: s.dream ? ST.STORY_ARCS[s.dream] : null,
+    state: view(s)
   };
 }
 function storyClaim(p, id, now) {
