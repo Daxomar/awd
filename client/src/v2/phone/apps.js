@@ -137,7 +137,7 @@ export function makeApps(act) {
         return h('div', null,
           h('div.wallet', null, h('div.wl', null, 'Wallet balance'), h('div.wa.tnum', null, cedi(s.momo)), h('div.wn', null, `Cash in hand ${cedi(s.cash)} · ${repTitle()}`)),
           h('div.qa', null, h('button', { onclick: () => sendFlow(win) }, ic('paper-plane-tilt'), 'Send'), h('button', { onclick: () => requestFlow(win) }, ic('hand-coins'), 'Request'), h('button', { onclick: () => cashPage(win) }, ic('storefront'), 'Cash in/out'), h('button', { onclick: () => topupPage(win) }, ic('plus-circle'), 'Top up')),
-          hist && hist.length ? group('Transfers', ...hist.slice(0, 12).map((x) => cell({ ic: x.out ? 'icon:circle' : 'icon:circle', icbg: x.out ? '#ff9f0a' : '#34c759', t: x.kind === 'topup' ? 'Wallet top-up' : (x.out ? 'To ' : 'From ') + '@' + x.who, s: `${ago(x.at)} · ${x.ref}${x.note ? ' · ' + x.note : ''}`, r: (x.out ? '−' : '+') + cedi(x.amount).replace('GH₵', '₵') }))) : null,
+          hist && hist.length ? group('Transfers', ...hist.slice(0, 12).map((x) => cell({ ic: x.out ? 'arrow-up-right' : 'arrow-down-left', icbg: x.out ? '#ff9f0a' : '#286344', t: x.kind === 'topup' ? 'Wallet top-up' : (x.out ? 'To ' : 'From ') + '@' + x.who, s: `${ago(x.at)} · ${x.ref}${x.note ? ' · ' + x.note : ''}`, r: (x.out ? '−' : '+') + cedi(x.amount).replace('GH₵', '₵') }))) : null,
           group('Recent activity', ...(led.length ? led.slice(0, 25).map(([t, a, why]) => cell({ t: why, s: ago(t), r: h('span', { style: { color: a > 0 ? '#34c759' : '#000', fontWeight: 600 } }, (a > 0 ? '+' : '−') + cedi(Math.abs(a)).replace('GH₵', '₵')) })) : [cell({ t: 'No transactions yet' })])));
       });
       if (arg?.payment)win.page('Payment status',()=>h('div.group',{style:{padding:'16px'}},h('strong',null,arg.payment.status==='fulfilled'?'Payment verified':arg.payment.status==='review'?'Payment requires review':arg.payment.status==='failed'?'Payment failed':'Payment is still being checked'),h('p',null,'Reference: '+arg.payment.ref),h('p',null,arg.payment.status==='fulfilled'?'Your wallet credit is saved. It may take a moment to appear on your connected account.':'The game verifies payment with the provider before crediting your wallet. Keep this reference.'),arg.payment.status!=='fulfilled'?h('button.ibtn.wide',{onclick:()=>act.recheckPayment()},'Check payment again'):null,h('button.ibtn.wide.gray',{onclick:()=>win.pop()},'Open wallet')));
@@ -410,9 +410,23 @@ export function makeApps(act) {
     }); } };
   function homePage(win, id) {
     const x = G.cat.homes[id];
-    win.page(x.name, () => { const adv = x.rent * (x.advance || 0); return h('div', null, group(null, cell({ t: 'Area', r: x.area }), cell({ t: 'Rent', r: cedi(x.rent) + '/week' }), x.advance ? cell({ t: 'Advance', r: `${x.advance} weeks · ${cedi(adv)}` }) : null, cell({ t: 'Comfort', r: 'icon:circle'.repeat(Math.round(x.comfort * 4 - 2)) }), cell({ t: 'Toilet', r: x.toilet }), cell({ t: 'Power', r: x.power === 'estate' ? 'Estate (no dumsor)' : 'ECG grid' })),
-      x.advance ? h('button.ibtn.wide.green', { disabled: money() < adv, onclick: () => { net.send({ t: 'buy', kind: 'home', id }); act.closePhone(); } }, money() < adv ? `Need ${cedi(adv)}` : `Rent · pay ${cedi(adv)}`) : null,
-      x.buy ? h('button.ibtn.wide', { style: { marginTop: '10px' }, disabled: money() < x.buy, onclick: () => { net.send({ t: 'buy', kind: 'home', id, buy: true }); act.closePhone(); } }, `Buy · ${cedi(x.buy)}`) : null); }, { small: true });
+    win.page(x.name, () => {
+      const adv = x.rent * (x.advance || 0);
+      const starCount = Math.min(5, Math.max(1, Math.round(x.comfort * 4 - 2)));
+      const stars = '★'.repeat(starCount) + '☆'.repeat(5 - starCount);
+      return h('div', null,
+        group(null,
+          cell({ t: 'Area', r: x.area }),
+          cell({ t: 'Rent', r: cedi(x.rent) + '/week' }),
+          x.advance ? cell({ t: 'Advance', r: `${x.advance} weeks · ${cedi(adv)}` }) : null,
+          cell({ t: 'Comfort', r: h('span', { style: { color: '#f59e0b', fontSize: '15px' } }, stars) }),
+          cell({ t: 'Toilet', r: x.toilet }),
+          cell({ t: 'Power', r: x.power === 'estate' ? 'Estate (no dumsor)' : 'ECG grid' })
+        ),
+        x.advance ? h('button.ibtn.wide.green', { disabled: money() < adv, onclick: () => { net.send({ t: 'buy', kind: 'home', id }); act.closePhone(); } }, money() < adv ? `Need ${cedi(adv)}` : `Rent · pay ${cedi(adv)}`) : null,
+        x.buy ? h('button.ibtn.wide', { style: { marginTop: '10px' }, disabled: money() < x.buy, onclick: () => { net.send({ t: 'buy', kind: 'home', id, buy: true }); act.closePhone(); } }, `Buy · ${cedi(x.buy)}`) : null
+      );
+    }, { small: true });
   }
   const cars = { id: 'cars', name: 'Cars', icon: 'car-profile', bg: grad('#5e5ce6', '#3634a3'),
     open(win) { win.page('Cars', () => { const s = G.state; return h('div', null, group('Daily rental',cell({t:s.rental?.until>accraNow()?'Toyota Vitz rental active':'Rent a Toyota Vitz',s:s.rental?.until>accraNow()?`Until ${new Date(s.rental.until).toUTCString()}`:'GH₵350 for 24 hours · pick up at Correct Cars',onclick:()=>net.send({t:'rentcar'})})), s.car ? group('Your car', cell({ ic: 'icon:circle', icbg: '#34c759', t: G.cat.cars[s.car].name, s: `Fuel ${s.fuel || 0} L`, r: '' })) : null,

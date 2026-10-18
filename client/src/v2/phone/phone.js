@@ -83,8 +83,11 @@ export class AppWin {
   page(title, render, opts = {}) {
     const nb = h('div.navbar'); const body = h('div.appbody'); const tab = opts.tabs ? h('div.tabbar') : null;
     const backLbl = this.stack.length ? this.stack[this.stack.length - 1].title : null;
-    nb.append(h('div.nb-row', null, backLbl ? h('button.back', { onclick: () => this.pop() }, ic('caret-left'), (opts.small ? backLbl.length > 8 : backLbl.length > 14) ? 'Back' : backLbl) : h('button.back', { onclick: () => this.phone.closeApp() }, ic('caret-left'), 'Home'), opts.action ? h('button.nb-act', { onclick: opts.action[1] }, opts.action[0]) : h('span')),
-      opts.small ? h('div.nb-mid', null, title) : h('h1', null, title));
+    const backBtn = backLbl ? h('button.back', { onclick: () => this.pop() }, ic('caret-left'), (opts.small ? backLbl.length > 8 : backLbl.length > 14) ? 'Back' : backLbl) : h('button.back', { onclick: () => this.phone.closeApp() }, ic('caret-left'), 'Home');
+    const actBtn = opts.action ? h('button.nb-act', { onclick: opts.action[1] }, opts.action[0]) : h('span.nb-spacer');
+    const midTitle = opts.small ? h('div.nb-mid', null, title) : null;
+    const row = h('div.nb-row' + (opts.small ? '.has-mid' : ''), null, backBtn, midTitle, actBtn);
+    nb.append(row, opts.small ? null : h('h1', null, title));
     if (opts.small) nb.style.paddingBottom = '10px';
     const view = { title, render, opts, nb, body, tab };
     if (this.cur) this.cur.wrap.remove();
