@@ -42,8 +42,14 @@ export const MIN_AGE_H = 6;                                          // hours of
 const dayOf = (now) => Math.floor(now / 86400000);
 
 export async function acctByName(name) {
-  const n = String(name || '').trim().replace(/^@/, ''); if (!/^[a-zA-Z0-9_]{3,16}$/.test(n)) return null;
-  const r = await pool.query('select id, username, banned from accounts where lower(username)=lower($1)', [n]); return r.rows[0] || null;
+  const n = String(name || '').trim().replace(/^@/, '');
+  if (!n || n.length < 2 || n.length > 32) return null;
+  // Match account username first
+  let r = await pool.query('select id, username, banned from accounts where lower(username)=lower($1)', [n]);
+  if (r.rows[0]) return r.rows[0];
+  // Match in-game character name
+  r = await pool.query("select a.id, a.username, a.banned from accounts a join players p on p.id=a.id where lower(p.state->>'name')=lower($1) limit 1", [n]);
+  return r.rows[0] || null;
 }
 const blocked = (s, acct) => Array.isArray(s.flags.blocked) && s.flags.blocked.includes(acct);
 
@@ -52,12 +58,21 @@ export function checkSend(p, amount, now) {
   const s = p.state; const a = Math.round(+amount || 0);
   if (!s.onboarded) return 'Finish setting up your life first.';
   if (!(a >= 1)) return 'Enter an amount.'; if (a > MAX_SEND) return `Max GH₵${MAX_SEND.toLocaleString()} per transfer.`;
-  const ageH = (now - (s.flags.bornAt || s.created)) / 3600000; if (ageH < MIN_AGE_H && !p.dev) return `New MoMo wallets can send after ${MIN_AGE_H} hours in Accra.`;
   if (s.flags.jailUntil > now) return 'You can\'t send money from police cells.';
   const d = dayOf(now); if (!s.xfer || s.xfer.day !== d) s.xfer = { day: d, out: 0, n: 0 };
   if (s.xfer.out + a > dailyCap(s)) return `Daily MoMo limit is GH₵${dailyCap(s).toLocaleString()} (grows with your reputation). Left today: GH₵${Math.max(0, dailyCap(s) - s.xfer.out).toLocaleString()}.`;
   if (s.xfer.n >= 30) return 'Too many transfers today.';
-  const fee = FEE(a); if (s.momo < a + fee) return `Not enough in MoMo. You need GH₵${(a + fee).toLocaleString()} (incl. GH₵${fee} fee). Cash in at a MoMo agent.`;
+  const fee = FEE(a);
+  if (s.momo < a + fee) {
+    if ((s.momo || 0) + (s.cash || 0) >= a + fee) {
+      const needed = (a + fee) - s.momo;
+      s.cash -= needed;
+      s.momo += needed;
+      s.ledger.push([now, needed, 'Cash-in to MoMo for transfer']);
+    } else {
+      return `Not enough funds. You need GH₵${(a + fee).toLocaleString()} (incl. GH₵${fee} fee).`;
+    }
+  }
   return { a, fee };
 }
 
@@ -81,7 +96,7 @@ export async function claim(p) {
         if(c.kind==='market'){life(state).commerce.sold++;event(state,'market_sale',{credit:+c.id,amount:amt});}
         out.push({t:'money_in',id:+c.id,amount:amt,from:c.from_name,note:c.note,kind:c.kind,momo:state.momo});
       }
-      if(rows.some(c=>c.kind==='market'))out.push({t:'st',state:Game.view(state)});
+      if(rows.length)out.push({t:'st',state:Game.view(state)});
       return out;
     })||[];
   }finally{p.claiming=false;}

@@ -4,6 +4,7 @@ import * as Game from '../src/game/rules.js';
 import { Shard } from '../src/shard.js';
 import { pool } from '../src/db.js';
 import { cleanLook } from '../src/game/wardrobe.js';
+import { checkSend } from '../src/social.js';
 import { VENUES } from '../../client/src/v2/scene/venues.js';
 import { streetSpec,extraVenue } from '../../client/src/v2/scene/neighbourhood.js';
 import { homeSpec } from '../../client/src/v2/scene/homes.js';
@@ -124,3 +125,19 @@ test('failed persistence leaves live state dirty for a later retry', async () =>
   try { await assert.rejects(shard.flush(),/database offline/);assert.equal(p.dirty,true); }
   finally { pool.query=query; }
 });
+
+test('sending MoMo money succeeds for onboarded players without arbitrary hour locks and supports cash auto-deposit', () => {
+  const p = player();
+  p.state.momo = 50;
+  p.state.cash = 200;
+  p.state.onboarded = true;
+  // newly created account
+  p.state.flags.bornAt = Date.now();
+  const chk = checkSend(p, 100, Date.now());
+  assert.equal(typeof chk, 'object');
+  assert.equal(chk.a, 100);
+  assert.equal(chk.fee, 1);
+  assert.equal(p.state.momo, 101); // 51 cash auto-deposited into MoMo (50 + 51 = 101)
+  assert.equal(p.state.cash, 149); // 200 - 51 = 149
+});
+

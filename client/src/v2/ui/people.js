@@ -47,7 +47,7 @@ export function openPerson(pid,name,act){
   const talk=h('button.btn.primary.wide',{onclick:()=>{sh.close();act.message(p.name);}},ic('chat-circle-text'),'Message @'+p.name);
   body.replaceChildren(card,talk,stranger?h('p.context-hint',null,'They get a message request first. When they accept, you two become acquaintances.'):null,
    h('h3.panel-heading',null,'Spend time together'),socs,notice,error,h('h3.panel-heading',null,'Keep in touch'),
-   button('Friendship & invitations','users',()=>act.phone('relationships',{name:p.name})),button('Send money','hand-coins',()=>act.sendMoney(p.name)),button('Challenge to Oware','squares-four',()=>act.oware(pid,p.name)),
+   button('Friendship & invitations','users',()=>act.phone('relationships',{name:p.name})),button('Send money','hand-coins',()=>act.sendMoney(p.username||p.name)),button('Challenge to Oware','squares-four',()=>act.oware(pid,p.name)),
    ...(G.state.place==='home'&&!p.me?[button('Invite to my home','house-line',()=>net.send({t:'home_invite',name:p.name}))]:[]),
    ...(p.visiting?[button('Ask to leave my home','door-open',()=>net.send({t:'home_remove',name:p.name}))]:[]),
    button('Full profile','user-circle',()=>act.phone('contacts',p.name)),
