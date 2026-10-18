@@ -12,15 +12,12 @@ export function repTitle(rep = G.state ? G.state.rep : 0) { let t = ''; for (con
 export const loc = (id) => G.cat && G.cat.locs.find((l) => l.id === id);
 export const accraNow = () => Date.now() + (G.offset || 0);
 export function accraClock(t = accraNow()) { const d = new Date(t); return { h: d.getUTCHours() + d.getUTCMinutes() / 60, wd: d.getUTCDay(), hh: d.getUTCHours(), mm: d.getUTCMinutes(), day: Math.floor(t / 864e5) }; }
-const inWin = (h, [a, b]) => (b > 24 ? h >= a || h < b - 24 : h >= a && h < b);
-export function isOpen(l, t = accraNow()) { const { h, wd } = accraClock(t); if (!inWin(h, l.open)) return false; let w = wd; if (l.open[1] > 24 && h < l.open[1] - 24) w = (wd + 6) % 7; return !l.days || l.days.includes(w); }
-export const hours = (o) => (o[0] === 0 && o[1] === 24 ? 'Open 24 hours' : `${String(o[0]).padStart(2, '0')}:00 – ${String(o[1] % 24).padStart(2, '0')}:00`);
+export function isOpen(l, t = accraNow()) { return true; }
+export const hours = (o) => 'Open 24 hours';
 // why an action can't be done right now (client preview; server re-checks)
 export function actBlock(a, l) {
-  const s = G.state; if (!s) return 'Loading'; const { h, wd } = accraClock();
+  const s = G.state; if (!s) return 'Loading';
   if (l && !isOpen(l)) return 'Closed now';
-  if (a.days && !a.days.includes(wd)) return 'Not today';
-  if (a.open && !inWin(h, a.open)) return `${a.open[0]}:00–${a.open[1] % 24}:00`;
   if (a.req) { if (a.req.flag && !s.flags[a.req.flag]) return 'Locked'; if (a.req.item && !s.items[a.req.item]) return `Needs ${(G.cat.items[a.req.item] || [a.req.item])[0]}`; for (const k in a.req.skill || {}) if (lvl(k) < a.req.skill[k]) return `${G.cat.skills[k]} ${a.req.skill[k]}`; }
   if (a.rest && s.gigRest && s.gigRest[a.id] > Date.now()) return `Rest ${Math.ceil((s.gigRest[a.id] - Date.now()) / 60000)}m`;
   return null;

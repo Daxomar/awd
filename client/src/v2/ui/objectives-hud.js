@@ -3,9 +3,10 @@
 // only the open/closed preference is local.
 import { h, ic, toast, cedi } from './dom.js';
 import { net } from '../net.js';
-import { G } from '../store.js';
+import { G, loc } from '../store.js';
 import { hudRows, currentObjective } from './hud-state.js';
 import { openStoryEncounter, openAspirationModal } from './story-dialog.js';
+import { openPlace } from './travel.js';
 
 const PREF = 'awd.objectives.open';
 const readOpen = () => { try { return localStorage.getItem(PREF) === '1'; } catch { return false; } };
@@ -14,46 +15,158 @@ const ICON = { houses: 'house-line', home: 'house', interact: 'hand-tap', meet: 
 
 export function goObjective(d, act) {
   if (!d) return;
+
+  // 1. Climax encounter / story dilemma
   if (d.encounterId || d.activeEncounter) {
-    return openStoryEncounter(d.activeEncounter || { id: d.encounterId, title: d.title, text: d.desc });
+    return openStoryEncounter(d.activeEncounter || { id: d.encounterId, title: d.title, text: d.desc }, () => act.refresh?.());
   }
-  if (d.venue) {
-    if (d.venue === 'home') return act.nav('home');
-    return act.map();
+
+  const s = G.state;
+  const here = s?.place;
+
+  // 2. Direct venue or exploration target (e.g. story missions or specific tasks)
+  const destId = d.venue || d.target;
+  if (destId) {
+    if (destId === 'home') {
+      if (here === 'home') {
+        toast('You are at home! Check your in-room items and rest options.', 'good');
+        return act.nav('home');
+      }
+      return openPlace('home', act);
+    }
+    const targetLoc = loc(destId);
+    if (targetLoc) {
+      if (here === destId) {
+        toast(`You are at ${targetLoc.name}! Check the activities and zones here.`, 'good');
+        return act.interact();
+      }
+      return openPlace(destId, act);
+    }
   }
+
+  // 3. Work & Career shifts / jobs
+  if (d.action === 'jobs' || ['first_shift', 'first_earning', 'career_five', 'career_promotion'].includes(d.id)) {
+    if (s?.job?.id) {
+      const career = G.cat?.careers?.[s.job.id];
+      const workPlace = career?.at;
+      if (workPlace) {
+        if (here === workPlace) {
+          if (s.shift) return act.work();
+          toast(`Starting shift at ${loc(workPlace)?.name || 'work'}...`, 'good');
+          return act.jobHere(s.job.id);
+        }
+        return openPlace(workPlace, act);
+      }
+    }
+    return act.phone('jobs');
+  }
+
+  // 4. Milestone & Starter specific IDs
+  switch (d.id) {
+    case 'first_street':
+      if (here === 'home') return act.route?.({ route: 'home' }) || openPlace('circle', act);
+      return openPlace('circle', act);
+    case 'first_meal':
+      if (['kenkey', 'muni', 'chopbar', 'circle'].includes(here)) return act.interact();
+      return openPlace('kenkey', act);
+    case 'first_market':
+      if (['makola', 'kantamanto'].includes(here)) return act.interact();
+      return openPlace('makola', act);
+    case 'first_trip':
+    case 'two_areas':
+      if (here === 'oxford') return openPlace('vibes', act);
+      return openPlace('oxford', act);
+    case 'social_hub':
+      if (['vibes', 'labadi', 'circle', 'oxford'].includes(here)) return act.interact();
+      return openPlace('vibes', act);
+    case 'first_social':
+    case 'first_friend':
+    case 'meet_try':
+      return act.meet();
+    case 'first_dm':
+      return act.phone('messages');
+    case 'first_outfit':
+      return act.wardrobe('wardrobe');
+    case 'return_home':
+      if (here === 'home') return act.nav('home');
+      return openPlace('home', act);
+    case 'first_home':
+    case 'home_ownership':
+      return act.phone('houses');
+    case 'useful_place':
+      if (here && here !== 'home') return act.interact();
+      return openPlace('oxford', act);
+    case 'needs_check':
+      return act.status();
+    case 'career_look':
+      return act.phone('jobs');
+    case 'savings_target':
+      return act.phone('bank');
+    case 'business_start':
+    case 'business_sale':
+    case 'business_profit':
+      return act.phone('enterprise');
+    case 'own_vehicle':
+      return openPlace('cars', act);
+    case 'player_trade':
+      return act.phone('shop');
+  }
+
+  // 5. General action mapping
   switch (d.action) {
-    case 'home': return act.nav('home');
-    case 'map': case 'explore': return act.map();
-    case 'interact': return act.nav('interact');
+    case 'home':
+      if (here === 'home') return act.nav('home');
+      return openPlace('home', act);
+    case 'map':
+      return act.map();
+    case 'explore': {
+      const fallbackTarget = d.target && loc(d.target) ? d.target : 'oxford';
+      if (here === fallbackTarget) return act.interact();
+      return openPlace(fallbackTarget, act);
+    }
+    case 'interact': return act.interact();
     case 'status': return act.status();
     case 'meet': return act.meet();
     case 'market': case 'boutique': case 'shop': return act.phone('shop');
-    case 'bank': case 'momo': return act.wallet();
-    case 'houses': case 'jobs': return act.app(d.action);
-    case 'goals': case 'story': return act.goals();
+    case 'bank': return act.phone('bank');
+    case 'momo': return act.wallet();
+    case 'houses': return act.phone('houses');
+    case 'jobs': return act.phone('jobs');
+    case 'cars': return openPlace('cars', act);
+    case 'enterprise': return act.phone('enterprise');
+    case 'goals': case 'story': return act.goals ? act.goals() : act.phone('goals');
+    case 'messages': return act.phone('messages');
     default: return act.phone(d.action || 'goals');
   }
 }
 
 export function buildObjectives(act) {
   let open = readOpen(), view = { label: '', rows: [] }, known = null;
+  let lastRenderSig = '';
   const pending = new Set();
   const el = h('section.objectives-hud', { hidden: true, 'aria-label': 'Objectives' });
+
+  // Touch and pointer isolation so scrolling inside HUD panel doesn't move 3D camera / scene
+  el.addEventListener('pointerdown', (e) => e.stopPropagation());
+  el.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: true });
+  el.addEventListener('touchmove', (e) => e.stopPropagation(), { passive: true });
+  el.addEventListener('wheel', (e) => e.stopPropagation(), { passive: true });
 
   function claim(d) {
     if (pending.has(d.id)) return;
     if (!net.send({ t: 'objective_claim', id: d.id })) return toast('Reconnect before claiming.', 'bad');
-    pending.add(d.id); setTimeout(() => { pending.delete(d.id); draw(); }, 15000); draw();
+    pending.add(d.id); setTimeout(() => { pending.delete(d.id); draw(true); }, 15000); draw(true);
   }
 
   function claimStory(id) {
     if (pending.has(id)) return;
     if (!net.send({ t: 'story_claim', id })) return toast('Reconnect before claiming.', 'bad');
-    pending.add(id); setTimeout(() => { pending.delete(id); draw(); }, 10000); draw();
+    pending.add(id); setTimeout(() => { pending.delete(id); draw(true); }, 10000); draw(true);
   }
 
   function row(d) {
     const state = d.claimed ? 'claimed' : d.completed ? 'ready' : 'open';
+    const isReady = d.completed && !d.claimed;
     return h('div.obj-row', { 'data-state': state },
       h('span.obj-mark', { 'aria-hidden': 'true' }, ic(d.claimed ? 'check-circle' : d.completed ? 'gift' : 'circle')),
       h('div.obj-text', null,
@@ -63,15 +176,39 @@ export function buildObjectives(act) {
         ),
         h('small', null, d.claimed ? `Done · ${d.xp} XP earned` : d.description)
       ),
-      d.claimed ? null : d.completed ? h('button.obj-btn.claim', { disabled: pending.has(d.id), onclick: () => claim(d) }, `Claim ${d.xp} XP`) :
-        h('button.obj-btn', { 'aria-label': 'Go: ' + d.title, onclick: () => goObjective(d, act) }, 'Go'));
+      d.claimed ? null : isReady ? h('button.obj-btn.claim', { disabled: pending.has(d.id), onclick: () => claim(d) }, `Claim ${d.xp} XP`) :
+        h('button.obj-btn', { 'aria-label': 'Go To: ' + d.title, onclick: () => goObjective(d, act) }, 'Go To 📍'));
   }
 
-  function draw() {
+  function draw(force = false) {
     const s = G.state;
     const curObj = currentObjective(view);
     const storyMission = s?.story?.activeMission;
     const noDream = s?.onboarded && !s?.dream;
+
+    // Signature check to prevent unnecessary DOM recreation while user is scrolling
+    const renderSig = JSON.stringify({
+      open,
+      noDream: !!noDream,
+      dream: s?.dream,
+      storyId: storyMission?.id,
+      storyReady: !!storyMission?.ready,
+      storyClimax: !!storyMission?.isClimax,
+      encounterId: storyMission?.activeEncounter?.id,
+      jobId: s?.job?.id,
+      place: s?.place,
+      pendingSize: pending.size,
+      rows: view.rows.map(r => [r.id, r.completed, r.claimed])
+    });
+
+    if (!force && renderSig === lastRenderSig && el.querySelector('.obj-head')) {
+      return; // Data has not changed; preserve existing DOM and user scroll position completely!
+    }
+    lastRenderSig = renderSig;
+
+    // Remember existing scroll position before replacing children
+    const existingPanel = el.querySelector('#obj-panel');
+    const savedScrollTop = existingPanel ? existingPanel.scrollTop : 0;
 
     // 1. If player has no aspiration set, show the prominent aspiration prompt
     if (noDream) {
@@ -79,7 +216,7 @@ export function buildObjectives(act) {
       const head = h('div.obj-head', null,
         h('button.obj-toggle', {
           'aria-expanded': 'false',
-          onclick: () => openAspirationModal(() => act.refresh())
+          onclick: () => openAspirationModal(() => act.refresh?.())
         },
           h('span.obj-icon', { 'aria-hidden': 'true', style: { background: '#fef3c7', color: '#b45309' } }, ic('sparkle')),
           h('span.obj-copy', null,
@@ -89,7 +226,7 @@ export function buildObjectives(act) {
           ic('caret-right')
         ),
         h('button.obj-btn.claim', {
-          onclick: () => openAspirationModal(() => act.refresh())
+          onclick: () => openAspirationModal(() => act.refresh?.())
         }, 'Choose')
       );
       el.replaceChildren(head);
@@ -103,6 +240,7 @@ export function buildObjectives(act) {
       const isClimax = storyMission.isClimax && !isReady;
       const arcTitle = storyMission.arcTitle || 'Accra Story';
       const chNum = storyMission.chapter || 1;
+      const destName = storyMission.target && loc(storyMission.target) ? loc(storyMission.target).name : null;
 
       const actButton = isReady
         ? h('button.obj-btn.claim', {
@@ -111,18 +249,18 @@ export function buildObjectives(act) {
           }, 'Claim')
         : isClimax
         ? h('button.obj-btn.claim', {
-            onclick: () => openStoryEncounter(storyMission.activeEncounter, () => act.refresh())
+            onclick: () => openStoryEncounter(storyMission.activeEncounter, () => act.refresh?.())
           }, 'Decide')
         : h('button.obj-btn', {
-            'aria-label': 'Go: ' + storyMission.title,
+            'aria-label': 'Go To: ' + storyMission.title,
             onclick: () => goObjective(storyMission, act)
-          }, 'Go');
+          }, 'Go To 📍');
 
       const head = h('div.obj-head', null,
         h('button.obj-toggle', {
           'aria-expanded': String(open),
           'aria-controls': 'obj-panel',
-          onclick: () => { open = !open; saveOpen(open); draw(); }
+          onclick: () => { open = !open; saveOpen(open); draw(true); }
         },
           h('span.obj-icon', { 'aria-hidden': 'true', style: isReady ? { background: '#fef3c7', color: '#b45309' } : null },
             ic(isReady ? 'gift' : isClimax ? 'lightning' : ICON[storyMission.action] || 'target')
@@ -160,10 +298,19 @@ export function buildObjectives(act) {
         ),
         h('strong', { style: { display: 'block', fontSize: '13px', color: '#1d3b31', marginBottom: '4px' } }, storyMission.title),
         h('p', { style: { fontSize: '12px', color: '#556b62', margin: '0 0 8px', lineHeight: '1.4' } }, storyMission.description),
+        isReady ? h('button.btn.primary.wide', {
+          style: { minHeight: '36px', fontSize: '12px', padding: '0 12px', background: '#c58a1c' },
+          disabled: pending.has(storyMission.id),
+          onclick: () => claimStory(storyMission.id)
+        }, `Claim Reward (+${cedi(storyMission.reward?.cash || 0)})`) :
         isClimax && storyMission.activeEncounter ? h('button.btn.primary.wide', {
           style: { minHeight: '36px', fontSize: '12px', padding: '0 12px' },
-          onclick: () => openStoryEncounter(storyMission.activeEncounter, () => act.refresh())
-        }, `Encounter: ${storyMission.activeEncounter.title}`) : null
+          onclick: () => openStoryEncounter(storyMission.activeEncounter, () => act.refresh?.())
+        }, `Encounter: ${storyMission.activeEncounter.title}`) :
+        h('button.btn.primary.wide', {
+          style: { minHeight: '36px', fontSize: '12px', padding: '0 12px' },
+          onclick: () => goObjective(storyMission, act)
+        }, destName ? `Go To ${destName} 📍` : 'Go To Action 📍')
       );
 
       const panel = open ? h('div.obj-panel', { id: 'obj-panel' },
@@ -177,6 +324,8 @@ export function buildObjectives(act) {
       ) : null;
 
       el.replaceChildren(head, ...(panel ? [panel] : []));
+      const newPanel = el.querySelector('#obj-panel');
+      if (newPanel && savedScrollTop > 0) newPanel.scrollTop = savedScrollTop;
       return;
     }
 
@@ -189,7 +338,7 @@ export function buildObjectives(act) {
       h('button.obj-toggle', {
         'aria-expanded': String(open),
         'aria-controls': 'obj-panel',
-        onclick: () => { open = !open; saveOpen(open); draw(); }
+        onclick: () => { open = !open; saveOpen(open); draw(true); }
       },
         h('span.obj-icon', { 'aria-hidden': 'true' }, ic(curObj.completed ? 'gift' : ICON[curObj.action] || 'target')),
         h('span.obj-copy', null,
@@ -208,7 +357,7 @@ export function buildObjectives(act) {
       ),
       curObj.completed
         ? h('button.obj-btn.claim', { disabled: pending.has(curObj.id), onclick: () => claim(curObj) }, 'Claim')
-        : h('button.obj-btn', { 'aria-label': 'Go: ' + curObj.title, onclick: () => goObjective(curObj, act) }, 'Go')
+        : h('button.obj-btn', { 'aria-label': 'Go To: ' + curObj.title, onclick: () => goObjective(curObj, act) }, 'Go To 📍')
     );
 
     const panel = open ? h('div.obj-panel', { id: 'obj-panel' },
@@ -218,6 +367,8 @@ export function buildObjectives(act) {
     ) : null;
 
     el.replaceChildren(head, ...(panel ? [panel] : []));
+    const newPanel = el.querySelector('#obj-panel');
+    if (newPanel && savedScrollTop > 0) newPanel.scrollTop = savedScrollTop;
   }
 
   function update(rows) {
@@ -239,9 +390,8 @@ export function buildObjectives(act) {
       }
     }
     known = done;
-    draw();
+    draw(true);
   }
 
-  return { el, update, refresh: () => draw() };
+  return { el, update, refresh: () => draw(false) };
 }
-

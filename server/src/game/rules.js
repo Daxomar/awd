@@ -46,9 +46,7 @@ const at = (p, id) => p.state.place === id;
 export const clock = (now = Date.now()) => { const d = new Date(now); return { h: d.getUTCHours() + d.getUTCMinutes() / 60, wd: d.getUTCDay(), day: Math.floor(now / 86400000) }; };
 const inWindow = (h, [a, b]) => (b > 24 ? h >= a || h < b - 24 : h >= a && h < b);
 export function isOpen(loc, now = Date.now()) {
-  const { h, wd } = clock(now); if (!inWindow(h, loc.open)) return false;
-  let w = wd; if (loc.open[1] > 24 && h < loc.open[1] - 24) w = (wd + 6) % 7; // after midnight belongs to last night
-  return !loc.days || loc.days.includes(w);
+  return true; // 24/7 Accra life: venues are open at any time
 }
 export function dumsorNow(now = Date.now(), policy) { const { h, wd } = clock(now); const w = D.DUMSOR[wd]; if (!w) return false; if (policy === 'light' && h >= w[0] + 1.5) return false; return h >= w[0] && h < w[1]; }
 // real seconds an action takes (Sims-style compression, as fast as Lagos Life's feel)
@@ -219,13 +217,11 @@ function canDo(s, p, loc, a, now, residence) {
   if (loc && !at(p, loc.id)) return `Go to ${loc.name} first.`;
   if (loc && !isOpen(loc, now)) return `${loc.name} is closed now.`;
   const { h, wd } = clock(now);
-  if (a.days && !a.days.includes(wd)) return 'Not today.';
-  if (a.open && !inWindow(h, a.open)) return `Only ${a.open[0]}:00–${a.open[1] % 24}:00.`;
+  if (a.tags && a.tags.includes('eat') && a.open && !inWindow(h, a.open)) return `Only ${a.open[0]}:00–${a.open[1] % 24}:00.`;
   if (a.req) { if (a.req.flag && !s.flags[a.req.flag]) return 'Not available.'; if (a.req.item && !(residence?.items||s.items)[a.req.item]) return `Needs ${a.req.item}.`; for (const k in a.req.skill || {}) if (lvl(s, k) < a.req.skill[k]) return `Needs ${D.SKILLS[k]} ${a.req.skill[k]}.`; }
   if (s.flags.jailUntil > now) return `You are in police cells for ${Math.ceil((s.flags.jailUntil - now) / 60000)} more min.`;
   if (a.pitch && (s.flags.mvp || 0) < 100) return `Your MVP is ${Math.round(s.flags.mvp || 0)}% done. Build it at the hub first.`;
   if (a.pitch && s.flags.lastPitch && now - s.flags.lastPitch < 7 * 86400000) return 'Investors take a week to reply. Pitch again next week.';
-  if ((a.earn || a.mg) && a.tags && a.tags.includes('gig')) { const gd = workDay(s, now); if (gd.mins + (a.min || 60) > WORK_DAY) return `You've worked ${Math.round(gd.mins / 60)} hours today. Body no be firewood. Rest till tomorrow.`; }
   if (a.rest && (s.gigRest[a.id] || 0) > now) return `Rest ${Math.ceil((s.gigRest[a.id] - now) / 60000)} min before doing this again.`;
   if (s.sick && s.sick.level === 'serious' && a.earn) return 'You are too sick to work. See a doctor.';
   return null;
@@ -321,17 +317,16 @@ export function homeAction(p, id, now, residence) {
   }return r;
 }
 
-// ---------- careers: 1-real-hour shifts, any time 06:00–22:00 on the career's days (nights for nightlife) ----------
-function shiftWindowOk(c, now) { const { h, wd } = clock(now); const okDay = c.days.includes(c.night && h < 4 ? (wd + 6) % 7 : wd); return okDay && (c.night ? (h >= 20 || h < 4) : h >= 6 && h < 22); }
+// ---------- careers: 1-real-hour shifts, available 24/7 anytime ----------
+function shiftWindowOk(c, now) { return true; }
 function startShift(p, now) {
   const s = p.state, j = s.job; if (!j) return toast('No job. Apply first.', 'bad');
   const c = D.CAREERS[j.id], loc = LOC[c.at]; if (s.busy || s.shift) return toast('Busy.', 'bad');
   if (!at(p, loc.id)) return toast(`Go to ${loc.name} to start your shift.`, 'bad');
   if (!shiftWindowOk(c, now)) return toast(c.night ? 'Shifts here are 20:00–04:00 on work nights.' : 'Shifts run 06:00–22:00 on work days.', 'bad');
   if (j.lastDay === clock(now).day) return toast('You already worked today. Come back tomorrow.', 'bad');
-  if (workDay(s, now).mins > WORK_DAY - 480) return toast(`You've already hustled ${Math.round(s.gd.mins / 60)} hours today. Too tired for a full shift.`, 'bad');
   if (s.sick && s.sick.level === 'serious') return toast('Too sick to work.', 'bad');
-  s.gd.mins += 480;
+  workDay(s, now).mins += 480;
   s.shift = { start: now, worked: 0, last: now, perf0: j.perf, tasks: 0, wins: 0, tone: 'normal' };
   return { t: 'shift', shift: {...s.shift,assignment:taskView(s)}, title: c.ranks[j.rank][0], pay: shiftPay(s, now) };
 }
