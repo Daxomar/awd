@@ -4,7 +4,6 @@ export const PERMISSIONS = {
   'overview.read': 'See the overview metrics',
   'players.read': 'Search players and open an account overview',
   'players.records': 'See a player’s money journal and gameplay records',
-  'players.edit': 'Edit player saved data, state, wallet and attributes',
   'reports.read': 'Read player reports',
   'reports.resolve': 'Close or dismiss player reports',
   'moderation.note': 'Add support, review or appeal notes',
@@ -25,7 +24,7 @@ export const PERMISSIONS = {
 const ALL = Object.keys(PERMISSIONS);
 export const ROLES = {
   owner: {name: 'Owner', perms: ALL},
-  ops: {name: 'Operations administrator', perms: ['overview.read', 'players.read', 'players.records', 'players.edit', 'reports.read', 'reports.resolve', 'moderation.note', 'moderation.suspend',
+  ops: {name: 'Operations administrator', perms: ['overview.read', 'players.read', 'reports.read', 'reports.resolve', 'moderation.note', 'moderation.suspend',
     'economy.read', 'ads.read', 'ads.moderate', 'ads.placements', 'events.manage', 'world.manage', 'ops.read', 'audit.read']},
   moderator: {name: 'Moderator', perms: ['overview.read', 'players.read', 'reports.read', 'reports.resolve', 'moderation.note', 'moderation.suspend',
     'moderation.ban', 'ads.read', 'ads.moderate', 'events.manage']},

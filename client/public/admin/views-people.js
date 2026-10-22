@@ -48,43 +48,7 @@ export async function player(view, ctx, id) {
     if (!res.error) setTimeout(() => player(view, ctx, id), 600);
   };
   const suspended = a.suspended_until && new Date(a.suspended_until) > new Date();
-  const editData = async () => {
-    const careerOpts = [['none', 'None / Unemployed'], ...(r.careers || []).map(c => [c.id, c.name])];
-    const homeOpts = [['none', 'None'], ...(r.homes || []).map(h => [h.id, `${h.name} (${h.area})`])];
-    const v = await confirmAction({
-      title: `Edit player data: ${a.username}`,
-      text: 'Changes are saved atomically to PostgreSQL, logged in the audit trail, and synchronised live if online.',
-      fields: [
-        {name: 'cash', label: 'Cash balance (GH₵)', type: 'number', minValue: 0, value: Math.round(Number(a.cash) || 0)},
-        {name: 'momo', label: 'MoMo balance (GH₵)', type: 'number', minValue: 0, value: Math.round(Number(a.momo) || 0)},
-        {name: 'xp', label: 'Experience points (XP)', type: 'number', minValue: 0, value: Math.round(Number(a.xp) || 0)},
-        {name: 'rep', label: 'Reputation (Rep)', type: 'number', value: Math.round(Number(a.rep) || 0)},
-        {name: 'jobId', label: 'Career / Job', type: 'select', options: careerOpts, value: a.job || 'none'},
-        {name: 'jobRank', label: 'Job rank (0-based index)', type: 'number', minValue: 0, maxValue: 10, value: Number(a.job_rank) || 0},
-        {name: 'home', label: 'Home neighborhood', type: 'select', options: homeOpts, value: a.home || 'none'},
-        {name: 'title', label: 'Player title', type: 'text', required: false, value: a.title || ''},
-        {name: 'adult_verified', label: 'Adult attested', type: 'select', options: [['yes', 'Yes (18+)'], ['no', 'No']], value: a.adult_verified ? 'yes' : 'no'},
-      ]
-    });
-    if (!v) return;
-    const res = await api.post('/api/admin/player/edit', {
-      acct: id,
-      cash: v.cash,
-      momo: v.momo,
-      xp: v.xp,
-      rep: v.rep,
-      jobId: v.jobId === 'none' ? '' : v.jobId,
-      jobRank: v.jobRank,
-      home: v.home === 'none' ? '' : v.home,
-      title: v.title,
-      adult_verified: v.adult_verified === 'yes',
-      reason: v.reason
-    });
-    say(out, res, 'Player data saved and persisted.');
-    if (!res.error) setTimeout(() => player(view, ctx, id), 600);
-  };
   const actions = [
-    ctx.can('players.edit') && h('button.btn.primary', {onclick: editData}, 'Edit player data'),
     ctx.can('moderation.note') && h('button.btn.ghost', {onclick: () => act('note', {title: `Add a note to ${a.username}`, text: 'Notes are visible to staff only.'})}, 'Add note'),
     ctx.can('moderation.note') && h('button.btn.ghost', {onclick: () => act('appeal', {title: `Record an appeal or review for ${a.username}`})}, 'Record appeal'),
     ctx.can('moderation.suspend') && !suspended && h('button.btn', {onclick: () => act('suspend', {title: `Suspend ${a.username}`, text: 'They are signed out now and cannot sign in until the suspension ends.', danger: true,
@@ -100,8 +64,7 @@ export async function player(view, ctx, id) {
     h('div.cols', {style: 'margin-top:12px'},
       h('div.panel', {}, h('h3', {text: 'Account'}), h('dl.kv', {},
         ...[['Account', a.id], ['Joined', when(a.created_at)], ['Adult attested', a.adult_verified ? 'yes' : 'no'], ['Cash', cedi(a.cash)], ['MoMo', cedi(a.momo)],
-          ['XP', num(a.xp)], ['Rep', num(a.rep)], ['Net worth', cedi(a.worth)], ['Origin', a.origin], ['Job', a.job ? `${a.job} (rank ${Number(a.job_rank || 0) + 1})` : 'Unemployed'],
-          ['Home', a.home], ['Title', a.title], ['Last saved', when(a.updated_at)],
+          ['Net worth', cedi(a.worth)], ['Origin', a.origin], ['Job', a.job], ['Home', a.home], ['Title', a.title], ['Last saved', when(a.updated_at)],
           ['Businesses', r.holdings.businesses], ['Properties', r.holdings.properties], ['Messages sent / received', `${num(r.messages.sent)} / ${num(r.messages.received)}`],
           ['Reports filed', r.reportsFiled], ['Staff role', r.staff ? `${r.staff.role}${r.staff.active ? '' : ' (inactive)'}` : 'none']]
           .flatMap(([k, v]) => [h('dt', {text: k}), h('dd', {text: v ?? '—'})]))),

@@ -580,16 +580,6 @@ export class Shard {
     else if (ch === 'awd:global') for (const o of this.players.values()) this.send(o, m);
     else if (ch === 'awd:credit') { const o = this.byAcct(m.acct); if (o) Social.claim(o).then((l) => l.forEach((x) => this.send(o, x))).catch(() => {}); }
     else if (ch === 'awd:dm') { const o = this.byAcct(m.acct); if (o && this.canReceiveDm(o, m.m)) this.send(o, m.m); }
-    else if (ch === 'awd:sync_player') {
-      const p = this.byAcct(m.acct);
-      if (p && m.state) {
-        Object.assign(p.state, m.state);
-        p.dirty = true;
-        this.send(p, { t: 'st', state: Game.view(p.state) });
-        this.send(p, { ...Game.me(p.state, Date.now(), this.policy), place: p.state.place });
-        this.send(p, { t: 'toast', m: 'Your account was updated by an administrator.', k: 'info' });
-      }
-    }
   }
   slowTick() {
     const t0 = performance.now(); const now = Date.now(); const odd = (this.slowN = (this.slowN || 0) + 1) & 1;

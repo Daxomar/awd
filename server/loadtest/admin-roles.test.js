@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {ROLES, PERMISSIONS, can, isRole, REAUTH} from '../src/admin/roles.js';
 import {FLAGS, flag, setFlags} from '../src/admin/flags.js';
 import {sessionLive, adminCookie, adminToken, csrfFor, ADMIN_COOKIE, IDLE_MS, ABSOLUTE_MS} from '../src/admin/session.js';
-import {MOD_ACTIONS, cleanReason, updatePlayer} from '../src/admin/players.js';
+import {MOD_ACTIONS, cleanReason} from '../src/admin/players.js';
 import * as Ops from '../src/admin/ops.js';
 
 test('every role grants only known permissions, and only the owner manages administrators', () => {
@@ -70,33 +70,4 @@ test('suggestions can be cleaned and bounded for administrator notes and submiss
   assert.equal(cleanReason(''), '');
   assert.equal(cleanReason(null), '');
   assert.equal(cleanReason('x'.repeat(600)).length, 500);
-});
-
-test('players.edit permission is restricted to owner and ops, and updatePlayer validates input bounds', async () => {
-  assert.equal(can('owner', 'players.edit'), true);
-  assert.equal(can('ops', 'players.edit'), true);
-  assert.equal(can('moderator', 'players.edit'), false);
-  assert.equal(can('support', 'players.edit'), false);
-  assert.equal(can('finance', 'players.edit'), false);
-
-  const admin = { acct: 1, name: 'owner', role: 'owner' };
-  // Requires valid player id
-  const r1 = await updatePlayer(admin, { acct: -1, reason: 'Valid reason here' });
-  assert.equal(r1.error, 'Choose a player.');
-
-  // Requires valid reason
-  const r2 = await updatePlayer(admin, { acct: 1, reason: 'bad' });
-  assert.equal(r2.error, 'Give a reason of at least 5 characters.');
-
-  // Rejects negative cash
-  const r3 = await updatePlayer(admin, { acct: 1, cash: -50, reason: 'Fix negative balance' });
-  assert.equal(r3.error, 'Cash balance must be a non-negative number.');
-
-  // Rejects invalid career
-  const r4 = await updatePlayer(admin, { acct: 1, jobId: 'space_astronaut', reason: 'Give them astronaut job' });
-  assert.equal(r4.error, "Invalid career 'space_astronaut'.");
-
-  // Rejects if no fields provided
-  const r5 = await updatePlayer(admin, { acct: 1, reason: 'Valid reason with no fields' });
-  assert.equal(r5.error, 'No valid fields provided to update.');
 });

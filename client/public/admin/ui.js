@@ -42,8 +42,8 @@ export function confirmAction({title, text, fields = [], danger = false, passwor
   const inputs = {};
   for (const f of [...fields, {name: 'reason', label: 'Reason (recorded in the audit log)', type: 'textarea', min: 5}, ...(password ? [{name: 'password', label: 'Your password', type: 'password'}] : [])]) {
     const el = f.type === 'textarea' ? h('textarea', {name: f.name, maxlength: 500, required: true}) : f.type === 'select'
-      ? h('select', {name: f.name}, f.options.map(([v, t]) => h('option', {value: v, selected: f.value !== undefined && String(v) === String(f.value), text: t})))
-      : h('input', {name: f.name, type: f.type || 'text', required: f.required !== false, min: f.minValue, max: f.maxValue, value: f.value, autocomplete: f.type === 'password' ? 'current-password' : 'off'});
+      ? h('select', {name: f.name}, f.options.map(([v, t]) => h('option', {value: v, text: t})))
+      : h('input', {name: f.name, type: f.type || 'text', required: true, min: f.minValue, max: f.maxValue, value: f.value, autocomplete: f.type === 'password' ? 'current-password' : 'off'});
     inputs[f.name] = {el, f}; box.append(h('label', {}, f.label, el));
   }
   const go = document.getElementById('cGo'); go.className = 'btn' + (danger ? ' danger' : '');
