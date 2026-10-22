@@ -3,6 +3,10 @@
 import {pool} from '../db.js';
 import {audit} from './store.js';
 import {can, isRole, ROLES} from './roles.js';
+import * as Game from '../game/rules.js';
+import {CAREERS, HOMES} from '../game/data.js';
+import {saveJournal} from '../life-journal.js';
+import * as Life from '../game/life-progression.js';
 
 const STATUS = {
   all: 'true', banned: 'a.banned', suspended: 'a.suspended_until > now()', staff: 'exists (select 1 from admin_users u where u.acct = a.id and u.active)',
@@ -23,8 +27,9 @@ export async function search({q = '', status = 'all', ...p} = {}, online = () =>
 export async function account(admin, id, online = () => false) {
   if (!Number.isSafeInteger(id) || id < 1) return {error: 'Choose a player.'};
   const a = (await pool.query(`select a.id, a.username, a.created_at, a.banned, a.suspended_until, a.adult_verified, p.worth, p.updated_at,
-      p.state->>'cash' as cash, p.state->>'momo' as momo, p.state->'job'->>'id' as job, p.state->>'home' as home, p.state->>'title' as title,
-      p.state->>'xp' as xp, p.state->>'origin' as origin, p.state->>'place' as place
+      p.state->>'cash' as cash, p.state->>'momo' as momo, p.state->'job'->>'id' as job, p.state->'job'->>'rank' as job_rank,
+      p.state->>'home' as home, p.state->>'title' as title, p.state->>'xp' as xp, p.state->>'rep' as rep,
+      p.state->>'origin' as origin, p.state->>'place' as place, p.state as state
     from accounts a left join players p on p.id = a.id where a.id = $1`, [id])).rows[0];
   if (!a) return {error: 'Player not found.', httpStatus: '404 Not Found'};
   const [mods, reportsAgainst, reportsBy, activity, holdings, messages, staff] = await Promise.all([
@@ -38,8 +43,10 @@ export async function account(admin, id, online = () => false) {
     pool.query('select (select count(*) from dms where from_id = $1)::int as sent, (select count(*) from dms where to_id = $1)::int as received', [id]),
     pool.query('select role, active from admin_users where acct = $1', [id]),
   ]);
+  const careers = Object.entries(CAREERS).map(([k, c]) => ({ id: k, name: c.name, ranks: c.ranks.map(r => r[0]) }));
+  const homes = Object.entries(HOMES).map(([k, h]) => ({ id: k, name: h.name, area: h.area }));
   const out = {account: a, online: online(id), moderation: mods.rows, reports: reportsAgainst.rows, reportsFiled: reportsBy.rows[0].n,
-    activity: activity.rows, holdings: holdings.rows[0], messages: messages.rows[0], staff: staff.rows[0] || null};
+    activity: activity.rows, holdings: holdings.rows[0], messages: messages.rows[0], staff: staff.rows[0] || null, careers, homes};
   if (can(admin.role, 'players.records')) {
     out.money = (await pool.query(`select seq, at, facts->>'label' as label, (facts->>'delta')::numeric as delta, (facts->>'balance')::numeric as balance
       from life_events where acct = $1 and kind = 'money' order by seq desc limit 40`, [id])).rows;
@@ -174,4 +181,178 @@ export async function setAdmin(admin, b, endSessions) {
     if (!active || cur?.role !== role) await endSessions(t.id);
     return {ok: true};
   } catch (e) { await db.query('rollback').catch(() => {}); throw e; } finally { db.release(); }
+}
+
+export async function updatePlayer(admin, b, { shard, bus } = {}) {
+  const id = Number(b.acct || b.id), reason = cleanReason(b.reason);
+  if (!Number.isSafeInteger(id) || id < 1) return { error: 'Choose a player.' };
+  if (reason.length < 5) return { error: 'Give a reason of at least 5 characters.' };
+
+  const updates = {};
+  if (b.cash !== undefined && b.cash !== '') {
+    const val = Number(b.cash);
+    if (!Number.isFinite(val) || val < 0 || !Number.isSafeInteger(Math.round(val))) return { error: 'Cash balance must be a non-negative number.' };
+    updates.cash = Math.round(val);
+  }
+  if (b.momo !== undefined && b.momo !== '') {
+    const val = Number(b.momo);
+    if (!Number.isFinite(val) || val < 0 || !Number.isSafeInteger(Math.round(val))) return { error: 'MoMo balance must be a non-negative number.' };
+    updates.momo = Math.round(val);
+  }
+  if (b.xp !== undefined && b.xp !== '') {
+    const val = Number(b.xp);
+    if (!Number.isFinite(val) || val < 0 || !Number.isSafeInteger(Math.round(val))) return { error: 'XP must be a non-negative number.' };
+    updates.xp = Math.round(val);
+  }
+  if (b.rep !== undefined && b.rep !== '') {
+    const val = Number(b.rep);
+    if (!Number.isFinite(val) || !Number.isSafeInteger(Math.round(val))) return { error: 'Reputation must be an integer.' };
+    updates.rep = Math.round(val);
+  }
+  if (b.jobId !== undefined) {
+    const jobId = String(b.jobId || '').trim().toLowerCase();
+    if (!jobId || jobId === 'none') {
+      updates.job = null;
+    } else {
+      if (!Object.hasOwn(CAREERS, jobId)) return { error: `Invalid career '${jobId}'.` };
+      const career = CAREERS[jobId];
+      const rank = b.jobRank !== undefined ? Math.max(0, Math.min(career.ranks.length - 1, Number(b.jobRank) | 0)) : 0;
+      updates.job = { id: jobId, rank, shifts: 0, perf: 0 };
+    }
+  } else if (b.jobRank !== undefined && b.jobRank !== '') {
+    const rank = Number(b.jobRank);
+    if (Number.isInteger(rank) && rank >= 0) updates.jobRank = rank;
+  }
+  if (b.home !== undefined && b.home !== '') {
+    updates.home = String(b.home).trim().toLowerCase().slice(0, 40);
+  }
+  if (b.title !== undefined) {
+    updates.title = String(b.title || '').replace(/[\u0000-\u001f\u007f<>]/g, ' ').trim().slice(0, 40);
+  }
+  if (b.origin !== undefined && b.origin !== '') {
+    updates.origin = String(b.origin).trim().slice(0, 40);
+  }
+  if (b.adult_verified !== undefined) {
+    updates.adult_verified = b.adult_verified === true || b.adult_verified === 'true' || b.adult_verified === 'yes' || b.adult_verified === 1;
+  }
+  if (b.skills && typeof b.skills === 'object' && !Array.isArray(b.skills)) {
+    updates.skills = {};
+    for (const [k, v] of Object.entries(b.skills)) {
+      const lvl = Number(v);
+      if (/^[a-z_]{1,20}$/.test(k) && Number.isFinite(lvl) && lvl >= 0 && lvl <= 10) {
+        updates.skills[k] = Math.round(lvl * 10) / 10;
+      }
+    }
+  }
+  if (b.statePatch && typeof b.statePatch === 'object' && !Array.isArray(b.statePatch)) {
+    const safePatch = {};
+    const FORBIDDEN = new Set(['__proto__', 'constructor', 'prototype', 'v', 'name']);
+    for (const [k, v] of Object.entries(b.statePatch)) {
+      if (!FORBIDDEN.has(k) && /^[a-zA-Z0-9_]{1,30}$/.test(k)) {
+        safePatch[k] = v;
+      }
+    }
+    if (Object.keys(safePatch).length) updates.statePatch = safePatch;
+  }
+
+  if (Object.keys(updates).length === 0) return { error: 'No valid fields provided to update.' };
+
+  const livePlayer = shard?.byAcct ? shard.byAcct(id) : null;
+  if (livePlayer?.saving) await livePlayer.saving.catch(() => {});
+
+  const db = await pool.connect();
+  try {
+    await db.query('begin');
+    const t = (await db.query('select id, username, banned, adult_verified from accounts where id = $1 for update', [id])).rows[0];
+    if (!t) { await db.query('rollback'); return { error: 'Player not found.', httpStatus: '404 Not Found' }; }
+
+    const pRow = (await db.query('select id, state, worth from players where id = $1 for update', [id])).rows[0];
+    const baseState = livePlayer ? livePlayer.state : (pRow ? pRow.state : Game.newState({ id: t.id, u: t.username }));
+    const nextState = structuredClone(baseState);
+    const diff = {};
+
+    if (updates.adult_verified !== undefined && updates.adult_verified !== t.adult_verified) {
+      diff.adult_verified = { from: t.adult_verified, to: updates.adult_verified };
+      await db.query('update accounts set adult_verified = $2 where id = $1', [id, updates.adult_verified]);
+    }
+
+    for (const [k, v] of Object.entries(updates)) {
+      if (k === 'adult_verified') continue;
+      if (k === 'jobRank') {
+        if (nextState.job) {
+          const maxRank = (CAREERS[nextState.job.id]?.ranks.length || 1) - 1;
+          const targetRank = Math.max(0, Math.min(maxRank, v));
+          if (nextState.job.rank !== targetRank) {
+            diff.jobRank = { from: nextState.job.rank, to: targetRank };
+            nextState.job.rank = targetRank;
+          }
+        }
+        continue;
+      }
+      if (k === 'skills') {
+        nextState.skills = nextState.skills || {};
+        diff.skills = {};
+        for (const [sk, sv] of Object.entries(v)) {
+          if (nextState.skills[sk] !== sv) {
+            diff.skills[sk] = { from: nextState.skills[sk] || 0, to: sv };
+            nextState.skills[sk] = sv;
+          }
+        }
+        continue;
+      }
+      if (k === 'statePatch') {
+        diff.statePatch = v;
+        Object.assign(nextState, v);
+        continue;
+      }
+      if (JSON.stringify(nextState[k]) !== JSON.stringify(v)) {
+        diff[k] = { from: nextState[k], to: v };
+        nextState[k] = v;
+      }
+    }
+
+    const oldMoney = (baseState.cash || 0) + (baseState.momo || 0);
+    const newMoney = (nextState.cash || 0) + (nextState.momo || 0);
+    if (oldMoney !== newMoney) {
+      const delta = newMoney - oldMoney;
+      nextState.ledger = nextState.ledger || [];
+      nextState.ledger.push([Date.now(), delta, 'Admin adjustment: ' + reason]);
+      if (nextState.ledger.length > 60) nextState.ledger.shift();
+      Life.moneyEvent(nextState, delta, 'Admin adjustment: ' + reason);
+      await saveJournal(db, id, nextState, baseState);
+    }
+
+    const worth = Game.netWorth(nextState);
+    await db.query(`insert into players (id, state, worth, updated_at) values ($1, $2, $3, now())
+      on conflict (id) do update set state = excluded.state, worth = excluded.worth, updated_at = now()`,
+      [id, JSON.stringify(nextState), worth]);
+
+    await audit(db, admin, 'players.edit', {
+      target: `acct:${id}`,
+      reason,
+      detail: { username: t.username, diff }
+    });
+
+    await db.query('commit');
+
+    if (livePlayer) {
+      Object.assign(livePlayer.state, nextState);
+      livePlayer.dirty = true;
+      if (shard?.send) {
+        shard.send(livePlayer, { t: 'st', state: Game.view(livePlayer.state) });
+        shard.send(livePlayer, { ...Game.me(livePlayer.state, Date.now(), shard.policy), place: livePlayer.state.place });
+        shard.send(livePlayer, { t: 'toast', m: 'Your account data was updated by an administrator.', k: 'info' });
+      }
+    }
+    if (bus?.publish) {
+      bus.publish('awd:sync_player', { acct: id, state: nextState });
+    }
+
+    return { ok: true, id, diff, worth };
+  } catch (e) {
+    await db.query('rollback').catch(() => {});
+    throw e;
+  } finally {
+    db.release();
+  }
 }

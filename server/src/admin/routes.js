@@ -123,6 +123,7 @@ export function registerAdmin(app, deps) {
   });
   get('/api/admin/players', 'players.read', async (a, q) => P.search(q, online));
   get('/api/admin/player', 'players.read', async (a, q) => P.account(a, Number(q.id), online));
+  post('/api/admin/player/edit', 'players.edit', async (a, b) => P.updatePlayer(a, b, { shard, bus }));
   post('/api/admin/moderate', b => P.MOD_ACTIONS[b.kind], async (a, b) => P.moderate(a, b, id => disconnectAccount(id)));
   get('/api/admin/reports', 'reports.read', async (a, q) => P.reports(q));
   post('/api/admin/reports', 'reports.resolve', async (a, b) => P.resolveReport(a, b));
