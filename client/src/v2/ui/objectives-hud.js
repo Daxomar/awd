@@ -11,7 +11,57 @@ import { openPlace } from './travel.js';
 const PREF = 'awd.objectives.open';
 const readOpen = () => { try { return localStorage.getItem(PREF) === '1'; } catch { return false; } };
 const saveOpen = (v) => { try { localStorage.setItem(PREF, v ? '1' : '0'); } catch {} };
-const ICON = { houses: 'house-line', home: 'house', interact: 'hand-tap', meet: 'hand-waving', jobs: 'briefcase', status: 'heartbeat', explore: 'compass', map: 'map-trifold', messages: 'chat-circle-dots', boutique: 't-shirt' };
+const ICON = { houses: 'house-line', home: 'house', interact: 'hand-tap', meet: 'hand-waving', jobs: 'briefcase', status: 'heartbeat', explore: 'compass', map: 'map-trifold', messages: 'chat-circle-dots', boutique: 't-shirt', hub: 'laptop', life: 'user-circle' };
+
+export const STEP_HINTS = {
+  needs_check: 'Tap your character portrait at top-left to check your health and needs.',
+  first_street: 'Walk to the doorway/gate and tap it to step out onto your local neighbourhood street.',
+  useful_place: 'Buy food at a chop bar or kenkey stall, or use any facility at a venue.',
+  first_meal: 'Visit a chop bar, waakye joint or kenkey stand and buy a hot meal.',
+  career_look: 'Open your Phone, tap Jobs, and see which careers you qualify for.',
+  first_earning: 'Start and complete a work shift at your job, or do a local freelance gig.',
+  meet_try: 'Open Meet in your phone or say hello in chat to introduce yourself.',
+  social_hub: 'Take a trotro or walk to Vibes Lounge, Labadi Beach, or Oxford Street.',
+  first_trip: 'Open the Map, select a public destination, and travel by foot, trotro or taxi.',
+  first_friend: 'Accept a friend request or send a hello to someone nearby.',
+  first_outfit: 'Visit the Wardrobe at home or shop at the boutique to customize your look.',
+  first_home: 'Open the Houses app on your phone to browse rental apartments and homes.'
+};
+
+export function storyInstruction(m, s) {
+  if (!m) return '';
+  if (m.id === 'unicorn_5_2') {
+    const cur = Math.floor(s?.skills?.coding || 0);
+    return `Train Coding skill to Level 8+ (you are currently Level ${cur}/8), or reach 25 Reputation (you have ${s?.rep || 0}/25). Practise at Osu Tech Hub co-working desks, attend bootcamps, or study at Balme Library (UG).`;
+  }
+  if (m.id === 'unicorn_5_3') {
+    const wealth = (s?.cash || 0) + (s?.momo || 0);
+    return `Raise a Series A round by pitching investors at Osu Tech Hub (requires finished MVP and 5 Coding + 3 Charisma), or hold GH₵75,000 across Cash & MoMo (you currently have ${cedi(wealth)}/GH₵75,000).`;
+  }
+  if (m.id === 'unicorn_5_1') {
+    const wealth = (s?.cash || 0) + (s?.momo || 0);
+    return `Move into a luxury residence (Hotel, Airport Residential, Trasacco) or hold at least GH₵50,000 across Cash and MoMo (you currently have ${cedi(wealth)}).`;
+  }
+  if (m.hint) {
+    return `${m.hint}. Follow the button below to head to the location or app.`;
+  }
+  return m.description || m.desc || '';
+}
+
+export function storyButtonLabel(m, s) {
+  if (!m) return 'Go To 📍';
+  if (m.id === 'unicorn_5_2' || m.action === 'hub' || m.target === 'hub') return 'Go to Osu Tech Hub 💻';
+  if (m.id === 'unicorn_5_3') return 'Pitch Investors / Tech Hub 💼';
+  if (m.action === 'bank' || m.target === 'bank') return 'Open Bank App 🏦';
+  if (m.action === 'momo' || m.target === 'momo') return 'Open MoMo Wallet 📱';
+  if (m.action === 'enterprise' || m.target === 'enterprise') return 'Open Enterprise App 💼';
+  if (m.action === 'houses' || m.target === 'houses') return 'Open Houses App 🏠';
+  if (m.action === 'jobs' || m.target === 'jobs') return 'Open Jobs App 💼';
+  if (m.action === 'life' || m.target === 'life') return 'Open Life & Skills 📈';
+  const dest = m.target && loc(m.target) ? loc(m.target).name : null;
+  if (dest) return `Go To ${dest} 📍`;
+  return 'Go To Action 📍';
+}
 
 export function goObjective(d, act) {
   if (!d) return;
@@ -130,8 +180,32 @@ export function goObjective(d, act) {
       if (here === fallbackTarget) return act.interact();
       return openPlace(fallbackTarget, act);
     }
+    case 'hub': {
+      if (here === 'hub') return act.interact();
+      return openPlace('hub', act);
+    }
     case 'interact': return act.interact();
-    case 'status': return act.status();
+    case 'life': case 'skills': return act.phone('life');
+    case 'status': {
+      const txt = `${d.title || ''} ${d.desc || ''} ${d.hint || ''}`.toLowerCase();
+      if (txt.includes('coding') || txt.includes('unicorn') || txt.includes('tech')) {
+        const lvl = Math.floor(s?.skills?.coding || 0);
+        toast(`Coding Skill: Level ${lvl}. Train at Osu Tech Hub or Balme Library!`, 'good');
+        if (here === 'hub' || here === 'ug') return act.interact();
+        return openPlace('hub', act);
+      }
+      if (txt.includes('music')) {
+        const lvl = Math.floor(s?.skills?.music || 0);
+        toast(`Music Skill: Level ${lvl}. Practise at Vibes Lounge or at home!`, 'good');
+        if (here === 'vibes') return act.interact();
+        return openPlace('vibes', act);
+      }
+      if (txt.includes('reputation')) {
+        toast(`Reputation: ${s?.rep || 0}. Check your standing in Life app!`, 'good');
+        return act.phone('life');
+      }
+      return act.status();
+    }
     case 'meet': return act.meet();
     case 'market': case 'boutique': case 'shop': return act.phone('shop');
     case 'bank': return act.phone('bank');
@@ -173,6 +247,7 @@ export function buildObjectives(act) {
   function row(d) {
     const state = d.claimed ? 'claimed' : d.completed ? 'ready' : 'open';
     const isReady = d.completed && !d.claimed;
+    const stepHint = STEP_HINTS[d.id] || null;
     return h('div.obj-row', { 'data-state': state },
       h('span.obj-mark', { 'aria-hidden': 'true' }, ic(d.claimed ? 'check-circle' : d.completed ? 'gift' : 'circle')),
       h('div.obj-text', null,
@@ -180,7 +255,8 @@ export function buildObjectives(act) {
           h('strong', null, d.title),
           h('span.mission-tag.side', null, 'SIDE')
         ),
-        h('small', null, d.claimed ? `Done · ${d.xp} XP earned` : d.description)
+        h('small', null, d.claimed ? `Done · ${d.xp} XP earned` : d.description),
+        !d.claimed && !isReady && stepHint ? h('div.obj-step-hint', { style: { fontSize: '11px', color: '#166534', marginTop: '3px', fontWeight: '500' } }, `👉 ${stepHint}`) : null
       ),
       d.claimed ? null : isReady ? h('button.obj-btn.claim', { disabled: pending.has(d.id), onclick: () => claim(d) }, `Claim ${d.xp} XP`) :
         h('button.obj-btn', { 'aria-label': 'Go To: ' + d.title, onclick: () => goObjective(d, act) }, 'Go To 📍'));
@@ -309,6 +385,23 @@ export function buildObjectives(act) {
         ),
         h('strong', { style: { display: 'block', fontSize: '13px', color: '#1d3b31', marginBottom: '4px' } }, storyMission.title),
         h('p', { style: { fontSize: '12px', color: '#556b62', margin: '0 0 8px', lineHeight: '1.4' } }, storyMission.description || storyMission.desc),
+        !isFinished && !isReady ? h('div.obj-guide-box', {
+          style: {
+            background: '#f6fdf8',
+            border: '1px solid #ccebd7',
+            borderRadius: '8px',
+            padding: '8px 10px',
+            margin: '6px 0 10px',
+            fontSize: '12px',
+            lineHeight: '1.4',
+            color: '#166534'
+          }
+        },
+          h('div', { style: { fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '2px' } },
+            ic('arrow-circle-right'), 'WHAT TO DO NEXT:'
+          ),
+          storyInstruction(storyMission, s)
+        ) : null,
         isFinished ? h('button.btn.primary.wide', {
           style: { minHeight: '36px', fontSize: '12px', padding: '0 12px', background: '#0e7a4e' },
           onclick: () => openAspirationModal(() => act.refresh?.())
@@ -325,7 +418,7 @@ export function buildObjectives(act) {
         h('button.btn.primary.wide', {
           style: { minHeight: '36px', fontSize: '12px', padding: '0 12px' },
           onclick: () => goObjective(storyMission, act)
-        }, destName ? `Go To ${destName} 📍` : 'Go To Action 📍')
+        }, storyButtonLabel(storyMission, s))
       );
 
       const panel = open ? h('div.obj-panel', { id: 'obj-panel' },

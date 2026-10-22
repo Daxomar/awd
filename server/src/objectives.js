@@ -35,7 +35,7 @@ export const DEFINITIONS=[
   {id:'needs_check',title:'Check how you dey',description:'Open your character status and review your needs.',xp:10,action:'status'},
 ];
 // The first-session path shown on the main HUD. Any order works; the HUD suggests the first open one.
-export const FIRST_SESSION=['first_home','first_street','useful_place','meet_try','career_look','first_earning','needs_check','social_hub'];
+export const FIRST_SESSION=['needs_check','first_street','useful_place','career_look','first_earning','meet_try','social_hub','first_home'];
 export const SEEN=['careers','needs'];
 export function progressOf(s,id,friend=false,tried=false){
   const visits=Object.keys(s.discovery?.visited||{}),count=s.cnt||{};

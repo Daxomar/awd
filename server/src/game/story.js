@@ -285,7 +285,7 @@ export const STORY_MISSIONS = {
     title: 'Accra Millionaire Status',
     desc: 'Achieve verified millionaire status with assets and funds crossing the threshold.',
     dialogue: { speaker: 'Forbes Accra Correspondent', text: 'They used to mock you in the compound house. Today they write your name in gold!' },
-    action: 'status', target: 'status', hint: 'Reach high savings or own premium real estate',
+    action: 'houses', target: 'houses', hint: 'Reach high savings or own premium real estate in Houses app',
     reward: { cash: 3000, xp: 300, badge: 'Accra Millionaire' },
     check: (s) => (s.cash + s.momo >= 15000) || Object.keys(s.owned || {}).length >= 1 || Object.keys(s.land || {}).length >= 2
   },
@@ -316,7 +316,7 @@ export const STORY_MISSIONS = {
     title: 'Bedroom Voicenotes',
     desc: 'Practise your cadence and lyric writing at home until you reach Music level 2.',
     dialogue: { speaker: 'Producer Datbeat', text: 'You have melody oh! But your breath control needs discipline. Practise your scales!' },
-    action: 'status', target: 'status', hint: 'Practise music skill or listen to tracks',
+    action: 'home', target: 'home', hint: 'Practise music skill with guitar or listen to tracks',
     reward: { cash: 100, xp: 25, badge: 'Bedroom Artist' },
     check: (s) => (s.skills.music || 0) >= 1 || (s.cnt && (s.cnt['act:guitar'] || 0) >= 1)
   },
@@ -372,7 +372,7 @@ export const STORY_MISSIONS = {
     title: 'The Viral Sound Snippet',
     desc: 'Level up Music skill to 3+ and watch your sound get shared across Accra group chats.',
     dialogue: { speaker: 'TikTok Influencer Esi', text: 'Everyone is using your audio for the waist dance challenge! You are trending!' },
-    action: 'status', target: 'status', hint: 'Raise Music skill to 3 or complete 3 social chats',
+    action: 'explore', target: 'vibes', hint: 'Raise Music skill at Vibes or complete 3 social chats',
     reward: { cash: 450, xp: 60 },
     check: (s) => (s.skills.music || 0) >= 2 || (s.cnt && s.cnt.social >= 2)
   },
@@ -430,7 +430,7 @@ export const STORY_MISSIONS = {
     title: 'Number 1 on Accra Shazam Charts',
     desc: 'Your song is ringing from trotros in Circle to beach parties in Labadi. Reach Music level 6+.',
     dialogue: { speaker: 'Trotromate Kwesi', text: 'Master, play that track again! The passengers say we shouldn\'t stop!' },
-    action: 'status', target: 'status', hint: 'Train Music skill to level 6',
+    action: 'explore', target: 'vibes', hint: 'Train Music skill to level 6 at Vibes or music venues',
     reward: { cash: 800, xp: 100, badge: 'Chart Topper' },
     check: (s) => (s.skills.music || 0) >= 5 || (s.rep || 0) >= 10
   },
@@ -486,7 +486,7 @@ export const STORY_MISSIONS = {
     title: 'Master of Melody (Level 10)',
     desc: 'Reach the pinnacle of musical mastery in Ghana.',
     dialogue: { speaker: 'Grammy Committee Scout', text: 'This isn\'t just dance music anymore. This is African artistic history.' },
-    action: 'status', target: 'status', hint: 'Reach high Music skill (level 8+) or max career rank',
+    action: 'explore', target: 'vibes', hint: 'Train Music skill to 8+ at Vibes or music stations',
     reward: { cash: 5000, xp: 500, badge: 'Living Legend' },
     check: (s) => (s.skills.music || 0) >= 8 || (s.rep || 0) >= 30
   },
@@ -669,7 +669,7 @@ export const STORY_MISSIONS = {
     title: 'GH₵100,000 Business Takings',
     desc: 'Reach over GH₵50,000 in recorded enterprise revenue across Accra operations.',
     dialogue: { speaker: 'Financial Auditor', text: 'A clean, high-velocity trading empire. You have outpaced the competition.' },
-    action: 'status', target: 'status', hint: 'Maintain high enterprise revenue',
+    action: 'enterprise', target: 'enterprise', hint: 'Manage and grow enterprise revenue in Enterprise app or hold funds',
     reward: { cash: 5000, xp: 500, badge: 'Titan of Industry' },
     check: (s) => (s.cash + s.momo >= 75000) || (s.life?.business?.profit || 0) >= 1000
   },
@@ -700,7 +700,7 @@ export const STORY_MISSIONS = {
     title: 'The Coffee & Late Night Code',
     desc: 'Grind coding skill to level 2+ at home or at the tech hub.',
     dialogue: { speaker: 'Co-founder Kwabena', text: 'The MoMo payment gateway documentation has three broken links. Drink your Milo and let\'s debug!' },
-    action: 'status', target: 'status', hint: 'Train coding skill to level 2',
+    action: 'hub', target: 'hub', hint: 'Train coding skill at Osu Tech Hub or Balme Library',
     reward: { cash: 100, xp: 20 },
     check: (s) => (s.skills.coding || 0) >= 1 || (s.cnt && (s.cnt['act:code'] || 0) >= 1)
   },
@@ -738,7 +738,7 @@ export const STORY_MISSIONS = {
     title: 'Polishing the Deck & Charisma',
     desc: 'Investors don\'t just fund code; they fund founders. Level Charisma or Coding to 3+.',
     dialogue: { speaker: 'Venture Scout', text: 'Cut 10 slides from the deck. Tell them how much money they will make in year two!' },
-    action: 'status', target: 'status', hint: 'Raise Charisma or Coding skill',
+    action: 'hub', target: 'hub', hint: 'Raise Charisma or Coding skill at Osu Tech Hub or UG',
     reward: { cash: 250, xp: 35 },
     check: (s) => (s.skills.charisma || 0) >= 2 || (s.skills.coding || 0) >= 3
   },
@@ -776,7 +776,7 @@ export const STORY_MISSIONS = {
     title: 'Handling 10,000 Live Virtual Users',
     desc: 'Your app goes viral on Ghanaian Twitter. Optimize server queries and expand database pool.',
     dialogue: { speaker: 'DevOps Engineer', text: 'CPU usage is at 94%! Switch on Redis caching or the whole city will get 502 errors!' },
-    action: 'status', target: 'status', hint: 'Raise Coding skill to 4+',
+    action: 'hub', target: 'hub', hint: 'Raise Coding skill to 4+ at Osu Tech Hub or Balme Library',
     reward: { cash: 500, xp: 55 },
     check: (s) => (s.skills.coding || 0) >= 4 || (s.skills.tech || 0) >= 2
   },
@@ -859,18 +859,18 @@ export const STORY_MISSIONS = {
   unicorn_5_2: {
     id: 'unicorn_5_2', dream: 'unicorn', chapter: 5, step: 2,
     title: 'Tech Visionary Level 10',
-    desc: 'Max out Coding skill to level 10 and cement your legacy as an engineering icon.',
+    desc: 'Reach Coding skill level 8+ (or 25 Reputation) to cement your tech legacy. Train at the Osu Tech Hub co-working desk, attend bootcamps, or study at Balme Library.',
     dialogue: { speaker: 'MIT Tech Review', text: 'How a coder in Accra rewrote the financial infrastructure of an entire continent.' },
-    action: 'status', target: 'status', hint: 'Reach top skill rank in Coding',
+    action: 'hub', target: 'hub', hint: 'Train Coding to level 8+ at Osu Tech Hub or Balme Library (or earn 25 Reputation)',
     reward: { cash: 7500, xp: 750, badge: 'Tech Titan' },
     check: (s) => (s.skills.coding || 0) >= 8 || (s.rep || 0) >= 25
   },
   unicorn_5_3: {
     id: 'unicorn_5_3', dream: 'unicorn', chapter: 5, step: 3,
     title: 'The \$100M+ Unicorn Valuation',
-    desc: 'Official announcement: your venture is crowned the first homegrown Unicorn in Ghana!',
+    desc: 'Official announcement: your venture is crowned Ghana\'s homegrown Unicorn! Raise a Series A round by pitching investors at Osu Tech Hub, or hold GH₵75,000 across Cash and MoMo.',
     dialogue: { speaker: 'TechCrunch Headline', text: 'ACCRA WE DEY: Ghana\'s Newest Tech Unicorn Breaks Records!' },
-    action: 'status', target: 'status', hint: 'Achieve unicorn valuation and wealth',
+    action: 'hub', target: 'hub', hint: 'Pitch Series A to investors at Osu Tech Hub or hold GH₵75,000',
     reward: { cash: 10000, xp: 1000, badge: 'Accra Unicorn' },
     check: (s) => (s.flags.round || 0) >= 3 || (s.cash + s.momo >= 75000)
   },
@@ -986,7 +986,7 @@ export const STORY_MISSIONS = {
     title: 'Reputation Level 15 (Respected Citizen)',
     desc: 'Build your reputation through public generosity, career prominence, and clean business.',
     dialogue: { speaker: 'Assembly Member', text: 'Whenever you speak in town, people stop and listen. That is true influence.' },
-    action: 'status', target: 'status', hint: 'Reach Reputation of 15+',
+    action: 'life', target: 'life', hint: 'Reach Reputation of 15+ in Life app or earn career promotion',
     reward: { cash: 1000, xp: 100 },
     check: (s) => (s.rep || 0) >= 12 || (s.stats.promos || 0) >= 1
   },
@@ -1053,7 +1053,7 @@ export const STORY_MISSIONS = {
     title: 'City-Wide Reverence (Reputation 40+)',
     desc: 'Command the highest respect in Greater Accra.',
     dialogue: { speaker: 'State Protocol Officer', text: 'When you walk into any room in Ghana, chairs are offered and heads are bowed.' },
-    action: 'status', target: 'status', hint: 'Reach Reputation 35+',
+    action: 'life', target: 'life', hint: 'Check your Reputation in Life app or boost status via community actions',
     reward: { cash: 6000, xp: 600, badge: 'Elder Statesman' },
     check: (s) => (s.rep || 0) >= 30 || (s.cash + s.momo >= 80000)
   },
@@ -1062,7 +1062,7 @@ export const STORY_MISSIONS = {
     title: 'The Endowed Legacy Foundation',
     desc: 'Endow a permanent foundation providing scholarships to brilliant but needy Accra youth.',
     dialogue: { speaker: 'Scholarship Recipient', text: 'Because of your scholarship, I am studying medicine at UG Legon. I will make you proud, Chairman!' },
-    action: 'status', target: 'status', hint: 'Hold high savings and donate to foundation',
+    action: 'bank', target: 'bank', hint: 'Hold high savings in Bank or donate to foundation',
     reward: { cash: 8000, xp: 800, badge: 'Pillar of Ghana' },
     check: (s) => (s.cash + s.momo >= 100000) || (s.rep || 0) >= 40
   },
@@ -1180,7 +1180,7 @@ export const STORY_MISSIONS = {
     title: 'Mastering Ga & Twi Cadence',
     desc: 'You can\'t conquer Accra singing only English. Polish your local dialect flows and vocal rhythm.',
     dialogue: { speaker: 'Vocal Coach Auntie Bea', text: 'Blend that sweet highlife cadence into your chorus. That is what moves Ghanaian souls!' },
-    action: 'status', target: 'status', hint: 'Improve Music skill or perform a creative activity',
+    action: 'home', target: 'home', hint: 'Improve Music skill or perform a creative activity at home or Vibes',
     reward: { cash: 300, xp: 35, badge: 'Cadence Master' },
     check: (s) => (s.skills?.music || 0) >= 1 || (s.cnt && (s.cnt['act:guitar'] || 0) >= 2)
   },
@@ -1218,7 +1218,7 @@ export const STORY_MISSIONS = {
     title: 'Independent Radio Traction',
     desc: 'Advance your music craft to level 3+ to ensure your sound cuts through the national airwaves.',
     dialogue: { speaker: 'Producer Hammer', text: 'Clean production, undeniable hook. The whole city is humming your melody!' },
-    action: 'status', target: 'status', hint: 'Reach Music skill 3+ or engage in musical gigs',
+    action: 'explore', target: 'vibes', hint: 'Reach Music skill 3+ or engage in musical gigs at Vibes',
     reward: { cash: 600, xp: 70, badge: 'Buzzing Talent' },
     check: (s) => (s.skills?.music || 0) >= 3 || (s.cnt && (s.cnt['act:guitar'] || 0) >= 3)
   },
@@ -1332,7 +1332,7 @@ export const STORY_MISSIONS = {
     title: 'The Prototype Codebase',
     desc: 'Advance your Coding skill to level 2+ and prepare the minimum viable product.',
     dialogue: { speaker: 'Product Manager Ama', text: 'Clean code and fast API response times. Investors will have to take us seriously.' },
-    action: 'status', target: 'status', hint: 'Reach Coding skill 2+ or code projects',
+    action: 'hub', target: 'hub', hint: 'Reach Coding skill 2+ at Osu Tech Hub or Balme Library',
     reward: { cash: 400, xp: 45, badge: 'Garagetech Dev' },
     check: (s) => (s.skills?.coding || 0) >= 2 || (s.flags.mvp || 0) >= 20
   },
@@ -1437,7 +1437,7 @@ export const STORY_MISSIONS = {
     title: 'The Civic Philanthropy Endowment',
     desc: 'Demonstrate leadership by building public respect and community goodwill (Reputation 10+).',
     dialogue: { speaker: 'Community Youth Leader', text: 'A real leader doesn\'t just eat alone; they lift the entire community along.' },
-    action: 'status', target: 'status', hint: 'Reach Reputation 10+ or make philanthropic donations',
+    action: 'life', target: 'life', hint: 'Reach Reputation 10+ in Life app or make philanthropic donations',
     reward: { cash: 750, xp: 80 },
     check: (s) => (s.rep || 0) >= 10 || (s.cash + s.momo >= 5000)
   },

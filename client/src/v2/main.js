@@ -28,6 +28,8 @@ import { G, money, loc, accraNow, accraClock, isOpen, actBlock } from './store.j
 import { h, ic, toast, sheet, closeSheets, celebrate, cedi, vibrate, confirmBox } from './ui/dom.js';
 import { buildChat } from './ui/chat.js';
 import { showTutorial } from './ui/tutorial.js';
+import { openNpcDialog } from './ui/npc-dialog.js';
+import { openAccraGuide } from './ui/guide.js';
 import { openSuggestionModal, checkSuggestionPrompt } from './ui/suggestion.js';
 import { buildHud } from './ui/hud.js';
 import { confirmRoomArrival, zoneActions } from './ui/hud-state.js';
@@ -250,6 +252,9 @@ const act = (window.__act = {
   interact(){if(ride.active||G.state.busy?.travel){hud.setNav('home');return toast('You can interact with places after you arrive.');}if(view==='map'){hud.setNav('map');return toast('Enter a place to interact with its surroundings.');}closeSheets();sheet(h('div.sheet-body',null,h('p.context-hint',null,'Tap an object in the world, or choose what is nearby.'),hud.zones,h('h3.panel-heading',null,'Players here'),world.others.size?h('div',null,...[...world.others.values()].map(p=>h('button.world-row',{onclick:()=>openPerson(p.id,p.n,act)},ic('user'),h('span',null,'@'+p.n),ic('caret-right')))):h('p.context-hint',null,'No other players in this room. City chat reaches everyone online.')),{title:'Around you',sub:G.placeName,onclose:()=>hud.setNav(view==='map'?'map':'home')});},
   status(){hud.openStatus();}, lifeEvent(){openLifeEvent();}, roomPeople(){return [...(world?.others?.values?.()||[])];}, meet(){closeSheets();phone.close();openMeet(act,{onObjective:d=>goObjective(d,act)});},
   openSuggestion(){openSuggestionModal(act);},
+  guide(){openAccraGuide(act);},
+  npcDialog(npc){openNpcDialog(npc,G.state.place,act);},
+  useItem(it){const u=world.useZone({item:it.index});if(u)net.send({t:'rmv',...u,zn:null});},
   map() { act.nav('map'); }, phone(app, arg) { closeAdPreview?.();phone.show(app, arg); }, app(id) { closeAdPreview?.();phone.show(id); }, closePhone() { phone.close(); },
   previewAd(slot,image){
     if(!map.ready)return toast('The city map is still loading. Try the preview again shortly.');
@@ -425,7 +430,7 @@ function tap(x, y) {
   const hit = world.pick(x, y); if (!hit) return;
   if (hit.type === 'gem') { if (G.gem) net.send({ t: 'gem', id: G.gem.id }); return; }
   if (hit.type === 'person') return openPerson(hit.pid, hit.name, act);
-  if (hit.type === 'npc') { const z = world.zoneForNpc(hit.id); if (z) return openZone(z, G.state.place, act); world.focusTarget({person:hit.id});return sheet(h('div.sheet-body',null,h('p.context-hint',null,'A local resident — a scripted character, not a real player. City chat and Meet connect you with real players online.'),h('button.btn.primary.wide',{onclick:()=>{closeSheets();act.nav('chat');}},'Open city chat')),{title:hit.name,onclose:()=>world.clearSelection()}); }
+  if (hit.type === 'npc') { world.focusTarget({person:hit.id}); return openNpcDialog(hit, G.state.place, act); }
   if (hit.type === 'item') {
     world.focusTarget({item:hit.index});const rec = hit.item;
     // Seats, beds and mats: tapping one sits (or lies) there straight away; tap the ground to get up.
@@ -434,7 +439,7 @@ function tap(x, y) {
       const u = world.useZone({ item: hit.index }, () => world.clearSelection()); if (u) net.send({ t: 'rmv', ...u, zn: null }); return;
     }
     // Anything else in the room: walk up to it (and still say what it is).
-    if (!rec.spec.frontage && !rec.spec.owner) { const u = world.approachItem(hit.index); if (u) net.send({ t: 'rmv', x: u.x, z: u.z, it: null, zn: null }); }if(rec.spec.frontage)return openFrontage(rec.spec.frontage);if(rec.spec.owner){const owner=rec.spec.owner;return sheet(h('div.sheet-body',null,h('p',null,`A purchased home belonging to @${owner.name}.`),!owner.mine?h('button.btn.primary.wide',{onclick:()=>{closeSheets();act.message(owner.name);}},'Message owner'):null,owner.mine?h('button.btn.wide',{onclick:()=>{closeSheets();net.send({t:'buy',kind:'home',id:owner.home});}},'Move into this home'):h('button.btn.wide',{onclick:()=>{net.send({t:'visit',name:owner.name,mode:'walk'});closeSheets();}},'Visit acquaintance at home')),{title:'@'+owner.name,sub:G.cat.homes[owner.home].area,onclose:()=>world.clearSelection()});} const usable = rec.use.some((u) => u.pose && u.pose !== 'stand');
+    if (!rec.spec.frontage && !rec.spec.owner) { const z = world.itemZone.get(hit.index); if (z) return openZone(z, G.state.place, act); const u = world.approachItem(hit.index); if (u) net.send({ t: 'rmv', x: u.x, z: u.z, it: null, zn: null }); }if(rec.spec.frontage)return openFrontage(rec.spec.frontage);if(rec.spec.owner){const owner=rec.spec.owner;return sheet(h('div.sheet-body',null,h('p',null,`A purchased home belonging to @${owner.name}.`),!owner.mine?h('button.btn.primary.wide',{onclick:()=>{closeSheets();act.message(owner.name);}},'Message owner'):null,owner.mine?h('button.btn.wide',{onclick:()=>{closeSheets();net.send({t:'buy',kind:'home',id:owner.home});}},'Move into this home'):h('button.btn.wide',{onclick:()=>{net.send({t:'visit',name:owner.name,mode:'walk'});closeSheets();}},'Visit acquaintance at home')),{title:'@'+owner.name,sub:G.cat.homes[owner.home].area,onclose:()=>world.clearSelection()});} const usable = rec.use.some((u) => u.pose && u.pose !== 'stand');
     return sheet(h('div.sheet-body', null, h('p.muted', null, usable ? 'Take a seat or rest here. Tap the ground to get up.' : 'Part of this place. Choose an activity below to use nearby facilities.'), usable ? h('button.btn.primary.wide', { onclick: () => { if (G.state.busy) return toast('Finish your current activity first.'); const u = world.useZone({ item: hit.index }); if (u) net.send({ t: 'rmv', ...u, zn: null }); closeSheets(); } }, 'Use ' + (rec.label || 'seat')) : null), { title: rec.label || rec.spec.kind.replace(/_/g, ' '),onclose:()=>world.clearSelection() });
   }
   if (hit.type === 'zone') return useDirect(hit.zone);

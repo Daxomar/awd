@@ -144,13 +144,33 @@ export class World {
   // ---- me ----
   get me() { return this.room && this.room.people.get('me'); }
   localHint(){
-    const graph=this.room?.streetStream?.graph,p=this.me;if(!graph||!p)return null;
-    let zone=null,distance=2.4;
-    for(const candidate of this.spec.zones.filter(z=>z.route)){
-      const u=this.room.usePoint(this.room.items[candidate.item]),d=Math.hypot(u.x-p.x,u.z-p.z);
+    const p=this.me;if(!p||!this.room)return null;
+    const graph=this.room?.streetStream?.graph;
+    const streetName=graph?nearestStreetSegment(graph,p.x,p.z).label:null;
+    let zone=null,distance=2.5;
+    for(const candidate of(this.spec?.zones||[])){
+      if(!Number.isInteger(candidate.item))continue;
+      const rec=this.room.items[candidate.item];if(!rec)continue;
+      const u=this.room.usePoint(rec),d=Math.hypot(u.x-p.x,u.z-p.z);
       if(d<distance){distance=d;zone=candidate;}
     }
-    return {name:nearestStreetSegment(graph,p.x,p.z).label,zone};
+    let npc=null,npcDist=2.5;
+    for(const id of(this.npcs||[])){
+      const person=this.room.people.get(id);if(!person||!person.av?.root?.visible)continue;
+      const d=Math.hypot(person.x-p.x,person.z-p.z);
+      if(d<npcDist){npcDist=d;npc={id,name:person.schedule?.label||id};}
+    }
+    let item=null,itemDist=2.0;
+    if(!zone&&!npc){
+      for(let i=0;i<(this.room.items||[]).length;i++){
+        const rec=this.room.items[i];
+        if(!rec||!rec.use?.some(u=>u.pose&&u.pose!=='stand'))continue;
+        const d=Math.hypot((rec.spec?.x||0)-p.x,(rec.spec?.z||0)-p.z);
+        if(d<itemDist){itemDist=d;item={index:i,label:rec.label||rec.spec?.kind?.replace(/_/g,' ')};}
+      }
+    }
+    if(!streetName&&!zone&&!npc&&!item)return null;
+    return {name:streetName,zone,npc,item};
   }
   walkMe(x, z, cb, finalPose) { if (!this.room) return; if(this.custody){x=Math.max(-3.6,Math.min(-2,x));z=Math.max(-3,Math.min(-1.8,z));}const p = this.me; p.anim = null; this.room.walkTo('me', x, z, cb, finalPose); }
   // walk to the zone's item and take its pose; returns {x,z,it,u}

@@ -25,8 +25,9 @@ export function buildHud(ui,act){
  let nearbyZone=null,streetKey='';
  const busy=h('div.busy.activity-hud',{hidden:true}),zones=h('div.zones.interaction-options'),chips=h('div.status-extras');
  const navBtn=(id,icon,label)=>h('button',{'data-nav':id,'aria-label':label,onclick:()=>act.nav(id)},ic(icon),h('span',null,label),h('span.badge',{hidden:true}));
+ const proximityPrompt=h('button.proximity-prompt',{hidden:true});
  const nav=h('nav.nav.play-nav',{'aria-label':'Game controls'},navBtn('home','house','Home'),navBtn('map','map-trifold','Map'),navBtn('interact','hand-tap','Interact'),navBtn('chat','chat-circle-dots','Chat'),navBtn('phone','device-mobile','Phone'));
- const bottom=h('div.bottom.play-bottom',null,busy,nav),chatlog=h('div.chatlog',{ 'aria-hidden':'true' });
+ const bottom=h('div.bottom.play-bottom',null,proximityPrompt,busy,nav),chatlog=h('div.chatlog',{ 'aria-hidden':'true' });
  ui.append(top,chatlog,bottom);
  let lookSig='',needSig='',extrasSig='',lastNeeds={},needViews={},statusDraw=null;
  const patch=(el,text)=>{if(el.textContent!==text)el.textContent=text;};
@@ -46,7 +47,7 @@ export function buildHud(ui,act){
     actionLink('briefcase',career?career.ranks[s.job.rank]?.[0]||career.name:'Find your next opportunity',()=>act.work()),
     actionLink('users','Relationships & contacts',()=>act.phone('contacts')),
     actionLink('user-circle',`Your life · reputation ${s.rep||0}`,()=>act.me()),
-    actionLink('speaker-high','Sound settings',()=>act.sound()),actionLink('lightbulb','Suggest a feature or improvement',()=>act.openSuggestion?.()),actionLink('question','Quick tour',()=>act.tutorial())),chips);
+    actionLink('book-open','How to Play / Accra Guide',()=>act.guide?.()),actionLink('laptop','Skills & Tech Progression',()=>act.phone('life')),actionLink('speaker-high','Sound settings',()=>act.sound()),actionLink('lightbulb','Suggest a feature or improvement',()=>act.openSuggestion?.()),actionLink('question','Quick tour',()=>act.tutorial())),chips);
   };
   statusDraw();sheet(content,{title:'How you dey?',sub:'Your character and what they need',onclose:()=>{identity.setAttribute('aria-expanded','false');statusDraw=null;}});
  }
@@ -108,8 +109,24 @@ export function buildHud(ui,act){
   chatLine(name,text){const line=h('div',null,h('b',null,name),text);chatlog.replaceChildren(line);setTimeout(()=>line.remove(),4500);},
   connection(m){G.connected=m.connected;if(!m.connected){G.online=null;G.today=null;}offline.replaceChildren(ic(m.connected?'wifi-high':'wifi-slash'),m.terminal?'Session ended. Reload to sign in again.':'Reconnecting. Your saved life is safe.',...(m.terminal?[h('button',{onclick:()=>window.location.reload()},'Reload')]:[]));},
   streetHint(info){
-   const key=info?info.name+'|'+(info.zone?.id||''):'';if(key===streetKey)return;streetKey=key;streetRow.hidden=!info;nearbyZone=info?.zone||null;
-   if(info){patch(streetName,info.name);streetName.title=info.name;entrance.hidden=!nearbyZone;if(nearbyZone){patch(entrance,nearbyZone.label);entrance.setAttribute('aria-label','Entrance: '+nearbyZone.label);}}
+   const key=info?(info.name||'')+'|'+(info.zone?.id||'')+'|'+(info.npc?.id||'')+'|'+(info.item?.index??''):'';if(key===streetKey)return;streetKey=key;streetRow.hidden=!info?.name;nearbyZone=info?.zone||null;
+   if(info?.name){patch(streetName,info.name);streetName.title=info.name;entrance.hidden=!nearbyZone;if(nearbyZone){patch(entrance,nearbyZone.label);entrance.setAttribute('aria-label','Entrance: '+nearbyZone.label);}}
+   if(info?.zone){
+     proximityPrompt.hidden=false;proximityPrompt.className='proximity-prompt zone-prompt';
+     const lbl=info.zone.route?'Step: '+info.zone.label:info.zone.label;
+     proximityPrompt.replaceChildren(ic(info.zone.route?'person-simple-walk':'hand-tap'),h('span',null,lbl));
+     proximityPrompt.onclick=(e)=>{e.stopPropagation();if(info.zone.route)act.route(info.zone);else act.openZone(info.zone);};
+   }else if(info?.npc){
+     proximityPrompt.hidden=false;proximityPrompt.className='proximity-prompt npc-prompt';
+     proximityPrompt.replaceChildren(ic('chat-circle-dots'),h('span',null,'Talk to '+(info.npc.name||info.npc.label||'Resident')));
+     proximityPrompt.onclick=(e)=>{e.stopPropagation();if(act.npcDialog)act.npcDialog(info.npc);};
+   }else if(info?.item){
+     proximityPrompt.hidden=false;proximityPrompt.className='proximity-prompt item-prompt';
+     proximityPrompt.replaceChildren(ic('couch'),h('span',null,'Use '+(info.item.label||'Seat')));
+     proximityPrompt.onclick=(e)=>{e.stopPropagation();if(act.useItem)act.useItem(info.item);};
+   }else{
+     proximityPrompt.hidden=true;proximityPrompt.onclick=null;
+   }
   },
   openStatus,openNeed,
  };
