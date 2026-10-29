@@ -3,6 +3,7 @@
 import { h, ic, icf, cedi, clockStr, vibrate } from '../ui/dom.js';
 import { G, accraNow, money } from '../store.js';
 import {dialogKeys} from '../ui/overlays.js';
+import { homeLayout, folderBadge } from './home-layout.js';
 import './phone.css';
 import '../ui/phone-refined.css';
 
@@ -45,14 +46,27 @@ export class Phone {
     
     const widgets = h('div.widgets', null,
       h('div.widget', { onclick: () => this.openApp('momo') }, h('div.wt', null, 'MoMo wallet'), h('div.ws', null, 'Balance'), h('div.wbig.tnum', { style: { fontSize: money() >= 1e6 ? '26px' : '30px' } }, cedi(money(), true)), h('div.ws', null, `Cash ${cedi(s.cash, true)} · MoMo ${cedi(s.momo, true)}`)),
-      h('div.widget', { onclick: () => this.openApp('goals') }, h('div.wt', null, 'Today'), h('div.ws', null, ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getUTCDay()] + ' ' + d.getUTCDate()), h('div.wbig', null, clockStr(t)), h('div.ws', null, 'Accra time · GMT')));
-    const grid = this.apps.filter((a) => !a.dock && !a.hidden);
+      h('div.widget', { onclick: () => this.openApp('today') }, h('div.wt', null, 'Today'), h('div.ws', null, ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getUTCDay()] + ' ' + d.getUTCDate()), h('div.wbig', null, clockStr(t)), h('div.ws', null, 'Accra time · GMT')));
+    const grid = homeLayout(this.apps);
     const appBtn = (a) => { const b = this.badgeOf(a); return h('button.app', { 'aria-label':a.name,title:a.name,onclick: (e) => this.openApp(a.id, null, e.currentTarget) }, h('div.ico', { style: { background: a.bg } }, a.emoji ? h('span', { style: { fontSize: '30px' } }, a.emoji) : icf(a.icon)), h('div.an', null, a.name), b ? h('div.ab', null, b > 99 ? '99+' : b) : null, a.isNew ? h('div.new', null, 'NEW') : null); };
+    const tile = (t) => t.kind === 'app' ? appBtn(t.app) : this.folderBtn(t, appBtn);
     const chunks=Array.from({length:Math.ceil(grid.length/12)},(_,i)=>grid.slice(i*12,i*12+12));
-    const pages=h('div.pages',null,...chunks.map((apps,i)=>h('div.page',null,i===0?widgets:null,h('div.apps',{style:i?{marginTop:'10px'}:{}},...apps.map(appBtn)))));
+    const pages=h('div.pages',null,...chunks.map((tiles,i)=>h('div.page',null,i===0?widgets:null,h('div.apps',{style:i?{marginTop:'10px'}:{}},...tiles.map(tile)))));
     const dots=h('div.dots',null,...chunks.map((_,i)=>h(i?'i':'i.on')));
     pages.addEventListener('scroll', () => { const i = Math.round(pages.scrollLeft / pages.clientWidth); dots.querySelectorAll('i').forEach((d2, k) => d2.classList.toggle('on', k === i)); });
     this.home.innerHTML = ''; this.home.append(pages, dots, h('div.dock', null, ...this.apps.filter((a) => a.dock).map(appBtn)));
+  }
+  // iOS-style folder: a 2x2 preview tile that opens a frosted panel of its apps.
+  folderBtn(folder, appBtn) {
+    const badge = folderBadge(folder, (a) => this.badgeOf(a));
+    const open = () => {
+      const panel = h('div.folder-open', { role: 'dialog', 'aria-label': folder.name, onclick: (e) => { if (e.target === panel) panel.remove(); } },
+        h('div.folder-card', null, h('div.folder-title', null, folder.name), h('div.apps', null, ...folder.apps.map(appBtn))));
+      this.home.querySelector('.folder-open')?.remove(); this.home.append(panel);
+    };
+    return h('button.app.folder', { 'aria-label': `${folder.name} folder`, title: folder.name, onclick: open },
+      h('div.ico.folder-ico', null, ...folder.apps.slice(0, 4).map((a) => h('i.mini', { style: { background: a.bg } }, icf(a.icon)))),
+      h('div.an', null, folder.name), badge ? h('div.ab', null, badge > 99 ? '99+' : badge) : null);
   }
   openApp(id, arg, fromEl) {
     const a = this.apps.find((x) => x.id === id); if (!a) return; if (!this.open) return this.show(id, arg);

@@ -1,6 +1,7 @@
 // Accra We Dey v2 — portrait, room-based life sim (Lagos Life style): rooms, city map, phone, people, money.
 import '@fontsource/poppins/400.css';
 import { todaySummary } from './phone/today-state.js';
+import { startVibes } from './ui/vibes.js';
 import '@fontsource/poppins/500.css';
 import '@fontsource/poppins/600.css';
 import '@fontsource/poppins/700.css';
@@ -486,7 +487,9 @@ function bindNet() {
   net.on('reconnected', (w) => { G.myId = w.id; G.shard = w.shard; G.state = w.state; G.offset=net.offset;refresh();if(G.state.busy?.travel&&!ride.active)net.emit('busy',{busy:G.state.busy}); });
   net.on('close', (e) => { if (e.code === 4000) { toast('You logged in somewhere else.', 'bad'); } });
   // rooms
+  let stopVibes = () => {};
   net.on('room', (m) => {
+    stopVibes(); stopVibes = startVibes(ui, m.place);
     if (rideEnd) { rideEnd(); rideEnd = null; } hud.top.hidden = false; hud.chips.hidden = false;
     closeSheets();world.clearSelection();
     G.room = m.key; G.place = m.place; G.placeName = m.name; G.unitRoom = m.home?.property ? m.home : null; confirmRoomArrival(G.state,m);

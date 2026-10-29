@@ -116,7 +116,7 @@ export const LOCATIONS = {
     { id: 'party', label: 'Party (cover ₵60)', ic: 'icon:circle', min: 120, cost: 60, needs: { fun: 40, social: 30, energy: -10, bladder: -15 }, skill: { dance: 0.4 }, tags: ['party', 'nightlife', 'dance'] },
     { id: 'drinks', label: 'Bottle of Club & small chops', ic: 'icon:circle', min: 30, cost: 45, needs: { fun: 30, hunger: 20, bladder: -40 }, tags: ['nightlife', 'eat'] },
     { id: 'vibes_hookup', label: 'VIP lounge hookup & afterparty', ic: 'icon:heart', min: 120, cost: 120, open: [22, 29], needs: { fun: 60, social: 50, energy: -20 }, tags: ['nightlife', 'spicy'], moodlet: 'clubVibe', moodV: 18, moodL: 'Vibes Lounge afterglow' },
-    { id: 'battle', label: 'Azonto dance battle (game)', ic: 'icon:person-simple-dance', mg: 'azonto', tags: ['gig', 'dance'], rest: 90 },
+    { id: 'battle', label: 'Azonto dance battle (game)', ic: 'icon:music-notes-simple', mg: 'azonto', tags: ['gig', 'dance'], rest: 90 },
     { id: 'vip', label: 'VIP table', ic: 'icon:beer-bottle', min: 120, cost: 1500, needs: { fun: 70, social: 50 }, rep: 6, tags: ['party', 'nightlife', 'luxury'], moment: true },
     { id: 'shutdown', label: 'Shut down the club (everyone drinks on you)', ic: 'icon:wallet', min: 60, cost: 250000, needs: { fun: 100, social: 100 }, rep: 120, tags: ['luxury', 'nightlife'], moment: 'shutdown' },
     { id: 'sneakvip', label: 'Sneak into VIP', ic: 'icon:circle', min: 20, crime: { catch: 0.45, skill: 'charisma', reward: { fun: 40, social: 30 } }, tags: ['crime'] },
@@ -174,7 +174,7 @@ export const LOCATIONS = {
     { id: 'net', label: 'Help pull the net', ic: 'icon:circle', min: 40, needs: { energy: -10, social: 20, fun: 8 }, skill: { fitness: 0.3 }, tags: ['social'], days: [0, 1, 3, 4, 5, 6] },
     { id: 'fish', label: 'Buy fresh fish (+3 home meals)', ic: 'icon:circle', min: 20, cost: 45, inst: { food: 3 }, tags: ['shop'] },
   ] },
-  labadi: { name: 'Labadi Beach', area: 'La', ic: 'icon:palm-tree', ll: [5.5596, -0.1470], open: [6, 22], blurb: 'Since 2 October 2026 the beachfront bars and stalls are rubble. The sea is still here; the businesses are not. Vendors sell from coolers on the sand.', acts: [
+  labadi: { name: 'Labadi Beach', area: 'La', ic: 'icon:tree-palm', ll: [5.5596, -0.1470], open: [6, 22], blurb: 'Since 2 October 2026 the beachfront bars and stalls are rubble. The sea is still here; the businesses are not. Vendors sell from coolers on the sand.', acts: [
     { id: 'ruins', label: 'Walk through the demolished beachfront', ic: 'icon:house', min: 25, needs: { fun: -6, social: 8 }, moodlet: 'labadiRuins', moodV: -6, moodL: 'Saw what is left of the Labadi beachfront', tags: ['tour'] },
     { id: 'helpvendor', label: 'Help a displaced vendor move her stock', ic: 'icon:circle', min: 60, earn: { base: 25, per: 6, skill: 'hustle' }, needs: { energy: -14, hygiene: -10, social: 16 }, rep: 1, skill: { fitness: 0.2, charisma: 0.15 }, tags: ['gig'], rest: 60 },
     { id: 'donatefund', label: 'Give ₵50 to the vendors’ support fund', ic: 'icon:handshake', min: 10, cost: 50, needs: { fun: 8, social: 10 }, rep: 2, moodlet: 'gaveBack', moodL: 'Helped the Labadi vendors', tags: ['social'] },
@@ -314,4 +314,11 @@ for(const [id,act] of Object.entries(NEIGHBOURHOOD_ACTIVITIES))LOCATIONS['n:'+id
 for(const [place,id,label,skill]of [['circle','mate','Help dispatch trotro trips','hustle'],['chopbar','rush','Coordinate the lunch rush','cooking'],['hub','freelance','Complete a freelance maintenance assignment','coding']]){
   const a=LOCATIONS[place].acts.find(a=>a.id===id);delete a.mg;
   Object.assign(a,{label,min:60,earn:{base:62,per:4.34,skill},skill:{[skill]:.8},needs:{energy:-8,fun:-4},rest:60});
+}
+// Real icons for venues and actions that still carried the placeholder circle (map pins, travel lists, action cards).
+export const PLACE_ICONS = { circle: 'signpost', makola: 'basket', kenkey: 'fish', vibes: 'music-notes', hub: 'laptop', police: 'police-car', memorial: 'flag-banner', castle: 'castle-turret', lighthouse: 'lighthouse', bukom: 'boxing-glove', funeral: 'flower-lotus', stadium: 'soccer-ball', radio: 'radio', hotel: 'bed', ama: 'buildings', cars: 'car-profile', momo: 'wallet' };
+export const ACTION_ICONS = { unlock: 'lock-open', accessories: 'plug', purewater: 'drop', sellwater: 'drop-half', pickpocket: 'hand-grabbing', okada_snatch: 'motorcycle', armed_heist: 'warning', foodstuff: 'basket', kayayo: 'package', resell: 'arrows-left-right', bale: 't-shirt', banku: 'bowl-food', redred: 'bowl-food', kenkey: 'fish', kenkeyTake: 'bag', kelewele: 'fire', pickpocket_osu: 'hand-grabbing', hawk: 'plug', party: 'confetti', drinks: 'martini', sneakvip: 'mask-happy', cowork: 'desktop', bootcamp: 'code', freelance: 'briefcase', sakawa: 'warning', pitch: 'presentation-chart', loans: 'hand-coins', fixed: 'piggy-bank', treatment: 'pill', nhis: 'first-aid-kit', report: 'siren', tour: 'map-pin', jog: 'sneaker-move', kite: 'wind', castletour: 'castle-turret', guide: 'users-three', climb: 'lighthouse', train: 'boxing-glove', spar: 'boxing-glove', fightnight: 'trophy', net: 'anchor', fish: 'fish', helpvendor: 'hand-heart', swim: 'swimming-pool', palmwine: 'beer-bottle', tilapia: 'fish', drumjam: 'music-notes', attend: 'flower-lotus', mourn: 'smiley-sad', djfuneral: 'vinyl-record', service: 'church', jumah: 'mosque', stadiumjog: 'sneaker-move', callin: 'phone-call', tourfm: 'microphone-stage', homestore: 'couch', cinema: 'film-strip', nightmarket: 'storefront', tutor: 'chalkboard-teacher', planes: 'airplane-landing', pool: 'swimming-pool', room: 'bed', vote: 'check-square', townhall: 'users-three', showroom: 'car-profile' };
+for (const [id, l] of Object.entries(LOCATIONS)) {
+  if ((!l.ic || l.ic === 'icon:circle') && PLACE_ICONS[id]) l.ic = 'icon:' + PLACE_ICONS[id];
+  for (const a of l.acts) if ((!a.ic || a.ic === 'icon:circle') && ACTION_ICONS[a.id]) a.ic = 'icon:' + ACTION_ICONS[a.id];
 }

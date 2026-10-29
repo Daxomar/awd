@@ -43,7 +43,7 @@ export const ROAM = { stroll: 1.2, labadi_stretch: 1.2, trasacco_walk: 1.2, ruin
 // Fallback by activity icon, for anything new on the server.
 const BY_ICON = { 'bowl-food': 'eat', hamburger: 'eat', 'beer-bottle': 'drink', 'device-mobile': 'phone_use', camera: 'photo',
   barbell: 'lift', 'book-open': 'read', 'soccer-ball': 'cheer', 'music-notes': 'drum', wrench: 'fix', 'chat-circle-dots': 'talk',
-  megaphone: 'emcee', microphone: 'emcee', 'person-simple-dance': 'dance', 'fork-knife': 'scrub', 't-shirt': 'talk' };
+  megaphone: 'emcee', microphone: 'emcee', 'person-simple-dance': 'dance', 'music-notes-simple': 'dance', 'fork-knife': 'scrub', 't-shirt': 'talk' };
 
 // {action, clip, props} for an activity id (and optional icon), or null for a still pose (sleep, toilet, prayer).
 export function actionFor(id, icon) {

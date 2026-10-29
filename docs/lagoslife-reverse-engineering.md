@@ -1,5 +1,7 @@
 # Lagos Life → Accra We Dey: reverse engineering and gap map
 
+Pass 2 (world, scenes, vehicles, phone and UX friction log): [lagoslife-deep-dive.md](lagoslife-deep-dive.md).
+
 Studied 2026-10-29 in the built-in browser at a 375×812 phone viewport, with non-essential cookies declined.
 Nothing was copied: no code, art or text from lagoslife.app is in this repository.
 The mechanics below are re-created in original form with Accra content.

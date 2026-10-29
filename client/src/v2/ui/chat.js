@@ -39,6 +39,8 @@ export function getRecentChatSenders() {
   return list;
 }
 
+// One-tap openers so an empty chat never feels dead. They fill the box; the player still sends.
+export const QUICK_PHRASES = ['Chale, how far?', 'I dey o 👋🏾', 'Who dey Osu now?', 'Make we link up', 'Eii! 😂', 'Medaase, chale'];
 export function buildChat(ui, onUnread = () => {}, onPersonClick = null) {
   let channel = 'city', unread = 0, pending = null,offKeys;
   const close=()=>{panel.hidden=true;input.blur();offKeys?.();};
@@ -49,9 +51,10 @@ export function buildChat(ui, onUnread = () => {}, onPersonClick = null) {
   const input = h('input', { placeholder: 'Message the city', maxLength: 160, enterkeyhint: 'send', 'aria-label': 'Message', autocomplete: 'off' });
   const send = h('button.btn.primary', { type: 'submit', 'aria-label': 'Send message' }, ic('paper-plane-right'));
   const status = h('div.chat-status', { role: 'status' });
+  const quick = h('div.chat-quick', { role: 'group', 'aria-label': 'Quick phrases' }, ...QUICK_PHRASES.map((p) => h('button', { type: 'button', onclick: () => { input.value = p; input.focus(); } }, p)));
   const tabs = h('div.chat-tabs', null, ...[['city', 'City'], ['room', 'Nearby']].map(([id, label]) => h('button', { type: 'button', 'data-channel': id, onclick: () => { channel = id; draw(); } }, label)));
   const panel = h('section.chat-panel', { hidden: true, 'aria-label': 'Player chat' },
-    h('div.chat-heading', null, title, h('button.chat-close', { 'aria-label': 'Close chat', onclick:close }, ic('x'))), tabs, info, log,
+    h('div.chat-heading', null, title, h('button.chat-close', { 'aria-label': 'Close chat', onclick:close }, ic('x'))), tabs, info, log, quick,
     h('form.chat-compose', { onsubmit: (e) => {
       e.preventDefault(); const text = input.value.trim(); if (!text || pending) return;
       const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;

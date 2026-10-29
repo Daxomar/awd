@@ -1,6 +1,8 @@
 // Suggestion / feature request modal and gentle prompt popup.
 import { h, ic, sheet, closeSheets } from './dom.js';
 import { net } from '../net.js';
+import { G } from '../store.js';
+import { shouldPromptSuggestion } from './suggestion-policy.js';
 
 export const CATEGORIES = [
   ['feature', '✨ New Feature', 'Ideas for new gameplay or mechanics'],
@@ -157,16 +159,18 @@ export function promptSuggestionPopup(act) {
   return sh;
 }
 
+function getSubmittedAt() {
+  try { return Number(localStorage.getItem('awd_suggest_submitted')) || 0; } catch { return 0; }
+}
+
 export function checkSuggestionPrompt(act, options = {}) {
   try {
-    const lastSeen = getLastSeen();
     const now = Date.now();
-    const isOnlineReturn = options.reason === 'online' || options.reason === 'resume' || options.reason === 'boot';
-    // Frequent cadences: ~2.5 mins if returning online/reconnecting, ~5 mins during continuous play
-    const cooldown = isOnlineReturn ? 2.5 * 60 * 1000 : 5 * 60 * 1000;
-    if (lastSeen && now - lastSeen < cooldown) {
+    const accountCreated = Number(G.state?.flags?.bornAt || G.state?.created) || 0;
+    if (!shouldPromptSuggestion({ now, lastSeen: getLastSeen(), submittedAt: getSubmittedAt(), accountCreated })) {
       return false;
     }
+    const lastSeen = getLastSeen();
     const delay = options.delay ?? (lastSeen ? 6000 : 10000);
     clearTimeout(promptTimer);
     promptTimer = setTimeout(() => {

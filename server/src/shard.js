@@ -38,7 +38,7 @@ export const SOCIALS = {
   joke: { label: 'Crack a joke', ic: 'icon:smiley', min: 0, gain: 12, fun: 12, pts: 3, skill: 'comedy', anim: 'laugh' },
   compliment: { label: 'Compliment', ic: 'icon:star', min: 3, gain: 14, pts: 4, skill: 'charisma', anim: 'agree' },
   gist: { label: 'Share gist', ic: 'icon:chat-circle-dots', min: 8, gain: 20, fun: 6, pts: 4, anim: 'talk' },
-  dance: { label: 'Dance together', ic: 'icon:person-simple-dance', min: 10, gain: 18, fun: 18, pts: 5, anim: 'dance' },
+  dance: { label: 'Dance together', ic: 'icon:music-notes-simple', min: 10, gain: 18, fun: 18, pts: 5, anim: 'dance' },
   hug: { label: 'Hug', ic: 'icon:smiley', min: 25, gain: 22, pts: 5, anim: 'hug' },
   flirt: { label: 'Flirt', ic: 'icon:smiley', min: 35, gain: 16, fun: 12, pts: 6, romance: true, anim: 'laugh' },
   askout: { label: 'Ask out', ic: 'icon:envelope', min: 70, romance: true, request: true },

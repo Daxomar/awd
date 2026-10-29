@@ -4,7 +4,7 @@ import {h,ic,sheet,closeSheets} from './dom.js';
 import {G} from '../store.js';
 import {net} from '../net.js';
 import {portrait} from './portrait.js';
-export const SOCIALS=[['wave','icon:hand-waving','Wave',0],['handshake','icon:handshake','Shake hands',0],['chat','icon:chat-circle-dots','Talk',0],['joke','icon:smiley','Joke',0],['compliment','icon:star','Praise',3],['gist','icon:chat-circle-dots','Gist',8],['dance','icon:person-simple-dance','Dance',10],['hug','icon:smiley','Hug',25],['flirt','icon:smiley','Flirt',35],['askout','icon:envelope','Ask out',70],['propose','icon:diamond','Propose',120]];
+export const SOCIALS=[['wave','icon:hand-waving','Wave',0],['handshake','icon:handshake','Shake hands',0],['chat','icon:chat-circle-dots','Talk',0],['joke','icon:smiley','Joke',0],['compliment','icon:star','Praise',3],['gist','icon:chat-circle-dots','Gist',8],['dance','icon:music-notes-simple','Dance',10],['hug','icon:smiley','Hug',25],['flirt','icon:smiley','Flirt',35],['askout','icon:envelope','Ask out',70],['propose','icon:diamond','Propose',120]];
 export const LEVELS=[[0,'Stranger'],[10,'Acquaintance'],[30,'Friend'],[70,'Good friend'],[120,'Best friend']];
 export const level=pts=>LEVELS.filter(([t])=>pts>=t).pop()[1];
 export function openPerson(pid,name,act){
