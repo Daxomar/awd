@@ -15,6 +15,8 @@ import {lifeScreen} from './life.js';
 import {properties as propertyApp} from './property.js';
 import {openCourse,careerNeeds,certified} from '../ui/courses.js';
 import {eventsApp,profileSettings,homeGuests} from './social-life.js';
+import {todayApp} from './today.js';
+import {todaySummary} from './today-state.js';
 import {PREFS,TIERS,savedQuality} from '../scene/quality.js';
 import { openStoryEncounter, openAspirationModal } from '../ui/story-dialog.js';
 import { goObjective } from '../ui/objectives-hud.js';
@@ -884,6 +886,7 @@ export function makeApps(act) {
     open(win) { win.page('How to play', () => h('div', null, h('button.ibtn.wide', { onclick: () => act.tutorial() }, 'Start the quick tour'), ...[['Your needs', 'The six rings at the top are Hunger, Energy, Fun, Social, Hygiene and Bladder. Keep them up or bad things happen (fainting, falling sick, public disgrace).'], ['Places', 'Open the Map, tap a place, choose a trotro, okada or taxi. Each place has zones along the bottom — tap one to see what you can do there.'], ['Money', 'Street hustles pay small and get tired. A job pays per 1-hour shift (real time) and promotions raise it. Businesses and land grow wealth over weeks.'], ['People', 'Tap other players to chat, joke, dance. Friendship unlocks more. Send money and messages from your phone.'], ['Free play', 'There is no scripted storyline. Choose your own work, friends, home and optional aspirations. City chat reaches everyone; Nearby reaches your room.'], ['Rent', 'Rent is due every Saturday 09:00. Two missed weeks and you are out.']].map(([t, d]) => h('div.group', { style: { padding: '14px' } }, h('div', { style: { fontWeight: 700, marginBottom: '4px' } }, t), h('div', { style: { fontSize: '15px', color: '#3a3a3c' } }, d))))); } };
   const suggest = { id: 'suggest', name: 'Ideas', icon: 'lightbulb', bg: grad('#f59e0b', '#d97706'), isNew: true, open() { act.closePhone(); act.openSuggestion(); } };
   const ads = { id: 'ads', name: 'Advertise', icon: 'presentation-chart', bg: grad('#ffd60a', '#ff9f0a'), isNew: true, open(win,arg) {advertising(win,act,arg);} };
+  const today={id:'today',name:'Today',icon:'sun-horizon',bg:grad('#ffb347','#e8590c'),isNew:true,badge:()=>todaySummary(G.state?.daily).claimable,open(win){todayApp(win,act);}};
   const discovery={id:'explore',name:'Explore',icon:'compass',bg:grad('#397d64','#164635'),open(win){explore(win,act);}};
   const meet={id:'meet',name:'Meet',icon:'hand-waving',bg:grad('#367b91','#244f6c'),open(win){firstFriend(win,act);}};
   const events={id:'events',name:'Events',icon:'calendar-star',bg:grad('#ff7a45','#c2410c'),open(win,arg){eventsApp(win,act,arg?.id);}};
@@ -895,5 +898,5 @@ export function makeApps(act) {
   const progression={id:'progression',name:'Development',hidden:true,icon:'trend-up',open(win){lifeScreen(win,act,'career');}};
   const properties=propertyApp(act);
   const carMarket={id:'carmarket',name:'Car market',icon:'steering-wheel',bg:grad('#3a6ea5','#1f3f66'),open(win,arg){lifeScreen(win,act,'vehicles',arg);}};
-  return [messages, momo, gist, jobs, discovery, meet, events, objectives, enterprise, market, relationships, finances, progression, goals, games, boutique, houses, properties, cars, carMarket, shop, invest, bank, forbes, contacts, life, health, police, civic, map, ads, suggest, help, settings].map((a) => ({ ...a, dock: ['messages', 'momo', 'gist', 'jobs'].includes(a.id) }));
+  return [messages, momo, gist, jobs, today, discovery, meet, events, objectives, enterprise, market, relationships, finances, progression, goals, games, boutique, houses, properties, cars, carMarket, shop, invest, bank, forbes, contacts, life, health, police, civic, map, ads, suggest, help, settings].map((a) => ({ ...a, dock: ['messages', 'momo', 'gist', 'jobs'].includes(a.id) }));
 }

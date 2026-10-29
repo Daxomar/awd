@@ -1,5 +1,6 @@
 // Accra We Dey v2 — portrait, room-based life sim (Lagos Life style): rooms, city map, phone, people, money.
 import '@fontsource/poppins/400.css';
+import { todaySummary } from './phone/today-state.js';
 import '@fontsource/poppins/500.css';
 import '@fontsource/poppins/600.css';
 import '@fontsource/poppins/700.css';
@@ -219,7 +220,7 @@ function refresh() {
   }
   if (sig !== phoneSig) { phoneSig = sig; phone && phone.refresh(); }
 }
-const phoneBadge = () => { const s = G.state; return (s && s.story ? s.story.inbox.filter((m) => m.ans === null).length : 0) + (G.unreadDm || 0); };
+const phoneBadge = () => { const s = G.state; return (s && s.story ? s.story.inbox.filter((m) => m.ans === null).length : 0) + (G.unreadDm || 0) + todaySummary(s?.daily).claimable; };
 
 // ---------------------------------------------------------------- actions (called by UI modules)
 const OPENS = { loans: 'bank', deposit: 'bank', 'shop:home': 'shop', 'shop:gadgets': 'shop', cars: 'cars', rentCar:'cars', ballot:'civic', police:'police', games:'games', momo: 'momo' };
@@ -266,7 +267,7 @@ const act = (window.__act = {
   },
   adInventory(slots){applyBoards(slots);},
   recheckPayment(){resumePayment(phone,toast);},
-  wallet() { phone.show('momo'); }, topup() { phone.show('momo', 'topup'); }, goals() { phone.show('goals'); }, me() { phone.show('life'); }, needs() { phone.show('health'); },
+  wallet() { phone.show('momo'); }, topup() { phone.show('momo', 'topup'); }, goals() { phone.show('goals'); }, today() { phone.show('today'); }, me() { phone.show('life'); }, needs() { phone.show('health'); },
   work() { phone.show('jobs'); }, jobHere(cid) { const s = G.state; if (s.job && s.job.id === cid && !s.shift) { net.send({ t: 'work', op: 'start' }); } else phone.show('jobs'); },
   workStation(z){
     closeSheets();const task=G.state.shift?.assignment;if(!task||G.state.job?.id!==z.work)return toast('The next assignment opens as your shift progresses.');

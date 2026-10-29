@@ -6,6 +6,7 @@ import {NEEDS,needView,locationView,activityView,walletValue,moodView,zoneAction
 import {buildObjectives} from './objectives-hud.js';
 import {net} from '../net.js';
 import {activeLifeEvent} from './life-event.js';
+import {chipText} from '../phone/today-state.js';
 import './game-ui.css';
 
 export function buildHud(ui,act){
@@ -101,7 +102,7 @@ export function buildHud(ui,act){
   quests(){const s=G.state;if(!s)return;objectives.refresh?.();const sig=JSON.stringify([G.gem,s.job,s.shift,s.sick,s.home,s.daily,s.dumsor,activeLifeEvent()?.at]);if(sig===extrasSig)return;extrasSig=sig;chips.replaceChildren();
    const ev=activeLifeEvent();lifeChip.hidden=!ev;if(ev)lifeChip.replaceChildren(ic('lightning'),h('span',null,ev.title),h('small',null,'Decide'));
    if(G.gem)chips.append(actionLink('diamond',`Gem hunt · ${cedi(G.gem.prize)}`,()=>act.gem()));
-   if(s.daily?.list?.length)chips.append(actionLink('target',`Today ${s.daily.list.filter(x=>x.done).length}/${s.daily.list.length}`,()=>act.goals()));
+   if(s.daily?.list?.length)chips.append(actionLink(s.daily.doneToday?'fire':'target',chipText(s.daily),()=>act.today()));
    if(s.sick)chips.append(actionLink('first-aid',s.sick.kind||'See health details',()=>act.needs()));
    if(s.dumsor)chips.append(h('p.context-hint',null,'Power outage in this area'));
    if(!s.home)chips.append(actionLink('house','Find a home',()=>act.app('houses')));

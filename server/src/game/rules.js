@@ -16,6 +16,7 @@ import * as Career from './careers.js';
 import * as Profile from './profile.js';
 import * as HomeAccess from './home-access.js';
 import * as LE from './life-events.js';
+import * as Hustle from './daily-hustle.js';
 import {flag} from '../admin/flags.js';
 export const WARD = W;
 export const DATA = D;
@@ -82,7 +83,7 @@ export function migrate(saved, acct) {
     }
   }
   if (!out.daily || typeof out.daily !== 'object') out.daily = { day: -1, list: [], streak: 0, lastFull: -1 };
-  out.daily.list = []; if (!Array.isArray(out.dc.visits)) out.dc.visits = [];
+  if (!Array.isArray(out.dc.visits)) out.dc.visits = [];
   for (const k in out.n) if (!Number.isFinite(out.n[k])) out.n[k] = base.n[k];
   if (!Number.isFinite(out.cash)) out.cash = 0; if (!Number.isFinite(out.momo)) out.momo = 0;
   if (out.home && !D.HOMES[out.home]) out.home = 'nima'; if (out.job && !D.CAREERS[out.job.id]) out.job = null;
@@ -126,6 +127,7 @@ export const view = (s) => ({
   phones: (s.phones || []).map(({ fake, ...r }) => r),
   ledger: s.ledger.slice(-20),
   cnt: undefined,
+  daily: Hustle.board(s),
   story: {
     dream: s.dream,
     chapter: s.story?.chapter || 1,
@@ -701,6 +703,7 @@ export function onMsg(p, msg, shard, now) {
     case 'story_choice': return storyChoice(p, String(msg.encounterId || ''), String(msg.choiceId || ''), now);
     case 'donate': return donate(p, msg);
     case 'phone': return phoneOp(p, msg, now);
+    case 'hustle': { const r = Hustle.handle(s, msg, now, { earn: (amt, why) => earn(s, amt, why), xp: (n) => addXp(s, n) }); if (r.error) return toast(r.error, 'bad'); return r.bonus ? { t: 'multi', list: [r, { t: 'streak', streak: r.bonus.streak, bonus: r.bonus.cash }, { t: 'st', state: view(s) }] } : r.claimed ? { t: 'multi', list: [r, { t: 'st', state: view(s) }] } : r; }
   }
   return null;
 }
