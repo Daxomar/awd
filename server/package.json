@@ -12,7 +12,7 @@
     "test": "node --test loadtest/regression.test.js loadtest/phone-games.test.js loadtest/city.test.js loadtest/streets.test.js loadtest/security.test.js loadtest/onboarding.test.js loadtest/onboarding-durability.test.js loadtest/payments.test.js loadtest/discovery.test.js loadtest/work-tasks.test.js loadtest/first-friend.test.js loadtest/objectives.test.js loadtest/life.test.js loadtest/property-rules.test.js test/property-model.test.js loadtest/careers.test.js loadtest/social-life.test.js loadtest/life-events.test.js loadtest/daily-hustle.test.js loadtest/ads-vetting.test.js loadtest/admin-roles.test.js"
   },
   "dependencies": {
-    "ioredis": "5.4.2",
+    "ioredis": "6.0.0",
     "pg": "8.13.1",
     "sharp": "0.35.5",
     "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.52.0",
