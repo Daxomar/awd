@@ -1,4 +1,4 @@
-FROM node:22-bookworm-slim AS client-build
+FROM node:25-bookworm-slim AS client-build
 WORKDIR /build/client
 COPY client/package*.json ./
 RUN npm ci
@@ -6,7 +6,7 @@ COPY client/ ./
 COPY shared/ /build/shared/
 RUN npm run build
 
-FROM node:22-bookworm-slim AS server-deps
+FROM node:25-bookworm-slim AS server-deps
 RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
     && git config --system url."https://github.com/".insteadOf ssh://git@github.com/
@@ -14,7 +14,7 @@ WORKDIR /build/server
 COPY server/package*.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
-FROM node:22-bookworm-slim AS game
+FROM node:25-bookworm-slim AS game
 ENV NODE_ENV=production PORT=8080 STATIC_DIR=/app/client/dist ADS_DIR=/app/uploads/ads
 WORKDIR /app/server
 COPY --from=server-deps /build/server/node_modules ./node_modules
